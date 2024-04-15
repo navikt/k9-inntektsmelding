@@ -34,7 +34,7 @@ public class JettyServer {
 
     private static final Environment ENV = Environment.current();
 
-    private static final String CONTEXT_PATH = "/";
+    private static final String CONTEXT_PATH = "/ftinntektsmelding";
 
     private static final String JETTY_SCAN_LOCATIONS = "^.*jersey-.*\\.jar$|^.*felles-.*\\.jar$|^.*app.*\\.jar$";
     private static final String JETTY_LOCAL_CLASSES = "^.*/target/classes/|";
