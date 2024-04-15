@@ -1,0 +1,78 @@
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: ftinntektsmelding
+  namespace: teamforeldrepenger
+  labels:
+    team: teamforeldrepenger
+spec:
+  image: {{image}}
+  port: 8080
+  liveness:
+    path: /ftinntektsmelding/internal/health/isAlive
+    initialDelay: 10
+    periodSeconds: 10
+    failureThreshold: 20
+    timeout: 3
+  readiness:
+    path: /ftinntektsmelding/internal/health/isReady
+    initialDelay: 10
+    periodSeconds: 10
+    failureThreshold: 20
+    timeout: 3
+  preStopHook:
+    http:
+      path: /ftinntektsmelding/internal/health/preStop
+  prometheus:
+    enabled: true
+    path: /ftinntektsmelding/internal/metrics/prometheus
+  replicas:
+    min: {{minReplicas}}
+    max: {{maxReplicas}}
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 80
+  resources:
+    limits:
+      cpu: "{{limits.cpu}}"
+      memory: "{{limits.mem}}"
+    requests:
+      cpu: "{{requests.cpu}}"
+      memory: "{{requests.mem}}"
+  secureLogs:
+    enabled: true
+  azure:
+    application:
+      enabled: true
+      claims:
+        extra:
+          - "NAVident"
+          - "azp_name"
+        groups:
+          {{#each groups as |group|}}
+          - id: "{{group}}"
+          {{/each}}
+  {{#if AZURE_IAC_RULES}}
+  accessPolicy:
+    inbound:
+      rules:
+      {{#each AZURE_IAC_RULES}}
+      - application: {{app}}
+        namespace: {{namespace}}
+        cluster: {{cluster}}
+        {{#if scopes}}
+        permissions:
+          scopes:
+          {{#each scopes}}
+            - "{{this}}"
+          {{/each}}
+        {{/if}}
+        {{#if roles}}
+        permissions:
+          roles:
+          {{#each roles}}
+            - "{{this}}"
+          {{/each}}
+        {{/if}}
+      {{/each}}
+  {{/if}}
