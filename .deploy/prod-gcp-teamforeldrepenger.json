@@ -15,6 +15,10 @@
     "77f05833-ebfd-45fb-8be7-88eca8e7418f",
     "04b22158-354a-483f-a836-cf19b17ba5c3"
   ],
+  "dbTier": "TODO",
+  "dbDiskAutoresize": "true",
+  "dbHighAvailability": "true",
+  "dbPointInTimeRecovery": "true",
   "AZURE_IAC_RULES": [
     {
       "app": "fp-swagger",

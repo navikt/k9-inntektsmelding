@@ -39,6 +39,16 @@ spec:
     requests:
       cpu: "{{requests.cpu}}"
       memory: "{{requests.mem}}"
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_15
+        databases:
+          - name: ftinntektsmelding
+        tier: {{dbTier}}
+        diskAutoresize: {{dbDiskAutoresize}}
+        highAvailability: {{dbHighAvailability}}
+        pointInTimeRecovery: {{dbPointInTimeRecovery}}
+        collation: nb_NO.UTF8
   secureLogs:
     enabled: true
   azure:
