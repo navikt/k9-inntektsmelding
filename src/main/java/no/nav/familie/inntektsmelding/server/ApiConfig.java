@@ -51,7 +51,10 @@ public class ApiConfig extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         // eksponert grensesnitt bak sikkerhet
-        return Set.of(AuthenticationFilter.class, OpenApiResource.class, GeneralRestExceptionMapper.class);
+        return Set.of(
+            AuthenticationFilter.class,
+            OpenApiResource.class,
+            GeneralRestExceptionMapper.class);
     }
 
     @Override
