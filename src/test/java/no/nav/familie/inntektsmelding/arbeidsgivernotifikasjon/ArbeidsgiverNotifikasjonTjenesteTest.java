@@ -9,7 +9,6 @@ import java.net.URI;
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -37,8 +36,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
     }
 
     @Test
-    @Disabled
-    void testKallToFager() {
+    void test_opprett_ny_oppgave() {
 
         var expectedEksternId = "TestId";
         var expectedVirksomhetsnummer = "2342342334";
