@@ -197,6 +197,7 @@
                             <addGeneratedAnnotation>true</addGeneratedAnnotation>
                             <generatedAnnotation>jakarta.annotation.Generated</generatedAnnotation>
                             <modelValidationAnnotation>@jakarta.validation.constraints.NotNull</modelValidationAnnotation>
+                            <generateJacksonTypeIdResolver>true</generateJacksonTypeIdResolver>
                         </configuration>
                     </execution>
                 </executions>

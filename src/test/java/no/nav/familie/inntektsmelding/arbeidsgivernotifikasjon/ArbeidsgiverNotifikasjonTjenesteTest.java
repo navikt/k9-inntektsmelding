@@ -12,21 +12,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
 
 @ExtendWith(MockitoExtension.class)
 class ArbeidsgiverNotifikasjonTjenesteTest {
 
     @Mock
     ArbeidsgiverNotifikasjonKlient klient;
-
-    @Captor
-    ArgumentCaptor<NyOppgaveMutationRequest> requestCaptor;
 
     private ArbeidsgiverNotifikasjon tjeneste;
 
@@ -45,9 +39,11 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var expectedMerkelapp = Merkelapp.INNTEKTSMELDING_FP;
         var expectedTidspunkt = LocalDateTime.now();
 
+        var requestCaptor = ArgumentCaptor.forClass(NyOppgaveMutationRequest.class);
+
         tjeneste.opprettNyOppgave(expectedEksternId, expectedTekst, URI.create(expectedLenke), expectedMerkelapp, expectedVirksomhetsnummer, expectedTidspunkt);
 
-        Mockito.verify(klient).opprettNyOppgave(requestCaptor.capture(), any(GraphQLResponseProjection.class));
+        Mockito.verify(klient).opprettNyOppgave(requestCaptor.capture(), any(NyOppgaveResultatResponseProjection.class));
 
         var request = requestCaptor.getValue();
 
@@ -71,5 +67,23 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         assertThat(nyOppgave.getFrist()).isNull();
         assertThat(nyOppgave.getMottakere()).isEmpty();
         assertThat(nyOppgave.getPaaminnelse()).isNull();
+    }
+
+    @Test
+    void lukk_oppgave() {
+        var expectedId = "TestId";
+        var expectedTidspunkt = LocalDateTime.now();
+
+        var requestCaptor = ArgumentCaptor.forClass(OppgaveUtfoertMutationRequest.class);
+
+        tjeneste.lukkOppgave(expectedId, expectedTidspunkt);
+
+        Mockito.verify(klient).lukkOppgave(requestCaptor.capture(), any(OppgaveUtfoertResultatResponseProjection.class));
+
+        var request = requestCaptor.getValue();
+
+        assertThat(request.getInput()).isNotNull().hasSize(2);
+        assertThat(request.getInput().get("id")).isNotNull().isEqualTo(expectedId);
+        assertThat(request.getInput().get("utfoertTidspunkt")).isNotNull().isEqualTo(expectedTidspunkt.toString());
     }
 }

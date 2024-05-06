@@ -38,4 +38,19 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
         return klient.opprettNyOppgave(request, projection);
     }
+
+    @Override
+    public String lukkOppgave(String id, LocalDateTime tidspunkt) {
+
+        var request = new OppgaveUtfoertMutationRequest();
+        request.setId(id);
+        request.setUtfoertTidspunkt(tidspunkt.toString());
+
+        var projection = new OppgaveUtfoertResultatResponseProjection().typename()
+            .onOppgaveUtfoertVellykket(new OppgaveUtfoertVellykketResponseProjection().id())
+            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
+            .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding())
+            .onNotifikasjonFinnesIkke(new NotifikasjonFinnesIkkeResponseProjection().feilmelding());
+        return klient.lukkOppgave(request, projection);
+    }
 }

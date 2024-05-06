@@ -28,15 +28,24 @@ class ArbeidsgiverNotifikasjonKlient {
         this.restConfig = RestConfig.forClient(this.getClass());
     }
 
-    public String opprettNyOppgave(NyOppgaveMutationRequest request, GraphQLResponseProjection projection) {
-        var resultat = query(new GraphQLRequest(request, projection), NyOppgaveResponse.class).nyOppgave();
-        if (resultat instanceof NyOppgave nyOppgave) {
-            if (!NyOppgave.VELLYKET_TYPENAME.equals(nyOppgave.getTypename())) {
-                handleValidationError(nyOppgave.getTypename(), nyOppgave.getFeilmelding(), "opprettelse av ny oppgave");
-            }
-            return nyOppgave.getId();
+    public String opprettNyOppgave(NyOppgaveMutationRequest request, NyOppgaveResultatResponseProjection projection) {
+        var resultat = query(new GraphQLRequest(request, projection), NyOppgaveMutationResponse.class).nyOppgave();
+        if (resultat instanceof NyOppgaveVellykket vellykket) {
+            return vellykket.getId();
+        } else {
+            loggFeilmelding((Error) resultat, "opprettelse av ny oppgave");
         }
-        throw new IllegalStateException("Utviklerfeil: Ukjent resultat type.");
+        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
+    }
+
+    public String lukkOppgave(OppgaveUtfoertMutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
+        var resultat = query(new GraphQLRequest(request, projection), OppgaveUtfoertMutationResponse.class).oppgaveUtfoert();
+        if (resultat instanceof OppgaveUtfoertVellykket vellykket) {
+            return vellykket.getId();
+        } else {
+            loggFeilmelding((Error) resultat, "lukking av oppgave");
+        }
+        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
@@ -47,6 +56,10 @@ class ArbeidsgiverNotifikasjonKlient {
             return handleError(res.getErrors(), restConfig.endpoint(), ERROR_RESPONSE);
         }
         return res;
+    }
+
+    private static void loggFeilmelding(Error feil, String action) {
+        handleValidationError("Funksjonellfeil", feil.getFeilmelding(), action);
     }
 
     @Override
