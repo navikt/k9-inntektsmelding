@@ -11,11 +11,14 @@ import no.nav.vedtak.exception.TekniskException;
 
 class ArbaidsgiverNotifikasjonErrorHandler {
 
-    public <T> T handleError(List<GraphQLError> errors, URI uri, String kode) {
+    ArbaidsgiverNotifikasjonErrorHandler() {
+    }
+
+    public static <T> T handleError(List<GraphQLError> errors, URI uri, String kode) {
         throw new TekniskException(kode, String.format("Feil %s mot %s", errors.stream().map(GraphQLError::getMessage).collect(joining(",")), uri));
     }
 
-    public void handleValidationError(String typename, String feilmelding, String aksjon) {
+    public static void handleValidationError(String typename, String feilmelding, String aksjon) {
         throw new TekniskException("F-FAGER", String.format("Funksjonel feil ved %s: %s:%s", aksjon, typename, feilmelding));
     }
 }

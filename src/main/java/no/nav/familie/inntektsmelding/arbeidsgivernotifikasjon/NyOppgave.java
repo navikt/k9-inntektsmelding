@@ -2,8 +2,6 @@ package no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveResultat;
-
 class NyOppgave implements NyOppgaveResultat {
 
     public static final String VELLYKET_TYPENAME = "NyOppgaveVellyket";
@@ -14,6 +12,12 @@ class NyOppgave implements NyOppgaveResultat {
     private String id;
 
     public NyOppgave() {
+    }
+
+    NyOppgave(String typename, String id, String feilmelding) {
+        this.typename = typename;
+        this.id = id;
+        this.feilmelding = feilmelding;
     }
 
     public String getTypename() {
