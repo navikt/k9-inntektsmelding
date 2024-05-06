@@ -2,7 +2,7 @@ package no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.NyOppgaveResultat;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveResultat;
 
 class NyOppgave implements NyOppgaveResultat {
 

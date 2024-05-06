@@ -5,22 +5,22 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.AltinnMottakerInput;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.DuplikatEksternIdOgMerkelappResponseProjection;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.MetadataInput;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.MottakerInput;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.NotifikasjonInput;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.NyEksterntVarselResultatResponseProjection;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.NyOppgaveInput;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.NyOppgaveMutationRequest;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.NyOppgaveResultatResponseProjection;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.NyOppgaveVellykketResponseProjection;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.PaaminnelseResultatResponseProjection;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.UgyldigMerkelappResponseProjection;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.UgyldigMottakerResponseProjection;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.UgyldigPaaminnelseTidspunktResponseProjection;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.UkjentProdusentResponseProjection;
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.UkjentRolleResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.AltinnMottakerInput;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.DuplikatEksternIdOgMerkelappResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.MetadataInput;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.MottakerInput;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NotifikasjonInput;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyEksterntVarselResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveInput;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveMutationRequest;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveVellykketResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.PaaminnelseResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.UgyldigMerkelappResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.UgyldigMottakerResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.UgyldigPaaminnelseTidspunktResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.UkjentProdusentResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.UkjentRolleResponseProjection;
 
 public class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 

@@ -184,10 +184,9 @@
                         <configuration>
                             <graphqlSchemaPaths>${project.basedir}/src/main/resources/graphql/produsent.graphql</graphqlSchemaPaths>
                             <outputDir>${project.build.directory}/generated-sources/client-arbeidsgiver-notifikasjon</outputDir>
-                            <modelPackageName>no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon</modelPackageName>
+                            <modelPackageName>no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon</modelPackageName>
                             <customTypesMapping>
-                                <!--<DateTime>java.util.Date</DateTime>-->
-                                <!-- <Price.amount>java.math.BigDecimal</Price.amount> -->
+                                <DateTime>java.util.Date</DateTime>
                             </customTypesMapping>
                             <generateClient>true</generateClient>
                             <generateApis>false</generateApis>

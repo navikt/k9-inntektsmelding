@@ -2,7 +2,7 @@ package no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
-import no.nav.familie.inntektsmelding.integrasjon.arbeidsgivernotifikasjon.NyOppgaveResultat;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveResultat;
 
 import java.util.Map;
 
