@@ -62,27 +62,19 @@ spec:
           {{#each groups as |group|}}
           - id: "{{group}}"
           {{/each}}
-  {{#if AZURE_IAC_RULES}}
   accessPolicy:
     inbound:
       rules:
-      {{#each AZURE_IAC_RULES}}
-      - application: {{app}}
-        namespace: {{namespace}}
-        cluster: {{cluster}}
-        {{#if scopes}}
-        permissions:
-          scopes:
-          {{#each scopes}}
-            - "{{this}}"
-          {{/each}}
-        {{/if}}
-        {{#if roles}}
-        permissions:
-          roles:
-          {{#each roles}}
-            - "{{this}}"
-          {{/each}}
-        {{/if}}
-      {{/each}}
-  {{/if}}
+        - application: fp-swagger
+          namespace: teamforeldrepenger
+          cluster: {{environment}}-gcp
+          permissions:
+            scopes:
+              - swagger
+        - application: fp-sak
+          namespace: teamforeldrepenger
+          cluster: {{environment}}-fss
+    outbound:
+      external:
+        - host: pdl-api.{{environment}}-fss-pub.nais.io
+        - host: fpsak-api.{{environment}}-fss-pub.nais.io
