@@ -5,7 +5,14 @@ import java.time.LocalDateTime;
 
 public interface ArbeidsgiverNotifikasjon {
 
-    String opprettNyOppgave(String eksternId, String tekst, URI lenke, Merkelapp merkelapp, String virksomhetsnummer, LocalDateTime tidspunkt);
+    String opprettSak(String grupperingsid, String virksomhetsnummer, String saksTittel, URI lenke, Merkelapp merkelapp);
+
+    String opprettOppgave(String eksternId,
+                          String grupperingsid,
+                          String virksomhetsnummer,
+                          String notifikasjonsTekst,
+                          URI lenke,
+                          Merkelapp merkelapp);
 
     String lukkOppgave(String id, LocalDateTime utfoertTidspunkt);
 }
