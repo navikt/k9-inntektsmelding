@@ -174,6 +174,35 @@
         <finalName>app</finalName>
         <plugins>
             <plugin>
+                <groupId>io.github.kobylynskyi</groupId>
+                <artifactId>graphql-codegen-maven-plugin</artifactId>
+                <version>5.10.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <graphqlSchemaPaths>${project.basedir}/src/main/resources/graphql/produsent.graphql</graphqlSchemaPaths>
+                            <outputDir>${project.build.directory}/generated-sources/client-arbeidsgiver-notifikasjon</outputDir>
+                            <modelPackageName>no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon</modelPackageName>
+                            <customTypesMapping>
+                                <DateTime>java.util.Date</DateTime>
+                            </customTypesMapping>
+                            <generateClient>true</generateClient>
+                            <generateApis>false</generateApis>
+                            <generateBuilder>false</generateBuilder>
+                            <generateToString>true</generateToString>
+                            <generateParameterizedFieldsResolvers>false</generateParameterizedFieldsResolvers>
+                            <addGeneratedAnnotation>true</addGeneratedAnnotation>
+                            <generatedAnnotation>jakarta.annotation.Generated</generatedAnnotation>
+                            <modelValidationAnnotation>@jakarta.validation.constraints.NotNull</modelValidationAnnotation>
+                            <generateJacksonTypeIdResolver>true</generateJacksonTypeIdResolver>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
