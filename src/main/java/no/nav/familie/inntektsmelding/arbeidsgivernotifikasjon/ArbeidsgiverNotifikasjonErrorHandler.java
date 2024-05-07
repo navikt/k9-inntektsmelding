@@ -9,9 +9,9 @@ import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
 
 import no.nav.vedtak.exception.TekniskException;
 
-class ArbaidsgiverNotifikasjonErrorHandler {
+class ArbeidsgiverNotifikasjonErrorHandler {
 
-    ArbaidsgiverNotifikasjonErrorHandler() {
+    ArbeidsgiverNotifikasjonErrorHandler() {
     }
 
     public static <T> T handleError(List<GraphQLError> errors, URI uri, String kode) {

@@ -1,12 +1,11 @@
 package no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon;
 
-import static no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.ArbaidsgiverNotifikasjonErrorHandler.handleError;
-import static no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.ArbaidsgiverNotifikasjonErrorHandler.handleValidationError;
+import static no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleError;
+import static no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleValidationError;
 
 import java.net.http.HttpRequest;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResponseProjection;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
