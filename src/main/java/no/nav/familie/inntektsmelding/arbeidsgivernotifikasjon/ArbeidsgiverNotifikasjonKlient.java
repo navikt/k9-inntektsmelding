@@ -27,7 +27,17 @@ class ArbeidsgiverNotifikasjonKlient {
         this.restConfig = RestConfig.forClient(this.getClass());
     }
 
-    public String opprettNyOppgave(NyOppgaveMutationRequest request, NyOppgaveResultatResponseProjection projection) {
+    public String opprettSak(NySakMutationRequest request, NySakResultatResponseProjection projection) {
+        var resultat = query(new GraphQLRequest(request, projection), NySakMutationResponse.class).nySak();
+        if (resultat instanceof NySakVellykket vellykket) {
+            return vellykket.getId();
+        } else {
+            loggFeilmelding((Error) resultat, "opprettelse av ny sak");
+        }
+        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
+    }
+
+    public String opprettOppgave(NyOppgaveMutationRequest request, NyOppgaveResultatResponseProjection projection) {
         var resultat = query(new GraphQLRequest(request, projection), NyOppgaveMutationResponse.class).nyOppgave();
         if (resultat instanceof NyOppgaveVellykket vellykket) {
             return vellykket.getId();

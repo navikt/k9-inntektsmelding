@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -35,83 +36,131 @@ class ArbeidsgiverNotifikasjonKlientTest {
         tjeneste = new ArbeidsgiverNotifikasjonKlient(klient);
     }
 
-    @Test
-    void opprettNyOppgave_ok() {
-        var response = new NyOppgaveMutationResponse();
-        var expectedId = "12345";
-        response.setData(Map.of("nyOppgave", new NyOppgaveVellykket(null, expectedId, null)));
-        when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+    @Nested
+    class OpprettSak {
+        @Test
+        void opprettSak_ok() {
+            var response = new NySakMutationResponse();
+            var expectedId = "12345";
+            response.setData(Map.of("nySak", new NySakVellykket(expectedId)));
+            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
 
-        var oppgave = tjeneste.opprettNyOppgave(new NyOppgaveMutationRequest(), mock(NyOppgaveResultatResponseProjection.class));
+            var oppgave = tjeneste.opprettSak(new NySakMutationRequest(), mock(NySakResultatResponseProjection.class));
 
-        assertThat(oppgave).isNotNull().isEqualTo(expectedId);
+            assertThat(oppgave).isNotNull().isEqualTo(expectedId);
+        }
+
+        @Test
+        void opprettSak_validering_feil() {
+            var expectedFeilmelding = "Det har skjedd en ny feil.";
+            var response = new NySakMutationResponse();
+            response.setData(Map.of("nySak", new UgyldigMerkelapp(expectedFeilmelding)));
+            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+
+            var request = new NySakMutationRequest();
+            var ex = assertThrows(TekniskException.class, () -> tjeneste.opprettSak(request, mock(NySakResultatResponseProjection.class)));
+
+            assertThat(ex.getMessage()).contains(expectedFeilmelding);
+        }
+
+        @Test
+        void opprettSak_teknisk_feil() {
+            var expectedFeilmelding = "Det har skjedd en teknisk feil.";
+            var response = new NySakMutationResponse();
+            response.setErrors(
+                List.of(new GraphQLError(expectedFeilmelding, List.of(), GraphQLErrorType.OperationNotSupported, List.of(), Map.of())));
+            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+
+            var request = new NySakMutationRequest();
+            var ex = assertThrows(TekniskException.class, () -> tjeneste.opprettSak(request, mock(NySakResultatResponseProjection.class)));
+
+            assertThat(ex.getMessage()).contains(expectedFeilmelding);
+        }
     }
 
-    @Test
-    void opprettNyOppgave_velidering_feil() {
-        var expectedFeilmelding = "Det har skjed en ny feil.";
-        var response = new NyOppgaveMutationResponse();
-        response.setData(Map.of("nyOppgave", new UgyldigMerkelapp(expectedFeilmelding)));
-        when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+    @Nested
+    class OpprettOppgave {
 
-        var request = new NyOppgaveMutationRequest();
-        var ex = assertThrows(TekniskException.class,
-            () -> tjeneste.opprettNyOppgave(request, mock(NyOppgaveResultatResponseProjection.class)));
+        @Test
+        void opprettOppgave_ok() {
+            var response = new NyOppgaveMutationResponse();
+            var expectedId = "12345";
+            response.setData(Map.of("nyOppgave", new NyOppgaveVellykket(null, expectedId, null)));
+            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
 
-        assertThat(ex.getMessage()).contains(expectedFeilmelding);
+            var oppgave = tjeneste.opprettOppgave(new NyOppgaveMutationRequest(), mock(NyOppgaveResultatResponseProjection.class));
+
+            assertThat(oppgave).isNotNull().isEqualTo(expectedId);
+        }
+
+        @Test
+        void opprettOppgave_validering_feil() {
+            var expectedFeilmelding = "Det har skjedd en ny feil.";
+            var response = new NyOppgaveMutationResponse();
+            response.setData(Map.of("nyOppgave", new UgyldigMerkelapp(expectedFeilmelding)));
+            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+
+            var request = new NyOppgaveMutationRequest();
+            var ex = assertThrows(TekniskException.class, () -> tjeneste.opprettOppgave(request, mock(NyOppgaveResultatResponseProjection.class)));
+
+            assertThat(ex.getMessage()).contains(expectedFeilmelding);
+        }
+
+        @Test
+        void opprettOppgave_teknisk_feil() {
+            var expectedFeilmelding = "Det har skjedd en teknisk feil.";
+            var response = new NyOppgaveMutationResponse();
+            response.setErrors(
+                List.of(new GraphQLError(expectedFeilmelding, List.of(), GraphQLErrorType.OperationNotSupported, List.of(), Map.of())));
+            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+
+            var request = new NyOppgaveMutationRequest();
+            var ex = assertThrows(TekniskException.class, () -> tjeneste.opprettOppgave(request, mock(NyOppgaveResultatResponseProjection.class)));
+
+            assertThat(ex.getMessage()).contains(expectedFeilmelding);
+        }
     }
 
-    @Test
-    void opprettNyOppgave_teknisk_feil() {
-        var expectedFeilmelding = "Det har skjed en teknisk feil.";
-        var response = new NyOppgaveMutationResponse();
-        response.setErrors(List.of(new GraphQLError(expectedFeilmelding, List.of(), GraphQLErrorType.OperationNotSupported, List.of(), Map.of())));
-        when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+    @Nested
+    class LukkOppgave {
 
-        var request = new NyOppgaveMutationRequest();
-        var ex = assertThrows(TekniskException.class,
-            () -> tjeneste.opprettNyOppgave(request, mock(NyOppgaveResultatResponseProjection.class)));
+        @Test
+        void lukkOppgave_ok() {
+            var response = new OppgaveUtfoertMutationResponse();
+            var expectedId = "12345";
+            response.setData(Map.of("oppgaveUtfoert", new OppgaveUtfoertVellykket(expectedId)));
+            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
 
-        assertThat(ex.getMessage()).contains(expectedFeilmelding);
-    }
+            var oppgave = tjeneste.lukkOppgave(new OppgaveUtfoertMutationRequest(), mock(OppgaveUtfoertResultatResponseProjection.class));
 
-    @Test
-    void lukkOppgave_ok() {
-        var response = new OppgaveUtfoertMutationResponse();
-        var expectedId = "12345";
-        response.setData(Map.of("oppgaveUtfoert", new OppgaveUtfoertVellykket(expectedId)));
-        when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+            assertThat(oppgave).isNotNull().isEqualTo(expectedId);
+        }
 
-        var oppgave = tjeneste.lukkOppgave(new OppgaveUtfoertMutationRequest(), mock(OppgaveUtfoertResultatResponseProjection.class));
+        @Test
+        void lukkOppgave_validering_feil() {
+            var expectedFeilmelding = "Det har skjedd en ny feil.";
+            var response = new OppgaveUtfoertMutationResponse();
+            response.setData(Map.of("oppgaveUtfoert", new NotifikasjonFinnesIkke(expectedFeilmelding)));
+            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
 
-        assertThat(oppgave).isNotNull().isEqualTo(expectedId);
-    }
+            var request = new OppgaveUtfoertMutationRequest();
+            var ex = assertThrows(TekniskException.class, () -> tjeneste.lukkOppgave(request, mock(OppgaveUtfoertResultatResponseProjection.class)));
 
-    @Test
-    void lukkOppgave_velidering_feil() {
-        var expectedFeilmelding = "Det har skjed en ny feil.";
-        var response = new OppgaveUtfoertMutationResponse();
-        response.setData(Map.of("oppgaveUtfoert", new NotifikasjonFinnesIkke(expectedFeilmelding)));
-        when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+            assertThat(ex.getMessage()).contains(expectedFeilmelding);
+        }
 
-        var request = new OppgaveUtfoertMutationRequest();
-        var ex = assertThrows(TekniskException.class,
-            () -> tjeneste.lukkOppgave(request, mock(OppgaveUtfoertResultatResponseProjection.class)));
+        @Test
+        void lukkOppgave_teknisk_feil() {
+            var expectedFeilmelding = "Det har skjedd en teknisk feil.";
+            var response = new OppgaveUtfoertMutationResponse();
+            response.setErrors(
+                List.of(new GraphQLError(expectedFeilmelding, List.of(), GraphQLErrorType.OperationNotSupported, List.of(), Map.of())));
+            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
 
-        assertThat(ex.getMessage()).contains(expectedFeilmelding);
-    }
+            var request = new OppgaveUtfoertMutationRequest();
+            var ex = assertThrows(TekniskException.class, () -> tjeneste.lukkOppgave(request, mock(OppgaveUtfoertResultatResponseProjection.class)));
 
-    @Test
-    void lukkOppgave_teknisk_feil() {
-        var expectedFeilmelding = "Det har skjed en teknisk feil.";
-        var response = new OppgaveUtfoertMutationResponse();
-        response.setErrors(List.of(new GraphQLError(expectedFeilmelding, List.of(), GraphQLErrorType.OperationNotSupported, List.of(), Map.of())));
-        when(klient.send(any(RestRequest.class), any())).thenReturn(response);
-
-        var request = new OppgaveUtfoertMutationRequest();
-        var ex = assertThrows(TekniskException.class,
-            () -> tjeneste.lukkOppgave(request, mock(OppgaveUtfoertResultatResponseProjection.class)));
-
-        assertThat(ex.getMessage()).contains(expectedFeilmelding);
+            assertThat(ex.getMessage()).contains(expectedFeilmelding);
+        }
     }
 }
