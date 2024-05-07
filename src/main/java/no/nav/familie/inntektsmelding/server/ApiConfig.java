@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
+import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogRest;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import org.glassfish.jersey.server.ServerProperties;
@@ -36,7 +37,7 @@ public class ApiConfig extends Application {
         var oasConfig = new SwaggerConfiguration()
             .openAPI(oas)
             .prettyPrint(true)
-            .resourceClasses(Set.of());
+            .resourceClasses(Set.of(InntektsmeldingDialogRest.class.getName()));
 
         try {
             new GenericOpenApiContextBuilder<>()
@@ -51,10 +52,8 @@ public class ApiConfig extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         // eksponert grensesnitt bak sikkerhet
-        return Set.of(
-            AuthenticationFilter.class,
-            OpenApiResource.class,
-            GeneralRestExceptionMapper.class);
+        return Set.of(AuthenticationFilter.class, OpenApiResource.class, GeneralRestExceptionMapper.class, InntektsmeldingDialogRest.class);
+
     }
 
     @Override
