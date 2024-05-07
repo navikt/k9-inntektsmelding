@@ -41,7 +41,7 @@ public class PersonTjeneste {
         request.setIdent(aktørId.getId());
 
         var projection = new PersonResponseProjection()
-            .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn());
+            .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn());
 
         PersonIdent personIdent = hentPersonidentForAktørId(aktørId)
             .orElseThrow(() -> new IllegalStateException("Finner ikke personnummer for aktørId " + aktørId));
