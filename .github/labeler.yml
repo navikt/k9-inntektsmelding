@@ -5,11 +5,6 @@ kontrakt:
     - any-glob-to-any-file: "kontrakt-vedtak/src/main/java/**/*"
     - any-glob-to-any-file: "kodeverk/src/main/java/**/*"
 
-migreringer:
-- any:
-  - changed-files:
-    - any-glob-to-any-file: "migreringer/src/main/resources/**/*"
-
 web:
 - any:
   - changed-files:
