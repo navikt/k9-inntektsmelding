@@ -64,6 +64,7 @@ public class JettyServer {
         ctx.setBaseResourceAsString(baseResource);
 
         ctx.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+        ctx.setInitParameter("pathInfoOnly", "true");
 
         // Scanns the CLASSPATH for classes and jars.
         ctx.setAttribute(CONTAINER_JAR_PATTERN, String.format("%s%s", ENV.isLocal() ? JETTY_LOCAL_CLASSES : "", JETTY_SCAN_LOCATIONS));
