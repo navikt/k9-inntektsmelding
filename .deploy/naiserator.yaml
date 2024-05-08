@@ -55,6 +55,8 @@ spec:
         collation: nb_NO.UTF8
   secureLogs:
     enabled: true
+  tokenx:
+    enabled: true
   azure:
     application:
       enabled: true
