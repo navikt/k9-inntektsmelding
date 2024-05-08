@@ -78,6 +78,7 @@ spec:
         - application: fp-sak
           namespace: teamforeldrepenger
           cluster: {{environment}}-fss
+        - application: ft-inntektsmelding-frontend
     outbound:
       external:
         - host: pdl-api.{{environment}}-fss-pub.nais.io
