@@ -19,6 +19,7 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
+import org.jboss.weld.exceptions.IllegalStateException;
 
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -34,7 +35,7 @@ public class JettyServer {
 
     private static final Environment ENV = Environment.current();
 
-    private static final String CONTEXT_PATH = "/ftinntektsmelding";
+    private static final String CONTEXT_PATH = ENV.getProperty("context.path","/ftinntektsmelding");
 
     private static final String JETTY_SCAN_LOCATIONS = "^.*jersey-.*\\.jar$|^.*felles-.*\\.jar$|^.*app.*\\.jar$";
     private static final String JETTY_LOCAL_CLASSES = "^.*/target/classes/|";
@@ -115,7 +116,7 @@ public class JettyServer {
     }
 
     public static FluentConfiguration flywayConfig(DataSource dataSource) {
-        return Flyway.configure().dataSource(dataSource).locations("classpath:/db/migration/defaultDS").baselineOnMigrate(true);
+        return Flyway.configure().dataSource(dataSource).locations("classpath:/db/postgres/defaultDS").baselineOnMigrate(true);
     }
 
     public static DataSource setupDataSource() throws NamingException {
