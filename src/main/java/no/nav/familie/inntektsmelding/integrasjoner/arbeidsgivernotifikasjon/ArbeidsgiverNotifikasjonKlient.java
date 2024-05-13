@@ -1,13 +1,26 @@
-package no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon;
+package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
-import static no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleError;
-import static no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleValidationError;
+import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleError;
+import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleValidationError;
 
 import java.net.http.HttpRequest;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.Error;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveMutationRequest;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveMutationResponse;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveVellykket;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakMutationRequest;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakMutationResponse;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakVellykket;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertMutationRequest;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertMutationResponse;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertVellykket;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;

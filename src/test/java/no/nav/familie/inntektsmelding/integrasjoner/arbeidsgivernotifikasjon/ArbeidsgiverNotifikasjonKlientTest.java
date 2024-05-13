@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon;
+package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -9,11 +9,27 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NotifikasjonFinnesIkke;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveMutationRequest;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveMutationResponse;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveVellykket;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakMutationRequest;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakMutationResponse;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakVellykket;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertMutationRequest;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertMutationResponse;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertVellykket;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.UgyldigMerkelapp;
+import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
@@ -45,7 +61,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
             response.setData(Map.of("nySak", new NySakVellykket(expectedId)));
             when(klient.send(any(RestRequest.class), any())).thenReturn(response);
 
-            var oppgave = tjeneste.opprettSak(new NySakMutationRequest(), mock(NySakResultatResponseProjection.class));
+            var oppgave = tjeneste.opprettSak(new NySakMutationRequest(), Mockito.mock(NySakResultatResponseProjection.class));
 
             assertThat(oppgave).isNotNull().isEqualTo(expectedId);
         }
@@ -88,7 +104,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
             response.setData(Map.of("nyOppgave", new NyOppgaveVellykket(null, expectedId, null)));
             when(klient.send(any(RestRequest.class), any())).thenReturn(response);
 
-            var oppgave = tjeneste.opprettOppgave(new NyOppgaveMutationRequest(), mock(NyOppgaveResultatResponseProjection.class));
+            var oppgave = tjeneste.opprettOppgave(new NyOppgaveMutationRequest(), Mockito.mock(NyOppgaveResultatResponseProjection.class));
 
             assertThat(oppgave).isNotNull().isEqualTo(expectedId);
         }
@@ -131,7 +147,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
             response.setData(Map.of("oppgaveUtfoert", new OppgaveUtfoertVellykket(expectedId)));
             when(klient.send(any(RestRequest.class), any())).thenReturn(response);
 
-            var oppgave = tjeneste.lukkOppgave(new OppgaveUtfoertMutationRequest(), mock(OppgaveUtfoertResultatResponseProjection.class));
+            var oppgave = tjeneste.lukkOppgave(new OppgaveUtfoertMutationRequest(), Mockito.mock(OppgaveUtfoertResultatResponseProjection.class));
 
             assertThat(oppgave).isNotNull().isEqualTo(expectedId);
         }

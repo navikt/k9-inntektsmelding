@@ -1,9 +1,33 @@
-package no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon;
+package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import java.net.URI;
 import java.time.LocalDateTime;
 
 import jakarta.inject.Inject;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.AltinnMottakerInput;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.DuplikatEksternIdOgMerkelappResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.DuplikatGrupperingsidEtterDeleteResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.DuplikatGrupperingsidResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.MetadataInput;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.MottakerInput;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NotifikasjonFinnesIkkeResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NotifikasjonInput;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveInput;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveMutationRequest;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveVellykketResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakMutationRequest;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakVellykketResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertMutationRequest;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertResultatResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertVellykketResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.SaksStatus;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.UgyldigMerkelappResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.UgyldigMottakerResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.UgyldigPaaminnelseTidspunktResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.UkjentProdusentResponseProjection;
+import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.UkjentRolleResponseProjection;
 
 class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
