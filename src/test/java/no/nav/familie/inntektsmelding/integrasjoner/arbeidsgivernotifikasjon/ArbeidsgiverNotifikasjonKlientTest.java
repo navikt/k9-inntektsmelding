@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLError;
@@ -46,7 +45,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
             response.setData(Map.of("nySak", new NySakVellykket(expectedId)));
             when(klient.send(any(RestRequest.class), any())).thenReturn(response);
 
-            var oppgave = tjeneste.opprettSak(new NySakMutationRequest(), Mockito.mock(NySakResultatResponseProjection.class));
+            var oppgave = tjeneste.opprettSak(new NySakMutationRequest(), mock(NySakResultatResponseProjection.class));
 
             assertThat(oppgave).isNotNull().isEqualTo(expectedId);
         }
@@ -89,7 +88,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
             response.setData(Map.of("nyOppgave", new NyOppgaveVellykket(null, expectedId, null)));
             when(klient.send(any(RestRequest.class), any())).thenReturn(response);
 
-            var oppgave = tjeneste.opprettOppgave(new NyOppgaveMutationRequest(), Mockito.mock(NyOppgaveResultatResponseProjection.class));
+            var oppgave = tjeneste.opprettOppgave(new NyOppgaveMutationRequest(), mock(NyOppgaveResultatResponseProjection.class));
 
             assertThat(oppgave).isNotNull().isEqualTo(expectedId);
         }
@@ -132,7 +131,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
             response.setData(Map.of("oppgaveUtfoert", new OppgaveUtfoertVellykket(expectedId)));
             when(klient.send(any(RestRequest.class), any())).thenReturn(response);
 
-            var oppgave = tjeneste.lukkOppgave(new OppgaveUtfoertMutationRequest(), Mockito.mock(OppgaveUtfoertResultatResponseProjection.class));
+            var oppgave = tjeneste.lukkOppgave(new OppgaveUtfoertMutationRequest(), mock(OppgaveUtfoertResultatResponseProjection.class));
 
             assertThat(oppgave).isNotNull().isEqualTo(expectedId);
         }
