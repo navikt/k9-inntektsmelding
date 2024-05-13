@@ -1,7 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.organisasjon;
 
-import static no.nav.familie.inntektsmelding.felles.KunstigOrg.KUNSTIG_ORG_NAVN;
-import static no.nav.familie.inntektsmelding.felles.KunstigOrg.KUNSTIG_ORG_NR;
+import static no.nav.familie.inntektsmelding.felles.TestOrganisasjon.TEST_ORGANISASJON_NAVN;
+import static no.nav.familie.inntektsmelding.felles.TestOrganisasjon.TEST_ORGANISASJON_NUMMER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,9 +23,9 @@ class OrganisasjonTjenesteTest {
 
     @Test
     public void respons_blir_mappet() {
-        var organisasjon = organisasjonTjeneste.finnOrganisasjon(KUNSTIG_ORG_NR).orElseThrow();
+        var organisasjon = organisasjonTjeneste.finnOrganisasjon(TEST_ORGANISASJON_NUMMER).orElseThrow();
 
-        assertThat(organisasjon.navn()).isEqualTo(KUNSTIG_ORG_NAVN);
-        assertThat(organisasjon.orgnr()).isEqualTo(KUNSTIG_ORG_NR);
+        assertThat(organisasjon.navn()).isEqualTo(TEST_ORGANISASJON_NAVN);
+        assertThat(organisasjon.orgnr()).isEqualTo(TEST_ORGANISASJON_NUMMER);
     }
 }

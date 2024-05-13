@@ -8,8 +8,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static no.nav.familie.inntektsmelding.felles.KunstigOrg.KUNSTIG_ORG_NAVN;
-import static no.nav.familie.inntektsmelding.felles.KunstigOrg.KUNSTIG_ORG_NR;
+import static no.nav.familie.inntektsmelding.felles.TestOrganisasjon.TEST_ORGANISASJON_NAVN;
+import static no.nav.familie.inntektsmelding.felles.TestOrganisasjon.TEST_ORGANISASJON_NUMMER;
 
 @ApplicationScoped
 public class OrganisasjonTjeneste {
@@ -18,7 +18,7 @@ public class OrganisasjonTjeneste {
 //    public static final String KUNSTIG_ORG = "974652277";  // magic constant
 //    public static final String KUNSTIG_ORG_NAVN = "Kunstig organisasjon";
 
-    private static final Organisasjon KUNSTIG_ORGANISASJON = new Organisasjon(KUNSTIG_ORG_NAVN, KUNSTIG_ORG_NR);
+    private static final Organisasjon KUNSTIG_ORGANISASJON = new Organisasjon(TEST_ORGANISASJON_NAVN, TEST_ORGANISASJON_NUMMER);
 
     private static final LRUCache<String, Organisasjon> CACHE = new LRUCache<>(2500, CACHE_ELEMENT_LIVE_TIME_MS);
 
@@ -54,7 +54,7 @@ public class OrganisasjonTjeneste {
     }
 
     private Organisasjon hentKunstig(String orgnr) {
-        if (Objects.equals(KUNSTIG_ORG_NR, orgnr)) {
+        if (Objects.equals(TEST_ORGANISASJON_NUMMER, orgnr)) {
             return KUNSTIG_ORGANISASJON;
         }
         var virksomhet = Optional.ofNullable(CACHE.get(orgnr)).orElseGet(() -> hentOrganisasjonRest(orgnr));
@@ -75,6 +75,6 @@ public class OrganisasjonTjeneste {
     }
 
     public static boolean erKunstig(String orgNr) {
-        return KUNSTIG_ORG_NR.equals(orgNr);
+        return TEST_ORGANISASJON_NUMMER.equals(orgNr);
     }
 }
