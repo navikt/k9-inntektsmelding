@@ -1,7 +1,7 @@
-package no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon;
+package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
-import static no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonTjeneste.SERVICE_CODE;
-import static no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonTjeneste.SERVICE_EDITION_CODE;
+import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonTjeneste.SERVICE_CODE;
+import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonTjeneste.SERVICE_EDITION_CODE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 

@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon;
+package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;

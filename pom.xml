@@ -195,7 +195,7 @@
                         <configuration>
                             <graphqlSchemaPaths>${project.basedir}/src/main/resources/graphql/produsent.graphql</graphqlSchemaPaths>
                             <outputDir>${project.build.directory}/generated-sources/client-arbeidsgiver-notifikasjon</outputDir>
-                            <modelPackageName>no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon</modelPackageName>
+                            <modelPackageName>no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon</modelPackageName>
                             <customTypesMapping>
                                 <DateTime>java.util.Date</DateTime>
                             </customTypesMapping>

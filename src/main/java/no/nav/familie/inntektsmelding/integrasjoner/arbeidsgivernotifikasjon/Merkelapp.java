@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon;
+package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 public enum Merkelapp {
     INNTEKTSMELDING_FP("Inntektsmelding foreldrepenger"),

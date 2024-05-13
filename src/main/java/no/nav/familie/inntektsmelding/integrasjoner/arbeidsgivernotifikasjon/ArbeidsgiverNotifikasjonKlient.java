@@ -1,7 +1,7 @@
-package no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon;
+package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
-import static no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleError;
-import static no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleValidationError;
+import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleError;
+import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleValidationError;
 
 import java.net.http.HttpRequest;
 
