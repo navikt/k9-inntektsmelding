@@ -1,11 +1,11 @@
 package no.nav.familie.inntektsmelding.integrasjoner.organisasjon;
 
-public final class OrganisasjonsNummerValidator {
+final class OrganisasjonsNummerValidator {
 
     private OrganisasjonsNummerValidator() {
     }
 
-    public static boolean erGyldig(String orgnummer) {
+    static boolean erGyldig(String orgnummer) {
 
         // Skal inneholde 9 siffer og kun tall
         if (orgnummer == null || orgnummer.length() != 9) {

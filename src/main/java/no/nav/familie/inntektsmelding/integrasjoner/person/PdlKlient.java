@@ -14,13 +14,13 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
     scopesProperty = "pdl.scopes",
     scopesDefault = "api://prod-fss.pdl.pdl-api/.default")
 @Dependent
-public class PdlKlient extends AbstractPersonKlient {
+class PdlKlient extends AbstractPersonKlient {
 
-    public PdlKlient() {
+    PdlKlient() {
         super(RestClient.client(), Tema.FOR);
-    }
+    } //TODO: K9 må bruke egen tema senere.
 
-    public PdlKlient(Tema tema) {
+    PdlKlient(Tema tema) {
         super(RestClient.client(), tema);
     }
 

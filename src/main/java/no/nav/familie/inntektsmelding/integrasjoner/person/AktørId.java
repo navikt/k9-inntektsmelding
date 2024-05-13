@@ -3,13 +3,10 @@ package no.nav.familie.inntektsmelding.integrasjoner.person;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import jakarta.persistence.Embeddable;
-
 /**
  * Id som genereres fra NAV Aktør Register. Denne iden benyttes til interne forhold i Nav og vil ikke endres f.eks. dersom bruker går fra
  * DNR til FNR i Folkeregisteret. Tilsvarende vil den kunne referere personer som har ident fra et utenlandsk system.
  */
-@Embeddable
 public class AktørId {
     private static final String VALID_REGEXP = "^\\d{13}$";
 
