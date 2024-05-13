@@ -8,19 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import java.net.URI;
 import java.time.LocalDateTime;
 
-import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveInput;
-import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveMutationRequest;
-import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NyOppgaveResultatResponseProjection;
-import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakMutationRequest;
-import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.NySakResultatResponseProjection;
-import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertMutationRequest;
-import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.OppgaveUtfoertResultatResponseProjection;
-import no.nav.familie.inntektsmelding.arbeidsgivernotifikasjon.SaksStatus;
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient;
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

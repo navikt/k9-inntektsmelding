@@ -1,15 +1,15 @@
 package no.nav.familie.inntektsmelding.integrasjoner.organisasjon;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import no.nav.vedtak.util.LRUCache;
+import static no.nav.familie.inntektsmelding.felles.TestOrganisasjon.TEST_ORGANISASJON_NAVN;
+import static no.nav.familie.inntektsmelding.felles.TestOrganisasjon.TEST_ORGANISASJON_NUMMER;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static no.nav.familie.inntektsmelding.felles.TestOrganisasjon.TEST_ORGANISASJON_NAVN;
-import static no.nav.familie.inntektsmelding.felles.TestOrganisasjon.TEST_ORGANISASJON_NUMMER;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
 public class OrganisasjonTjeneste {
