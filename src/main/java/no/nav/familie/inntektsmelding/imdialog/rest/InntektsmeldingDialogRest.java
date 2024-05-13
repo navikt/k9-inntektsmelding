@@ -20,6 +20,8 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
+import java.time.LocalDate;
+
 @Path(InntektsmeldingDialogRest.BASE_PATH)
 @ApplicationScoped
 @Transactional
@@ -27,6 +29,7 @@ public class InntektsmeldingDialogRest {
     public static final String BASE_PATH = "/imdialog";
     private static final String HENT_PERSONINFO = "/personinfo";
     private static final String HENT_ORGANISASJON = "/organisasjon";
+    private static final String HENT_INNTEKT = "/inntekt";
 
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
@@ -62,7 +65,22 @@ public class InntektsmeldingDialogRest {
     public Response hentOrganisasjon(@NotNull @Parameter(description = "Organisasjonsnummer") @QueryParam("organisasjonsnummer") @Valid OrganisasjonsnummerDto organisasjonsnummerDto ){
         var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummerDto.organisasjonsnummer());
         var organisassjonInfoDto = organisasjon.map( o -> new OrganisasjonInfoDto(o.navn(), o.orgnr()));
-
         return organisassjonInfoDto.map(oi -> Response.ok(organisassjonInfoDto).build()).orElse(Response.noContent().build());
     }
+
+    @GET
+    @UtenAutentisering
+    @Path(HENT_INNTEKT)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Henter inntekt siste tre måneder for en aktør", tags = "imdialog")
+    public Response hentInntekt(@Parameter(description = "Request for å hente inntekt, hvis startdato er null brukes dagens dato") @NotNull HentInntektDto hentInntektDto) {
+        var startdato = hentInntektDto.startdato == null ? LocalDate.now() : hentInntektDto.startdato;
+        var aktørId = new AktørId(hentInntektDto.aktørIdDto().aktørId());
+        var organisasjon = organisasjonTjeneste.finnOrganisasjon("");
+        var organisassjonInfoDto = organisasjon.map( o -> new OrganisasjonInfoDto(o.navn(), o.orgnr()));
+        return organisassjonInfoDto.map(oi -> Response.ok(organisassjonInfoDto).build()).orElse(Response.noContent().build());
+    }
+
+    protected record HentInntektDto(@NotNull @QueryParam("aktorId") AktørIdDto aktørIdDto, @NotNull @QueryParam("ytelse") Ytelsetype ytelsetype, LocalDate startdato){};
+
 }
