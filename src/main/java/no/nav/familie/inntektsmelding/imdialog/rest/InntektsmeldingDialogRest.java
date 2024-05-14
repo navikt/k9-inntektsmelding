@@ -75,12 +75,15 @@ public class InntektsmeldingDialogRest {
     @Operation(description = "Henter inntekt siste tre måneder for en aktør", tags = "imdialog")
     public Response hentInntekt(@Parameter(description = "Request for å hente inntekt, hvis startdato er null brukes dagens dato") @NotNull HentInntektDto hentInntektDto) {
         var startdato = hentInntektDto.startdato == null ? LocalDate.now() : hentInntektDto.startdato;
-        var aktørId = new AktørId(hentInntektDto.aktørIdDto().aktørId());
+        var aktørId = new AktørId(hentInntektDto.aktorId().aktørId());
         var organisasjon = organisasjonTjeneste.finnOrganisasjon("");
         var organisassjonInfoDto = organisasjon.map( o -> new OrganisasjonInfoDto(o.navn(), o.orgnr()));
         return organisassjonInfoDto.map(oi -> Response.ok(organisassjonInfoDto).build()).orElse(Response.noContent().build());
     }
 
-    protected record HentInntektDto(@NotNull @QueryParam("aktorId") AktørIdDto aktørIdDto, @NotNull @QueryParam("ytelse") Ytelsetype ytelsetype, LocalDate startdato){};
+    protected record HentInntektDto(@NotNull @QueryParam("aktorId") AktørIdDto aktorId,
+                                    @NotNull @QueryParam("ytelse") Ytelsetype ytelse,
+                                    @NotNull @QueryParam("organisasjonsnummer") @Valid OrganisasjonsnummerDto organisasjonsnummer,
+                                    LocalDate startdato){}
 
 }
