@@ -46,9 +46,9 @@ public class InntektsmeldingDialogRest {
     @Path(HENT_PERSONINFO)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter personinfo gitt aktørId", tags = "imdialog")
-    public Response hentPersoninfo(@NotNull @Parameter(description = "AktørId for personen") @QueryParam("aktorId") @Valid AktørIdDto aktørIdDto,
-                                   @NotNull @Parameter(description = "Ytelse som skal kobles til oppslaget") @QueryParam("ytelse") Ytelsetype ytelse){
-        var aktørId = new AktørId(aktørIdDto.aktørId());
+    public Response hentPersoninfo(@QueryParam("aktorId") @NotNull String aktørIdDto,
+                                   @NotNull @QueryParam("ytelse") Ytelsetype ytelse){
+        var aktørId = new AktørId(aktørIdDto);
         PersonInfo personInfo = personTjeneste.hentPersonInfo(aktørId, ytelse);
         var dto = new PersonInfoDto(personInfo.navn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getId());
         return Response.ok(dto).build();
