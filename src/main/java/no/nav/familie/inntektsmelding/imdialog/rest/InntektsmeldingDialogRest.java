@@ -13,6 +13,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.AktørId;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
@@ -33,11 +34,13 @@ public class InntektsmeldingDialogRest {
 
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
+    private InntektTjeneste inntektTjeneste;
 
     @Inject
-    public InntektsmeldingDialogRest(PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
+    public InntektsmeldingDialogRest(PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste, InntektTjeneste inntektTjeneste) {
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
+        this.inntektTjeneste = inntektTjeneste;
     }
 
     InntektsmeldingDialogRest() {
@@ -73,17 +76,18 @@ public class InntektsmeldingDialogRest {
     @Path(HENT_INNTEKT)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter inntekt siste tre måneder for en aktør", tags = "imdialog")
-    public Response hentInntekt(@Parameter(description = "Request for å hente inntekt, hvis startdato er null brukes dagens dato") @NotNull HentInntektDto hentInntektDto) {
-        var startdato = hentInntektDto.startdato == null ? LocalDate.now() : hentInntektDto.startdato;
-        var aktørId = new AktørId(hentInntektDto.aktorId().aktørId());
-        var organisasjon = organisasjonTjeneste.finnOrganisasjon("");
-        var organisassjonInfoDto = organisasjon.map( o -> new OrganisasjonInfoDto(o.navn(), o.orgnr()));
-        return organisassjonInfoDto.map(oi -> Response.ok(organisassjonInfoDto).build()).orElse(Response.noContent().build());
+    public Response hentInntekt(@Parameter(description = "Request for å hente inntekt, hvis startdato er null brukes dagens dato") @NotNull InntektsmeldingDialogRest.HentInntektRequestDto hentInntektRequestDto) {
+        var startdato = hentInntektRequestDto.startdato == null ? LocalDate.now() : hentInntektRequestDto.startdato;
+        var aktørId = new AktørId(hentInntektRequestDto.aktorId().aktørId());
+        var inntekt = inntektTjeneste.hentInntekt(aktørId, startdato, hentInntektRequestDto.organisasjonsnummer().organisasjonsnummer());
+        return Response.ok(inntekt.stream()
+            .map(i -> new MånedsinntektResponsDto(i.måned().atDay(1), i.måned().atEndOfMonth(), i.beløp(), i.organisasjonsnummer()))
+            .toList()).build();
     }
 
-    protected record HentInntektDto(@NotNull @QueryParam("aktorId") AktørIdDto aktorId,
-                                    @NotNull @QueryParam("ytelse") Ytelsetype ytelse,
-                                    @NotNull @QueryParam("organisasjonsnummer") @Valid OrganisasjonsnummerDto organisasjonsnummer,
-                                    LocalDate startdato){}
+    protected record HentInntektRequestDto(@NotNull @QueryParam("aktorId") AktørIdDto aktorId,
+                                           @NotNull @QueryParam("ytelse") Ytelsetype ytelse,
+                                           @NotNull @QueryParam("organisasjonsnummer") @Valid OrganisasjonsnummerDto organisasjonsnummer,
+                                           LocalDate startdato){}
 
 }
