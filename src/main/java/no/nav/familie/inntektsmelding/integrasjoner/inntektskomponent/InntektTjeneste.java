@@ -21,7 +21,6 @@ import java.util.List;
 
 @ApplicationScoped
 public class InntektTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(InntektTjeneste.class);
     private InntektskomponentKlient inntektskomponentKlient;
 
     InntektTjeneste() {
@@ -59,13 +58,11 @@ public class InntektTjeneste {
 
         List<Månedsinntekt> månedsInntektListe = new ArrayList<>();
 
-        inntektPerMånedForBruker.forEach( inntektMåned -> {
-            inntektMåned.getArbeidsInntektInformasjon().getInntektListe().stream()
-                    .filter(inntekt -> InntektType.LOENNSINNTEKT.equals(inntekt.getInntektType()) && organisasjonsnummer.equals(inntekt.getVirksomhet().getIdentifikator()))
-                    .findFirst()
-                    .map(this::mapMånedsInntekt)
-                .ifPresent(månedsInntektListe::add);
-        });
+        inntektPerMånedForBruker.forEach( inntektMåned -> inntektMåned.getArbeidsInntektInformasjon().getInntektListe().stream()
+                .filter(inntekt -> InntektType.LOENNSINNTEKT.equals(inntekt.getInntektType()) && organisasjonsnummer.equals(inntekt.getVirksomhet().getIdentifikator()))
+                .findFirst()
+                .map(this::mapMånedsInntekt)
+            .ifPresent(månedsInntektListe::add));
 
         return månedsInntektListe;
     }
@@ -90,7 +87,7 @@ public class InntektTjeneste {
         var stringBuilder = new StringBuilder();
         var sikkerhetsavvikListe = response.getSikkerhetsavvikListe();
         if (sikkerhetsavvikListe != null && !sikkerhetsavvikListe.isEmpty()) {
-            stringBuilder.append(sikkerhetsavvikListe.get(0).getTekst());
+            stringBuilder.append(sikkerhetsavvikListe.getFirst().getTekst());
             for (int i = 1; i < sikkerhetsavvikListe.size(); i++) {
                 stringBuilder.append(", ");
                 stringBuilder.append(sikkerhetsavvikListe.get(i).getTekst());
