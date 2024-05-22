@@ -10,6 +10,7 @@ import io.swagger.v3.oas.models.servers.Server;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogRest;
+import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import org.glassfish.jersey.server.ServerProperties;
@@ -52,7 +53,7 @@ public class ApiConfig extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         // eksponert grensesnitt bak sikkerhet
-        return Set.of(AuthenticationFilter.class, OpenApiResource.class, GeneralRestExceptionMapper.class, InntektsmeldingDialogRest.class);
+        return Set.of(AuthenticationFilter.class, OpenApiResource.class, JacksonJsonConfig.class, GeneralRestExceptionMapper.class, InntektsmeldingDialogRest.class);
 
     }
 

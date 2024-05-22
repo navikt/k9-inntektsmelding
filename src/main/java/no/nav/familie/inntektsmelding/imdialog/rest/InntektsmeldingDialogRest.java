@@ -8,9 +8,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
@@ -21,11 +25,13 @@ import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTje
 import no.nav.familie.inntektsmelding.integrasjoner.person.AktørId;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
 @ApplicationScoped
@@ -35,6 +41,7 @@ public class InntektsmeldingDialogRest {
     private static final String HENT_PERSONINFO = "/personinfo";
     private static final String HENT_ORGANISASJON = "/organisasjon";
     private static final String HENT_INNTEKT = "/inntekt";
+    private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
 
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
@@ -57,7 +64,7 @@ public class InntektsmeldingDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter personinfo gitt aktørId", tags = "imdialog")
     public Response hentPersoninfo(@NotNull @QueryParam("aktorId") @Valid AktørIdRequestDto aktørIdRequestDto,
-                                   @NotNull @QueryParam("ytelse") Ytelsetype ytelse) {
+                                   @NotNull @QueryParam("ytelse") @Valid Ytelsetype ytelse) {
         var aktørId = new AktørId(aktørIdRequestDto.aktørId());
         PersonInfo personInfo = personTjeneste.hentPersonInfo(aktørId, ytelse);
         var dto = new PersonInfoResponseDto(personInfo.navn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getId());
@@ -89,6 +96,15 @@ public class InntektsmeldingDialogRest {
             .toList()).build();
     }
 
+    @POST
+    @UtenAutentisering
+    @Path(SEND_INNTEKTSMELDING)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Sender inn inntektsmelding", tags = "imdialog")
+    public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+        return Response.ok(sendInntektsmeldingRequestDto).build();
+    }
+
     public record AktørIdRequestDto(
         @JsonValue @NotNull @Pattern(regexp = VALID_REGEXP, message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
         private static final String VALID_REGEXP = "^\\d{13}$";
@@ -112,4 +128,30 @@ public class InntektsmeldingDialogRest {
 
     public record MånedsinntektResponsDto(LocalDate fom, LocalDate tom, BigDecimal beløp, String organisasjonsnummer) {
     }
+
+    public record RefusjonsperiodeRequestDto(@NotNull LocalDate fom,
+                                             LocalDate tom,
+                                             @NotNull
+                                             @Min(0) @Max(Integer.MAX_VALUE)
+                                             @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
+    }
+
+    public record NaturalytelseBortfaltRequestDto(@NotNull LocalDate fom,
+                                             LocalDate tom,
+                                             @NotNull Naturalytelsetype naturalytelsetype,
+                                             @NotNull
+                                             @Min(0) @Max(Integer.MAX_VALUE)
+                                             @Digits(integer = 20, fraction = 2) BigDecimal beløp) {}
+
+    public record SendInntektsmeldingRequestDto(@NotNull @Valid AktørIdRequestDto aktorId,
+                                                @NotNull @Valid Ytelsetype ytelse,
+                                                @NotNull String arbeidsgiverIdent,
+                                                @NotNull String telefonnummer,
+                                                @NotNull LocalDate startdato,
+                                                @NotNull
+                                                @Min(0) @Max(Integer.MAX_VALUE)
+                                                @Digits(integer = 20, fraction = 2)
+                                                BigDecimal inntekt,
+                                                @NotNull List<@Valid RefusjonsperiodeRequestDto> refusjonsperioder,
+                                                @NotNull List<@Valid NaturalytelseBortfaltRequestDto> bortfaltNaturaltytelsePerioder){}
 }
