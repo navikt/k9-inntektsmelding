@@ -1,8 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.organisasjon;
 
-import static no.nav.familie.inntektsmelding.felles.TestOrganisasjon.TEST_ORGANISASJON_NAVN;
-import static no.nav.familie.inntektsmelding.felles.TestOrganisasjon.TEST_ORGANISASJON_NUMMER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,11 +9,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonEReg;
+
 @ExtendWith(MockitoExtension.class)
 class OrganisasjonTjenesteTest {
     private OrganisasjonTjeneste organisasjonTjeneste;
+
     @Mock
     private EregKlient eregRestKlient;
+
+    @Mock
+    private OrganisasjonEReg respons;
 
     @BeforeEach
     void setUp() {
@@ -23,9 +28,14 @@ class OrganisasjonTjenesteTest {
 
     @Test
     public void respons_blir_mappet() {
-        var organisasjon = organisasjonTjeneste.finnOrganisasjon(TEST_ORGANISASJON_NUMMER).orElseThrow();
+        var testOrgnr = "999999999";
+        var testNavn = "Testbedrift";
+        when(eregRestKlient.hentOrganisasjon(testOrgnr)).thenReturn(respons);
+        when(respons.getNavn()).thenReturn(testNavn);
+        when(respons.organisasjonsnummer()).thenReturn(testOrgnr);
+        var organisasjon = organisasjonTjeneste.finnOrganisasjon(testOrgnr).orElseThrow();
 
-        assertThat(organisasjon.navn()).isEqualTo(TEST_ORGANISASJON_NAVN);
-        assertThat(organisasjon.orgnr()).isEqualTo(TEST_ORGANISASJON_NUMMER);
+        assertThat(organisasjon.navn()).isEqualTo(testNavn);
+        assertThat(organisasjon.orgnr()).isEqualTo(testOrgnr);
     }
 }
