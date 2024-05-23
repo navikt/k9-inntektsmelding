@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,13 +48,14 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var request = requestCaptor.getValue();
 
         var input = request.getInput();
-        assertThat(input).isNotNull().hasSize(6);
+        assertThat(input).isNotNull().hasSize(7);
         assertThat(input.get("grupperingsid")).isEqualTo(expectedGrupperingsid);
         assertThat(input.get("initiellStatus")).isEqualTo(SaksStatus.MOTTATT);
         assertThat(input.get("lenke")).isEqualTo(expectedLenke);
         assertThat(input.get("merkelapp")).isEqualTo(expectedMerkelapp.getBeskrivelse());
         assertThat(input.get("tittel")).isEqualTo(expectedTittel);
         assertThat(input.get("virksomhetsnummer")).isEqualTo(expectedVirksomhetsnummer);
+        assertThat(input).hasFieldOrProperty("mottakere");
     }
 
     @Test

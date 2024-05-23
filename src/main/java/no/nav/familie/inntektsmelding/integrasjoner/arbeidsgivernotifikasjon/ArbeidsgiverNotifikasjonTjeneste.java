@@ -2,9 +2,12 @@ package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.List;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+@ApplicationScoped
 class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
     static final String SERVICE_CODE = "4936";
@@ -28,6 +31,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         request.setMerkelapp(merkelapp.getBeskrivelse());
         request.setLenke(lenke.toString());
         request.setInitiellStatus(SaksStatus.MOTTATT);
+        request.setMottakere(List.of(new MottakerInput(new AltinnMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE), null)));
 
 
         var projection = new NySakResultatResponseProjection().typename()
@@ -35,7 +39,6 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
             .onUgyldigMottaker(new UgyldigMottakerResponseProjection().feilmelding())
             .onDuplikatGrupperingsid(new DuplikatGrupperingsidResponseProjection().feilmelding())
-            .onDuplikatGrupperingsidEtterDelete(new DuplikatGrupperingsidEtterDeleteResponseProjection().feilmelding())
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding())
             .onUkjentRolle(new UkjentRolleResponseProjection().feilmelding());
 

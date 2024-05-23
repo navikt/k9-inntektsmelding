@@ -1,4 +1,8 @@
-package no.nav.familie.inntektsmelding.imdialog.rest;
+package no.nav.familie.inntektsmelding.rest.imdialog;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -28,10 +32,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
 @ApplicationScoped
@@ -129,29 +129,18 @@ public class InntektsmeldingDialogRest {
     public record MånedsinntektResponsDto(LocalDate fom, LocalDate tom, BigDecimal beløp, String organisasjonsnummer) {
     }
 
-    public record RefusjonsperiodeRequestDto(@NotNull LocalDate fom,
-                                             LocalDate tom,
-                                             @NotNull
-                                             @Min(0) @Max(Integer.MAX_VALUE)
-                                             @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
+    public record RefusjonsperiodeRequestDto(@NotNull LocalDate fom, LocalDate tom,
+                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
     }
 
-    public record NaturalytelseBortfaltRequestDto(@NotNull LocalDate fom,
-                                             LocalDate tom,
-                                             @NotNull Naturalytelsetype naturalytelsetype,
-                                             @NotNull
-                                             @Min(0) @Max(Integer.MAX_VALUE)
-                                             @Digits(integer = 20, fraction = 2) BigDecimal beløp) {}
+    public record NaturalytelseBortfaltRequestDto(@NotNull LocalDate fom, LocalDate tom, @NotNull Naturalytelsetype naturalytelsetype,
+                                                  @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
+    }
 
-    public record SendInntektsmeldingRequestDto(@NotNull @Valid AktørIdRequestDto aktorId,
-                                                @NotNull @Valid Ytelsetype ytelse,
-                                                @NotNull String arbeidsgiverIdent,
-                                                @NotNull String telefonnummer,
-                                                @NotNull LocalDate startdato,
-                                                @NotNull
-                                                @Min(0) @Max(Integer.MAX_VALUE)
-                                                @Digits(integer = 20, fraction = 2)
-                                                BigDecimal inntekt,
+    public record SendInntektsmeldingRequestDto(@NotNull @Valid AktørIdRequestDto aktorId, @NotNull @Valid Ytelsetype ytelse,
+                                                @NotNull String arbeidsgiverIdent, @NotNull String telefonnummer, @NotNull LocalDate startdato,
+                                                @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
                                                 @NotNull List<@Valid RefusjonsperiodeRequestDto> refusjonsperioder,
-                                                @NotNull List<@Valid NaturalytelseBortfaltRequestDto> bortfaltNaturaltytelsePerioder){}
+                                                @NotNull List<@Valid NaturalytelseBortfaltRequestDto> bortfaltNaturaltytelsePerioder) {
+    }
 }
