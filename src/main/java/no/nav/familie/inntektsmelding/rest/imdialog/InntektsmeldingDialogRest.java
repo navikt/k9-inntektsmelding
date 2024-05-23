@@ -137,8 +137,11 @@ public class InntektsmeldingDialogRest {
                                                   @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
     }
 
-    public record SendInntektsmeldingRequestDto(@NotNull @Valid AktørIdRequestDto aktorId, @NotNull @Valid Ytelsetype ytelse,
-                                                @NotNull String arbeidsgiverIdent, @NotNull String telefonnummer, @NotNull LocalDate startdato,
+    public record SendInntektsmeldingRequestDto(@NotNull @Valid AktørIdRequestDto aktorId,
+                                                @NotNull @Valid Ytelsetype ytelse,
+                                                @NotNull String arbeidsgiverIdent,
+                                                @NotNull String telefonnummer,
+                                                @NotNull LocalDate startdato,
                                                 @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
                                                 @NotNull List<@Valid RefusjonsperiodeRequestDto> refusjonsperioder,
                                                 @NotNull List<@Valid NaturalytelseBortfaltRequestDto> bortfaltNaturaltytelsePerioder) {

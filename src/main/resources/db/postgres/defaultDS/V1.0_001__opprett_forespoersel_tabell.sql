@@ -4,7 +4,7 @@ CREATE TABLE FORESPOERSEL
     UUID UUID NOT NULL,
     SAK_ID VARCHAR(36),
     OPPGAVE_ID VARCHAR(36),
-    SKJAERINGSTIDSPUNKT DATE NOT NULL,
+    START_DATO DATE NOT NULL,
     ORGNR VARCHAR(12) NOT NULL,
     BRUKER_AKTOER_ID VARCHAR(9) NOT NULL,
     YTELSE_TYPE VARCHAR(100) NOT NULL,
@@ -26,7 +26,7 @@ comment on column FORESPOERSEL.ID is 'PK';
 comment on column FORESPOERSEL.UUID is 'Forespørsel UUID som kan eksponeres';
 comment on column FORESPOERSEL.SAK_ID is 'Ekstern sak-id hos arbeidsgivernotifikasjon';
 comment on column FORESPOERSEL.OPPGAVE_ID is 'Ekstern oppgave-id hos arbeidsgivernotifikasjon';
-comment on column FORESPOERSEL.SKJAERINGSTIDSPUNKT is 'Skjæringstidspunkt forespørselen gjelder for';
+comment on column FORESPOERSEL.START_DATO is 'Startdato forespørselen gjelder for';
 comment on column FORESPOERSEL.ORGNR is 'Orgnr for arbeidsgiver';
 comment on column FORESPOERSEL.BRUKER_AKTOER_ID is 'Aktørid for bruker';
 comment on column FORESPOERSEL.YTELSE_TYPE is 'Ytelsetype som forespørsel gjelder for';

@@ -33,8 +33,8 @@ public class ForespørselEntitet {
     @Column(name = "orgnr", nullable = false, updatable = false)
     private String organisasjonsnummer;
 
-    @Column(name = "skjaeringstidspunkt", nullable = false, updatable = false)
-    private LocalDate skjæringstidspunkt;
+    @Column(name = "startdato", nullable = false, updatable = false)
+    private LocalDate startdato;
 
     @Column(name = "bruker_aktoer_id", nullable = false, updatable = false)
     private String brukerAktørId;
@@ -59,12 +59,12 @@ public class ForespørselEntitet {
     private LocalDateTime endretTidspunkt;
 
     public ForespørselEntitet(String organisasjonsnummer,
-                              LocalDate skjæringstidspunkt,
+                              LocalDate startdato,
                               String brukerAktørId,
                               Ytelsetype ytelseType,
                               String fagsystemSaksnummer) {
         this.organisasjonsnummer = organisasjonsnummer;
-        this.skjæringstidspunkt = skjæringstidspunkt;
+        this.startdato = startdato;
         this.brukerAktørId = brukerAktørId;
         this.ytelseType = ytelseType;
         this.fagsystemSaksnummer = fagsystemSaksnummer;
@@ -93,8 +93,8 @@ public class ForespørselEntitet {
         return organisasjonsnummer;
     }
 
-    public LocalDate getSkjæringstidspunkt() {
-        return skjæringstidspunkt;
+    public LocalDate getStartdato() {
+        return startdato;
     }
 
     public String getBrukerAktørId() {
