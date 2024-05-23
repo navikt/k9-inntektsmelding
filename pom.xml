@@ -73,7 +73,6 @@
             <artifactId>ereg-klient</artifactId>
         </dependency>
 
-
         <!-- CDI -->
         <dependency>
             <groupId>jakarta.servlet</groupId>
