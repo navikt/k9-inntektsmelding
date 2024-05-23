@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
  * DNR til FNR i Folkeregisteret. Tilsvarende vil den kunne referere personer som har ident fra et utenlandsk system.
  */
 public class AktørId {
-    private static final String VALID_REGEXP = "^\\d{9}$";
+    private static final String VALID_REGEXP = "^\\d{20}$";
 
     private static final Pattern VALID = Pattern.compile(VALID_REGEXP, Pattern.CASE_INSENSITIVE);
 
