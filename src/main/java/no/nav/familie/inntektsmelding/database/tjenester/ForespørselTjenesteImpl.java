@@ -30,8 +30,8 @@ public class ForespørselTjenesteImpl implements ForespørselTjeneste {
                                    AktørId brukerAktørId,
                                    Organisasjonsnummer orgnr,
                                    FagsakSaksnummer fagsakSaksnummer) {
-        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getId(), orgnr.orgnr(),
-            fagsakSaksnummer.saksnr());
+        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getId(), orgnr.getOrgnr(),
+            fagsakSaksnummer.getSaksnr());
     }
 
 

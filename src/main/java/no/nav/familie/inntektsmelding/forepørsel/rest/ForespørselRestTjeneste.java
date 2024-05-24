@@ -40,7 +40,7 @@ public class ForespørselRestTjeneste {
     @Operation(description = "Oppretter en forespørsel om inntektsmelding", tags = "forespørsel")
     public Response opprettForespørsel(OpprettForespørselRequest request) {
         forespørselTjeneste.opprettForespørsel(request.skjæringstidspunkt(), request.ytelsetype(), new AktørId(request.aktørId().getId()),
-            new Organisasjonsnummer(request.orgnummer().orgnr()), request.saksnummer());
+            new Organisasjonsnummer(request.orgnummer().getOrgnr()), request.saksnummer());
 
         return Response.ok().build();
     }

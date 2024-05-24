@@ -3,6 +3,8 @@ package no.nav.familie.inntektsmelding.koder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum Ytelsetype {
     FORELDREPENGER("FP"),
     SVANGERSKAPSPENGER("SVP"),
@@ -28,6 +30,7 @@ public enum Ytelsetype {
         this.kode = kode;
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Ytelsetype fraKode(String kode) {
         if (kode == null) {
             return null;

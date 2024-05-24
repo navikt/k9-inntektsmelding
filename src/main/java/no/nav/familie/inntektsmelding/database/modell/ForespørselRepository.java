@@ -64,7 +64,7 @@ public class ForespørselRepository {
 
     public List<ForespørselEntitet> hentForespørsler(FagsakSaksnummer saksnummer) {
         var query = entityManager.createQuery("SELECT f FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)
-            .setParameter("saksnr", saksnummer.saksnr());
+            .setParameter("saksnr", saksnummer.getSaksnr());
         return query.getResultList();
     }
 
