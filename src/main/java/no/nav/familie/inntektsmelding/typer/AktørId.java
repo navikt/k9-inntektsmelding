@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.integrasjoner.person;
+package no.nav.familie.inntektsmelding.typer;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
  */
 public class AktørId {
     private static final String VALID_REGEXP = "^\\d{13}$";
-
     private static final Pattern VALID = Pattern.compile(VALID_REGEXP, Pattern.CASE_INSENSITIVE);
 
     private String aktørId;

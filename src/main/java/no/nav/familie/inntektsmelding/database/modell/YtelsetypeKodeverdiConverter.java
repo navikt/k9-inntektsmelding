@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.modell;
+package no.nav.familie.inntektsmelding.database.modell;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

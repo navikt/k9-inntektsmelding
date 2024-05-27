@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.modell;
+package no.nav.familie.inntektsmelding.database.modell;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
@@ -46,14 +47,8 @@ public class ForespørselEntitet {
     @Column(name = "fagsystem_saksnummer", nullable = false, updatable = false)
     private String fagsystemSaksnummer;
 
-    @Column(name = "opprettet_av", nullable = false, updatable = false)
-    protected String opprettetAv;
-
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
-    private LocalDateTime opprettetTidspunkt;
-
-    @Column(name = "endret_av")
-    private String endretAv;
+    private LocalDateTime opprettetTidspunkt = LocalDateTime.now();
 
     @Column(name = "endret_tid")
     private LocalDateTime endretTidspunkt;
@@ -63,6 +58,7 @@ public class ForespørselEntitet {
                               String brukerAktørId,
                               Ytelsetype ytelseType,
                               String fagsystemSaksnummer) {
+        this.uuid = UUID.randomUUID();
         this.organisasjonsnummer = organisasjonsnummer;
         this.skjæringstidspunkt = skjæringstidspunkt;
         this.brukerAktørId = brukerAktørId;
@@ -71,6 +67,11 @@ public class ForespørselEntitet {
     }
 
     public ForespørselEntitet() {
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        endretTidspunkt = LocalDateTime.now();
     }
 
     public Long getId() {
