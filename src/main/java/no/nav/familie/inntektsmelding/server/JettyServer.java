@@ -18,6 +18,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.jboss.weld.exceptions.IllegalStateException;
 
@@ -112,7 +113,20 @@ public class JettyServer {
 
     private static void migrer(DataSource dataSource) {
         var flyway = flywayConfig(dataSource);
-        flyway.load().migrate();
+        try {
+            flyway.load().migrate();
+        } catch (FlywayException fwe) {
+            if (ENV.isDev()) {
+                try {
+                    flyway.load().repair();
+                    flyway.load().migrate();
+                } catch (FlywayException e) {
+                    throw new java.lang.IllegalStateException("Migrering feiler etter repair", e);
+                }
+            } else {
+                throw new java.lang.IllegalStateException("Migrering feiler", fwe);
+            }
+        }
     }
 
     public static FluentConfiguration flywayConfig(DataSource dataSource) {
