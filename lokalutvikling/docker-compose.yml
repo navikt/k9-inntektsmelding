@@ -10,14 +10,15 @@ services:
     volumes:
       - ./postgres-init:/docker-entrypoint-initdb.d/
     container_name: postgres
+
   vtp-inntektsmelding:
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamforeldrepenger/navikt/vtp:latest
     environment:
       TZ: Europe/Oslo
       NO_NAV_MODIG_SECURITY_APPCERT_KEYSTORE: /app/.modig/keystore.jks
       JAVAX_NET_SSL_TRUSTSTORE: /app/.modig/truststore.jks
-    env_file:
-      - "vtp.env"
+      CREATE_TOPICS: teamforeldrepenger.familie-vedtakfattet-v1
+      KAFKA_FATTEVEDTAK_TOPIC: teamforeldrepenger.familie-vedtakfattet-v1
     volumes:
       - "~/.modig:/app/.modig"
     ports:
@@ -29,6 +30,17 @@ services:
       - "8389:8389"
     container_name: vtp
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8060/rest/isReady"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8060/rest/isReady" ]
+      interval: 30s
+      timeout: 5s
+
+  arbeidsgiver-notifikasjon-fake-producer-api:
+    image: ghcr.io/navikt/arbeidsgiver-notifikasjon-produsent-api/fake-produsent-api:latest
+    ports:
+      - "8072:8080"
+    environment:
+      ALWAYS_SUCCESSFUL_RESPONSE: true
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8072/rest/isReady" ]
       interval: 30s
       timeout: 5s
