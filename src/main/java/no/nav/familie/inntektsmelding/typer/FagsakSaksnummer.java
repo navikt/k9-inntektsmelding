@@ -2,14 +2,22 @@ package no.nav.familie.inntektsmelding.typer;
 
 import java.util.Objects;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
 public final class FagsakSaksnummer {
 
+    private static final String REGEXP = "^[\\p{Alnum}]+$";
+
+    @NotNull
+    @Pattern(regexp = REGEXP, message = "Saksnummer [${validatedValue}] matcher ikke tillatt pattern [{regexp}]")
     private String saksnr;
 
     public FagsakSaksnummer() {
     }
 
     public FagsakSaksnummer(String saksnr) {
+        Objects.requireNonNull(saksnr);
         this.saksnr = saksnr;
     }
 

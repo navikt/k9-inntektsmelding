@@ -35,7 +35,7 @@ public class ForespørselRestTjenesteTest extends EntityManagerAwareTest {
     void skal_opprette_forespørsel() {
         var fagsakSaksnummer = new FagsakSaksnummer("SAK");
         forespørselRestTjeneste.opprettForespørsel(
-            new OpprettForespørselRequest(new AktørId("123456789"), new Organisasjonsnummer(BRREG_ORGNUMMER), LocalDate.now(),
+            new OpprettForespørselRequest(new AktørId("1234567890134"), new Organisasjonsnummer(BRREG_ORGNUMMER), LocalDate.now(),
                 Ytelsetype.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
 
         var forespørsler = forespørselRepository.hentForespørsler(fagsakSaksnummer);
