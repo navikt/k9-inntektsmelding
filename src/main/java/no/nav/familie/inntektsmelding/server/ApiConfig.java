@@ -31,7 +31,7 @@ public class ApiConfig extends Application {
 
     public ApiConfig() {
         var oas = new OpenAPI();
-        var info = new Info().title("FTINNTEKTSMELDING")
+        var info = new Info().title(ENV.getProperty("app.name", "FTINNTEKTSMELDING"))
             .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
             .description("REST grensesnitt for FTINNTEKTSMELDING.");
 

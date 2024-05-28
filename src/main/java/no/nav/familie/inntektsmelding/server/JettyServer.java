@@ -27,6 +27,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.eclipse.jetty.ee10.webapp.MetaInfConfiguration.CONTAINER_JAR_PATTERN;
@@ -38,9 +39,9 @@ public class JettyServer {
     private static final String CONTEXT_PATH = ENV.getProperty("context.path","/ftinntektsmelding");
 
     private static final String JETTY_SCAN_LOCATIONS = "^.*jersey-.*\\.jar$|^.*felles-.*\\.jar$|^.*app.*\\.jar$";
+
     private static final String JETTY_LOCAL_CLASSES = "^.*/target/classes/|";
     private final Integer serverPort;
-
     JettyServer(int serverPort) {
         this.serverPort = serverPort;
     }
@@ -128,8 +129,8 @@ public class JettyServer {
     public static DataSource dataSource() {
         var config = new HikariConfig();
         config.setJdbcUrl(dbUrl());
-        config.setUsername(ENV.getRequiredProperty("NAIS_DATABASE_FTINNTEKTSMELDING_FTINNTEKTSMELDING_USERNAME"));
-        config.setPassword(ENV.getRequiredProperty("NAIS_DATABASE_FTINNTEKTSMELDING_FTINNTEKTSMELDING_PASSWORD"));
+        config.setUsername(ENV.getRequiredProperty("DB_USERNAME"));
+        config.setPassword(ENV.getRequiredProperty("DB_PASSWORD"));
         config.setMinimumIdle(1);
         config.setMaximumPoolSize(6);
         config.setIdleTimeout(10001);
@@ -149,9 +150,9 @@ public class JettyServer {
     }
 
     private static String dbUrl() {
-        var host = ENV.getRequiredProperty("NAIS_DATABASE_FTINNTEKTSMELDING_FTINNTEKTSMELDING_HOST");
-        var port = ENV.getRequiredProperty("NAIS_DATABASE_FTINNTEKTSMELDING_FTINNTEKTSMELDING_PORT");
-        var databaseName = ENV.getRequiredProperty("NAIS_DATABASE_FTINNTEKTSMELDING_FTINNTEKTSMELDING_DATABASE");
+        var host = ENV.getRequiredProperty("DB_HOST");
+        var port = ENV.getRequiredProperty("DB_PORT");
+        var databaseName = ENV.getRequiredProperty("DB_DATABASE");
         return "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
     }
 
