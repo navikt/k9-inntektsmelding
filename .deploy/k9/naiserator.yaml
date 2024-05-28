@@ -60,15 +60,12 @@ spec:
     enabled: true
   azure:
     application:
+      allowAllUsers: true
       enabled: true
       claims:
         extra:
           - "NAVident"
           - "azp_name"
-        groups:
-          {{#each groups as |group|}}
-          - id: "{{group}}"
-          {{/each}}
   accessPolicy:
     inbound:
       rules:
