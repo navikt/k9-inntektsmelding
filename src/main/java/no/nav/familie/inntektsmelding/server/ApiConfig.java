@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import no.nav.familie.inntektsmelding.imdialog.InntektsmeldingTjeneste;
+
 import org.glassfish.jersey.server.ServerProperties;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
@@ -51,7 +53,7 @@ public class ApiConfig extends Application {
     public Set<Class<?>> getClasses() {
         // eksponert grensesnitt bak sikkerhet
         return Set.of(AuthenticationFilter.class, OpenApiResource.class, JacksonJsonConfig.class, GeneralRestExceptionMapper.class,
-            InntektsmeldingDialogRest.class, ForespørselRestTjeneste.class);
+            InntektsmeldingDialogRest.class, ForespørselRestTjeneste.class, InntektsmeldingTjeneste.class);
 
     }
 

@@ -18,7 +18,6 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "arbeidsgiver.notifikasjon.url", endpointDefault = "https://ag-notifikasjon-produsent-api.intern.nav.no", scopesProperty = "arbeidsgiver.notifikasjon.scopes", scopesDefault = "api://prod-gcp.fager.notifikasjon-produsent-api/.default")
 class ArbeidsgiverNotifikasjonKlient {
-
     private static final String ERROR_RESPONSE = "F-102030";
 
     private RestClient restKlient;

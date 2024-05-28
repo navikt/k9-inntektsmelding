@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import no.nav.familie.inntektsmelding.database.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.database.modell.ForespørselRepository;
@@ -14,6 +15,7 @@ import no.nav.familie.inntektsmelding.typer.FagsakSaksnummer;
 import no.nav.familie.inntektsmelding.typer.Organisasjonsnummer;
 
 @ApplicationScoped
+@Default
 public class ForespørselTjenesteImpl implements ForespørselTjeneste {
 
     private ForespørselRepository forespørselRepository;
