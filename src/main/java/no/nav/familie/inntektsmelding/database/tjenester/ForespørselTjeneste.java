@@ -1,8 +1,10 @@
 package no.nav.familie.inntektsmelding.database.tjenester;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.database.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørId;
 import no.nav.familie.inntektsmelding.typer.FagsakSaksnummer;

@@ -86,8 +86,16 @@ public class ForespørselEntitet {
         return sakId;
     }
 
+    void setSakId(String sakId) {
+        this.sakId = sakId;
+    }
+
     public String getOppgaveId() {
         return oppgaveId;
+    }
+
+    void setOppgaveId(String oppgaveId) {
+        this.oppgaveId = oppgaveId;
     }
 
     public String getOrganisasjonsnummer() {

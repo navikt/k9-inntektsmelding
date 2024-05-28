@@ -33,23 +33,27 @@ public class ForespørselRepository {
     }
 
     public void oppdaterOppgaveId(UUID forespørselUUID, String oppgaveId) {
-        entityManager.createQuery("UPDATE ForespørselEntitet " + "SET oppgaveId = :oppgaveID " + "where uuid = :foresporselUUID")
-            .setParameter("foresporselUUID", forespørselUUID)
-            .setParameter("oppgaveID", oppgaveId)
-            .executeUpdate();
-        entityManager.flush();
+        var forespørselOpt = hentForespørsel(forespørselUUID);
+        if (forespørselOpt.isPresent()) {
+            var forespørsel = forespørselOpt.get();
+            forespørsel.setOppgaveId(oppgaveId);
+            entityManager.persist(forespørsel);
+            entityManager.flush();
+        }
     }
 
     public void oppdaterSakId(UUID forespørselUUID, String sakId) {
-        entityManager.createQuery("UPDATE ForespørselEntitet " + "SET sakId = :sakId " + "where uuid = :foresporselUUID")
-            .setParameter("foresporselUUID", forespørselUUID)
-            .setParameter("sakId", sakId)
-            .executeUpdate();
-        entityManager.flush();
+        var forespørselOpt = hentForespørsel(forespørselUUID);
+        if (forespørselOpt.isPresent()) {
+            var forespørsel = forespørselOpt.get();
+            forespørsel.setSakId(sakId);
+            entityManager.persist(forespørsel);
+            entityManager.flush();
+        }
     }
 
     public Optional<ForespørselEntitet> hentForespørsel(UUID uuid) {
-        var query = entityManager.createQuery("SELECT * FROM ForespørselEntitet where uuid = :foresporselUUID", ForespørselEntitet.class)
+        var query = entityManager.createQuery("SELECT f FROM ForespørselEntitet f where uuid = :foresporselUUID", ForespørselEntitet.class)
             .setParameter("foresporselUUID", uuid);
 
         var resultList = query.getResultList();

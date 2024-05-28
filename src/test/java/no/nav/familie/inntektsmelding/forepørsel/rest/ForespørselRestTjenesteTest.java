@@ -1,16 +1,21 @@
 package no.nav.familie.inntektsmelding.forepørsel.rest;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 
 import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.database.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.database.tjenester.ForespørselTjenesteImpl;
+import no.nav.familie.inntektsmelding.database.tjenester.InnkommendeForespørselTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørId;
 import no.nav.familie.inntektsmelding.typer.FagsakSaksnummer;
@@ -28,7 +33,12 @@ public class ForespørselRestTjenesteTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         this.forespørselRepository = new ForespørselRepository(getEntityManager());
-        this.forespørselRestTjeneste = new ForespørselRestTjeneste(new ForespørselTjenesteImpl(forespørselRepository));
+        ArbeidsgiverNotifikasjon mock = Mockito.mock(ArbeidsgiverNotifikasjon.class);
+        this.forespørselRestTjeneste = new ForespørselRestTjeneste(new InnkommendeForespørselTjeneste(
+            new ForespørselTjenesteImpl(forespørselRepository), mock));
+        when(mock.opprettSak(any(), any(), any(), any(), any())).thenReturn("1");
+        when(mock.opprettOppgave(any(), any(), any(), any(), any(), any())).thenReturn("2");
+
     }
 
     @Test
