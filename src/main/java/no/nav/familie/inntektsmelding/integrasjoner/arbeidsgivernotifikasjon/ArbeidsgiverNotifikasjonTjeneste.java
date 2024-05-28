@@ -2,15 +2,21 @@ package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.List;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+@ApplicationScoped
 class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
     static final String SERVICE_CODE = "4936";
     static final String SERVICE_EDITION_CODE = "1";
 
     private ArbeidsgiverNotifikasjonKlient klient;
+
+    public ArbeidsgiverNotifikasjonTjeneste() {
+    }
 
     @Inject
     public ArbeidsgiverNotifikasjonTjeneste(ArbeidsgiverNotifikasjonKlient klient) {
@@ -56,6 +62,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         input.setNotifikasjon(new NotifikasjonInput(notifikasjonLenke.toString(), notifikasjonMerkelapp.getBeskrivelse(), notifikasjonTekst));
         input.setMetadata(new MetadataInput(eksternId, grupperingsid, null, null, virksomhetsnummer));
         request.setNyOppgave(input);
+
 
         var projection = new NyOppgaveResultatResponseProjection().typename()
             .onNyOppgaveVellykket(new NyOppgaveVellykketResponseProjection().id())

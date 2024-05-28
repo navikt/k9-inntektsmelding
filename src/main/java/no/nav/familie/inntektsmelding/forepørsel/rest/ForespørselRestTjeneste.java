@@ -11,6 +11,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import no.nav.familie.inntektsmelding.database.tjenester.ForespørselTjeneste;
+import no.nav.familie.inntektsmelding.database.tjenester.InnkommendeForespørselTjeneste;
 import no.nav.familie.inntektsmelding.typer.AktørId;
 import no.nav.familie.inntektsmelding.typer.Organisasjonsnummer;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
@@ -21,14 +22,14 @@ import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 @Produces(MediaType.APPLICATION_JSON)
 public class ForespørselRestTjeneste {
 
-    private ForespørselTjeneste forespørselTjeneste;
+    private InnkommendeForespørselTjeneste innkommendeForespørselTjeneste;
 
     public ForespørselRestTjeneste() {
     }
 
     @Inject
-    public ForespørselRestTjeneste(ForespørselTjeneste forespørselTjeneste) {
-        this.forespørselTjeneste = forespørselTjeneste;
+    public ForespørselRestTjeneste(InnkommendeForespørselTjeneste innkommendeForespørselTjeneste) {
+        this.innkommendeForespørselTjeneste = innkommendeForespørselTjeneste;
     }
 
     public static final String BASE_PATH = "/foresporsel";
@@ -39,9 +40,8 @@ public class ForespørselRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter en forespørsel om inntektsmelding", tags = "forespørsel")
     public Response opprettForespørsel(OpprettForespørselRequest request) {
-        forespørselTjeneste.opprettForespørsel(request.skjæringstidspunkt(), request.ytelsetype(), new AktørId(request.aktørId().getId()),
+        innkommendeForespørselTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), request.ytelsetype(), new AktørId(request.aktørId().getId()),
             new Organisasjonsnummer(request.orgnummer().getOrgnr()), request.saksnummer());
-
         return Response.ok().build();
     }
 
