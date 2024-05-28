@@ -39,18 +39,35 @@ public class InnkommendeForespørselTjeneste {
                                               FagsakSaksnummer fagsakSaksnummer) {
         var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
 
-        var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), organisasjonsnummer.getOrgnr(), "Inntektsmelding for person",
-            URI.create(inntektsmeldingSkjemaLenke + "/im-dialog/" + uuid), Merkelapp.INNTEKTSMELDING_PSB);
+        var merkelapp = finnMerkelapp(ytelsetype);
+        var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
+            organisasjonsnummer.getOrgnr(),
+            "Inntektsmelding for person",
+            URI.create(inntektsmeldingSkjemaLenke + "/im-dialog/" + uuid),
+            merkelapp);
 
         forespørselTjeneste.setSakId(uuid, sakId);
 
-        var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), uuid.toString(), organisasjonsnummer.getOrgnr(),
-            "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", URI.create(inntektsmeldingSkjemaLenke + "/im-dialog/" + uuid),
-            Merkelapp.INNTEKTSMELDING_PSB);
+        var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), uuid.toString(),
+            organisasjonsnummer.getOrgnr(),
+            "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt",
+            URI.create(inntektsmeldingSkjemaLenke + "/im-dialog/" + uuid),
+            merkelapp);
 
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
 
 
+    }
+
+    private Merkelapp finnMerkelapp(Ytelsetype ytelsetype) {
+        return switch (ytelsetype) {
+            case FORELDREPENGER -> Merkelapp.INNTEKTSMELDING_FP;
+            case PLEIEPENGER_SYKT_BARN -> Merkelapp.INNTEKTSMELDING_PSB;
+            case OMSORGSPENGER -> Merkelapp.INNTEKTSMELDING_OMP;
+            case SVANGERSKAPSPENGER -> Merkelapp.INNTEKTSMELDING_SVP;
+            case PLEIEPENGER_I_LIVETS_SLUTTFASE -> Merkelapp.INNTEKTSMELDING_PILS;
+            case OPPLÆRINGSPENGER -> Merkelapp.INNTEKTSMELDING_OPP;
+        };
     }
 
 }
