@@ -1,8 +1,7 @@
-package no.nav.familie.inntektsmelding.rest.imdialog;
+package no.nav.familie.inntektsmelding.imdialog;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -12,9 +11,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.GET;
@@ -28,7 +24,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTje
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørId;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
@@ -46,12 +41,14 @@ public class InntektsmeldingDialogRest {
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private InntektTjeneste inntektTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     @Inject
-    public InntektsmeldingDialogRest(PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste, InntektTjeneste inntektTjeneste) {
+    public InntektsmeldingDialogRest(PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste, InntektTjeneste inntektTjeneste, InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.inntektTjeneste = inntektTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     InntektsmeldingDialogRest() {
@@ -102,6 +99,7 @@ public class InntektsmeldingDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sender inn inntektsmelding", tags = "imdialog")
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+        inntektsmeldingTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok(sendInntektsmeldingRequestDto).build();
     }
 
@@ -127,20 +125,5 @@ public class InntektsmeldingDialogRest {
     }
 
     public record MånedsinntektResponsDto(LocalDate fom, LocalDate tom, BigDecimal beløp, String organisasjonsnummer) {
-    }
-
-    public record RefusjonsperiodeRequestDto(@NotNull LocalDate fom, LocalDate tom,
-                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
-    }
-
-    public record NaturalytelseRequestDto(@NotNull LocalDate fom, LocalDate tom, @NotNull Naturalytelsetype naturalytelsetype,
-                                          @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
-    }
-
-    public record SendInntektsmeldingRequestDto(@NotNull @Valid AktørIdRequestDto aktorId, @NotNull @Valid Ytelsetype ytelse,
-                                                @NotNull String arbeidsgiverIdent, @NotNull String telefonnummer, @NotNull LocalDate startdato,
-                                                @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
-                                                @NotNull List<@Valid RefusjonsperiodeRequestDto> refusjonsperioder,
-                                                @NotNull List<@Valid NaturalytelseRequestDto> bortfaltNaturaltytelsePerioder) {
     }
 }

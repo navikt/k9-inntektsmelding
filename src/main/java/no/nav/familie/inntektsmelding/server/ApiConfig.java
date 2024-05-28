@@ -17,7 +17,7 @@ import io.swagger.v3.oas.models.servers.Server;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import no.nav.familie.inntektsmelding.forepørsel.rest.ForespørselRestTjeneste;
-import no.nav.familie.inntektsmelding.rest.imdialog.InntektsmeldingDialogRest;
+import no.nav.familie.inntektsmelding.imdialog.InntektsmeldingDialogRest;
 import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;

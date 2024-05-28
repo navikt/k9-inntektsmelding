@@ -73,4 +73,20 @@ public class ForespørselRepository {
     }
 
 
+    public Optional<ForespørselEntitet> finnForespørsel(String aktørId, String arbeidsgiverIdent, LocalDate startdato) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet where brukerAktørId = :brukerAktørId and organisasjonsnummer = :arbeidsgiverIdent "
+                + "and skjæringstidspunkt = :skjæringstidspunkt", ForespørselEntitet.class)
+            .setParameter("brukerAktørId", aktørId)
+            .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
+            .setParameter("skjæringstidspunkt", startdato);
+
+        var resultList = query.getResultList();
+        if (resultList.isEmpty()) {
+            return Optional.empty();
+        } else if (resultList.size() > 1) {
+            throw new IllegalStateException("Forventet å finne kun en forespørsel for gitt aktørId arbeidsgiver og startdato" + aktørId + arbeidsgiverIdent + startdato);
+        } else {
+            return Optional.of(resultList.getFirst());
+        }
+    }
 }
