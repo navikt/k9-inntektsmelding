@@ -53,7 +53,7 @@ public class ForespørselRepository {
     }
 
     public Optional<ForespørselEntitet> hentForespørsel(UUID uuid) {
-        var query = entityManager.createQuery("SELECT f FROM ForespørselEntitet f where uuid = :foresporselUUID", ForespørselEntitet.class)
+        var query = entityManager.createQuery("FROM ForespørselEntitet where uuid = :foresporselUUID", ForespørselEntitet.class)
             .setParameter("foresporselUUID", uuid);
 
         var resultList = query.getResultList();
@@ -67,7 +67,7 @@ public class ForespørselRepository {
     }
 
     public List<ForespørselEntitet> hentForespørsler(FagsakSaksnummer saksnummer) {
-        var query = entityManager.createQuery("SELECT f FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)
+        var query = entityManager.createQuery("FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)
             .setParameter("saksnr", saksnummer.getSaksnr());
         return query.getResultList();
     }
