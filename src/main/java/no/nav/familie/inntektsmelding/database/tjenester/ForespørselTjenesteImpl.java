@@ -1,10 +1,12 @@
 package no.nav.familie.inntektsmelding.database.tjenester;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import no.nav.familie.inntektsmelding.database.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.database.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørId;
@@ -44,6 +46,11 @@ public class ForespørselTjenesteImpl implements ForespørselTjeneste {
     public void setSakId(UUID forespørselUUID, String sakId) {
         forespørselRepository.oppdaterSakId(forespørselUUID, sakId);
 
+    }
+
+    @Override
+    public Optional<ForespørselEntitet> finnForespørsel(String aktørId, String arbeidsgiverIdent, LocalDate startdato) {
+        return forespørselRepository.finnForespørsel(aktørId, arbeidsgiverIdent, startdato);
     }
 
 }

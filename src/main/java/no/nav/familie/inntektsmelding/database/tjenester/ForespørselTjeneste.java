@@ -22,4 +22,5 @@ public interface ForespørselTjeneste {
     void setOppgaveId(UUID forespørselUUID, String oppgaveId);
     void setSakId(UUID forespørselUUID, String sakId);
 
+    Optional<ForespørselEntitet> finnForespørsel(String aktørId, String arbeidsgiverIdent, LocalDate startdato);
 }

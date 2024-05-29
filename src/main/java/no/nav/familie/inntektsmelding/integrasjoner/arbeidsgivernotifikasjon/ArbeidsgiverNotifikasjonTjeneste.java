@@ -15,8 +15,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
     private ArbeidsgiverNotifikasjonKlient klient;
 
-    public ArbeidsgiverNotifikasjonTjeneste() {
-    }
+    public ArbeidsgiverNotifikasjonTjeneste() {}
 
     @Inject
     public ArbeidsgiverNotifikasjonTjeneste(ArbeidsgiverNotifikasjonKlient klient) {
