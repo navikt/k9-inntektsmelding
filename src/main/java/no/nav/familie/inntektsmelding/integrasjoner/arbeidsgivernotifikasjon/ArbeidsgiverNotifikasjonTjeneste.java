@@ -7,16 +7,12 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-@ApplicationScoped
 class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
     static final String SERVICE_CODE = "4936";
     static final String SERVICE_EDITION_CODE = "1";
 
     private ArbeidsgiverNotifikasjonKlient klient;
-
-    public ArbeidsgiverNotifikasjonTjeneste() {
-    }
 
     @Inject
     public ArbeidsgiverNotifikasjonTjeneste(ArbeidsgiverNotifikasjonKlient klient) {

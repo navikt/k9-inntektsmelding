@@ -8,7 +8,6 @@ import java.net.http.HttpRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
@@ -18,13 +17,11 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "arbeidsgiver.notifikasjon.url", endpointDefault = "https://ag-notifikasjon-produsent-api.intern.nav.no", scopesProperty = "arbeidsgiver.notifikasjon.scopes", scopesDefault = "api://prod-gcp.fager.notifikasjon-produsent-api/.default")
 class ArbeidsgiverNotifikasjonKlient {
+
     private static final String ERROR_RESPONSE = "F-102030";
 
-    private RestClient restKlient;
-    private RestConfig restConfig;
-
-    public ArbeidsgiverNotifikasjonKlient() {
-    }
+    private final RestClient restKlient;
+    private final RestConfig restConfig;
 
     public ArbeidsgiverNotifikasjonKlient(RestClient restKlient) {
         this.restKlient = restKlient;

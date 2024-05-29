@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import jakarta.transaction.Transactional;
 import no.nav.familie.inntektsmelding.database.tjenester.ForespørselTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 
