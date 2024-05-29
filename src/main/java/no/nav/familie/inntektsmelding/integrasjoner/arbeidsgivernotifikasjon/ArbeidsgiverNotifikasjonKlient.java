@@ -8,6 +8,7 @@ import java.net.http.HttpRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
@@ -20,8 +21,11 @@ class ArbeidsgiverNotifikasjonKlient {
 
     private static final String ERROR_RESPONSE = "F-102030";
 
-    private final RestClient restKlient;
-    private final RestConfig restConfig;
+    private RestClient restKlient;
+    private RestConfig restConfig;
+
+    public ArbeidsgiverNotifikasjonKlient() {
+    }
 
     public ArbeidsgiverNotifikasjonKlient(RestClient restKlient) {
         this.restKlient = restKlient;
