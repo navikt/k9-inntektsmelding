@@ -34,7 +34,6 @@ jobs:
   publish-image-k9:
     name: Build på nytt for publisering til k9saksbehandling i GAR
     if: github.ref_name == 'master'
-    needs: build-app
     permissions:
       contents: read
       packages: write
