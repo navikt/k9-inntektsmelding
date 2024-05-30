@@ -2,15 +2,15 @@ package no.nav.familie.inntektsmelding.typer;
 
 import java.util.Objects;
 
-public final class Organisasjonsnummer {
+public final class OrganisasjonsnummerDto {
 
     private String orgnr;
 
 
-    public Organisasjonsnummer() {
+    public OrganisasjonsnummerDto() {
     }
 
-    public Organisasjonsnummer(String orgnr) {
+    public OrganisasjonsnummerDto(String orgnr) {
         Objects.requireNonNull(orgnr, "orgnr");
         if (!OrganisasjonsNummerValidator.erGyldig(orgnr)) {
             throw new IllegalArgumentException("Orgnummer er ugyldig");
@@ -30,7 +30,7 @@ public final class Organisasjonsnummer {
         if (obj == null || obj.getClass() != this.getClass()) {
             return false;
         }
-        var that = (Organisasjonsnummer) obj;
+        var that = (OrganisasjonsnummerDto) obj;
         return Objects.equals(this.orgnr, that.orgnr);
     }
 

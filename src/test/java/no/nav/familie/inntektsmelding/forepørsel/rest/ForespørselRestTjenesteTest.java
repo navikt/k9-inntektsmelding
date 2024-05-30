@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
+import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,10 +18,9 @@ import no.nav.familie.inntektsmelding.database.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.database.tjenester.ForespørselTjenesteImpl;
 import no.nav.familie.inntektsmelding.database.tjenester.InnkommendeForespørselTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.AktørId;
-import no.nav.familie.inntektsmelding.typer.FagsakSaksnummer;
-import no.nav.familie.inntektsmelding.typer.Organisasjonsnummer;
+import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 @ExtendWith(JpaExtension.class)
@@ -43,10 +44,10 @@ public class ForespørselRestTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     void skal_opprette_forespørsel() {
-        var fagsakSaksnummer = new FagsakSaksnummer("SAK");
+        var fagsakSaksnummer = new SaksnummerDto("SAK");
         forespørselRestTjeneste.opprettForespørsel(
-            new OpprettForespørselRequest(new AktørId("1234567890134"), new Organisasjonsnummer(BRREG_ORGNUMMER), LocalDate.now(),
-                Ytelsetype.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
+            new OpprettForespørselRequest(new AktørIdDto("1234567890134"), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), LocalDate.now(),
+                YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
 
         var forespørsler = forespørselRepository.hentForespørsler(fagsakSaksnummer);
 

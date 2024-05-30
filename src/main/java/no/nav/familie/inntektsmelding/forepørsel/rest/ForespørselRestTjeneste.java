@@ -10,10 +10,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import no.nav.familie.inntektsmelding.database.tjenester.ForespørselTjeneste;
 import no.nav.familie.inntektsmelding.database.tjenester.InnkommendeForespørselTjeneste;
-import no.nav.familie.inntektsmelding.typer.AktørId;
-import no.nav.familie.inntektsmelding.typer.Organisasjonsnummer;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @ApplicationScoped
@@ -40,11 +41,21 @@ public class ForespørselRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter en forespørsel om inntektsmelding", tags = "forespørsel")
     public Response opprettForespørsel(OpprettForespørselRequest request) {
-        innkommendeForespørselTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), request.ytelsetype(), new AktørId(request.aktørId().getId()),
-            new Organisasjonsnummer(request.orgnummer().getOrgnr()), request.saksnummer());
+        innkommendeForespørselTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), map(request.ytelsetype()), new AktørIdDto(request.aktørId().id()),
+            new OrganisasjonsnummerDto(request.orgnummer().getOrgnr()), request.saksnummer());
         return Response.ok().build();
     }
 
+    private static Ytelsetype map(YtelseTypeDto ytelseTypeDto) {
+        return switch (ytelseTypeDto) {
+            case FORELDREPENGER -> Ytelsetype.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> Ytelsetype.SVANGERSKAPSPENGER;
+            case OMSORGSPENGER -> Ytelsetype.OMSORGSPENGER;
+            case OPPLÆRINGSPENGER -> Ytelsetype.OPPLÆRINGSPENGER;
+            case PLEIEPENGER_SYKT_BARN -> Ytelsetype.PLEIEPENGER_SYKT_BARN;
+            case PLEIEPENGER_I_LIVETS_SLUTTFASE -> Ytelsetype.PLEIEPENGER_I_LIVETS_SLUTTFASE;
+        };
+    }
 
 }
 

@@ -9,9 +9,9 @@ import jakarta.inject.Inject;
 import no.nav.familie.inntektsmelding.database.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.database.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.AktørId;
-import no.nav.familie.inntektsmelding.typer.FagsakSaksnummer;
-import no.nav.familie.inntektsmelding.typer.Organisasjonsnummer;
+import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 
 @ApplicationScoped
 public class ForespørselTjenesteImpl implements ForespørselTjeneste {
@@ -29,10 +29,10 @@ public class ForespørselTjenesteImpl implements ForespørselTjeneste {
     @Override
     public UUID opprettForespørsel(LocalDate skjæringstidspunkt,
                                    Ytelsetype ytelseType,
-                                   AktørId brukerAktørId,
-                                   Organisasjonsnummer orgnr,
-                                   FagsakSaksnummer fagsakSaksnummer) {
-        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getId(), orgnr.getOrgnr(),
+                                   AktørIdDto brukerAktørId,
+                                   OrganisasjonsnummerDto orgnr,
+                                   SaksnummerDto fagsakSaksnummer) {
+        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.id(), orgnr.getOrgnr(),
             fagsakSaksnummer.getSaksnr());
     }
 

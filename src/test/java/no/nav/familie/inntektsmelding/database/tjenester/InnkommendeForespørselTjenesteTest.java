@@ -17,9 +17,9 @@ import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.database.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.AktørId;
-import no.nav.familie.inntektsmelding.typer.FagsakSaksnummer;
-import no.nav.familie.inntektsmelding.typer.Organisasjonsnummer;
+import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
 
 @ExtendWith(CdiAwareExtension.class)
@@ -50,13 +50,13 @@ public class InnkommendeForespørselTjenesteTest {
     @Test
     public void skal_opprette_forespørsel_og_sette_sak_og_oppgave() {
         var skjæringstidspunkt = LocalDate.now();
-        var aktørId = new AktørId("1234567891234");
+        var aktørId = new AktørIdDto("1234567891234");
         var saksnummer = "FAGSAK_SAKEN";
         innkommendeForespørselTjeneste.håndterInnkommendeForespørsel(skjæringstidspunkt, Ytelsetype.PLEIEPENGER_SYKT_BARN, aktørId,
-                new Organisasjonsnummer(BRREG_ORGNUMMER), new FagsakSaksnummer(saksnummer));
+                new OrganisasjonsnummerDto(BRREG_ORGNUMMER), new SaksnummerDto(saksnummer));
 
 
-        var lagret = forespørselRepository.hentForespørsler(new FagsakSaksnummer(saksnummer));
+        var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(saksnummer));
 
         assertThat(lagret.size()).isEqualTo(1);
         assertThat(lagret.get(0).getSakId()).isEqualTo(SAK_ID);

@@ -9,7 +9,7 @@ import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.familie.inntektsmelding.typer.AktørId;
+import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.tjenester.aordningen.inntektsinformasjon.ArbeidsInntektIdent;
 import no.nav.tjenester.aordningen.inntektsinformasjon.inntekt.Inntekt;
 import no.nav.tjenester.aordningen.inntektsinformasjon.inntekt.InntektType;
@@ -29,13 +29,13 @@ public class InntektTjeneste {
         this.inntektskomponentKlient = inntektskomponentKlient;
     }
 
-    public List<Månedsinntekt> hentInntekt(AktørId aktørId, LocalDate startdato, String organisasjonsnummer) {
+    public List<Månedsinntekt> hentInntekt(AktørIdDto aktørId, LocalDate startdato, String organisasjonsnummer) {
         var request = lagRequest(aktørId, startdato);
         var respons = inntektskomponentKlient.finnInntekt(request);
         return oversettRespons(respons, aktørId, organisasjonsnummer);
     }
 
-    private List<Månedsinntekt> oversettRespons(HentInntektListeBolkResponse response, AktørId aktørId, String organisasjonsnummer) {
+    private List<Månedsinntekt> oversettRespons(HentInntektListeBolkResponse response, AktørIdDto aktørId, String organisasjonsnummer) {
         if (response.getSikkerhetsavvikListe() != null && !response.getSikkerhetsavvikListe().isEmpty()) {
             throw new IntegrasjonException("FP-535194",
                 String.format("Fikk følgende sikkerhetsavvik ved kall til inntektstjenesten: %s.", byggSikkerhetsavvikString(response)));
@@ -45,7 +45,7 @@ public class InntektTjeneste {
             response.getArbeidsInntektIdentListe() == null ? Collections.emptyList() : response.getArbeidsInntektIdentListe();
 
         var inntektPerMånedForBruker = inntektListeRespons.stream()
-            .filter(a -> a.getIdent().getIdentifikator().equals(aktørId.getId()))
+            .filter(a -> a.getIdent().getIdentifikator().equals(aktørId.id()))
             .findFirst()
             .map(ArbeidsInntektIdent::getArbeidsInntektMaaned)
             .orElse(List.of());
@@ -71,14 +71,14 @@ public class InntektTjeneste {
     public record Månedsinntekt(YearMonth måned, BigDecimal beløp, String organisasjonsnummer) {
     }
 
-    private FinnInntektRequest lagRequest(AktørId aktørId, LocalDate startdato) {
+    private FinnInntektRequest lagRequest(AktørIdDto aktørId, LocalDate startdato) {
         var fomDato = startdato.minusMonths(3);
         var tomDato = startdato.minusMonths(1);
 
         var fomÅrMåned = YearMonth.of(fomDato.getYear(), fomDato.getMonth());
         var tomÅrMåned = YearMonth.of(tomDato.getYear(), tomDato.getMonth());
 
-        return new FinnInntektRequest(aktørId.getId(), fomÅrMåned, tomÅrMåned);
+        return new FinnInntektRequest(aktørId.id(), fomÅrMåned, tomÅrMåned);
     }
 
     private String byggSikkerhetsavvikString(HentInntektListeBolkResponse response) {

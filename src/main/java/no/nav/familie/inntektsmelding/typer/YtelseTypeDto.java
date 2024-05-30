@@ -1,6 +1,6 @@
-package no.nav.familie.inntektsmelding.koder;
+package no.nav.familie.inntektsmelding.typer;
 
-public enum Ytelsetype {
+public enum YtelseTypeDto {
     FORELDREPENGER,
     SVANGERSKAPSPENGER,
     PLEIEPENGER_SYKT_BARN,

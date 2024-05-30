@@ -7,8 +7,8 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.AktørId;
+import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
@@ -37,15 +37,15 @@ public class PersonTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public PersonInfo hentPersonInfo(AktørId aktørId, Ytelsetype ytelseType) {
+    public PersonInfo hentPersonInfo(AktørIdDto aktørId, YtelseTypeDto ytelseType) {
         var request = new HentPersonQueryRequest();
-        request.setIdent(aktørId.getId());
+        request.setIdent(aktørId.id());
 
         var projection = new PersonResponseProjection()
             .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn());
 
         PersonIdent personIdent = hentPersonidentForAktørId(aktørId)
-            .orElseThrow(() -> new IllegalStateException("Finner ikke personnummer for aktørId " + aktørId));
+            .orElseThrow(() -> new IllegalStateException("Finner ikke personnummer for id " + aktørId));
 
         var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
 
@@ -67,9 +67,9 @@ public class PersonTjeneste {
         return Optional.of(navn.getEtternavn() + " " + navn.getFornavn() + (navn.getMellomnavn() == null ? "" : " " + navn.getMellomnavn()));
     }
 
-    private Optional<PersonIdent> hentPersonidentForAktørId(AktørId aktørId) {
+    private Optional<PersonIdent> hentPersonidentForAktørId(AktørIdDto aktørId) {
         var request = new HentIdenterQueryRequest();
-        request.setIdent(aktørId.getId());
+        request.setIdent(aktørId.id());
         request.setGrupper(List.of(IdentGruppe.FOLKEREGISTERIDENT, IdentGruppe.NPID));
         request.setHistorikk(Boolean.FALSE);
         var projection = new IdentlisteResponseProjection()
@@ -87,8 +87,8 @@ public class PersonTjeneste {
         }
     }
 
-    private static Persondata.Ytelse utledYtelse(Ytelsetype ytelseType) {
-        if (Ytelsetype.SVANGERSKAPSPENGER.equals(ytelseType)) {
+    private static Persondata.Ytelse utledYtelse(YtelseTypeDto ytelseType) {
+        if (YtelseTypeDto.SVANGERSKAPSPENGER.equals(ytelseType)) {
             return Persondata.Ytelse.SVANGERSKAPSPENGER;
         } else {
             return Persondata.Ytelse.FORELDREPENGER;

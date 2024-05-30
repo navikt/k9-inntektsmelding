@@ -8,9 +8,9 @@ import jakarta.inject.Inject;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.AktørId;
-import no.nav.familie.inntektsmelding.typer.FagsakSaksnummer;
-import no.nav.familie.inntektsmelding.typer.Organisasjonsnummer;
+import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
@@ -34,9 +34,9 @@ public class InnkommendeForespørselTjeneste {
 
     public void håndterInnkommendeForespørsel(LocalDate skjæringstidspunkt,
                                               Ytelsetype ytelsetype,
-                                              AktørId aktørId,
-                                              Organisasjonsnummer organisasjonsnummer,
-                                              FagsakSaksnummer fagsakSaksnummer) {
+                                              AktørIdDto aktørId,
+                                              OrganisasjonsnummerDto organisasjonsnummer,
+                                              SaksnummerDto fagsakSaksnummer) {
         var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
 
         var merkelapp = finnMerkelapp(ytelsetype);
