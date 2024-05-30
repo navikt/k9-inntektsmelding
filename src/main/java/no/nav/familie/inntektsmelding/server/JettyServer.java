@@ -27,7 +27,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 
 import static org.eclipse.jetty.ee10.webapp.MetaInfConfiguration.CONTAINER_JAR_PATTERN;
@@ -128,7 +127,7 @@ public class JettyServer {
 
     public static DataSource dataSource() {
         var config = new HikariConfig();
-        config.setJdbcUrl(dbUrl());
+        config.setJdbcUrl(ENV.getRequiredProperty("DB_JDBC_URL"));
         config.setUsername(ENV.getRequiredProperty("DB_USERNAME"));
         config.setPassword(ENV.getRequiredProperty("DB_PASSWORD"));
         config.setMinimumIdle(1);
@@ -147,16 +146,6 @@ public class JettyServer {
         config.setDataSourceProperties(dsProperties);
 
         return new HikariDataSource(config);
-    }
-
-    private static String dbUrl() {
-        if (ENV.isLocal()) {
-            var host = ENV.getRequiredProperty("DB_HOST");
-            var port = ENV.getRequiredProperty("DB_PORT");
-            var databaseName = ENV.getRequiredProperty("DB_DATABASE");
-            return "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
-        }
-        return ENV.getRequiredProperty("DB_JDBC_URL");
     }
 
     private void start() throws Exception {

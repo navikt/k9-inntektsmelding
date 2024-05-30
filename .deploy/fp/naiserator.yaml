@@ -78,7 +78,7 @@ spec:
           permissions:
             scopes:
               - swagger
-        - application: fp-sak
+        - application: fpsak
           namespace: teamforeldrepenger
           cluster: {{environment}}-fss
         - application: ft-inntektsmelding-frontend
