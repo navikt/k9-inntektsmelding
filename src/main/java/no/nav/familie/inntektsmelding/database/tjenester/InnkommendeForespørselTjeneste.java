@@ -43,7 +43,6 @@ public class InnkommendeForespørselTjeneste {
         var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             organisasjonsnummer.getOrgnr(),
             "Inntektsmelding for person",
-            URI.create(""),
             merkelapp);
 
         forespørselTjeneste.setSakId(uuid, sakId);

@@ -2,7 +2,6 @@ package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,7 +14,8 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
     private ArbeidsgiverNotifikasjonKlient klient;
 
-    public ArbeidsgiverNotifikasjonTjeneste() {}
+    public ArbeidsgiverNotifikasjonTjeneste() {
+    }
 
     @Inject
     public ArbeidsgiverNotifikasjonTjeneste(ArbeidsgiverNotifikasjonKlient klient) {
@@ -23,15 +23,13 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String opprettSak(String grupperingsid, String virksomhetsnummer, String saksTittel, URI lenke, Merkelapp merkelapp) {
-
+    public String opprettSak(String grupperingsid, String virksomhetsnummer, String saksTittel, Merkelapp merkelapp) {
         var request = new NySakMutationRequest();
 
         request.setGrupperingsid(grupperingsid);
         request.setTittel(saksTittel);
         request.setVirksomhetsnummer(virksomhetsnummer);
         request.setMerkelapp(merkelapp.getBeskrivelse());
-        request.setLenke(lenke.toString());
         request.setInitiellStatus(SaksStatus.MOTTATT);
 
 
