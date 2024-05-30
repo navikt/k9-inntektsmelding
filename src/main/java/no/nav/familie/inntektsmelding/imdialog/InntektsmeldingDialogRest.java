@@ -79,7 +79,7 @@ public class InntektsmeldingDialogRest {
         return organisassjonInfoDto.map(oi -> Response.ok(organisassjonInfoDto).build()).orElse(Response.noContent().build());
     }
 
-    @GET
+    @POST
     @UtenAutentisering
     @Path(HENT_INNTEKT)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
