@@ -69,7 +69,7 @@ jobs:
     needs: [publish-image-k9]
     uses: navikt/ft-inntektsmelding/.github/workflows/deploy.yml@master
     with:
-      image: ${{ needs.build-app.outputs.build-version }}
+      image: ${{ needs.publish-image-k9.outputs.build-version }}
       cluster: dev-gcp
       namespace: k9saksbehandling
     secrets: inherit
