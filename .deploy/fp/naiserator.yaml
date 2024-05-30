@@ -47,7 +47,7 @@ spec:
     sqlInstances:
       - type: POSTGRES_15
         databases:
-          - name: ftinntektsmelding
+          - name: fpinntektsmelding
           - envVarPrefix: DB
         tier: {{dbTier}}
         diskAutoresize: {{dbDiskAutoresize}}
