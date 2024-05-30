@@ -28,19 +28,53 @@ jobs:
       postgres-user: ftinntektsmelding_unit
       build-image: ${{ github.ref_name == 'master' }} # default: true
       push-image: ${{ github.ref_name == 'master' }} # default: false
+      namespace: teamforeldrepenger
     secrets: inherit
 
-  deploy-dev:
+  publish-image-k9:
+    name: Build på nytt for publisering til k9saksbehandling i GAR
+    if: github.ref_name == 'master'
+    needs: build-app
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: navikt/fp-gha-workflows/.github/workflows/build-app-postgres.yml@main
+    with:
+      postgres-user: ftinntektsmelding_unit
+      build-image: ${{ github.ref_name == 'master' }} # default: true
+      push-image: ${{ github.ref_name == 'master' }} # default: false
+      namespace: k9saksbehandling
+      skip-tests: true
+      sonar-scan: false
+    secrets: inherit
+
+  deploy-dev-teamforeldrepenger:
     name: Deploy dev
     permissions:
       id-token: write
     if: github.ref_name == 'master'
     needs: [build-app]
-    uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
+    uses: navikt/ft-inntektsmelding/.github/workflows/deploy.yml@master
     with:
       gar: true
       image: ${{ needs.build-app.outputs.build-version }}
       cluster: dev-gcp
+      namespace: teamforeldrepenger
+    secrets: inherit
+
+  deploy-dev-k9saksbehandling:
+    name: Deploy dev
+    permissions:
+      id-token: write
+    if: github.ref_name == 'master'
+    needs: [publish-image-k9]
+    uses: navikt/ft-inntektsmelding/.github/workflows/deploy.yml@master
+    with:
+      gar: true
+      image: ${{ needs.build-app.outputs.build-version }}
+      cluster: dev-gcp
+      namespace: k9saksbehandling
     secrets: inherit
 
 #  deploy-prod:
