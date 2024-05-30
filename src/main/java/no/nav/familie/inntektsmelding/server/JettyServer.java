@@ -156,7 +156,7 @@ public class JettyServer {
             var databaseName = ENV.getRequiredProperty("DB_DATABASE");
             return "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
         }
-        return ENV.getRequiredProperty("DB_URL");
+        return "jdbc:" + ENV.getRequiredProperty("DB_URL");
     }
 
     private void start() throws Exception {
