@@ -34,7 +34,6 @@ jobs:
   publish-image-k9:
     name: Build på nytt for publisering til k9saksbehandling i GAR
     if: github.ref_name == 'master'
-    needs: build-app
     permissions:
       contents: read
       packages: write
@@ -57,7 +56,6 @@ jobs:
     needs: [build-app]
     uses: navikt/ft-inntektsmelding/.github/workflows/deploy.yml@master
     with:
-      gar: true
       image: ${{ needs.build-app.outputs.build-version }}
       cluster: dev-gcp
       namespace: teamforeldrepenger
@@ -71,8 +69,7 @@ jobs:
     needs: [publish-image-k9]
     uses: navikt/ft-inntektsmelding/.github/workflows/deploy.yml@master
     with:
-      gar: true
-      image: ${{ needs.build-app.outputs.build-version }}
+      image: ${{ needs.publish-image-k9.outputs.build-version }}
       cluster: dev-gcp
       namespace: k9saksbehandling
     secrets: inherit

@@ -48,7 +48,7 @@ spec:
       - type: POSTGRES_15
         databases:
           - name: k9-inntektsmelding
-          - envVarPrefix: DB
+            envVarPrefix: DB
         tier: {{dbTier}}
         diskAutoresize: {{dbDiskAutoresize}}
         highAvailability: {{dbHighAvailability}}
