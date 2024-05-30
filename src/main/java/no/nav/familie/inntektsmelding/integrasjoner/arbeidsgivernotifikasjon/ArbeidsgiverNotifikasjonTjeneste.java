@@ -15,7 +15,8 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
     private ArbeidsgiverNotifikasjonKlient klient;
 
-    public ArbeidsgiverNotifikasjonTjeneste() {}
+    public ArbeidsgiverNotifikasjonTjeneste() {
+    }
 
     @Inject
     public ArbeidsgiverNotifikasjonTjeneste(ArbeidsgiverNotifikasjonKlient klient) {
@@ -33,6 +34,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         request.setMerkelapp(merkelapp.getBeskrivelse());
         request.setLenke(lenke.toString());
         request.setInitiellStatus(SaksStatus.MOTTATT);
+        request.setMottakere(List.of(new MottakerInput(new AltinnMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE), null)));
 
 
         var projection = new NySakResultatResponseProjection().typename()
