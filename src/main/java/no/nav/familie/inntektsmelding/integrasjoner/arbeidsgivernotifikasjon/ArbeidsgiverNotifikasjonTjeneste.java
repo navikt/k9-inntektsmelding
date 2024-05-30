@@ -24,15 +24,13 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String opprettSak(String grupperingsid, String virksomhetsnummer, String saksTittel, URI lenke, Merkelapp merkelapp) {
-
+    public String opprettSak(String grupperingsid, String virksomhetsnummer, String saksTittel, Merkelapp merkelapp) {
         var request = new NySakMutationRequest();
 
         request.setGrupperingsid(grupperingsid);
         request.setTittel(saksTittel);
         request.setVirksomhetsnummer(virksomhetsnummer);
         request.setMerkelapp(merkelapp.getBeskrivelse());
-        request.setLenke(lenke.toString());
         request.setInitiellStatus(SaksStatus.MOTTATT);
         request.setMottakere(List.of(new MottakerInput(new AltinnMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE), null)));
 

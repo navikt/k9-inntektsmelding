@@ -43,7 +43,6 @@ public class InnkommendeForespørselTjeneste {
         var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             organisasjonsnummer.getOrgnr(),
             "Inntektsmelding for person",
-            URI.create(inntektsmeldingSkjemaLenke + "/im-dialog/" + uuid),
             merkelapp);
 
         forespørselTjeneste.setSakId(uuid, sakId);
@@ -51,7 +50,7 @@ public class InnkommendeForespørselTjeneste {
         var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), uuid.toString(),
             organisasjonsnummer.getOrgnr(),
             "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt",
-            URI.create(inntektsmeldingSkjemaLenke + "/im-dialog/" + uuid),
+            URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid),
             merkelapp);
 
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);

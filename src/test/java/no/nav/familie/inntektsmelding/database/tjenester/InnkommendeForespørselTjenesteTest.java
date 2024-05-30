@@ -40,7 +40,7 @@ public class InnkommendeForespørselTjenesteTest {
     @BeforeEach
     public void setUp() {
         this.forespørselRepository = new ForespørselRepository(entityManager);
-        when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), any(), any(), any())).thenReturn(SAK_ID);
+        when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), any(), any())).thenReturn(SAK_ID);
         when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), any(), any(), any())).thenReturn(OPPGAVE_ID);
         this.innkommendeForespørselTjeneste = new InnkommendeForespørselTjeneste(
                 new ForespørselTjenesteImpl(forespørselRepository), arbeidsgiverNotifikasjon);
