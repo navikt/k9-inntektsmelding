@@ -8,14 +8,15 @@ import java.net.http.HttpRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
-@ApplicationScoped
+@Dependent
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "arbeidsgiver.notifikasjon.url", endpointDefault = "https://ag-notifikasjon-produsent-api.intern.nav.no", scopesProperty = "arbeidsgiver.notifikasjon.scopes", scopesDefault = "api://prod-gcp.fager.notifikasjon-produsent-api/.default")
 class ArbeidsgiverNotifikasjonKlient {
 
@@ -24,7 +25,8 @@ class ArbeidsgiverNotifikasjonKlient {
     private RestClient restKlient;
     private RestConfig restConfig;
 
-    public ArbeidsgiverNotifikasjonKlient() {
+    ArbeidsgiverNotifikasjonKlient() {
+        this(RestClient.client());
     }
 
     public ArbeidsgiverNotifikasjonKlient(RestClient restKlient) {
@@ -65,11 +67,21 @@ class ArbeidsgiverNotifikasjonKlient {
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
         var restRequest = RestRequest.newRequest(method, restConfig.endpoint(), restConfig);
-        var res = restKlient.send(restRequest, clazz);
-        if (res.hasErrors()) {
+        var res = handleResponse(restKlient.sendReturnUnhandled(restRequest).body(), clazz);
+        if (res != null && res.hasErrors()) {
             return handleError(res.getErrors(), restConfig.endpoint(), ERROR_RESPONSE);
         }
         return res;
+    }
+
+    private <T> T handleResponse(String response, Class<T> clazz) {
+        if (response == null) {
+            return null;
+        }
+        if (clazz.isAssignableFrom(String.class)) {
+            return clazz.cast(response);
+        }
+        return DefaultJsonMapper.fromJson(response, clazz);
     }
 
     private static void loggFeilmelding(Error feil, String action) {
