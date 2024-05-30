@@ -31,6 +31,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         request.setVirksomhetsnummer(virksomhetsnummer);
         request.setMerkelapp(merkelapp.getBeskrivelse());
         request.setInitiellStatus(SaksStatus.MOTTATT);
+        request.setMottakere(List.of(new MottakerInput(new AltinnMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE), null)));
 
 
         var projection = new NySakResultatResponseProjection().typename()

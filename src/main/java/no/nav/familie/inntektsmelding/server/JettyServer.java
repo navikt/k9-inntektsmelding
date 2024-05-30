@@ -150,10 +150,13 @@ public class JettyServer {
     }
 
     private static String dbUrl() {
-        var host = ENV.getRequiredProperty("DB_HOST");
-        var port = ENV.getRequiredProperty("DB_PORT");
-        var databaseName = ENV.getRequiredProperty("DB_DATABASE");
-        return "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
+        if (ENV.isLocal()) {
+            var host = ENV.getRequiredProperty("DB_HOST");
+            var port = ENV.getRequiredProperty("DB_PORT");
+            var databaseName = ENV.getRequiredProperty("DB_DATABASE");
+            return "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
+        }
+        return ENV.getRequiredProperty("DB_JDBC_URL");
     }
 
     private void start() throws Exception {

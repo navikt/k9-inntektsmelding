@@ -6,7 +6,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +21,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import javax.net.ssl.SSLSession;
 
 @ExtendWith(MockitoExtension.class)
 class ArbeidsgiverNotifikasjonTjenesteTest {
@@ -46,12 +54,13 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var request = requestCaptor.getValue();
 
         var input = request.getInput();
-        assertThat(input).isNotNull().hasSize(5);
+        assertThat(input).isNotNull().hasSize(6);
         assertThat(input.get("grupperingsid")).isEqualTo(expectedGrupperingsid);
         assertThat(input.get("initiellStatus")).isEqualTo(SaksStatus.MOTTATT);
         assertThat(input.get("merkelapp")).isEqualTo(expectedMerkelapp.getBeskrivelse());
         assertThat(input.get("tittel")).isEqualTo(expectedTittel);
         assertThat(input.get("virksomhetsnummer")).isEqualTo(expectedVirksomhetsnummer);
+        assertThat(input.get("mottakere")).isNotNull();
     }
 
     @Test

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.glassfish.jersey.server.ServerProperties;
 
@@ -35,10 +36,10 @@ public class ApiConfig extends Application {
             .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
             .description("REST grensesnitt for FTINNTEKTSMELDING.");
 
-        oas.info(info).addServersItem(new Server().url("/"));
+        oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/ftinntektsmelding")));
         var oasConfig = new SwaggerConfiguration().openAPI(oas)
             .prettyPrint(true)
-            .resourceClasses(Set.of(InntektsmeldingDialogRest.class.getName(), ForespørselRestTjeneste.class.getName()));
+            .resourceClasses(getClasses().stream().map(Class::getName).collect(Collectors.toSet()));
 
         try {
             new GenericOpenApiContextBuilder<>().openApiConfiguration(oasConfig).buildContext(true).read();

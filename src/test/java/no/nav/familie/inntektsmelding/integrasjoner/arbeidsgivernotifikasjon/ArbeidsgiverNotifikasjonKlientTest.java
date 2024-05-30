@@ -27,25 +27,25 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 class ArbeidsgiverNotifikasjonKlientTest {
 
     @Mock
-    RestClient klient;
+    RestClient restClient;
 
-    private ArbeidsgiverNotifikasjonKlient tjeneste;
+    private ArbeidsgiverNotifikasjonKlient agKlient;
 
     @BeforeEach
     void setUp() {
-        tjeneste = new ArbeidsgiverNotifikasjonKlient(klient);
+        agKlient = new ArbeidsgiverNotifikasjonKlient(restClient);
     }
 
     @Nested
     class OpprettSak {
         @Test
         void opprettSak_ok() {
-            var response = new NySakMutationResponse();
             var expectedId = "12345";
+            var response = new NySakMutationResponse();
             response.setData(Map.of("nySak", new NySakVellykket(expectedId)));
-            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+            when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse(response));
 
-            var oppgave = tjeneste.opprettSak(new NySakMutationRequest(), mock(NySakResultatResponseProjection.class));
+            var oppgave = agKlient.opprettSak(new NySakMutationRequest(), mock(NySakResultatResponseProjection.class));
 
             assertThat(oppgave).isNotNull().isEqualTo(expectedId);
         }
@@ -55,10 +55,10 @@ class ArbeidsgiverNotifikasjonKlientTest {
             var expectedFeilmelding = "Det har skjedd en ny feil.";
             var response = new NySakMutationResponse();
             response.setData(Map.of("nySak", new UgyldigMerkelapp(expectedFeilmelding)));
-            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+            when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse<>(response));
 
             var request = new NySakMutationRequest();
-            var ex = assertThrows(TekniskException.class, () -> tjeneste.opprettSak(request, mock(NySakResultatResponseProjection.class)));
+            var ex = assertThrows(TekniskException.class, () -> agKlient.opprettSak(request, mock(NySakResultatResponseProjection.class)));
 
             assertThat(ex.getMessage()).contains(expectedFeilmelding);
         }
@@ -69,10 +69,10 @@ class ArbeidsgiverNotifikasjonKlientTest {
             var response = new NySakMutationResponse();
             response.setErrors(
                 List.of(new GraphQLError(expectedFeilmelding, List.of(), GraphQLErrorType.OperationNotSupported, List.of(), Map.of())));
-            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+            when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse<>(response));
 
             var request = new NySakMutationRequest();
-            var ex = assertThrows(TekniskException.class, () -> tjeneste.opprettSak(request, mock(NySakResultatResponseProjection.class)));
+            var ex = assertThrows(TekniskException.class, () -> agKlient.opprettSak(request, mock(NySakResultatResponseProjection.class)));
 
             assertThat(ex.getMessage()).contains(expectedFeilmelding);
         }
@@ -83,12 +83,12 @@ class ArbeidsgiverNotifikasjonKlientTest {
 
         @Test
         void opprettOppgave_ok() {
-            var response = new NyOppgaveMutationResponse();
             var expectedId = "12345";
+            var response = new NyOppgaveMutationResponse();
             response.setData(Map.of("nyOppgave", new NyOppgaveVellykket(null, expectedId, null)));
-            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+            when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse<>(response));
 
-            var oppgave = tjeneste.opprettOppgave(new NyOppgaveMutationRequest(), mock(NyOppgaveResultatResponseProjection.class));
+            var oppgave = agKlient.opprettOppgave(new NyOppgaveMutationRequest(), mock(NyOppgaveResultatResponseProjection.class));
 
             assertThat(oppgave).isNotNull().isEqualTo(expectedId);
         }
@@ -98,10 +98,10 @@ class ArbeidsgiverNotifikasjonKlientTest {
             var expectedFeilmelding = "Det har skjedd en ny feil.";
             var response = new NyOppgaveMutationResponse();
             response.setData(Map.of("nyOppgave", new UgyldigMerkelapp(expectedFeilmelding)));
-            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+            when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse<>(response));
 
             var request = new NyOppgaveMutationRequest();
-            var ex = assertThrows(TekniskException.class, () -> tjeneste.opprettOppgave(request, mock(NyOppgaveResultatResponseProjection.class)));
+            var ex = assertThrows(TekniskException.class, () -> agKlient.opprettOppgave(request, mock(NyOppgaveResultatResponseProjection.class)));
 
             assertThat(ex.getMessage()).contains(expectedFeilmelding);
         }
@@ -112,10 +112,10 @@ class ArbeidsgiverNotifikasjonKlientTest {
             var response = new NyOppgaveMutationResponse();
             response.setErrors(
                 List.of(new GraphQLError(expectedFeilmelding, List.of(), GraphQLErrorType.OperationNotSupported, List.of(), Map.of())));
-            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+            when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse<>(response));
 
             var request = new NyOppgaveMutationRequest();
-            var ex = assertThrows(TekniskException.class, () -> tjeneste.opprettOppgave(request, mock(NyOppgaveResultatResponseProjection.class)));
+            var ex = assertThrows(TekniskException.class, () -> agKlient.opprettOppgave(request, mock(NyOppgaveResultatResponseProjection.class)));
 
             assertThat(ex.getMessage()).contains(expectedFeilmelding);
         }
@@ -129,9 +129,9 @@ class ArbeidsgiverNotifikasjonKlientTest {
             var response = new OppgaveUtfoertMutationResponse();
             var expectedId = "12345";
             response.setData(Map.of("oppgaveUtfoert", new OppgaveUtfoertVellykket(expectedId)));
-            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+            when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse<>(response));
 
-            var oppgave = tjeneste.lukkOppgave(new OppgaveUtfoertMutationRequest(), mock(OppgaveUtfoertResultatResponseProjection.class));
+            var oppgave = agKlient.lukkOppgave(new OppgaveUtfoertMutationRequest(), mock(OppgaveUtfoertResultatResponseProjection.class));
 
             assertThat(oppgave).isNotNull().isEqualTo(expectedId);
         }
@@ -141,10 +141,10 @@ class ArbeidsgiverNotifikasjonKlientTest {
             var expectedFeilmelding = "Det har skjedd en ny feil.";
             var response = new OppgaveUtfoertMutationResponse();
             response.setData(Map.of("oppgaveUtfoert", new NotifikasjonFinnesIkke(expectedFeilmelding)));
-            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+            when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse<>(response));
 
             var request = new OppgaveUtfoertMutationRequest();
-            var ex = assertThrows(TekniskException.class, () -> tjeneste.lukkOppgave(request, mock(OppgaveUtfoertResultatResponseProjection.class)));
+            var ex = assertThrows(TekniskException.class, () -> agKlient.lukkOppgave(request, mock(OppgaveUtfoertResultatResponseProjection.class)));
 
             assertThat(ex.getMessage()).contains(expectedFeilmelding);
         }
@@ -155,10 +155,10 @@ class ArbeidsgiverNotifikasjonKlientTest {
             var response = new OppgaveUtfoertMutationResponse();
             response.setErrors(
                 List.of(new GraphQLError(expectedFeilmelding, List.of(), GraphQLErrorType.OperationNotSupported, List.of(), Map.of())));
-            when(klient.send(any(RestRequest.class), any())).thenReturn(response);
+            when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse<>(response));
 
             var request = new OppgaveUtfoertMutationRequest();
-            var ex = assertThrows(TekniskException.class, () -> tjeneste.lukkOppgave(request, mock(OppgaveUtfoertResultatResponseProjection.class)));
+            var ex = assertThrows(TekniskException.class, () -> agKlient.lukkOppgave(request, mock(OppgaveUtfoertResultatResponseProjection.class)));
 
             assertThat(ex.getMessage()).contains(expectedFeilmelding);
         }
