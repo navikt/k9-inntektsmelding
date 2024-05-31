@@ -7,6 +7,8 @@ import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,7 +42,7 @@ public class ForespørselEntitet {
     @Column(name = "bruker_aktoer_id", nullable = false, updatable = false)
     private String brukerAktørId;
 
-    @Convert(converter = YtelsetypeKodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "ytelse_type", nullable = false, updatable = false)
     private Ytelsetype ytelseType;
 
@@ -86,8 +88,16 @@ public class ForespørselEntitet {
         return sakId;
     }
 
+    void setSakId(String sakId) {
+        this.sakId = sakId;
+    }
+
     public String getOppgaveId() {
         return oppgaveId;
+    }
+
+    void setOppgaveId(String oppgaveId) {
+        this.oppgaveId = oppgaveId;
     }
 
     public String getOrganisasjonsnummer() {

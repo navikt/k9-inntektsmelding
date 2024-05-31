@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.glassfish.jersey.server.ServerProperties;
 
@@ -17,7 +18,7 @@ import io.swagger.v3.oas.models.servers.Server;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import no.nav.familie.inntektsmelding.forepørsel.rest.ForespørselRestTjeneste;
-import no.nav.familie.inntektsmelding.rest.imdialog.InntektsmeldingDialogRest;
+import no.nav.familie.inntektsmelding.imdialog.InntektsmeldingDialogRest;
 import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
@@ -31,14 +32,14 @@ public class ApiConfig extends Application {
 
     public ApiConfig() {
         var oas = new OpenAPI();
-        var info = new Info().title("FTINNTEKTSMELDING")
+        var info = new Info().title(ENV.getNaisAppName())
             .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
             .description("REST grensesnitt for FTINNTEKTSMELDING.");
 
-        oas.info(info).addServersItem(new Server().url("/"));
+        oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/ftinntektsmelding")));
         var oasConfig = new SwaggerConfiguration().openAPI(oas)
             .prettyPrint(true)
-            .resourceClasses(Set.of(InntektsmeldingDialogRest.class.getName(), ForespørselRestTjeneste.class.getName()));
+            .resourceClasses(getClasses().stream().map(Class::getName).collect(Collectors.toSet()));
 
         try {
             new GenericOpenApiContextBuilder<>().openApiConfiguration(oasConfig).buildContext(true).read();

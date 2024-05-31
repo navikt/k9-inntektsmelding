@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.server.jackson;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -8,6 +9,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
+
+import java.util.TimeZone;
 
 @Provider
 public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
@@ -19,12 +22,16 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
     }
 
     private static ObjectMapper createObjectMapper() {
-        var om = new ObjectMapper();
-        om.registerModule(new Jdk8Module());
-        om.registerModule(new JavaTimeModule());
-        om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return om;
+        var objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new Jdk8Module());
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.setTimeZone(TimeZone.getTimeZone("Europe/Oslo"));
+        objectMapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        return objectMapper;
     }
 
     @Override

@@ -20,7 +20,7 @@ import com.zaxxer.hikari.HikariDataSource;
 public final class Databaseskjemainitialisering {
     private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
 
-    static final String USER = "ftinntektsmelding_unit";
+    static final String USER = "inntektsmelding_unit";
 
     private static final DataSource DS = settJdniOppslag(USER);
 
@@ -69,7 +69,7 @@ public final class Databaseskjemainitialisering {
     private static HikariDataSource createDs(String user) {
         Objects.requireNonNull(user, "user");
         var cfg = new HikariConfig();
-        cfg.setJdbcUrl(System.getProperty("datasource.defaultDS.url", String.format("jdbc:postgresql://127.0.0.1:5432/%s?reWriteBatchedInserts=true", USER)));
+        cfg.setJdbcUrl(System.getProperty("DB_JDBC_URL", String.format("jdbc:postgresql://127.0.0.1:5432/%s?reWriteBatchedInserts=true", USER)));
         cfg.setUsername(USER);
         cfg.setPassword(USER);
         cfg.setConnectionTimeout(1500);

@@ -5,22 +5,34 @@ import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikas
 
 import java.net.http.HttpRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
+import jakarta.enterprise.context.Dependent;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "arbeidsgiver.notifikasjon.url", endpointDefault = "https://ag-notifikasjon-produsent-api.intern.nav.no", scopesProperty = "arbeidsgiver.notifikasjon.scopes", scopesDefault = "api://prod-gcp.fager.notifikasjon-produsent-api/.default")
+@Dependent
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "arbeidsgiver.notifikasjon.url", endpointDefault = "http://notifikasjon-produsent-api.fager/api/graphql", scopesProperty = "arbeidsgiver.notifikasjon.scopes", scopesDefault = "api://prod-gcp.fager.notifikasjon-produsent-api/.default")
 class ArbeidsgiverNotifikasjonKlient {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ArbeidsgiverNotifikasjonKlient.class);
 
     private static final String ERROR_RESPONSE = "F-102030";
 
-    private final RestClient restKlient;
-    private final RestConfig restConfig;
+    private RestClient restKlient;
+    private RestConfig restConfig;
+
+    ArbeidsgiverNotifikasjonKlient() {
+        this(RestClient.client());
+    }
 
     public ArbeidsgiverNotifikasjonKlient(RestClient restKlient) {
         this.restKlient = restKlient;
@@ -28,6 +40,7 @@ class ArbeidsgiverNotifikasjonKlient {
     }
 
     public String opprettSak(NySakMutationRequest request, NySakResultatResponseProjection projection) {
+        LOG.info("FAGER: Opprett Sak");
         var resultat = query(new GraphQLRequest(request, projection), NySakMutationResponse.class).nySak();
         if (resultat instanceof NySakVellykket vellykket) {
             return vellykket.getId();
@@ -38,6 +51,7 @@ class ArbeidsgiverNotifikasjonKlient {
     }
 
     public String opprettOppgave(NyOppgaveMutationRequest request, NyOppgaveResultatResponseProjection projection) {
+        LOG.info("FAGER: Opprett Oppgave");
         var resultat = query(new GraphQLRequest(request, projection), NyOppgaveMutationResponse.class).nyOppgave();
         if (resultat instanceof NyOppgaveVellykket vellykket) {
             return vellykket.getId();
@@ -48,6 +62,7 @@ class ArbeidsgiverNotifikasjonKlient {
     }
 
     public String lukkOppgave(OppgaveUtfoertMutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
+        LOG.info("FAGER: Lukk Oppgave");
         var resultat = query(new GraphQLRequest(request, projection), OppgaveUtfoertMutationResponse.class).oppgaveUtfoert();
         if (resultat instanceof OppgaveUtfoertVellykket vellykket) {
             return vellykket.getId();
@@ -60,11 +75,24 @@ class ArbeidsgiverNotifikasjonKlient {
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
         var restRequest = RestRequest.newRequest(method, restConfig.endpoint(), restConfig);
-        var res = restKlient.send(restRequest, clazz);
-        if (res.hasErrors()) {
+        var response = restKlient.sendReturnUnhandled(restRequest);
+        LOG.info("FAGER: Svar med code: {} og body: {}", response.statusCode(), response.body());
+        var res = handleResponse(response.body(), clazz);
+        if (res != null && res.hasErrors()) {
             return handleError(res.getErrors(), restConfig.endpoint(), ERROR_RESPONSE);
         }
         return res;
+    }
+
+    private <T> T handleResponse(String response, Class<T> clazz) {
+        if (response == null) {
+            return null;
+        }
+        if (clazz.isAssignableFrom(String.class)) {
+            return clazz.cast(response);
+        }
+        LOG.info("FAGER: Response: {} til class {}", response, clazz);
+        return DefaultJsonMapper.fromJson(response, clazz);
     }
 
     private static void loggFeilmelding(Error feil, String action) {

@@ -2,15 +2,22 @@ package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+@ApplicationScoped
 class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
     static final String SERVICE_CODE = "4936";
     static final String SERVICE_EDITION_CODE = "1";
 
     private ArbeidsgiverNotifikasjonKlient klient;
+
+    public ArbeidsgiverNotifikasjonTjeneste() {
+    }
 
     @Inject
     public ArbeidsgiverNotifikasjonTjeneste(ArbeidsgiverNotifikasjonKlient klient) {
@@ -28,6 +35,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         request.setMerkelapp(merkelapp.getBeskrivelse());
         request.setLenke(lenke.toString());
         request.setInitiellStatus(SaksStatus.MOTTATT);
+        request.setMottakere(List.of(new MottakerInput(new AltinnMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE), null)));
 
 
         var projection = new NySakResultatResponseProjection().typename()
@@ -57,6 +65,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         input.setMetadata(new MetadataInput(eksternId, grupperingsid, null, null, virksomhetsnummer));
         request.setNyOppgave(input);
 
+
         var projection = new NyOppgaveResultatResponseProjection().typename()
             .onNyOppgaveVellykket(new NyOppgaveVellykketResponseProjection().id())
             .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
@@ -74,7 +83,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
         var request = new OppgaveUtfoertMutationRequest();
         request.setId(id);
-        request.setUtfoertTidspunkt(tidspunkt.toString());
+        request.setUtfoertTidspunkt(tidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
 
         var projection = new OppgaveUtfoertResultatResponseProjection().typename()
             .onOppgaveUtfoertVellykket(new OppgaveUtfoertVellykketResponseProjection().id())

@@ -38,9 +38,9 @@ public class JettyServer {
     private static final String CONTEXT_PATH = ENV.getProperty("context.path","/ftinntektsmelding");
 
     private static final String JETTY_SCAN_LOCATIONS = "^.*jersey-.*\\.jar$|^.*felles-.*\\.jar$|^.*app.*\\.jar$";
+
     private static final String JETTY_LOCAL_CLASSES = "^.*/target/classes/|";
     private final Integer serverPort;
-
     JettyServer(int serverPort) {
         this.serverPort = serverPort;
     }
@@ -127,9 +127,9 @@ public class JettyServer {
 
     public static DataSource dataSource() {
         var config = new HikariConfig();
-        config.setJdbcUrl(dbUrl());
-        config.setUsername(ENV.getRequiredProperty("NAIS_DATABASE_FTINNTEKTSMELDING_FTINNTEKTSMELDING_USERNAME"));
-        config.setPassword(ENV.getRequiredProperty("NAIS_DATABASE_FTINNTEKTSMELDING_FTINNTEKTSMELDING_PASSWORD"));
+        config.setJdbcUrl(ENV.getRequiredProperty("DB_JDBC_URL"));
+        config.setUsername(ENV.getRequiredProperty("DB_USERNAME"));
+        config.setPassword(ENV.getRequiredProperty("DB_PASSWORD"));
         config.setMinimumIdle(1);
         config.setMaximumPoolSize(6);
         config.setIdleTimeout(10001);
@@ -146,13 +146,6 @@ public class JettyServer {
         config.setDataSourceProperties(dsProperties);
 
         return new HikariDataSource(config);
-    }
-
-    private static String dbUrl() {
-        var host = ENV.getRequiredProperty("NAIS_DATABASE_FTINNTEKTSMELDING_FTINNTEKTSMELDING_HOST");
-        var port = ENV.getRequiredProperty("NAIS_DATABASE_FTINNTEKTSMELDING_FTINNTEKTSMELDING_PORT");
-        var databaseName = ENV.getRequiredProperty("NAIS_DATABASE_FTINNTEKTSMELDING_FTINNTEKTSMELDING_DATABASE");
-        return "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
     }
 
     private void start() throws Exception {

@@ -9,7 +9,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.FagsakSaksnummer;
+import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
 
 @Dependent
 public class ForespørselRepository {
@@ -33,23 +33,27 @@ public class ForespørselRepository {
     }
 
     public void oppdaterOppgaveId(UUID forespørselUUID, String oppgaveId) {
-        entityManager.createQuery("UPDATE ForespørselEntitet " + "SET oppgaveId = :oppgaveID " + "where uuid = :foresporselUUID")
-            .setParameter("foresporselUUID", forespørselUUID)
-            .setParameter("oppgaveID", oppgaveId)
-            .executeUpdate();
-        entityManager.flush();
+        var forespørselOpt = hentForespørsel(forespørselUUID);
+        if (forespørselOpt.isPresent()) {
+            var forespørsel = forespørselOpt.get();
+            forespørsel.setOppgaveId(oppgaveId);
+            entityManager.persist(forespørsel);
+            entityManager.flush();
+        }
     }
 
     public void oppdaterSakId(UUID forespørselUUID, String sakId) {
-        entityManager.createQuery("UPDATE ForespørselEntitet " + "SET sakId = :sakId " + "where uuid = :foresporselUUID")
-            .setParameter("foresporselUUID", forespørselUUID)
-            .setParameter("sakId", sakId)
-            .executeUpdate();
-        entityManager.flush();
+        var forespørselOpt = hentForespørsel(forespørselUUID);
+        if (forespørselOpt.isPresent()) {
+            var forespørsel = forespørselOpt.get();
+            forespørsel.setSakId(sakId);
+            entityManager.persist(forespørsel);
+            entityManager.flush();
+        }
     }
 
     public Optional<ForespørselEntitet> hentForespørsel(UUID uuid) {
-        var query = entityManager.createQuery("SELECT * FROM ForespørselEntitet where uuid = :foresporselUUID", ForespørselEntitet.class)
+        var query = entityManager.createQuery("FROM ForespørselEntitet where uuid = :foresporselUUID", ForespørselEntitet.class)
             .setParameter("foresporselUUID", uuid);
 
         var resultList = query.getResultList();
@@ -62,11 +66,27 @@ public class ForespørselRepository {
         }
     }
 
-    public List<ForespørselEntitet> hentForespørsler(FagsakSaksnummer saksnummer) {
-        var query = entityManager.createQuery("SELECT f FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)
+    public List<ForespørselEntitet> hentForespørsler(SaksnummerDto saksnummer) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)
             .setParameter("saksnr", saksnummer.getSaksnr());
         return query.getResultList();
     }
 
 
+    public Optional<ForespørselEntitet> finnForespørsel(String aktørId, String arbeidsgiverIdent, LocalDate startdato) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet where brukerAktørId = :brukerAktørId and organisasjonsnummer = :arbeidsgiverIdent "
+                + "and skjæringstidspunkt = :skjæringstidspunkt", ForespørselEntitet.class)
+            .setParameter("brukerAktørId", aktørId)
+            .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
+            .setParameter("skjæringstidspunkt", startdato);
+
+        var resultList = query.getResultList();
+        if (resultList.isEmpty()) {
+            return Optional.empty();
+        } else if (resultList.size() > 1) {
+            throw new IllegalStateException("Forventet å finne kun en forespørsel for gitt id arbeidsgiver og startdato" + aktørId + arbeidsgiverIdent + startdato);
+        } else {
+            return Optional.of(resultList.getFirst());
+        }
+    }
 }

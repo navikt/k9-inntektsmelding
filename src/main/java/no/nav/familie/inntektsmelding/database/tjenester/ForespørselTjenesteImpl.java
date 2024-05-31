@@ -1,15 +1,17 @@
 package no.nav.familie.inntektsmelding.database.tjenester;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import no.nav.familie.inntektsmelding.database.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.database.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.AktørId;
-import no.nav.familie.inntektsmelding.typer.FagsakSaksnummer;
-import no.nav.familie.inntektsmelding.typer.Organisasjonsnummer;
+import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
 
 @ApplicationScoped
 public class ForespørselTjenesteImpl implements ForespørselTjeneste {
@@ -27,10 +29,10 @@ public class ForespørselTjenesteImpl implements ForespørselTjeneste {
     @Override
     public UUID opprettForespørsel(LocalDate skjæringstidspunkt,
                                    Ytelsetype ytelseType,
-                                   AktørId brukerAktørId,
-                                   Organisasjonsnummer orgnr,
-                                   FagsakSaksnummer fagsakSaksnummer) {
-        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getId(), orgnr.getOrgnr(),
+                                   AktørIdDto brukerAktørId,
+                                   OrganisasjonsnummerDto orgnr,
+                                   SaksnummerDto fagsakSaksnummer) {
+        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.id(), orgnr.getOrgnr(),
             fagsakSaksnummer.getSaksnr());
     }
 
@@ -46,4 +48,9 @@ public class ForespørselTjenesteImpl implements ForespørselTjeneste {
 
     }
 
+    @Override
+    public Optional<ForespørselEntitet> finnForespørsel(UUID forespørselUuid) {
+        return forespørselRepository.hentForespørsel(forespørselUuid);
+    }
+    
 }
