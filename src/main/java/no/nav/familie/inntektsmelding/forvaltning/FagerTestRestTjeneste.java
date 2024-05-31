@@ -50,7 +50,7 @@ public class FagerTestRestTjeneste {
     public Response opprettForespørsel(OpprettForespørselRequest request) {
         var sakId = notifikasjon.opprettSak(request.saksnummer().getSaksnr(),
             finnMerkelapp(request.ytelsetype()),
-            request.orgnummer().getOrgnr(),
+            request.orgnummer().orgnr(),
             "Inntektsmelding for TEST TESTERSEN: f." + request.aktørId().id(),
             this.skjemaLenke);
 
