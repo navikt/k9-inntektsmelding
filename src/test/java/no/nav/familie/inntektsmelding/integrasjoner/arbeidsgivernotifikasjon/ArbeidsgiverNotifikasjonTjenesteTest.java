@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -49,7 +48,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var request = requestCaptor.getValue();
 
         var input = request.getInput();
-        assertThat(input).isNotNull().hasSize(7);
+        assertThat(input).isNotNull().hasSize(8);
         assertThat(input.get("grupperingsid")).isEqualTo(expectedGrupperingsid);
         assertThat(input.get("initiellStatus")).isEqualTo(SaksStatus.MOTTATT);
         assertThat(input.get("lenke")).isEqualTo(expectedLenke);
@@ -57,6 +56,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         assertThat(input.get("tittel")).isEqualTo(expectedTittel);
         assertThat(input.get("virksomhetsnummer")).isEqualTo(expectedVirksomhetsnummer);
         assertThat(input.get("mottakere")).isNotNull();
+        assertThat(input.get("overstyrStatustekstMed")).isNotNull();
     }
 
     @Test
