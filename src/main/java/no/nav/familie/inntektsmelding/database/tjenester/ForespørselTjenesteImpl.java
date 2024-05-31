@@ -10,8 +10,8 @@ import no.nav.familie.inntektsmelding.database.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.database.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
 
 @ApplicationScoped
 public class ForespørselTjenesteImpl implements ForespørselTjeneste {
@@ -49,8 +49,8 @@ public class ForespørselTjenesteImpl implements ForespørselTjeneste {
     }
 
     @Override
-    public Optional<ForespørselEntitet> finnForespørsel(String aktørId, String arbeidsgiverIdent, LocalDate startdato) {
-        return forespørselRepository.finnForespørsel(aktørId, arbeidsgiverIdent, startdato);
+    public Optional<ForespørselEntitet> finnForespørsel(UUID forespørselUuid) {
+        return forespørselRepository.hentForespørsel(forespørselUuid);
     }
-
+    
 }
