@@ -29,6 +29,7 @@ jobs:
       build-image: ${{ github.ref_name == 'master' }} # default: true
       push-image: ${{ github.ref_name == 'master' }} # default: false
       namespace: teamforeldrepenger
+      sonar-scan: false
     secrets: inherit
 
   publish-image-k9:
