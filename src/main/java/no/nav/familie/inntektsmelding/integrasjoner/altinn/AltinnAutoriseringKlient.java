@@ -12,11 +12,11 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "altinn.url", scopesProperty = "altinn.scopes")
 public class AltinnAutoriseringKlient {
-    private static final String CONSUMER_ID = "ftinntektsmelding";
     private static final String SERVICE_CODE = "4936";
     private static final String SERVICE_EDITION = "1";
     private static final String FILTER_AKTIVE_BEDRIFTER = "Type ne 'Person' and Status eq 'Active'";
@@ -76,13 +76,12 @@ public class AltinnAutoriseringKlient {
 
     private List<AltinnReportee> gjørKall(int skip) {
         URI uri = UriBuilder.fromUri(restConfig.endpoint())
-            .path("/altinn-rettigheter-proxy/ekstern/altinn/api/serviceowner/reportees")
             .queryParam("serviceCode", SERVICE_CODE)
             .queryParam("serviceEdition", SERVICE_EDITION)
             .queryParam("$filter", FILTER_AKTIVE_BEDRIFTER)
             .queryParam("$top", ALTINN_SIZE_LIMIT)
             .queryParam("$skip", skip)
-            .queryParam("X-Consumer-ID", CONSUMER_ID)
+            .queryParam("X-Consumer-ID", KontekstHolder.getKontekst().getKonsumentId())
             .build();
         RestRequest request = RestRequest.newGET(uri, restConfig);
         try {
