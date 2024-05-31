@@ -29,7 +29,7 @@ public class InnkommendeForespørselTjeneste {
     public InnkommendeForespørselTjeneste(ForespørselTjeneste forespørselTjeneste, ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon) {
         this.forespørselTjeneste = forespørselTjeneste;
         this.arbeidsgiverNotifikasjon = arbeidsgiverNotifikasjon;
-        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://familie-inntekstmelding.nav.no");
+        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://familie-inntektsmelding.nav.no");
     }
 
     public void håndterInnkommendeForespørsel(LocalDate skjæringstidspunkt,
