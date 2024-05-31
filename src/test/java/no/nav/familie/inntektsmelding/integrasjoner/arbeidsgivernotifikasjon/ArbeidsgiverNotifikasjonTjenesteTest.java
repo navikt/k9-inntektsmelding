@@ -117,6 +117,6 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         assertThat(request.getInput()).isNotNull().hasSize(2);
         assertThat(request.getInput().get("id")).isNotNull().isEqualTo(expectedId);
-        assertThat(request.getInput().get("utfoertTidspunkt")).isNotNull().isEqualTo(expectedTidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
+        assertThat(request.getInput().get("utfoertTidspunkt")).isNotNull().isEqualTo(expectedTidspunkt.toString());
     }
 }
