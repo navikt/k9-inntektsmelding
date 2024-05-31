@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.forepørsel.rest;
 
+import java.util.UUID;
+
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -14,13 +16,10 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import no.nav.familie.inntektsmelding.database.tjenester.ForespørselTjeneste;
 import no.nav.familie.inntektsmelding.database.tjenester.InnkommendeForespørselTjeneste;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.typer.YtelseTypeMapper;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
-
-import java.util.UUID;
 
 @ApplicationScoped
 @Transactional
@@ -48,8 +47,8 @@ public class ForespørselRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter en forespørsel om inntektsmelding", tags = "forespørsel")
     public Response opprettForespørsel(OpprettForespørselRequest request) {
-        innkommendeForespørselTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), map(request.ytelsetype()), new AktørIdDto(request.aktørId().id()),
-            new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.saksnummer());
+        innkommendeForespørselTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), YtelseTypeMapper.map(request.ytelsetype()),
+            new AktørIdDto(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.saksnummer());
         return Response.ok().build();
     }
 
@@ -59,17 +58,6 @@ public class ForespørselRestTjeneste {
     @Operation(description = "Henter en forespørsel for gitt UUID", tags = "forespørsel")
     public Response opprettForespørsel(@PathParam("forespørselUUID") UUID forespørselUUID) {
         return Response.ok(forespørselTjeneste.finnForespørsel(forespørselUUID)).build();
-    }
-
-    private static Ytelsetype map(YtelseTypeDto ytelseTypeDto) {
-        return switch (ytelseTypeDto) {
-            case FORELDREPENGER -> Ytelsetype.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> Ytelsetype.SVANGERSKAPSPENGER;
-            case OMSORGSPENGER -> Ytelsetype.OMSORGSPENGER;
-            case OPPLÆRINGSPENGER -> Ytelsetype.OPPLÆRINGSPENGER;
-            case PLEIEPENGER_SYKT_BARN -> Ytelsetype.PLEIEPENGER_SYKT_BARN;
-            case PLEIEPENGER_NÆRSTÅENDE -> Ytelsetype.PLEIEPENGER_NÆRSTÅENDE;
-        };
     }
 
 }
