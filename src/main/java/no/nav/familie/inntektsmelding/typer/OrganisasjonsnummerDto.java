@@ -31,6 +31,4 @@ public record OrganisasjonsnummerDto(@JsonValue @NotNull @Pattern(regexp = VALID
     public String toString() {
         return "Organisasjonsnummer[" + "orgnr=" + orgnr.substring(0, Math.min(orgnr.length(), 3)) + "...]";
     }
-
-
 }

@@ -25,7 +25,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public HentetSak hentSak(String grupperingsid, Merkelapp merkelapp) {
+    public HentetSak hentSakMedGrupperingsid(String grupperingsid, Merkelapp merkelapp) {
         var request = new HentSakMedGrupperingsidQueryRequest();
         request.setGrupperingsid(grupperingsid);
         request.setMerkelapp(merkelapp.getBeskrivelse());
@@ -38,6 +38,21 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
 
         return klient.hentSakMedGrupperingsid(request, projection);
+    }
+
+    @Override
+    public HentetSak hentSak(String sakId) {
+        var request = new HentSakQueryRequest();
+        request.setId(sakId);
+
+        var projection = new HentSakResultatResponseProjection().typename()
+            .onHentetSak(new HentetSakResponseProjection().sak(
+                new SakResponseProjection().id().grupperingsid().merkelapp().lenke().tittel().virksomhetsnummer()))
+            .onSakFinnesIkke(new SakFinnesIkkeResponseProjection().feilmelding())
+            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
+            .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
+
+        return klient.hentSak(request, projection);
     }
 
     @Override
@@ -67,12 +82,47 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String opprettOppgave(String eksternId,
-                                 String grupperingsid,
-                                 String virksomhetsnummer,
+    public String oppdaterSakStatus(String sakId, SaksStatus status, String overstyrtStatusText) {
+
+        var request = new NyStatusSakMutationRequest();
+        request.setId(sakId);
+        request.setNyStatus(status);
+        request.setOverstyrStatustekstMed(overstyrtStatusText);
+        //request.setNyLenkeTilSak("lenke");
+
+        var projection = new NyStatusSakResultatResponseProjection().typename()
+            .onNyStatusSakVellykket(new NyStatusSakVellykketResponseProjection().id())
+            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
+            .onKonflikt(new KonfliktResponseProjection().feilmelding())
+            .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding())
+            .onSakFinnesIkke(new SakFinnesIkkeResponseProjection().feilmelding());
+
+        return klient.oppdaterSakStatus(request, projection);
+    }
+
+    @Override
+    public String oppdaterSakStatusMedGrupperingsId(String grupperingsid, Merkelapp merkelapp, SaksStatus status, String overstyrtStatusText) {
+        var request = new NyStatusSakByGrupperingsidMutationRequest();
+        request.setGrupperingsid(grupperingsid);
+        request.setMerkelapp(merkelapp.getBeskrivelse());
+        request.setNyStatus(status);
+        request.setOverstyrStatustekstMed(overstyrtStatusText);
+        //request.setNyLenkeTilSak("lenke");
+
+        var projection = new NyStatusSakResultatResponseProjection().typename()
+            .onNyStatusSakVellykket(new NyStatusSakVellykketResponseProjection().id())
+            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
+            .onKonflikt(new KonfliktResponseProjection().feilmelding())
+            .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding())
+            .onSakFinnesIkke(new SakFinnesIkkeResponseProjection().feilmelding());
+
+        return klient.oppdaterSakStatusMedGrupperingsid(request, projection);
+    }
+
+    @Override
+    public String opprettOppgave(String grupperingsid, Merkelapp notifikasjonMerkelapp, String eksternId, String virksomhetsnummer,
                                  String notifikasjonTekst,
-                                 URI notifikasjonLenke,
-                                 Merkelapp notifikasjonMerkelapp) {
+                                 URI notifikasjonLenke) {
 
         var request = new NyOppgaveMutationRequest();
         var input = new NyOppgaveInput();
@@ -95,11 +145,12 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String lukkOppgave(String id, OffsetDateTime tidspunkt) {
+    public String lukkOppgave(String oppgaveId, OffsetDateTime tidspunkt) {
 
         var request = new OppgaveUtfoertMutationRequest();
-        request.setId(id);
+        request.setId(oppgaveId);
         request.setUtfoertTidspunkt(tidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
+        //request.setNyLenke("lenkeKvittering");
 
         var projection = new OppgaveUtfoertResultatResponseProjection().typename()
             .onOppgaveUtfoertVellykket(new OppgaveUtfoertVellykketResponseProjection().id())
@@ -108,5 +159,23 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
 
         return klient.lukkOppgave(request, projection);
+    }
+
+    @Override
+    public String lukkOppgaveByEksternId(String eksternId, Merkelapp merkelapp, OffsetDateTime tidspunkt) {
+
+        var request = new OppgaveUtfoertByEksternId_V2MutationRequest();
+        request.setEksternId(eksternId);
+        request.setMerkelapp(merkelapp.getBeskrivelse());
+        request.setUtfoertTidspunkt(tidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
+        //request.setNyLenke("lenkeKvittering");
+
+        var projection = new OppgaveUtfoertResultatResponseProjection().typename()
+            .onOppgaveUtfoertVellykket(new OppgaveUtfoertVellykketResponseProjection().id())
+            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
+            .onNotifikasjonFinnesIkke(new NotifikasjonFinnesIkkeResponseProjection().feilmelding())
+            .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
+
+        return klient.lukkOppgaveByEksternId(request, projection);
     }
 }

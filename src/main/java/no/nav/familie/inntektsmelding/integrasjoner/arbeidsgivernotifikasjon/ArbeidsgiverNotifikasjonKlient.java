@@ -39,6 +39,17 @@ class ArbeidsgiverNotifikasjonKlient {
         this.restConfig = RestConfig.forClient(this.getClass());
     }
 
+    public String opprettSak(NySakMutationRequest request, NySakResultatResponseProjection projection) {
+        LOG.info("FAGER: Opprett Sak");
+        var resultat = query(new GraphQLRequest(request, projection), NySakMutationResponse.class).nySak();
+        if (resultat instanceof NySakVellykket vellykket) {
+            return vellykket.getId();
+        } else {
+            loggFeilmelding((Error) resultat, "opprettelse av ny sak");
+        }
+        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
+    }
+
     public HentetSak hentSakMedGrupperingsid(HentSakMedGrupperingsidQueryRequest request, HentSakResultatResponseProjection projection) {
         LOG.info("FAGER: Hen Sak med grupperingsid");
         var resultat = query(new GraphQLRequest(request, projection), HentSakMedGrupperingsidQueryResponse.class).hentSakMedGrupperingsid();
@@ -50,13 +61,35 @@ class ArbeidsgiverNotifikasjonKlient {
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
 
-    public String opprettSak(NySakMutationRequest request, NySakResultatResponseProjection projection) {
-        LOG.info("FAGER: Opprett Sak");
-        var resultat = query(new GraphQLRequest(request, projection), NySakMutationResponse.class).nySak();
-        if (resultat instanceof NySakVellykket vellykket) {
+    public HentetSak hentSak(HentSakQueryRequest request, HentSakResultatResponseProjection projection) {
+        LOG.info("FAGER: Hen Sak");
+        var resultat = query(new GraphQLRequest(request, projection), HentSakQueryResponse.class).hentSak();
+        if (resultat instanceof HentetSak sak) {
+            return sak;
+        } else {
+            loggFeilmelding((Error) resultat, "hent sak med grupperingsid");
+        }
+        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
+    }
+
+    public String oppdaterSakStatus(NyStatusSakMutationRequest request, NyStatusSakResultatResponseProjection projection) {
+        LOG.info("FAGER: Oppdater sak status");
+        var resultat = query(new GraphQLRequest(request, projection), NyStatusSakMutationResponse.class).nyStatusSak();
+        if (resultat instanceof NyStatusSakVellykket vellykket) {
             return vellykket.getId();
         } else {
-            loggFeilmelding((Error) resultat, "opprettelse av ny sak");
+            loggFeilmelding((Error) resultat, "oppdater sak status");
+        }
+        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
+    }
+
+    public String oppdaterSakStatusMedGrupperingsid(NyStatusSakByGrupperingsidMutationRequest request, NyStatusSakResultatResponseProjection projection) {
+        LOG.info("FAGER: Oppdater sak status med grupperingsid");
+        var resultat = query(new GraphQLRequest(request, projection), NyStatusSakByGrupperingsidMutationResponse.class).nyStatusSakByGrupperingsid();
+        if (resultat instanceof NyStatusSakVellykket vellykket) {
+            return vellykket.getId();
+        } else {
+            loggFeilmelding((Error) resultat, "oppdater sak status");
         }
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
@@ -79,6 +112,17 @@ class ArbeidsgiverNotifikasjonKlient {
             return vellykket.getId();
         } else {
             loggFeilmelding((Error) resultat, "lukking av oppgave");
+        }
+        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
+    }
+
+    public String lukkOppgaveByEksternId(OppgaveUtfoertByEksternId_V2MutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
+        LOG.info("FAGER: Lukk Oppgave by ekstern id");
+        var resultat = query(new GraphQLRequest(request, projection), OppgaveUtfoertByEksternId_V2MutationResponse.class).oppgaveUtfoertByEksternId_V2();
+        if (resultat instanceof OppgaveUtfoertVellykket vellykket) {
+            return vellykket.getId();
+        } else {
+            loggFeilmelding((Error) resultat, "lukking av oppgave by ekstern id");
         }
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }

@@ -46,11 +46,9 @@ public class InnkommendeForespørselTjeneste {
 
         forespørselTjeneste.setSakId(uuid, sakId);
 
-        var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), uuid.toString(),
-            organisasjonsnummer.orgnr(),
+        var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), merkelapp, uuid.toString(), organisasjonsnummer.orgnr(),
             "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt",
-            URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid),
-            merkelapp);
+            URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid));
 
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
 
