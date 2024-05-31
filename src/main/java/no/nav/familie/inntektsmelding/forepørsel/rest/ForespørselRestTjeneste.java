@@ -5,17 +5,22 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import no.nav.familie.inntektsmelding.database.tjenester.ForespørselTjeneste;
 import no.nav.familie.inntektsmelding.database.tjenester.InnkommendeForespørselTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
+
+import java.util.UUID;
 
 @ApplicationScoped
 @Transactional
@@ -24,13 +29,15 @@ import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 public class ForespørselRestTjeneste {
 
     private InnkommendeForespørselTjeneste innkommendeForespørselTjeneste;
+    private ForespørselTjeneste forespørselTjeneste;
 
     public ForespørselRestTjeneste() {
     }
 
     @Inject
-    public ForespørselRestTjeneste(InnkommendeForespørselTjeneste innkommendeForespørselTjeneste) {
+    public ForespørselRestTjeneste(InnkommendeForespørselTjeneste innkommendeForespørselTjeneste, ForespørselTjeneste forespørselTjeneste) {
         this.innkommendeForespørselTjeneste = innkommendeForespørselTjeneste;
+        this.forespørselTjeneste = forespørselTjeneste;
     }
 
     public static final String BASE_PATH = "/foresporsel";
@@ -44,6 +51,14 @@ public class ForespørselRestTjeneste {
         innkommendeForespørselTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), map(request.ytelsetype()), new AktørIdDto(request.aktørId().id()),
             new OrganisasjonsnummerDto(request.orgnummer().getOrgnr()), request.saksnummer());
         return Response.ok().build();
+    }
+
+    @GET
+    @UtenAutentisering
+    @Path("/{forespørselUUID}")
+    @Operation(description = "Henter en forespørsel for gitt UUID", tags = "forespørsel")
+    public Response opprettForespørsel(@PathParam("forespørselUUID") UUID forespørselUUID) {
+        return Response.ok(forespørselTjeneste.finnForespørsel(forespørselUUID)).build();
     }
 
     private static Ytelsetype map(YtelseTypeDto ytelseTypeDto) {

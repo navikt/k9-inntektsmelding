@@ -35,8 +35,8 @@ public class ForespørselRestTjenesteTest extends EntityManagerAwareTest {
     void setUp() {
         this.forespørselRepository = new ForespørselRepository(getEntityManager());
         ArbeidsgiverNotifikasjon mock = Mockito.mock(ArbeidsgiverNotifikasjon.class);
-        this.forespørselRestTjeneste = new ForespørselRestTjeneste(new InnkommendeForespørselTjeneste(
-            new ForespørselTjenesteImpl(forespørselRepository), mock));
+        this.forespørselRestTjeneste = new ForespørselRestTjeneste(
+            new InnkommendeForespørselTjeneste(new ForespørselTjenesteImpl(forespørselRepository), mock), new ForespørselTjenesteImpl());
         when(mock.opprettSak(any(), any(), any(), any(), any())).thenReturn("1");
         when(mock.opprettOppgave(any(), any(), any(), any(), any(), any())).thenReturn("2");
 
