@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -117,6 +118,6 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         assertThat(request.getInput()).isNotNull().hasSize(2);
         assertThat(request.getInput().get("id")).isNotNull().isEqualTo(expectedId);
-        assertThat(request.getInput().get("utfoertTidspunkt")).isNotNull().isEqualTo(expectedTidspunkt.toString());
+        assertThat(request.getInput().get("utfoertTidspunkt")).isNotNull().isEqualTo(expectedTidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
     }
 }
