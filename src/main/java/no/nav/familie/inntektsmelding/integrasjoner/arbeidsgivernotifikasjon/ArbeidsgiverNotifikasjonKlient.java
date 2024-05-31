@@ -72,17 +72,6 @@ class ArbeidsgiverNotifikasjonKlient {
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
 
-    public String oppdaterSakStatus(NyStatusSakMutationRequest request, NyStatusSakResultatResponseProjection projection) {
-        LOG.info("FAGER: Oppdater sak status");
-        var resultat = query(new GraphQLRequest(request, projection), NyStatusSakMutationResponse.class).nyStatusSak();
-        if (resultat instanceof NyStatusSakVellykket vellykket) {
-            return vellykket.getId();
-        } else {
-            loggFeilmelding((Error) resultat, "oppdater sak status");
-        }
-        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
-    }
-
     public String oppdaterSakStatusMedGrupperingsid(NyStatusSakByGrupperingsidMutationRequest request, NyStatusSakResultatResponseProjection projection) {
         LOG.info("FAGER: Oppdater sak status med grupperingsid");
         var resultat = query(new GraphQLRequest(request, projection), NyStatusSakByGrupperingsidMutationResponse.class).nyStatusSakByGrupperingsid();
@@ -126,6 +115,18 @@ class ArbeidsgiverNotifikasjonKlient {
         }
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
+
+    public String oppdaterSakStatus(NyStatusSakMutationRequest request, NyStatusSakResultatResponseProjection projection) {
+        LOG.info("FAGER: Lukk Oppgave");
+        var resultat = query(new GraphQLRequest(request, projection), NyStatusSakMutationResponse.class).nyStatusSak();
+        if (resultat instanceof NyStatusSakVellykket vellykket) {
+            return vellykket.getId();
+        } else {
+            loggFeilmelding((Error) resultat, "ny status sak");
+        }
+        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
+    }
+
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
