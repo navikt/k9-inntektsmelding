@@ -9,7 +9,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.FagsakSaksnummer;
+import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
 
 @Dependent
 public class ForespørselRepository {
@@ -66,7 +66,7 @@ public class ForespørselRepository {
         }
     }
 
-    public List<ForespørselEntitet> hentForespørsler(FagsakSaksnummer saksnummer) {
+    public List<ForespørselEntitet> hentForespørsler(SaksnummerDto saksnummer) {
         var query = entityManager.createQuery("FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)
             .setParameter("saksnr", saksnummer.getSaksnr());
         return query.getResultList();
@@ -84,7 +84,7 @@ public class ForespørselRepository {
         if (resultList.isEmpty()) {
             return Optional.empty();
         } else if (resultList.size() > 1) {
-            throw new IllegalStateException("Forventet å finne kun en forespørsel for gitt aktørId arbeidsgiver og startdato" + aktørId + arbeidsgiverIdent + startdato);
+            throw new IllegalStateException("Forventet å finne kun en forespørsel for gitt id arbeidsgiver og startdato" + aktørId + arbeidsgiverIdent + startdato);
         } else {
             return Optional.of(resultList.getFirst());
         }

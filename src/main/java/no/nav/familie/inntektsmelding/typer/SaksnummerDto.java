@@ -5,7 +5,7 @@ import java.util.Objects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-public final class FagsakSaksnummer {
+public final class SaksnummerDto {
 
     private static final String REGEXP = "^[\\p{Alnum}]+$";
 
@@ -13,10 +13,10 @@ public final class FagsakSaksnummer {
     @Pattern(regexp = REGEXP, message = "Saksnummer [${validatedValue}] matcher ikke tillatt pattern [{regexp}]")
     private String saksnr;
 
-    public FagsakSaksnummer() {
+    public SaksnummerDto() {
     }
 
-    public FagsakSaksnummer(String saksnr) {
+    public SaksnummerDto(String saksnr) {
         Objects.requireNonNull(saksnr);
         this.saksnr = saksnr;
     }
@@ -33,7 +33,7 @@ public final class FagsakSaksnummer {
         if (obj == null || obj.getClass() != this.getClass()) {
             return false;
         }
-        var that = (FagsakSaksnummer) obj;
+        var that = (SaksnummerDto) obj;
         return Objects.equals(this.saksnr, that.saksnr);
     }
 

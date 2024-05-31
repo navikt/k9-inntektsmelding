@@ -24,8 +24,8 @@ import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTje
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.AktørId;
+import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
@@ -59,12 +59,12 @@ public class InntektsmeldingDialogRest {
     @UtenAutentisering
     @Path(HENT_PERSONINFO)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter personinfo gitt aktørId", tags = "imdialog")
+    @Operation(description = "Henter personinfo gitt id", tags = "imdialog")
     public Response hentPersoninfo(@NotNull @QueryParam("aktorId") @Valid AktørIdRequestDto aktørIdRequestDto,
-                                   @NotNull @QueryParam("ytelse") @Valid Ytelsetype ytelse) {
-        var aktørId = new AktørId(aktørIdRequestDto.aktørId());
+                                   @NotNull @QueryParam("ytelse") @Valid YtelseTypeDto ytelse) {
+        var aktørId = new AktørIdDto(aktørIdRequestDto.aktørId());
         PersonInfo personInfo = personTjeneste.hentPersonInfo(aktørId, ytelse);
-        var dto = new PersonInfoResponseDto(personInfo.navn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getId());
+        var dto = new PersonInfoResponseDto(personInfo.navn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().id());
         return Response.ok(dto).build();
     }
 
@@ -86,7 +86,7 @@ public class InntektsmeldingDialogRest {
     @Operation(description = "Henter inntekt siste tre måneder for en aktør", tags = "imdialog")
     public Response hentInntekt(@Parameter(description = "Request for å hente inntekt, hvis startdato er null brukes dagens dato") @NotNull HentInntektRequestDto hentInntektRequestDto) {
         var startdato = hentInntektRequestDto.startdato == null ? LocalDate.now() : hentInntektRequestDto.startdato;
-        var aktørId = new AktørId(hentInntektRequestDto.aktorId().aktørId());
+        var aktørId = new AktørIdDto(hentInntektRequestDto.aktorId().aktørId());
         var inntekt = inntektTjeneste.hentInntekt(aktørId, startdato, hentInntektRequestDto.organisasjonsnummer().organisasjonsnummer());
         return Response.ok(inntekt.stream()
             .map(i -> new MånedsinntektResponsDto(i.måned().atDay(1), i.måned().atEndOfMonth(), i.beløp(), i.organisasjonsnummer()))
@@ -104,7 +104,7 @@ public class InntektsmeldingDialogRest {
     }
 
     public record AktørIdRequestDto(
-        @JsonValue @NotNull @Pattern(regexp = VALID_REGEXP, message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
+        @JsonValue @NotNull @Pattern(regexp = VALID_REGEXP, message = "id ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
         private static final String VALID_REGEXP = "^\\d{13}$";
     }
 
@@ -119,7 +119,7 @@ public class InntektsmeldingDialogRest {
     public record OrganisasjonInfoResponseDto(@NotNull String organisasjonNavn, @NotNull String organisasjonNummer) {
     }
 
-    public record HentInntektRequestDto(@NotNull @QueryParam("aktorId") AktørIdRequestDto aktorId, @NotNull @QueryParam("ytelse") Ytelsetype ytelse,
+    public record HentInntektRequestDto(@NotNull @QueryParam("aktorId") AktørIdRequestDto aktorId, @NotNull @QueryParam("ytelse") YtelseTypeDto ytelse,
                                         @NotNull @QueryParam("organisasjonsnummer") @Valid OrganisasjonsnummerRequestDto organisasjonsnummer,
                                         LocalDate startdato) {
     }
