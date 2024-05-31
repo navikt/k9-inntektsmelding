@@ -33,7 +33,7 @@ public class InntektsmeldingTjeneste {
     }
 
     private void valider(ForespørselEntitet forespørsel, SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
-        if (!forespørsel.getBrukerAktørId().equals(sendInntektsmeldingRequestDto.aktorId().aktørId())) {
+        if (!forespørsel.getBrukerAktørId().equals(sendInntektsmeldingRequestDto.aktorId().id())) {
             throw new IllegalStateException("AktørId for bruker var ikke like");
         }
         if (!forespørsel.getOrganisasjonsnummer().equals(sendInntektsmeldingRequestDto.arbeidsgiverIdent())) {
