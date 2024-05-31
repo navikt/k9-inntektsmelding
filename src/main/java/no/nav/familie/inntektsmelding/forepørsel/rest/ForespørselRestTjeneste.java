@@ -14,7 +14,7 @@ import no.nav.familie.inntektsmelding.database.tjenester.InnkommendeForespørsel
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @ApplicationScoped
@@ -46,8 +46,8 @@ public class ForespørselRestTjeneste {
         return Response.ok().build();
     }
 
-    private static Ytelsetype map(YtelseTypeDto ytelseTypeDto) {
-        return switch (ytelseTypeDto) {
+    private static Ytelsetype map(Ytelsetype Ytelsetype) {
+        return switch (Ytelsetype) {
             case FORELDREPENGER -> Ytelsetype.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> Ytelsetype.SVANGERSKAPSPENGER;
             case OMSORGSPENGER -> Ytelsetype.OMSORGSPENGER;

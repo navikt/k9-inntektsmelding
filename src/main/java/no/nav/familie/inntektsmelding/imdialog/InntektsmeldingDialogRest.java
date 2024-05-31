@@ -25,7 +25,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTje
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
@@ -61,7 +61,7 @@ public class InntektsmeldingDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter personinfo gitt id", tags = "imdialog")
     public Response hentPersoninfo(@NotNull @QueryParam("aktorId") @Valid AktørIdRequestDto aktørIdRequestDto,
-                                   @NotNull @QueryParam("ytelse") @Valid YtelseTypeDto ytelse) {
+                                   @NotNull @QueryParam("ytelse") @Valid Ytelsetype ytelse) {
         var aktørId = new AktørIdDto(aktørIdRequestDto.aktørId());
         PersonInfo personInfo = personTjeneste.hentPersonInfo(aktørId, ytelse);
         var dto = new PersonInfoResponseDto(personInfo.navn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().id());
@@ -119,7 +119,7 @@ public class InntektsmeldingDialogRest {
     public record OrganisasjonInfoResponseDto(@NotNull String organisasjonNavn, @NotNull String organisasjonNummer) {
     }
 
-    public record HentInntektRequestDto(@NotNull @QueryParam("aktorId") AktørIdRequestDto aktorId, @NotNull @QueryParam("ytelse") YtelseTypeDto ytelse,
+    public record HentInntektRequestDto(@NotNull @QueryParam("aktorId") AktørIdRequestDto aktorId, @NotNull @QueryParam("ytelse") Ytelsetype ytelse,
                                         @NotNull @QueryParam("organisasjonsnummer") @Valid OrganisasjonsnummerRequestDto organisasjonsnummer,
                                         LocalDate startdato) {
     }

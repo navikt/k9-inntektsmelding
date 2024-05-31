@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
-import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ public class ForespørselRestTjenesteTest extends EntityManagerAwareTest {
         var fagsakSaksnummer = new SaksnummerDto("SAK");
         forespørselRestTjeneste.opprettForespørsel(
             new OpprettForespørselRequest(new AktørIdDto("1234567890134"), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), LocalDate.now(),
-                YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
+                Ytelsetype.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
 
         var forespørsler = forespørselRepository.hentForespørsler(fagsakSaksnummer);
 

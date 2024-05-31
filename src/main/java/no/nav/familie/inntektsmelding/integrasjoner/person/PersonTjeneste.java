@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
@@ -37,7 +37,7 @@ public class PersonTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public PersonInfo hentPersonInfo(AktørIdDto aktørId, YtelseTypeDto ytelseType) {
+    public PersonInfo hentPersonInfo(AktørIdDto aktørId, Ytelsetype ytelseType) {
         var request = new HentPersonQueryRequest();
         request.setIdent(aktørId.id());
 
@@ -87,8 +87,8 @@ public class PersonTjeneste {
         }
     }
 
-    private static Persondata.Ytelse utledYtelse(YtelseTypeDto ytelseType) {
-        if (YtelseTypeDto.SVANGERSKAPSPENGER.equals(ytelseType)) {
+    private static Persondata.Ytelse utledYtelse(Ytelsetype ytelseType) {
+        if (Ytelsetype.SVANGERSKAPSPENGER.equals(ytelseType)) {
             return Persondata.Ytelse.SVANGERSKAPSPENGER;
         } else {
             return Persondata.Ytelse.FORELDREPENGER;
