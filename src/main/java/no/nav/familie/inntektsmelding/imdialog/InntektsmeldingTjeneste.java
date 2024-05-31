@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.imdialog;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

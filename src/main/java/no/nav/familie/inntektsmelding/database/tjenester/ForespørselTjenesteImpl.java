@@ -32,7 +32,7 @@ public class ForespørselTjenesteImpl implements ForespørselTjeneste {
                                    AktørIdDto brukerAktørId,
                                    OrganisasjonsnummerDto orgnr,
                                    SaksnummerDto fagsakSaksnummer) {
-        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.id(), orgnr.getOrgnr(),
+        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.id(), orgnr.orgnr(),
             fagsakSaksnummer.getSaksnr());
     }
 
@@ -52,5 +52,5 @@ public class ForespørselTjenesteImpl implements ForespørselTjeneste {
     public Optional<ForespørselEntitet> finnForespørsel(UUID forespørselUuid) {
         return forespørselRepository.hentForespørsel(forespørselUuid);
     }
-    
+
 }

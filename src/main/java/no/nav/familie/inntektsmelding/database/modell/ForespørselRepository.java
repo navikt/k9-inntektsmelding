@@ -9,6 +9,8 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
 
 @Dependent
@@ -73,18 +75,19 @@ public class ForespørselRepository {
     }
 
 
-    public Optional<ForespørselEntitet> finnForespørsel(String aktørId, String arbeidsgiverIdent, LocalDate startdato) {
+    public Optional<ForespørselEntitet> finnForespørsel(AktørIdDto aktørId, ArbeidsgiverDto arbeidsgiverIdent, LocalDate startdato) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where brukerAktørId = :brukerAktørId and organisasjonsnummer = :arbeidsgiverIdent "
                 + "and skjæringstidspunkt = :skjæringstidspunkt", ForespørselEntitet.class)
-            .setParameter("brukerAktørId", aktørId)
-            .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
+            .setParameter("brukerAktørId", aktørId.id())
+            .setParameter("arbeidsgiverIdent", arbeidsgiverIdent.ident())
             .setParameter("skjæringstidspunkt", startdato);
 
         var resultList = query.getResultList();
         if (resultList.isEmpty()) {
             return Optional.empty();
         } else if (resultList.size() > 1) {
-            throw new IllegalStateException("Forventet å finne kun en forespørsel for gitt id arbeidsgiver og startdato" + aktørId + arbeidsgiverIdent + startdato);
+            var feilmelding = String.format("Forventet å finne kun en forespørsel for gitt aktør %s, arbeidsgiver %s og startdato %s", aktørId, arbeidsgiverIdent, startdato);
+            throw new IllegalStateException(feilmelding);
         } else {
             return Optional.of(resultList.getFirst());
         }

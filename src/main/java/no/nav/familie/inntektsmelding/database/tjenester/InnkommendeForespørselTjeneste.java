@@ -41,7 +41,7 @@ public class InnkommendeForespørselTjeneste {
 
         var merkelapp = finnMerkelapp(ytelsetype);
         var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
-            organisasjonsnummer.getOrgnr(),
+            organisasjonsnummer.orgnr(),
             "Inntektsmelding for person",
             URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid),
             merkelapp);
@@ -49,7 +49,7 @@ public class InnkommendeForespørselTjeneste {
         forespørselTjeneste.setSakId(uuid, sakId);
 
         var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), uuid.toString(),
-            organisasjonsnummer.getOrgnr(),
+            organisasjonsnummer.orgnr(),
             "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt",
             URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid),
             merkelapp);
