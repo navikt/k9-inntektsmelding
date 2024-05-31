@@ -40,11 +40,9 @@ public class InnkommendeForespørselTjeneste {
         var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
 
         var merkelapp = finnMerkelapp(ytelsetype);
-        var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
-            organisasjonsnummer.orgnr(),
+        var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), merkelapp, organisasjonsnummer.orgnr(),
             "Inntektsmelding for person",
-            URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid),
-            merkelapp);
+            URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid));
 
         forespørselTjeneste.setSakId(uuid, sakId);
 

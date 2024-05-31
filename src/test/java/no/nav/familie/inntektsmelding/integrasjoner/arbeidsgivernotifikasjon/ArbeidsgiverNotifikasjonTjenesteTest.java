@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -36,12 +37,12 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var expectedGrupperingsid = "id-som-knytter-sak-til-notifikasjon";
         var expectedVirksomhetsnummer = "2342342334";
         var expectedTittel = "Inntektsmelding for person";
-        var expectedLenke = "https://inntekstmelding-innsendings-dialog.com";
+        var expectedLenke = "https://inntektsmelding-innsendings-dialog.com";
         var expectedMerkelapp = Merkelapp.INNTEKTSMELDING_FP;
 
         var requestCaptor = ArgumentCaptor.forClass(NySakMutationRequest.class);
 
-        tjeneste.opprettSak(expectedGrupperingsid, expectedVirksomhetsnummer, expectedTittel, URI.create(expectedLenke), expectedMerkelapp);
+        tjeneste.opprettSak(expectedGrupperingsid, expectedMerkelapp, expectedVirksomhetsnummer, expectedTittel, URI.create(expectedLenke));
 
         Mockito.verify(klient).opprettSak(requestCaptor.capture(), any(NySakResultatResponseProjection.class));
 

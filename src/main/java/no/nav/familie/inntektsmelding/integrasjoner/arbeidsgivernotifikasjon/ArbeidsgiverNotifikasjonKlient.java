@@ -39,6 +39,17 @@ class ArbeidsgiverNotifikasjonKlient {
         this.restConfig = RestConfig.forClient(this.getClass());
     }
 
+    public HentetSak hentSakMedGrupperingsid(HentSakMedGrupperingsidQueryRequest request, HentSakResultatResponseProjection projection) {
+        LOG.info("FAGER: Hen Sak med grupperingsid");
+        var resultat = query(new GraphQLRequest(request, projection), HentSakMedGrupperingsidQueryResponse.class).hentSakMedGrupperingsid();
+        if (resultat instanceof HentetSak sak) {
+            return sak;
+        } else {
+            loggFeilmelding((Error) resultat, "hent sak med grupperingsid");
+        }
+        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
+    }
+
     public String opprettSak(NySakMutationRequest request, NySakResultatResponseProjection projection) {
         LOG.info("FAGER: Opprett Sak");
         var resultat = query(new GraphQLRequest(request, projection), NySakMutationResponse.class).nySak();

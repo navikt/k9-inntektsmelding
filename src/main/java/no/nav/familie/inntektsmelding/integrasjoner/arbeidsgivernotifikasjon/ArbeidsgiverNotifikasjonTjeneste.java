@@ -25,7 +25,23 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String opprettSak(String grupperingsid, String virksomhetsnummer, String saksTittel, URI lenke, Merkelapp merkelapp) {
+    public HentetSak hentSak(String grupperingsid, Merkelapp merkelapp) {
+        var request = new HentSakMedGrupperingsidQueryRequest();
+        request.setGrupperingsid(grupperingsid);
+        request.setMerkelapp(merkelapp.getBeskrivelse());
+
+        var projection = new HentSakResultatResponseProjection().typename()
+            .onHentetSak(new HentetSakResponseProjection().sak(
+                new SakResponseProjection().id().grupperingsid().merkelapp().lenke().tittel().virksomhetsnummer()))
+            .onSakFinnesIkke(new SakFinnesIkkeResponseProjection().feilmelding())
+            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
+            .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
+
+        return klient.hentSakMedGrupperingsid(request, projection);
+    }
+
+    @Override
+    public String opprettSak(String grupperingsid, Merkelapp merkelapp, String virksomhetsnummer, String saksTittel, URI lenke) {
 
         var request = new NySakMutationRequest();
 
@@ -35,8 +51,8 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         request.setMerkelapp(merkelapp.getBeskrivelse());
         request.setLenke(lenke.toString());
         request.setInitiellStatus(SaksStatus.MOTTATT);
+        request.setOverstyrStatustekstMed("NAV trenger inntektsmelding");
         request.setMottakere(List.of(new MottakerInput(new AltinnMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE), null)));
-
 
         var projection = new NySakResultatResponseProjection().typename()
             .onNySakVellykket(new NySakVellykketResponseProjection().id())

@@ -5,7 +5,13 @@ import java.time.OffsetDateTime;
 
 public interface ArbeidsgiverNotifikasjon {
 
-    String opprettSak(String grupperingsid, String virksomhetsnummer, String saksTittel, URI lenke, Merkelapp merkelapp);
+    HentetSak hentSak(String grupperingsid, Merkelapp merkelapp);
+
+    String opprettSak(String grupperingsid,
+                      Merkelapp merkelapp,
+                      String virksomhetsnummer,
+                      String saksTittel,
+                      URI lenke);
 
     String opprettOppgave(String eksternId,
                           String grupperingsid,
