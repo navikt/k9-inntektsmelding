@@ -1,26 +1,14 @@
 package no.nav.familie.inntektsmelding.typer;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
 import java.util.Objects;
 
-public final class OrganisasjonsnummerDto {
-
-    private String orgnr;
-
-
-    public OrganisasjonsnummerDto() {
-    }
-
-    public OrganisasjonsnummerDto(String orgnr) {
-        Objects.requireNonNull(orgnr, "orgnr");
-        if (!OrganisasjonsNummerValidator.erGyldig(orgnr)) {
-            throw new IllegalArgumentException("Orgnummer er ugyldig");
-        }
-        this.orgnr = orgnr;
-    }
-
-    public String getOrgnr() {
-        return orgnr;
-    }
+public record OrganisasjonsnummerDto(@JsonValue @NotNull @Pattern(regexp = VALID_REGEXP, message = "orgnr ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String orgnr) {
+    private static final String VALID_REGEXP = "^\\d{9}$";
 
     @Override
     public boolean equals(Object obj) {

@@ -7,8 +7,9 @@ import java.util.UUID;
 import no.nav.familie.inntektsmelding.database.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
 
 
 public interface ForespørselTjeneste {
