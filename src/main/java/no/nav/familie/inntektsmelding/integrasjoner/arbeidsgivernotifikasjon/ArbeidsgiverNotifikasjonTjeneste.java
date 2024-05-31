@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -82,7 +83,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
         var request = new OppgaveUtfoertMutationRequest();
         request.setId(id);
-        request.setUtfoertTidspunkt(tidspunkt.toString());
+        request.setUtfoertTidspunkt(tidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
 
         var projection = new OppgaveUtfoertResultatResponseProjection().typename()
             .onOppgaveUtfoertVellykket(new OppgaveUtfoertVellykketResponseProjection().id())
