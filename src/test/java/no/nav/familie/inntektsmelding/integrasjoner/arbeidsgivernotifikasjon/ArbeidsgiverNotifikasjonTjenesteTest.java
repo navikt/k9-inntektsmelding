@@ -6,13 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.time.OffsetDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +15,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import javax.net.ssl.SSLSession;
 
 @ExtendWith(MockitoExtension.class)
 class ArbeidsgiverNotifikasjonTjenesteTest {
@@ -113,7 +105,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
     @Test
     void lukk_oppgave() {
         var expectedId = "TestId";
-        var expectedTidspunkt = LocalDateTime.now();
+        var expectedTidspunkt = OffsetDateTime.now();
 
         var requestCaptor = ArgumentCaptor.forClass(OppgaveUtfoertMutationRequest.class);
 

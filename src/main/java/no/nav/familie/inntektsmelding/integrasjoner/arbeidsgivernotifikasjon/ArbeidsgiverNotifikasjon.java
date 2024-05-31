@@ -1,7 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public interface ArbeidsgiverNotifikasjon {
 
@@ -14,5 +14,5 @@ public interface ArbeidsgiverNotifikasjon {
                           URI lenke,
                           Merkelapp merkelapp);
 
-    String lukkOppgave(String id, LocalDateTime utfoertTidspunkt);
+    String lukkOppgave(String id, OffsetDateTime utfoertTidspunkt);
 }
