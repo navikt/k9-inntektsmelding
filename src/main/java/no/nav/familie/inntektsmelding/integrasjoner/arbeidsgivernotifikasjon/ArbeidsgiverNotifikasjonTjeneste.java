@@ -1,7 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -79,7 +79,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String lukkOppgave(String id, LocalDateTime tidspunkt) {
+    public String lukkOppgave(String id, OffsetDateTime tidspunkt) {
 
         var request = new OppgaveUtfoertMutationRequest();
         request.setId(id);
