@@ -43,20 +43,22 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var expectedGrupperingsid = "id-som-knytter-sak-til-notifikasjon";
         var expectedVirksomhetsnummer = "2342342334";
         var expectedTittel = "Inntektsmelding for person";
+        var expectedLenke = "https://inntekstmelding-innsendings-dialog.com";
         var expectedMerkelapp = Merkelapp.INNTEKTSMELDING_FP;
 
         var requestCaptor = ArgumentCaptor.forClass(NySakMutationRequest.class);
 
-        tjeneste.opprettSak(expectedGrupperingsid, expectedVirksomhetsnummer, expectedTittel, expectedMerkelapp);
+        tjeneste.opprettSak(expectedGrupperingsid, expectedVirksomhetsnummer, expectedTittel, URI.create(expectedLenke), expectedMerkelapp);
 
         Mockito.verify(klient).opprettSak(requestCaptor.capture(), any(NySakResultatResponseProjection.class));
 
         var request = requestCaptor.getValue();
 
         var input = request.getInput();
-        assertThat(input).isNotNull().hasSize(6);
+        assertThat(input).isNotNull().hasSize(7);
         assertThat(input.get("grupperingsid")).isEqualTo(expectedGrupperingsid);
         assertThat(input.get("initiellStatus")).isEqualTo(SaksStatus.MOTTATT);
+        assertThat(input.get("lenke")).isEqualTo(expectedLenke);
         assertThat(input.get("merkelapp")).isEqualTo(expectedMerkelapp.getBeskrivelse());
         assertThat(input.get("tittel")).isEqualTo(expectedTittel);
         assertThat(input.get("virksomhetsnummer")).isEqualTo(expectedVirksomhetsnummer);

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public interface ArbeidsgiverNotifikasjon {
 
-    String opprettSak(String grupperingsid, String virksomhetsnummer, String saksTittel, Merkelapp merkelapp);
+    String opprettSak(String grupperingsid, String virksomhetsnummer, String saksTittel, URI lenke, Merkelapp merkelapp);
 
     String opprettOppgave(String eksternId,
                           String grupperingsid,
