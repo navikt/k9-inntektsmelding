@@ -64,7 +64,7 @@ public class InnkommendeForespørselTjeneste {
             case PLEIEPENGER_SYKT_BARN -> Merkelapp.INNTEKTSMELDING_PSB;
             case OMSORGSPENGER -> Merkelapp.INNTEKTSMELDING_OMP;
             case SVANGERSKAPSPENGER -> Merkelapp.INNTEKTSMELDING_SVP;
-            case PLEIEPENGER_I_LIVETS_SLUTTFASE -> Merkelapp.INNTEKTSMELDING_PILS;
+            case PLEIEPENGER_NÆRSTÅENDE -> Merkelapp.INNTEKTSMELDING_PILS;
             case OPPLÆRINGSPENGER -> Merkelapp.INNTEKTSMELDING_OPP;
         };
     }

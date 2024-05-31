@@ -53,7 +53,7 @@ public class ForespørselRestTjeneste {
             case OMSORGSPENGER -> Ytelsetype.OMSORGSPENGER;
             case OPPLÆRINGSPENGER -> Ytelsetype.OPPLÆRINGSPENGER;
             case PLEIEPENGER_SYKT_BARN -> Ytelsetype.PLEIEPENGER_SYKT_BARN;
-            case PLEIEPENGER_I_LIVETS_SLUTTFASE -> Ytelsetype.PLEIEPENGER_I_LIVETS_SLUTTFASE;
+            case PLEIEPENGER_NÆRSTÅENDE -> Ytelsetype.PLEIEPENGER_NÆRSTÅENDE;
         };
     }
 
