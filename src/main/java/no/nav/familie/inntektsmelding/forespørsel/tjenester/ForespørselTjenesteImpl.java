@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.database.tjenester;
+package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -6,8 +6,8 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.familie.inntektsmelding.database.modell.ForespørselEntitet;
-import no.nav.familie.inntektsmelding.database.modell.ForespørselRepository;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
@@ -35,7 +35,6 @@ public class ForespørselTjenesteImpl implements ForespørselTjeneste {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.id(), orgnr.orgnr(),
             fagsakSaksnummer.getSaksnr());
     }
-
 
     @Override
     public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {

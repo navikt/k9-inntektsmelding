@@ -19,7 +19,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
-import no.nav.familie.inntektsmelding.forepørsel.rest.ForespørselRestTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselRest;
 import no.nav.familie.inntektsmelding.imdialog.InntektsmeldingDialogRest;
 import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -54,7 +54,7 @@ public class ApiConfig extends Application {
     public Set<Class<?>> getClasses() {
         // eksponert grensesnitt bak sikkerhet
         return Set.of(AuthenticationFilter.class, OpenApiResource.class, JacksonJsonConfig.class, GeneralRestExceptionMapper.class,
-            InntektsmeldingDialogRest.class, ForespørselRestTjeneste.class, FagerTestRestTjeneste.class);
+            InntektsmeldingDialogRest.class, ForespørselRest.class, FagerTestRestTjeneste.class);
 
     }
 

@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.database.modell;
+package no.nav.familie.inntektsmelding.forespørsel.modell;
 
 import java.time.LocalDate;
 import java.util.List;

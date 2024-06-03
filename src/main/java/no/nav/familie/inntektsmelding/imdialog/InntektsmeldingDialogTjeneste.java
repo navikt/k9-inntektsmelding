@@ -5,20 +5,20 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.familie.inntektsmelding.database.modell.ForespørselEntitet;
-import no.nav.familie.inntektsmelding.database.tjenester.ForespørselTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 
 @ApplicationScoped
-public class InntektsmeldingTjeneste {
+public class InntektsmeldingDialogTjeneste {
     private ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
     private ForespørselTjeneste forespørselTjeneste;
 
-    public InntektsmeldingTjeneste() {
+    public InntektsmeldingDialogTjeneste() {
     }
 
     @Inject
-    public InntektsmeldingTjeneste(ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon, ForespørselTjeneste forespørselTjeneste) {
+    public InntektsmeldingDialogTjeneste(ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon, ForespørselTjeneste forespørselTjeneste) {
         this.arbeidsgiverNotifikasjon = arbeidsgiverNotifikasjon;
         this.forespørselTjeneste = forespørselTjeneste;
     }
