@@ -1,8 +1,5 @@
 package no.nav.familie.inntektsmelding.imdialog;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -10,23 +7,18 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.typer.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.ArbeidsgiverDto;
-import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeMapper;
+import no.nav.familie.inntektsmelding.typer.*;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
 @ApplicationScoped
@@ -41,14 +33,14 @@ public class InntektsmeldingDialogRest {
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private InntektTjeneste inntektTjeneste;
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
 
     @Inject
-    public InntektsmeldingDialogRest(PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste, InntektTjeneste inntektTjeneste, InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+    public InntektsmeldingDialogRest(PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste, InntektTjeneste inntektTjeneste, InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste) {
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.inntektTjeneste = inntektTjeneste;
-        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.inntektsmeldingDialogTjeneste = inntektsmeldingDialogTjeneste;
     }
 
     InntektsmeldingDialogRest() {
@@ -98,7 +90,7 @@ public class InntektsmeldingDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sender inn inntektsmelding", tags = "imdialog")
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
-        inntektsmeldingTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
+        inntektsmeldingDialogTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok(sendInntektsmeldingRequestDto).build();
     }
 

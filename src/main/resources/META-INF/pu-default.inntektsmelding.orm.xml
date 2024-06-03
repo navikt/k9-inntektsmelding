@@ -7,6 +7,6 @@
 
 
     <sequence-generator name="SEQ_FORESPOERSEL" allocation-size="50" sequence-name="SEQ_FORESPOERSEL" />
-    <entity class="no.nav.familie.inntektsmelding.database.modell.ForespørselEntitet"/>
+    <entity class="no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet"/>
 
 </entity-mappings>

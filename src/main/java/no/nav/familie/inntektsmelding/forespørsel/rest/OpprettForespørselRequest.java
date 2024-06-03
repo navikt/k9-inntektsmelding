@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.forepørsel.rest;
+package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import java.time.LocalDate;
 

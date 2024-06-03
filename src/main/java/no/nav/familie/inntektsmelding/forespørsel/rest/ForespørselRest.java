@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.forepørsel.rest;
+package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import java.util.UUID;
 
@@ -14,8 +14,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import no.nav.familie.inntektsmelding.database.tjenester.ForespørselTjeneste;
-import no.nav.familie.inntektsmelding.database.tjenester.InnkommendeForespørselTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.InnkommendeForespørselTjeneste;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.YtelseTypeMapper;
@@ -23,18 +23,18 @@ import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @ApplicationScoped
 @Transactional
-@Path(ForespørselRestTjeneste.BASE_PATH)
+@Path(ForespørselRest.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
-public class ForespørselRestTjeneste {
+public class ForespørselRest {
 
     private InnkommendeForespørselTjeneste innkommendeForespørselTjeneste;
     private ForespørselTjeneste forespørselTjeneste;
 
-    public ForespørselRestTjeneste() {
+    public ForespørselRest() {
     }
 
     @Inject
-    public ForespørselRestTjeneste(InnkommendeForespørselTjeneste innkommendeForespørselTjeneste, ForespørselTjeneste forespørselTjeneste) {
+    public ForespørselRest(InnkommendeForespørselTjeneste innkommendeForespørselTjeneste, ForespørselTjeneste forespørselTjeneste) {
         this.innkommendeForespørselTjeneste = innkommendeForespørselTjeneste;
         this.forespørselTjeneste = forespørselTjeneste;
     }

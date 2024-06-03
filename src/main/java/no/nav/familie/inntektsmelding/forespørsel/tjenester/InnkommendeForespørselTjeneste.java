@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.database.tjenester;
+package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import java.net.URI;
 import java.time.LocalDate;

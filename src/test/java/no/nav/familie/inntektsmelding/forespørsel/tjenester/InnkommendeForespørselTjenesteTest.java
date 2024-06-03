@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.database.tjenester;
+package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import no.nav.familie.inntektsmelding.database.JpaExtension;
-import no.nav.familie.inntektsmelding.database.modell.ForespørselRepository;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
