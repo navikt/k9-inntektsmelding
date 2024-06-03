@@ -50,7 +50,7 @@ public class AltinnAutoriseringKlient {
 
         int skip = 0;
         while (skip < ALTINN_TOTAL_SIZE_LIMIT) {
-            List<AltinnReportee> respons = gjørKallMedRetry(skip);
+            List<AltinnReportee> respons = gjørKall(skip);
             altinnReportees.addAll(respons);
 
             if (respons.size() < ALTINN_SIZE_LIMIT) {
@@ -61,17 +61,6 @@ public class AltinnAutoriseringKlient {
         }
 
         return altinnReportees;
-    }
-
-    private List<AltinnReportee> gjørKallMedRetry(int skip) {
-        List<AltinnReportee> reportees;
-        try {
-            reportees = gjørKall(skip);
-        } catch (IntegrasjonException e) {
-            // Gjør 1 retry
-            reportees = gjørKall(skip);
-        }
-        return reportees;
     }
 
     private List<AltinnReportee> gjørKall(int skip) {

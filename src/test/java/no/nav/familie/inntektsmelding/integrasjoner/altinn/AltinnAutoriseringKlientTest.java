@@ -71,19 +71,6 @@ class AltinnAutoriseringKlientTest {
         verify(klient, times(2)).sendReturnList(any(RestRequest.class), any());
     }
 
-    @Test
-    void sjekkTilgang__retry_ved_feil() {
-        AltinnAutoriseringKlient altinnAutoriseringKlient = new AltinnAutoriseringKlient(klient);
-
-        when(klient.sendReturnList(any(RestRequest.class), any()))
-            .thenThrow(RuntimeException.class)
-            .thenReturn(List.of(lagAltinnReportee("Saltrød og høneby", "999999999")));
-
-        altinnAutoriseringKlient.sjekkTilgang("999999999");
-
-        verify(klient, times(2)).sendReturnList(any(RestRequest.class), any());
-    }
-
     private static AltinnReportee lagAltinnReportee(String name, String orgnr) {
         return new AltinnReportee(name, "BEDR", orgnr, "900000000", "", "ACTIVE", "BEDR");
     }
