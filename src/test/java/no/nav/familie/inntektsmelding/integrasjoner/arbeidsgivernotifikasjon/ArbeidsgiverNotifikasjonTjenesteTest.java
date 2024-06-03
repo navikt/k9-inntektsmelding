@@ -50,7 +50,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var input = request.getInput();
         assertThat(input).isNotNull().hasSize(8);
         assertThat(input.get("grupperingsid")).isEqualTo(expectedGrupperingsid);
-        assertThat(input.get("initiellStatus")).isEqualTo(SaksStatus.MOTTATT);
+        assertThat(input.get("initiellStatus")).isEqualTo(SaksStatus.UNDER_BEHANDLING);
         assertThat(input.get("lenke")).isEqualTo(expectedLenke);
         assertThat(input.get("merkelapp")).isEqualTo(expectedMerkelapp.getBeskrivelse());
         assertThat(input.get("tittel")).isEqualTo(expectedTittel);
