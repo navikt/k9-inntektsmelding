@@ -85,6 +85,8 @@ spec:
       rules:
         - application: notifikasjon-produsent-api
           namespace: fager
+        - application: altinn-rettigheter-proxy
+          namespace: arbeidsgiver
       external:
         - host: pdl-api.{{environment}}-fss-pub.nais.io
         - host: team-inntekt-proxy.{{environment}}-fss-pub.nais.io
