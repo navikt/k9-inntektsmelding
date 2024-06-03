@@ -20,7 +20,7 @@ import java.util.List;
 
 public record SendInntektsmeldingRequestDto(@NotNull @Valid String foresporselUuid,
                                             @NotNull @Valid AktørIdDto aktorId, @NotNull @Valid YtelseTypeDto ytelse,
-                                            @NotNull ArbeidsgiverDto arbeidsgiverIdent, @NotNull String telefonnummer, @NotNull LocalDate startdato,
+                                            @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent, @NotNull String telefonnummer, @NotNull LocalDate startdato,
                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
                                             @NotNull List<@Valid RefusjonsperiodeRequestDto> refusjonsperioder,
                                             @NotNull List<@Valid NaturalytelseRequestDto> bortfaltNaturaltytelsePerioder) {
