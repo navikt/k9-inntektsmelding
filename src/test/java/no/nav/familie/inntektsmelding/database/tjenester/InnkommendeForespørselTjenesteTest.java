@@ -76,4 +76,22 @@ public class InnkommendeForespørselTjenesteTest {
         assertThat(lagret.getFirst().getSakId()).isEqualTo(SAK_ID);
         assertThat(lagret.getFirst().getOppgaveId()).isEqualTo(OPPGAVE_ID);
     }
+
+
+    @Test
+    public void eksisterende_åpen_forespørsel_skal_gi_noop() {
+        var skjæringstidspunkt = LocalDate.now();
+        var aktørId = new AktørIdDto("1234567891234");
+        var saksnummer = "FAGSAK_SAKEN";
+        var ytelsetype = Ytelsetype.PLEIEPENGER_SYKT_BARN;
+        forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelsetype, aktørId.id(), BRREG_ORGNUMMER, saksnummer);
+
+        innkommendeForespørselTjeneste.håndterInnkommendeForespørsel(skjæringstidspunkt, ytelsetype, aktørId,
+            new OrganisasjonsnummerDto(BRREG_ORGNUMMER), new SaksnummerDto(saksnummer));
+
+
+        var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(saksnummer));
+        assertThat(lagret.size()).isEqualTo(1);
+    }
+
 }

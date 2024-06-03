@@ -65,7 +65,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         request.setVirksomhetsnummer(virksomhetsnummer);
         request.setMerkelapp(merkelapp.getBeskrivelse());
         request.setLenke(lenke.toString());
-        request.setInitiellStatus(SaksStatus.MOTTATT);
+        request.setInitiellStatus(SaksStatus.UNDER_BEHANDLING);
         request.setOverstyrStatustekstMed("NAV trenger inntektsmelding");
         request.setMottakere(List.of(new MottakerInput(new AltinnMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE), null)));
 
@@ -178,4 +178,22 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
         return klient.lukkOppgaveByEksternId(request, projection);
     }
+
+    @Override
+    public String ferdigstillSak(String id) {
+
+        var request = new NyStatusSakMutationRequest();
+        request.setId(id);
+        request.setNyStatus(SaksStatus.FERDIG);
+
+        var projection = new NyStatusSakResultatResponseProjection().typename()
+            .onNyStatusSakVellykket(new NyStatusSakVellykketResponseProjection().id())
+            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
+            .onKonflikt(new KonfliktResponseProjection().feilmelding())
+            .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding())
+            .onSakFinnesIkke(new SakFinnesIkkeResponseProjection().feilmelding());
+
+        return klient.oppdaterSakStatus(request, projection);
+    }
+
 }

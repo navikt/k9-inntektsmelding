@@ -8,6 +8,7 @@ import java.util.UUID;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import no.nav.familie.inntektsmelding.koder.SakStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.ArbeidsgiverDto;
@@ -68,6 +69,20 @@ public class ForespørselRepository {
         }
     }
 
+    public void ferdigstillSak(String sakId) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet where sakId = :SAK_ID", ForespørselEntitet.class)
+            .setParameter("SAK_ID", sakId);
+        var resultList = query.getResultList();
+
+        resultList.forEach(f -> {
+            f.setSakStatus(SakStatus.FERDIG);
+            entityManager.persist(f);
+        });
+
+        entityManager.flush();
+    }
+
+
     public List<ForespørselEntitet> hentForespørsler(SaksnummerDto saksnummer) {
         var query = entityManager.createQuery("FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)
             .setParameter("saksnr", saksnummer.getSaksnr());
@@ -88,6 +103,27 @@ public class ForespørselRepository {
         } else if (resultList.size() > 1) {
             var feilmelding = String.format("Forventet å finne kun en forespørsel for gitt aktør %s, arbeidsgiver %s og startdato %s", aktørId, arbeidsgiverIdent, startdato);
             throw new IllegalStateException(feilmelding);
+        } else {
+            return Optional.of(resultList.getFirst());
+        }
+    }
+
+    public Optional<ForespørselEntitet> finnÅpenForespørsel(String aktørId, Ytelsetype ytelsetype, String arbeidsgiverIdent, LocalDate startdato) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet where sakStatus='UNDER_BEHANDLING' "
+                + "and brukerAktørId = :brukerAktørId "
+                + "and organisasjonsnummer = :arbeidsgiverIdent "
+                + "and skjæringstidspunkt = :skjæringstidspunkt "
+                + "and ytelseType = :ytelsetype", ForespørselEntitet.class)
+            .setParameter("brukerAktørId", aktørId)
+            .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
+            .setParameter("skjæringstidspunkt", startdato)
+            .setParameter("ytelsetype", ytelsetype);
+
+        var resultList = query.getResultList();
+        if (resultList.isEmpty()) {
+            return Optional.empty();
+        } else if (resultList.size() > 1) {
+            throw new IllegalStateException("Forventet å finne kun en forespørsel for gitt id arbeidsgiver og startdato" + aktørId + arbeidsgiverIdent + startdato);
         } else {
             return Optional.of(resultList.getFirst());
         }

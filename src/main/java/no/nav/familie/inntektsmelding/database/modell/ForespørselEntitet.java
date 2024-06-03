@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import no.nav.familie.inntektsmelding.koder.SakStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
 @Entity(name = "ForespørselEntitet")
@@ -29,6 +30,10 @@ public class ForespørselEntitet {
 
     @Column(name = "sak_id")
     private String sakId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sak_status", nullable = false, updatable = false)
+    private SakStatus sakStatus = SakStatus.UNDER_BEHANDLING;
 
     @Column(name = "oppgave_id")
     private String oppgaveId;
@@ -90,6 +95,14 @@ public class ForespørselEntitet {
 
     void setSakId(String sakId) {
         this.sakId = sakId;
+    }
+
+    public SakStatus getSakStatus() {
+        return sakStatus;
+    }
+
+    public void setSakStatus(SakStatus sakStatus) {
+        this.sakStatus = sakStatus;
     }
 
     public String getOppgaveId() {

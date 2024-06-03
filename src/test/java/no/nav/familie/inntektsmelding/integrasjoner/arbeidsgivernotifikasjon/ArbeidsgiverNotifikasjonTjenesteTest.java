@@ -50,7 +50,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var input = request.getInput();
         assertThat(input).isNotNull().hasSize(8);
         assertThat(input.get("grupperingsid")).isEqualTo(expectedGrupperingsid);
-        assertThat(input.get("initiellStatus")).isEqualTo(SaksStatus.MOTTATT);
+        assertThat(input.get("initiellStatus")).isEqualTo(SaksStatus.UNDER_BEHANDLING);
         assertThat(input.get("lenke")).isEqualTo(expectedLenke);
         assertThat(input.get("merkelapp")).isEqualTo(expectedMerkelapp.getBeskrivelse());
         assertThat(input.get("tittel")).isEqualTo(expectedTittel);
@@ -120,5 +120,22 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         assertThat(request.getInput()).isNotNull().hasSize(2);
         assertThat(request.getInput().get("id")).isNotNull().isEqualTo(expectedId);
         assertThat(request.getInput().get("utfoertTidspunkt")).isNotNull().isEqualTo(expectedTidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
+    }
+
+
+    @Test
+    void ferdigstill_sak() {
+        var expectedId = "TestId";
+
+        var requestCaptor = ArgumentCaptor.forClass(NyStatusSakMutationRequest.class);
+
+        tjeneste.ferdigstillSak(expectedId);
+
+        Mockito.verify(klient).oppdaterSakStatus(requestCaptor.capture(), any(NyStatusSakResultatResponseProjection.class));
+
+        var request = requestCaptor.getValue();
+
+        assertThat(request.getInput()).isNotNull().hasSize(2);
+        assertThat(request.getInput().get("id")).isNotNull().isEqualTo(expectedId);
     }
 }

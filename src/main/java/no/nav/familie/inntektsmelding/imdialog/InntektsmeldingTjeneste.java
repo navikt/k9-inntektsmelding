@@ -2,7 +2,6 @@ package no.nav.familie.inntektsmelding.imdialog;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
-import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -30,6 +29,12 @@ public class InntektsmeldingTjeneste {
             .orElseThrow(() -> new IllegalStateException("Finnes ikke forespørsel for inntektsmelding, ugyldig tilstand"));
         valider(forespørsel, sendInntektsmeldingRequestDto);
         arbeidsgiverNotifikasjon.lukkOppgave(forespørsel.getOppgaveId(), OffsetDateTime.now());
+        ferdigstillSak(forespørsel);
+    }
+
+    private void ferdigstillSak(ForespørselEntitet forespørsel) {
+        arbeidsgiverNotifikasjon.ferdigstillSak(forespørsel.getSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
+        forespørselTjeneste.ferdigstillSak(forespørsel.getSakId()); // Oppdaterer status i forespørsel
     }
 
     private void valider(ForespørselEntitet forespørsel, SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {

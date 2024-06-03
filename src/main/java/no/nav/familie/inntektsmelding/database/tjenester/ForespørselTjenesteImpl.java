@@ -42,10 +42,24 @@ public class ForespørselTjenesteImpl implements ForespørselTjeneste {
         forespørselRepository.oppdaterOppgaveId(forespørselUUID, oppgaveId);
     }
 
+
     @Override
     public void setSakId(UUID forespørselUUID, String sakId) {
         forespørselRepository.oppdaterSakId(forespørselUUID, sakId);
 
+    }
+
+    @Override
+    public void ferdigstillSak(String sakId) {
+        forespørselRepository.ferdigstillSak(sakId);
+    }
+
+    @Override
+    public Optional<ForespørselEntitet> finnÅpenForespørsel(LocalDate skjæringstidspunkt,
+                                                            Ytelsetype ytelseType,
+                                                            AktørIdDto brukerAktørId,
+                                                            OrganisasjonsnummerDto orgnr) {
+        return forespørselRepository.finnÅpenForespørsel(brukerAktørId.id(), ytelseType, orgnr.orgnr(), skjæringstidspunkt);
     }
 
     @Override

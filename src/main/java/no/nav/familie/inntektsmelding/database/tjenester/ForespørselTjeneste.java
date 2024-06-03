@@ -22,5 +22,13 @@ public interface ForespørselTjeneste {
 
     void setOppgaveId(UUID forespørselUUID, String oppgaveId);
     void setSakId(UUID forespørselUUID, String sakId);
+
+    void ferdigstillSak(String sakId);
+
+    Optional<ForespørselEntitet> finnÅpenForespørsel(LocalDate skjæringstidspunkt,
+                                                     Ytelsetype ytelseType,
+                                                     AktørIdDto brukerAktørId,
+                                                     OrganisasjonsnummerDto orgnr);
+
     Optional<ForespørselEntitet> finnForespørsel(UUID forespørselUuid);
 }

@@ -46,18 +46,22 @@ public class InnkommendeForespørselTjeneste {
                                               AktørIdDto aktørId,
                                               OrganisasjonsnummerDto organisasjonsnummer,
                                               SaksnummerDto fagsakSaksnummer) {
-        var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
-        var person = personTjeneste.hentPersonInfo(aktørId, ytelsetype);
-        var merkelapp = finnMerkelapp(ytelsetype);
-        var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),merkelapp, organisasjonsnummer.orgnr(), lagSaksTittel(person),
-            URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid));
+        var åpenForespørsel = forespørselTjeneste.finnÅpenForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer);
+        if (åpenForespørsel.isEmpty()) {
+            var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
+            var person = personTjeneste.hentPersonInfo(aktørId, ytelsetype);
+            var merkelapp = finnMerkelapp(ytelsetype);
+            var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), merkelapp, organisasjonsnummer.orgnr(), lagSaksTittel(person),
+                URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid));
 
-        forespørselTjeneste.setSakId(uuid, sakId);
+            forespørselTjeneste.setSakId(uuid, sakId);
 
-        var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), merkelapp, uuid.toString(), organisasjonsnummer.orgnr(),
-            "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid));
+            var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), merkelapp, uuid.toString(), organisasjonsnummer.orgnr(),
+                "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid));
 
-        forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
+            forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
+        }
+
     }
 
     private Merkelapp finnMerkelapp(Ytelsetype ytelsetype) {
