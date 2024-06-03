@@ -3,6 +3,9 @@ package no.nav.familie.inntektsmelding.forvaltning;
 import java.net.URI;
 import java.time.OffsetDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,10 +27,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Mer
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.SaksStatus;
 import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
-import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 @Transactional
@@ -51,7 +50,6 @@ public class FagerTestRestTjeneste {
     }
 
     @POST
-    @UtenAutentisering
     @Path("/sak/opprett")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter en ny sak i fager", tags = "test")
@@ -66,7 +64,6 @@ public class FagerTestRestTjeneste {
     }
 
     @GET
-    @UtenAutentisering
     @Path("/sak/hentMedGrupperingsid")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter sak fra fager med Grupperingsid og Merkelapp", tags = "test")
@@ -76,7 +73,6 @@ public class FagerTestRestTjeneste {
     }
 
     @GET
-    @UtenAutentisering
     @Path("/sak/hent")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter sak fra fager med ID", tags = "test")
@@ -86,7 +82,6 @@ public class FagerTestRestTjeneste {
     }
 
     @POST
-    @UtenAutentisering
     @Path("/sak/status/oppdater")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppdaterer sak status i fager med ID", tags = "test")
@@ -98,7 +93,6 @@ public class FagerTestRestTjeneste {
     public record OppdaterStatusSakRequest(String sakId, SaksStatus status, String overstyrtStatusTekst) {}
 
     @POST
-    @UtenAutentisering
     @Path("/sak/status/oppdaterMedGrupperingsid")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppdaterer sak status i fager med Grupperingsid og Merkelapp", tags = "test")
@@ -110,7 +104,6 @@ public class FagerTestRestTjeneste {
     public record OppdaterStatusSakMedGrupperingsidRequest(String grupperingsid, Merkelapp merkelapp, SaksStatus status, String overstyrtStatusTekst) {}
 
     @POST
-    @UtenAutentisering
     @Path("/oppgave/opprett")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter en ny oppgave i fager", tags = "test")
@@ -129,7 +122,6 @@ public class FagerTestRestTjeneste {
     }
 
     @POST
-    @UtenAutentisering
     @Path("/oppgave/utfoer")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Utfør en oppgave i fager med Id", tags = "test")
@@ -144,7 +136,6 @@ public class FagerTestRestTjeneste {
     public record LukkOppgaveRequest(String oppgaveId) {}
 
     @POST
-    @UtenAutentisering
     @Path("/oppgave/utfoerMedGrupperingsid")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Utfør en oppgave i fager med EksternId og merkelapp", tags = "test")

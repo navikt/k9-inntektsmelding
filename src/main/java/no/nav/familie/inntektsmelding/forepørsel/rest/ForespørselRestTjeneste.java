@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.forepørsel.rest;
 
+import java.util.UUID;
+
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,9 +20,6 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
-import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
-
-import java.util.UUID;
 
 @ApplicationScoped
 @Transactional
@@ -43,7 +42,6 @@ public class ForespørselRestTjeneste {
     public static final String BASE_PATH = "/foresporsel";
 
     @POST
-    @UtenAutentisering
     @Path("/opprett")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter en forespørsel om inntektsmelding", tags = "forespørsel")
@@ -54,7 +52,6 @@ public class ForespørselRestTjeneste {
     }
 
     @GET
-    @UtenAutentisering
     @Path("/{forespørselUUID}")
     @Operation(description = "Henter en forespørsel for gitt UUID", tags = "forespørsel")
     public Response opprettForespørsel(@PathParam("forespørselUUID") UUID forespørselUUID) {

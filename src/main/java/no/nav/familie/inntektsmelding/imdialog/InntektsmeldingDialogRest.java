@@ -25,7 +25,6 @@ import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
-import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
 @ApplicationScoped
@@ -55,7 +54,6 @@ public class InntektsmeldingDialogRest {
     }
 
     @GET
-    @UtenAutentisering
     @Path(HENT_PERSONINFO)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter personinfo gitt id", tags = "imdialog")
@@ -68,7 +66,6 @@ public class InntektsmeldingDialogRest {
     }
 
     @GET
-    @UtenAutentisering
     @Path(HENT_ORGANISASJON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter organisasjonsnavn gitt organisasjonsnummer", tags = "imdialog")
@@ -79,7 +76,6 @@ public class InntektsmeldingDialogRest {
     }
 
     @POST
-    @UtenAutentisering
     @Path(HENT_INNTEKT)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter inntekt siste tre måneder for en aktør", tags = "imdialog")
@@ -93,7 +89,6 @@ public class InntektsmeldingDialogRest {
     }
 
     @POST
-    @UtenAutentisering
     @Path(SEND_INNTEKTSMELDING)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sender inn inntektsmelding", tags = "imdialog")
