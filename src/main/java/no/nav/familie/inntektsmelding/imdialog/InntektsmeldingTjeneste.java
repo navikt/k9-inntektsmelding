@@ -36,7 +36,7 @@ public class InntektsmeldingTjeneste {
         if (!forespørsel.getBrukerAktørId().equals(sendInntektsmeldingRequestDto.aktorId().id())) {
             throw new IllegalStateException("AktørId for bruker var ikke like");
         }
-        if (!forespørsel.getOrganisasjonsnummer().equals(sendInntektsmeldingRequestDto.arbeidsgiverIdent())) {
+        if (!forespørsel.getOrganisasjonsnummer().equals(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident())) {
             throw new IllegalStateException("Organisasjonsnummer var ikke like");
         }
         if (!forespørsel.getSkjæringstidspunkt().equals(sendInntektsmeldingRequestDto.startdato())) {
