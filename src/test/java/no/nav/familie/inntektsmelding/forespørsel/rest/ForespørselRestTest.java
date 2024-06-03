@@ -2,10 +2,13 @@ package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,12 +16,11 @@ import org.mockito.Mockito;
 
 import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjenesteImpl;
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.InnkommendeForespørselTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
@@ -34,30 +36,28 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
 
     private ForespørselRepository forespørselRepository;
     private ForespørselRest forespørselRest;
+    private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
 
     @BeforeEach
     void setUp() {
         this.forespørselRepository = new ForespørselRepository(getEntityManager());
-        ArbeidsgiverNotifikasjon agTjeneste = Mockito.mock(ArbeidsgiverNotifikasjon.class);
-        PersonTjeneste personTjeneste = Mockito.mock(PersonTjeneste.class);
-        this.forespørselRest = new ForespørselRest(
-            new InnkommendeForespørselTjeneste(new ForespørselTjenesteImpl(forespørselRepository), agTjeneste, personTjeneste),
-            new ForespørselTjenesteImpl());
-        when(personTjeneste.hentPersonInfo(any(), any())).thenReturn(personMock);
-        when(agTjeneste.opprettSak(any(), any(), any(), any(), any())).thenReturn("1");
-        when(agTjeneste.opprettOppgave(any(), any(), any(), any(), any(), any())).thenReturn("2");
+        this.forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
+        doNothing().when(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(any(), any(), any(), any(), any());
+        this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste, new ForespørselTjeneste());
     }
 
     @Test
     void skal_opprette_forespørsel() {
+        var orgnummer = new OrganisasjonsnummerDto(BRREG_ORGNUMMER);
+        var aktørId = new AktørIdDto("1234567890134");
+
         var fagsakSaksnummer = new SaksnummerDto("SAK");
-        forespørselRest.opprettForespørsel(
-            new OpprettForespørselRequest(new AktørIdDto("1234567890134"), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), LocalDate.now(),
-                YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
+        var response = forespørselRest.opprettForespørsel(
+            new OpprettForespørselRequest(aktørId, orgnummer, LocalDate.now(), YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
 
-        var forespørsler = forespørselRepository.hentForespørsler(fagsakSaksnummer);
-
-        assertThat(forespørsler.size()).isEqualTo(1);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+        verify(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(eq(LocalDate.now()), eq(Ytelsetype.PLEIEPENGER_SYKT_BARN), eq(aktørId),
+            eq(orgnummer), eq(fagsakSaksnummer));
     }
 }

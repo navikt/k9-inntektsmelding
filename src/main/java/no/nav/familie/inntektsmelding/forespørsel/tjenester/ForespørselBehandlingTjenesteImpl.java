@@ -2,12 +2,15 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
@@ -19,7 +22,7 @@ import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
 import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
-public class InnkommendeForespørselTjeneste {
+class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjeneste {
 
     private static final no.nav.foreldrepenger.konfig.Environment ENV = Environment.current();
 
@@ -28,19 +31,20 @@ public class InnkommendeForespørselTjeneste {
     private PersonTjeneste personTjeneste;
     private String inntektsmeldingSkjemaLenke;
 
-    public InnkommendeForespørselTjeneste() {
+    public ForespørselBehandlingTjenesteImpl() {
     }
 
     @Inject
-    public InnkommendeForespørselTjeneste(ForespørselTjeneste forespørselTjeneste,
-                                          ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon,
-                                          PersonTjeneste personTjeneste) {
+    public ForespørselBehandlingTjenesteImpl(ForespørselTjeneste forespørselTjeneste,
+                                             ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon,
+                                             PersonTjeneste personTjeneste) {
         this.forespørselTjeneste = forespørselTjeneste;
         this.arbeidsgiverNotifikasjon = arbeidsgiverNotifikasjon;
         this.personTjeneste = personTjeneste;
         this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://familie-inntektsmelding.nav.no");
     }
 
+    @Override
     public void håndterInnkommendeForespørsel(LocalDate skjæringstidspunkt,
                                               Ytelsetype ytelsetype,
                                               AktørIdDto aktørId,
@@ -62,6 +66,38 @@ public class InnkommendeForespørselTjeneste {
             forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
         }
 
+    }
+
+    @Override
+    public void ferdigstillForespørsel(UUID foresporselUuid, AktørIdDto aktorId, OrganisasjonsnummerDto organisasjonsnummerDto, LocalDate startdato) {
+        var foresporsel = forespørselTjeneste.finnForespørsel(foresporselUuid)
+            .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
+
+        validerAktør(foresporsel, aktorId);
+        validerOrganisasjon(foresporsel, organisasjonsnummerDto);
+        validerStartdato(foresporsel, startdato);
+
+        arbeidsgiverNotifikasjon.lukkOppgave(foresporsel.getOppgaveId(), OffsetDateTime.now());
+        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
+        forespørselTjeneste.ferdigstillSak(foresporsel.getSakId()); // Oppdaterer status i forespørsel
+    }
+
+    private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {
+        if (!forespørsel.getSkjæringstidspunkt().equals(startdato)) {
+            throw new IllegalStateException("Startdato var ikke like");
+        }
+    }
+
+    private void validerOrganisasjon(ForespørselEntitet forespørsel, OrganisasjonsnummerDto orgnummer) {
+        if (!forespørsel.getOrganisasjonsnummer().equals(orgnummer.orgnr())) {
+            throw new IllegalStateException("Organisasjonsnummer var ikke like");
+        }
+    }
+
+    private void validerAktør(ForespørselEntitet forespørsel, AktørIdDto aktorId) {
+        if (!forespørsel.getBrukerAktørId().equals(aktorId.id())) {
+            throw new IllegalStateException("AktørId for bruker var ikke like");
+        }
     }
 
     private Merkelapp finnMerkelapp(Ytelsetype ytelsetype) {

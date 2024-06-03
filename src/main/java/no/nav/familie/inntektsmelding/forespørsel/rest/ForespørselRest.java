@@ -14,8 +14,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.InnkommendeForespørselTjeneste;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.YtelseTypeMapper;
@@ -27,15 +27,15 @@ import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 @Produces(MediaType.APPLICATION_JSON)
 public class ForespørselRest {
 
-    private InnkommendeForespørselTjeneste innkommendeForespørselTjeneste;
+    private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private ForespørselTjeneste forespørselTjeneste;
 
     public ForespørselRest() {
     }
 
     @Inject
-    public ForespørselRest(InnkommendeForespørselTjeneste innkommendeForespørselTjeneste, ForespørselTjeneste forespørselTjeneste) {
-        this.innkommendeForespørselTjeneste = innkommendeForespørselTjeneste;
+    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, ForespørselTjeneste forespørselTjeneste) {
+        this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.forespørselTjeneste = forespørselTjeneste;
     }
 
@@ -47,7 +47,7 @@ public class ForespørselRest {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter en forespørsel om inntektsmelding", tags = "forespørsel")
     public Response opprettForespørsel(OpprettForespørselRequest request) {
-        innkommendeForespørselTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), YtelseTypeMapper.map(request.ytelsetype()),
+        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), YtelseTypeMapper.map(request.ytelsetype()),
             new AktørIdDto(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.saksnummer());
         return Response.ok().build();
     }
