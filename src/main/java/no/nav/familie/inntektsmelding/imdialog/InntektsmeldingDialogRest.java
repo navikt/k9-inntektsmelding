@@ -25,6 +25,7 @@ import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.typer.YtelseTypeMapper;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
@@ -61,8 +62,7 @@ public class InntektsmeldingDialogRest {
     @Operation(description = "Henter personinfo gitt id", tags = "imdialog")
     public Response hentPersoninfo(@NotNull @QueryParam("aktorId") @Valid AktørIdDto aktørIdRequestDto,
                                    @NotNull @QueryParam("ytelse") @Valid YtelseTypeDto ytelse) {
-        var aktørId = new AktørIdDto(aktørIdRequestDto.id());
-        PersonInfo personInfo = personTjeneste.hentPersonInfo(aktørId, ytelse);
+        PersonInfo personInfo = personTjeneste.hentPersonInfo(aktørIdRequestDto, YtelseTypeMapper.map(ytelse));
         var dto = new PersonInfoResponseDto(personInfo.navn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().id());
         return Response.ok(dto).build();
     }
@@ -88,8 +88,8 @@ public class InntektsmeldingDialogRest {
         var aktørId = new AktørIdDto(hentInntektRequestDto.aktorId().id());
         var inntekt = inntektTjeneste.hentInntekt(aktørId, startdato, hentInntektRequestDto.arbeidsgiverIdent().ident());
         return Response.ok(inntekt.stream()
-            .map(i -> new MånedsinntektResponsDto(i.måned().atDay(1), i.måned().atEndOfMonth(), i.beløp(), i.organisasjonsnummer()))
-            .toList()).build();
+                .map(i -> new MånedsinntektResponsDto(i.måned().atDay(1), i.måned().atEndOfMonth(), i.beløp(), i.organisasjonsnummer()))
+                .toList()).build();
     }
 
     @POST
@@ -108,7 +108,8 @@ public class InntektsmeldingDialogRest {
     public record OrganisasjonInfoResponseDto(@NotNull String organisasjonNavn, @NotNull String organisasjonNummer) {
     }
 
-    public record HentInntektRequestDto(@NotNull @QueryParam("aktorId") AktørIdDto aktorId, @NotNull @QueryParam("ytelse") YtelseTypeDto ytelse,
+    public record HentInntektRequestDto(@NotNull @QueryParam("aktorId") AktørIdDto aktorId,
+                                        @NotNull @QueryParam("ytelse") YtelseTypeDto ytelse,
                                         @NotNull @QueryParam("arbeidsgiverIdent") @Valid ArbeidsgiverDto arbeidsgiverIdent,
                                         LocalDate startdato) {
     }

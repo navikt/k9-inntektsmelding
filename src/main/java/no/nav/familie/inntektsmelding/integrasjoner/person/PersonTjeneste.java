@@ -1,15 +1,18 @@
 package no.nav.familie.inntektsmelding.integrasjoner.person;
 
 import java.net.SocketTimeoutException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.pdl.Foedselsdato;
+import no.nav.pdl.FoedselsdatoResponseProjection;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.IdentGruppe;
@@ -37,27 +40,32 @@ public class PersonTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public PersonInfo hentPersonInfo(AktørIdDto aktørId, YtelseTypeDto ytelseType) {
+    public PersonInfo hentPersonInfo(AktørIdDto aktørId, Ytelsetype ytelseType) {
         var request = new HentPersonQueryRequest();
         request.setIdent(aktørId.id());
 
-        var projection = new PersonResponseProjection()
-            .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn());
+        var projection = new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
+            .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
 
-        PersonIdent personIdent = hentPersonidentForAktørId(aktørId)
-            .orElseThrow(() -> new IllegalStateException("Finner ikke personnummer for id " + aktørId));
+        PersonIdent personIdent = hentPersonidentForAktørId(aktørId).orElseThrow(
+            () -> new IllegalStateException("Finner ikke personnummer for id " + aktørId));
 
         var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
 
-        return new PersonInfo(mapNavn(person), personIdent, aktørId);
+        return new PersonInfo(mapNavn(person), personIdent, aktørId, mapFødselsdato(person));
     }
 
     private String mapNavn(Person person) {
-        return person.getNavn().stream()
+        return person.getNavn()
+            .stream()
             .map(PersonTjeneste::mapNavn)
             .flatMap(Optional::stream)
             .findFirst()
             .orElseGet(() -> Environment.current().isProd() ? null : "Navnløs i Folkeregister");
+    }
+
+    private LocalDate mapFødselsdato(Person person) {
+        return person.getFoedselsdato().stream().map(Foedselsdato::getFoedselsdato).findFirst().map(LocalDate::parse).orElse(null);
     }
 
     private static Optional<String> mapNavn(Navn navn) {
@@ -72,8 +80,7 @@ public class PersonTjeneste {
         request.setIdent(aktørId.id());
         request.setGrupper(List.of(IdentGruppe.FOLKEREGISTERIDENT, IdentGruppe.NPID));
         request.setHistorikk(Boolean.FALSE);
-        var projection = new IdentlisteResponseProjection()
-            .identer(new IdentInformasjonResponseProjection().ident());
+        var projection = new IdentlisteResponseProjection().identer(new IdentInformasjonResponseProjection().ident());
         try {
             var identliste = pdlKlient.hentIdenter(request, projection);
             return identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(PersonIdent::new);
@@ -87,8 +94,8 @@ public class PersonTjeneste {
         }
     }
 
-    private static Persondata.Ytelse utledYtelse(YtelseTypeDto ytelseType) {
-        if (YtelseTypeDto.SVANGERSKAPSPENGER.equals(ytelseType)) {
+    private static Persondata.Ytelse utledYtelse(Ytelsetype ytelseType) {
+        if (Ytelsetype.SVANGERSKAPSPENGER.equals(ytelseType)) {
             return Persondata.Ytelse.SVANGERSKAPSPENGER;
         } else {
             return Persondata.Ytelse.FORELDREPENGER;
