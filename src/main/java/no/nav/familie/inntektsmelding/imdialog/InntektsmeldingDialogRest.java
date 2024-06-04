@@ -1,5 +1,8 @@
 package no.nav.familie.inntektsmelding.imdialog;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -7,18 +10,23 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.typer.*;
+import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.typer.YtelseTypeMapper;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
 @ApplicationScoped
@@ -36,7 +44,10 @@ public class InntektsmeldingDialogRest {
     private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
 
     @Inject
-    public InntektsmeldingDialogRest(PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste, InntektTjeneste inntektTjeneste, InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste) {
+    public InntektsmeldingDialogRest(PersonTjeneste personTjeneste,
+                                     OrganisasjonTjeneste organisasjonTjeneste,
+                                     InntektTjeneste inntektTjeneste,
+                                     InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste) {
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.inntektTjeneste = inntektTjeneste;
@@ -80,8 +91,8 @@ public class InntektsmeldingDialogRest {
         var aktørId = new AktørIdDto(hentInntektRequestDto.aktorId().id());
         var inntekt = inntektTjeneste.hentInntekt(aktørId, startdato, hentInntektRequestDto.arbeidsgiverIdent().ident());
         return Response.ok(inntekt.stream()
-                .map(i -> new MånedsinntektResponsDto(i.måned().atDay(1), i.måned().atEndOfMonth(), i.beløp(), i.organisasjonsnummer()))
-                .toList()).build();
+            .map(i -> new MånedsinntektResponsDto(i.måned().atDay(1), i.måned().atEndOfMonth(), i.beløp(), i.organisasjonsnummer()))
+            .toList()).build();
     }
 
     @POST
@@ -100,10 +111,8 @@ public class InntektsmeldingDialogRest {
     public record OrganisasjonInfoResponseDto(@NotNull String organisasjonNavn, @NotNull String organisasjonNummer) {
     }
 
-    public record HentInntektRequestDto(@NotNull @QueryParam("aktorId") AktørIdDto aktorId,
-                                        @NotNull @QueryParam("ytelse") YtelseTypeDto ytelse,
-                                        @NotNull @QueryParam("arbeidsgiverIdent") @Valid ArbeidsgiverDto arbeidsgiverIdent,
-                                        LocalDate startdato) {
+    public record HentInntektRequestDto(@NotNull @QueryParam("aktorId") AktørIdDto aktorId, @NotNull @QueryParam("ytelse") YtelseTypeDto ytelse,
+                                        @NotNull @QueryParam("arbeidsgiverIdent") @Valid ArbeidsgiverDto arbeidsgiverIdent, LocalDate startdato) {
     }
 
     public record MånedsinntektResponsDto(LocalDate fom, LocalDate tom, BigDecimal beløp, String organisasjonsnummer) {
