@@ -2,28 +2,14 @@ package no.nav.familie.inntektsmelding.typer;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-public final class SaksnummerDto {
+public record SaksnummerDto (@JsonValue @NotNull @Pattern(regexp = REGEXP, message = "Saksnummer [${validatedValue}] matcher ikke tillatt pattern [{regexp}]") String saksnr) {
 
     private static final String REGEXP = "^[\\p{Alnum}]+$";
-
-    @NotNull
-    @Pattern(regexp = REGEXP, message = "Saksnummer [${validatedValue}] matcher ikke tillatt pattern [{regexp}]")
-    private String saksnr;
-
-    public SaksnummerDto() {
-    }
-
-    public SaksnummerDto(String saksnr) {
-        Objects.requireNonNull(saksnr);
-        this.saksnr = saksnr;
-    }
-
-    public String getSaksnr() {
-        return saksnr;
-    }
 
     @Override
     public boolean equals(Object obj) {

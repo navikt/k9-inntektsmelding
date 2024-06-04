@@ -56,7 +56,7 @@ public class FagerTestRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter en ny sak i fager", tags = "test")
     public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request) {
-        var sakId = notifikasjon.opprettSak(request.saksnummer().getSaksnr(),
+        var sakId = notifikasjon.opprettSak(request.saksnummer().saksnr(),
             finnMerkelapp(request.ytelsetype()),
             request.orgnummer().orgnr(),
             "Inntektsmelding for TEST TESTERSEN: f." + request.aktørId().id(),
@@ -115,10 +115,10 @@ public class FagerTestRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter en ny oppgave i fager", tags = "test")
     public Response opprettOppgave(@Valid @NotNull OpprettForespørselRequest request) {
-        var eksternId = String.join("-", request.saksnummer().getSaksnr(), request.orgnummer().orgnr()); // mulig man trenger arbforholdId også.
+        var eksternId = String.join("-", request.saksnummer().saksnr(), request.orgnummer().orgnr()); // mulig man trenger arbforholdId også.
         LOG.info("FAGER: eksternId={}", eksternId);
         var oppgaveId = notifikasjon.opprettOppgave(
-            request.saksnummer().getSaksnr(),
+            request.saksnummer().saksnr(),
             finnMerkelapp(request.ytelsetype()),
             eksternId,
             request.orgnummer().orgnr(),

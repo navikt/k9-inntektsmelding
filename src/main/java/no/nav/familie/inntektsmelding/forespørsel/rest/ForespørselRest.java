@@ -26,6 +26,7 @@ import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 @Path(ForespørselRest.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 public class ForespørselRest {
+    public static final String BASE_PATH = "/foresporsel";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private ForespørselTjeneste forespørselTjeneste;
@@ -39,24 +40,21 @@ public class ForespørselRest {
         this.forespørselTjeneste = forespørselTjeneste;
     }
 
-    public static final String BASE_PATH = "/foresporsel";
-
     @POST
     @UtenAutentisering
-    @Path("/opprett")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter en forespørsel om inntektsmelding", tags = "forespørsel")
-    public Response opprettForespørsel(OpprettForespørselRequest request) {
+    public Response createForespørsel(OpprettForespørselRequest request) {
         forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), YtelseTypeMapper.map(request.ytelsetype()),
-            new AktørIdDto(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.saksnummer());
+            request.aktørId(), request.orgnummer(), request.saksnummer());
         return Response.ok().build();
     }
 
     @GET
     @UtenAutentisering
-    @Path("/{forespørselUUID}")
+    @Path("/{uuid}")
     @Operation(description = "Henter en forespørsel for gitt UUID", tags = "forespørsel")
-    public Response opprettForespørsel(@PathParam("forespørselUUID") UUID forespørselUUID) {
+    public Response readForespørsel(@PathParam("uuid") UUID forespørselUUID) {
         return Response.ok(forespørselTjeneste.finnForespørsel(forespørselUUID)).build();
     }
 

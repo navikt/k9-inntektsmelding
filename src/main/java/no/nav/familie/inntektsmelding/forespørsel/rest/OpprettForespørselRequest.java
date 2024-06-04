@@ -11,8 +11,8 @@ import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
 
 
 public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
-                                        @NotNull OrganisasjonsnummerDto orgnummer,
+                                        @NotNull @Valid OrganisasjonsnummerDto orgnummer,
                                         @NotNull LocalDate skjæringstidspunkt,
-                                        @NotNull @Valid YtelseTypeDto ytelsetype,
-                                        @NotNull SaksnummerDto saksnummer) {
+                                        @NotNull YtelseTypeDto ytelsetype,
+                                        @NotNull @Valid SaksnummerDto saksnummer) {
 }
