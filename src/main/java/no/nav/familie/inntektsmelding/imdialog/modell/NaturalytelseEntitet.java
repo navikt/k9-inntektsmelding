@@ -3,6 +3,8 @@ package no.nav.familie.inntektsmelding.imdialog.modell;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,17 +32,22 @@ public class NaturalytelseEntitet {
     @Embedded
     private PeriodeEntitet periode;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private Naturalytelsetype type;
 
     @Column(name = "beloep", nullable = false)
     private BigDecimal beløp;
 
-    @Column(name = "erBortfalt", nullable = false)
+    @Column(name = "er_bortfalt", nullable = false)
     private Boolean erBortfalt;
 
     public NaturalytelseEntitet() {
         // Hibernate
+    }
+
+    void setInntektsmelding(InntektsmeldingEntitet inntektsmelding) {
+        this.inntektsmelding = inntektsmelding;
     }
 
     public static class Builder {

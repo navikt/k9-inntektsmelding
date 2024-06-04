@@ -120,6 +120,7 @@ public class InntektsmeldingEntitet {
         }
 
         public InntektsmeldingEntitetBuilder medKontaktperson(KontaktpersonEntitet kontaktpersonEntitet) {
+            kontaktpersonEntitet.setInntektsmelding(kladd);
             kladd.kontaktperson = kontaktpersonEntitet;
             return this;
         }
@@ -135,11 +136,13 @@ public class InntektsmeldingEntitet {
         }
 
         public InntektsmeldingEntitetBuilder medRefusjonsPeriode(List<RefusjonPeriodeEntitet> refusjonsPeriode) {
+            refusjonsPeriode.forEach(rp -> rp.setInntektsmelding(kladd));
             kladd.refusjonsPeriode = refusjonsPeriode;
             return this;
         }
 
         public InntektsmeldingEntitetBuilder medNaturalYtelse(List<NaturalytelseEntitet> naturalYtelse) {
+            naturalYtelse.forEach(ny -> ny.setInntektsmelding(kladd));
             kladd.naturalYtelse = naturalYtelse;
             return this;
         }
