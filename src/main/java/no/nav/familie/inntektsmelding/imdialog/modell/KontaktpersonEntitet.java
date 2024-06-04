@@ -31,7 +31,7 @@ public class KontaktpersonEntitet {
         // Hibernate
     }
 
-    public KontaktpersonEntitet(String telefonnummer, String navn) {
+    public KontaktpersonEntitet(String navn, String telefonnummer) {
         this.telefonnummer = telefonnummer;
         this.navn = navn;
     }
