@@ -1,6 +1,7 @@
-package no.nav.familie.inntektsmelding.typer;
+package no.nav.familie.inntektsmelding.typer.dto;
 
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
 public class YtelseTypeMapper {
     public static Ytelsetype map(YtelseTypeDto ytelseTypeDto) {

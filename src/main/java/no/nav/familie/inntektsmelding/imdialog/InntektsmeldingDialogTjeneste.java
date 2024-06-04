@@ -10,11 +10,11 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjenest
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 
 @ApplicationScoped
-public class InntektsmeldingDialogTjeneste {
+class InntektsmeldingDialogTjeneste {
     private ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
     private ForespørselTjeneste forespørselTjeneste;
 
-    public InntektsmeldingDialogTjeneste() {
+    InntektsmeldingDialogTjeneste() {
     }
 
     @Inject
@@ -23,7 +23,7 @@ public class InntektsmeldingDialogTjeneste {
         this.forespørselTjeneste = forespørselTjeneste;
     }
 
-    public void mottaInntektsmelding(SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+    protected void mottaInntektsmelding(SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         //Todo lagre i database og opprette prosesstask for å lagre i joark
         var forespørsel = forespørselTjeneste.finnForespørsel(UUID.fromString(sendInntektsmeldingRequestDto.foresporselUuid()))
             .orElseThrow(() -> new IllegalStateException("Finnes ikke forespørsel for inntektsmelding, ugyldig tilstand"));

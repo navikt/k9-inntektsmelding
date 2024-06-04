@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.pdl.Foedselsdato;
 import no.nav.pdl.FoedselsdatoResponseProjection;

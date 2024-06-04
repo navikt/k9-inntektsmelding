@@ -10,9 +10,9 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import no.nav.familie.inntektsmelding.koder.SakStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.ArbeidsgiverDto;
-import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 
 @Dependent
 public class ForespørselRepository {
