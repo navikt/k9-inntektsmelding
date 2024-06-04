@@ -45,4 +45,12 @@ public class RefusjonPeriodeEntitet {
     void setInntektsmelding(InntektsmeldingEntitet inntektsmeldingEntitet) {
         this.inntektsmelding = inntektsmeldingEntitet;
     }
+
+    public PeriodeEntitet getPeriode() {
+        return periode;
+    }
+
+    public BigDecimal getBeløp() {
+        return beløp;
+    }
 }

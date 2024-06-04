@@ -20,6 +20,14 @@ public class PeriodeEntitet {
         // Hibernate
     }
 
+    public LocalDate getFom() {
+        return fom;
+    }
+
+    public LocalDate getTom() {
+        return tom;
+    }
+
     private PeriodeEntitet(LocalDate fomDato, LocalDate tomDato) {
         if (fomDato == null) {
             throw new IllegalArgumentException("Fra og med dato må være satt.");

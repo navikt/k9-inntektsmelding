@@ -13,7 +13,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 public class InntektsmeldingMapper {
 
     public static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingRequestDto dto) {
-        return new InntektsmeldingEntitet.InntektsmeldingEntitetBuilder()
+        return InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet(dto.aktorId().id()))
             .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
             .medMånedInntekt(dto.inntekt())

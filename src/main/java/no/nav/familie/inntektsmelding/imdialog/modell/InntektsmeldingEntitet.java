@@ -97,51 +97,51 @@ public class InntektsmeldingEntitet {
         return opprettetTidspunkt;
     }
 
-    public static class InntektsmeldingEntitetBuilder {
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
         private InntektsmeldingEntitet kladd = new InntektsmeldingEntitet();
 
-        public InntektsmeldingEntitetBuilder() {
-
-        }
-
-        public InntektsmeldingEntitetBuilder medAktørId(AktørIdEntitet aktørId) {
+        public Builder medAktørId(AktørIdEntitet aktørId) {
             kladd.aktørId = aktørId;
             return this;
         }
 
-        public InntektsmeldingEntitetBuilder medYtelsetype(Ytelsetype ytelsetype) {
+        public Builder medYtelsetype(Ytelsetype ytelsetype) {
             kladd.ytelsetype = ytelsetype;
             return this;
         }
 
-        public InntektsmeldingEntitetBuilder medArbeidsgiverIdent(String arbeidsgiverIdent) {
+        public Builder medArbeidsgiverIdent(String arbeidsgiverIdent) {
             kladd.arbeidsgiverIdent = arbeidsgiverIdent;
             return this;
         }
 
-        public InntektsmeldingEntitetBuilder medKontaktperson(KontaktpersonEntitet kontaktpersonEntitet) {
+        public Builder medKontaktperson(KontaktpersonEntitet kontaktpersonEntitet) {
             kontaktpersonEntitet.setInntektsmelding(kladd);
             kladd.kontaktperson = kontaktpersonEntitet;
             return this;
         }
 
-        public InntektsmeldingEntitetBuilder medStartDato(LocalDate startDato) {
+        public Builder medStartDato(LocalDate startDato) {
             kladd.startDato = startDato;
             return this;
         }
 
-        public InntektsmeldingEntitetBuilder medMånedInntekt(BigDecimal månedInntekt) {
+        public Builder medMånedInntekt(BigDecimal månedInntekt) {
             kladd.månedInntekt = månedInntekt;
             return this;
         }
 
-        public InntektsmeldingEntitetBuilder medRefusjonsPeriode(List<RefusjonPeriodeEntitet> refusjonsPeriode) {
+        public Builder medRefusjonsPeriode(List<RefusjonPeriodeEntitet> refusjonsPeriode) {
             refusjonsPeriode.forEach(rp -> rp.setInntektsmelding(kladd));
             kladd.refusjonsPeriode = refusjonsPeriode;
             return this;
         }
 
-        public InntektsmeldingEntitetBuilder medNaturalYtelse(List<NaturalytelseEntitet> naturalYtelse) {
+        public Builder medNaturalYtelse(List<NaturalytelseEntitet> naturalYtelse) {
             naturalYtelse.forEach(ny -> ny.setInntektsmelding(kladd));
             kladd.naturalYtelse = naturalYtelse;
             return this;

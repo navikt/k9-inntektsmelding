@@ -46,16 +46,32 @@ public class NaturalytelseEntitet {
         // Hibernate
     }
 
+    public PeriodeEntitet getPeriode() {
+        return periode;
+    }
+
+    public Naturalytelsetype getType() {
+        return type;
+    }
+
+    public BigDecimal getBeløp() {
+        return beløp;
+    }
+
+    public Boolean getErBortfalt() {
+        return erBortfalt;
+    }
+
     void setInntektsmelding(InntektsmeldingEntitet inntektsmelding) {
         this.inntektsmelding = inntektsmelding;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public static class Builder {
         private NaturalytelseEntitet kladd = new NaturalytelseEntitet();
-
-        public Builder() {
-
-        }
 
         public Builder medPeriode(LocalDate fom, LocalDate tom) {
             kladd.periode = tom == null
