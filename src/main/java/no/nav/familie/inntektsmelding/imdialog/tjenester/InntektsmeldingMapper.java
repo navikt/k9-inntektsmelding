@@ -7,7 +7,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
-import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeMapper;
+import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 public class InntektsmeldingMapper {
@@ -18,7 +18,7 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
             .medMånedInntekt(dto.inntekt())
             .medStartDato(dto.startdato())
-            .medYtelsetype(YtelseTypeMapper.map(dto.ytelse()))
+            .medYtelsetype(KodeverkMapper.mapYtelsetypeTilEntitet(dto.ytelse()))
             .medKontaktperson(mapKontaktPerson(dto))
             .medNaturalYtelse(mapNaturalytelser(dto.bortfaltNaturaltytelsePerioder()))
             .medRefusjonsPeriode(mapRefusjonsperioder(dto.refusjonsperioder()))
@@ -34,7 +34,7 @@ public class InntektsmeldingMapper {
             .map(d -> new NaturalytelseEntitet.Builder()
                 .medPeriode(d.fom(), d.tom())
                 .medBeløp(d.beløp())
-                .medType(d.naturalytelsetype())
+                .medType(KodeverkMapper.mapNaturalytelseTilEntitet(d.naturalytelsetype()))
                 .medErBortfalt(d.erBortfalt())
                 .build())
             .toList();

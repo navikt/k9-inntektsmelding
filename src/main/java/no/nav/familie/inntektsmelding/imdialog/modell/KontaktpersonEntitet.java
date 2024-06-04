@@ -36,6 +36,10 @@ public class KontaktpersonEntitet {
         this.navn = navn;
     }
 
+    void setInntektsmelding(InntektsmeldingEntitet inntektsmeldingEntitet) {
+        this.inntektsmelding = inntektsmeldingEntitet;
+    }
+
     public String getTelefonnummer() {
         return telefonnummer;
     }

@@ -1,5 +1,8 @@
 package no.nav.familie.inntektsmelding.imdialog.rest;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,13 +24,10 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
-import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeMapper;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
 @ApplicationScoped
@@ -63,7 +63,7 @@ public class InntektsmeldingDialogRest {
     @Operation(description = "Henter personinfo gitt id", tags = "imdialog")
     public Response hentPersoninfo(@NotNull @QueryParam("aktorId") @Valid AktørIdDto aktørIdRequestDto,
                                    @NotNull @QueryParam("ytelse") @Valid YtelseTypeDto ytelse) {
-        PersonInfo personInfo = personTjeneste.hentPersonInfo(aktørIdRequestDto, YtelseTypeMapper.map(ytelse));
+        PersonInfo personInfo = personTjeneste.hentPersonInfo(aktørIdRequestDto, KodeverkMapper.mapYtelsetypeTilEntitet(ytelse));
         var dto = new PersonInfoResponseDto(personInfo.navn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().id());
         return Response.ok(dto).build();
     }

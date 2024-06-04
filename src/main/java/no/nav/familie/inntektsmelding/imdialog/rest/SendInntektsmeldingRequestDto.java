@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
 public record SendInntektsmeldingRequestDto(@NotNull @Valid String foresporselUuid,
@@ -25,7 +26,7 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid String foresporselUu
                                              @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
     }
 
-    public record NaturalytelseRequestDto(@NotNull LocalDate fom, LocalDate tom, @NotNull Naturalytelsetype naturalytelsetype,
+    public record NaturalytelseRequestDto(@NotNull LocalDate fom, LocalDate tom, @NotNull NaturalytelsetypeDto naturalytelsetype,
                                           @NotNull Boolean erBortfalt,
                                           @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
     }

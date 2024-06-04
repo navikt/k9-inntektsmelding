@@ -41,4 +41,8 @@ public class RefusjonPeriodeEntitet {
             : PeriodeEntitet.fraOgMedTilOgMed(fom, tom);
         this.beløp = beløp;
     }
+
+    void setInntektsmelding(InntektsmeldingEntitet inntektsmeldingEntitet) {
+        this.inntektsmelding = inntektsmeldingEntitet;
+    }
 }
