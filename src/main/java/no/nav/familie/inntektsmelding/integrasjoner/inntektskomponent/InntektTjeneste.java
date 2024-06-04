@@ -9,7 +9,7 @@ import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.familie.inntektsmelding.typer.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.tjenester.aordningen.inntektsinformasjon.ArbeidsInntektIdent;
 import no.nav.tjenester.aordningen.inntektsinformasjon.inntekt.Inntekt;
 import no.nav.tjenester.aordningen.inntektsinformasjon.inntekt.InntektType;

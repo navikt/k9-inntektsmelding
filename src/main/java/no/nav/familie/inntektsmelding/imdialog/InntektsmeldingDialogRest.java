@@ -21,11 +21,11 @@ import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTje
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.typer.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.ArbeidsgiverDto;
-import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeMapper;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeMapper;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)

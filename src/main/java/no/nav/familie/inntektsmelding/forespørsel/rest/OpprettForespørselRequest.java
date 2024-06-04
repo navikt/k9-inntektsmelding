@@ -4,10 +4,10 @@ import java.time.LocalDate;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import no.nav.familie.inntektsmelding.typer.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
-import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
 
 public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,

@@ -9,9 +9,9 @@ import jakarta.inject.Inject;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 
 @ApplicationScoped
 public class ForespørselTjeneste {

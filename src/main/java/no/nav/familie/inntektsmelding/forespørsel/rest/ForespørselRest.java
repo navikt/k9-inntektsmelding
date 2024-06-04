@@ -18,10 +18,10 @@ import jakarta.ws.rs.core.Response;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
-import no.nav.familie.inntektsmelding.typer.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
-import no.nav.familie.inntektsmelding.typer.YtelseTypeMapper;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.InnkommendeForespørselTjeneste;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeMapper;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @ApplicationScoped

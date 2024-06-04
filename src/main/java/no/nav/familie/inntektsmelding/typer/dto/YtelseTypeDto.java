@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.typer;
+package no.nav.familie.inntektsmelding.typer.dto;
 
 public enum YtelseTypeDto {
     FORELDREPENGER,

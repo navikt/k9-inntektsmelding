@@ -12,7 +12,7 @@ public class InntektsmeldingDialogTjeneste {
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
 
-    public InntektsmeldingDialogTjeneste() {
+    InntektsmeldingDialogTjeneste() {
     }
 
     @Inject
