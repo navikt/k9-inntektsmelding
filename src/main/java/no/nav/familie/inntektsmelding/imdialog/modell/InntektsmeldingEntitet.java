@@ -17,6 +17,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +47,9 @@ public class InntektsmeldingEntitet {
 
     @Column(name = "maaned_inntekt")
     private BigDecimal månedInntekt;
+
+    @Column(name = "opprettet_tid", nullable = false, updatable = false)
+    private LocalDateTime opprettetTidspunkt = LocalDateTime.now();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy ="inntektsmelding")
     private List<RefusjonPeriodeEntitet> refusjonsPeriode= new ArrayList<>();
@@ -85,8 +89,20 @@ public class InntektsmeldingEntitet {
         return naturalYtelse;
     }
 
-    public class InntektsmeldingEntitetBuilder {
+    public KontaktpersonEntitet getKontaktperson() {
+        return kontaktperson;
+    }
+
+    public LocalDateTime getOpprettetTidspunkt() {
+        return opprettetTidspunkt;
+    }
+
+    public static class InntektsmeldingEntitetBuilder {
         private InntektsmeldingEntitet kladd = new InntektsmeldingEntitet();
+
+        public InntektsmeldingEntitetBuilder() {
+
+        }
 
         public InntektsmeldingEntitetBuilder medAktørId(AktørIdEntitet aktørId) {
             kladd.aktørId = aktørId;
@@ -127,5 +143,10 @@ public class InntektsmeldingEntitet {
             kladd.naturalYtelse = naturalYtelse;
             return this;
         }
+
+        public InntektsmeldingEntitet build() {
+            return kladd;
+        }
+
     }
 }

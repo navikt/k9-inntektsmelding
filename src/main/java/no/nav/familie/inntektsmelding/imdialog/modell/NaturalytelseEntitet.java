@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.modell;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
+import no.nav.familie.inntektsmelding.typer.entitet.PeriodeEntitet;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,11 +27,8 @@ public class NaturalytelseEntitet {
     @JoinColumn(name = "inntektsmelding_id", nullable = false, updatable = false)
     private InntektsmeldingEntitet inntektsmelding;
 
-    @Column(name = "fom", nullable = false)
-    private LocalDate fom;
-
-    @Column(name = "tom", nullable = false)
-    private LocalDate tom;
+    @Embedded
+    private PeriodeEntitet periode;
 
     @Column(name = "type", nullable = false)
     private Naturalytelsetype type;
@@ -42,5 +41,39 @@ public class NaturalytelseEntitet {
 
     public NaturalytelseEntitet() {
         // Hibernate
+    }
+
+    public static class Builder {
+        private NaturalytelseEntitet kladd = new NaturalytelseEntitet();
+
+        public Builder() {
+
+        }
+
+        public Builder medPeriode(LocalDate fom, LocalDate tom) {
+            kladd.periode = tom == null
+                ? PeriodeEntitet.fraOgMed(fom)
+                : PeriodeEntitet.fraOgMedTilOgMed(fom, tom);
+            return this;
+        }
+
+        public Builder medBeløp(BigDecimal beløp) {
+            kladd.beløp = beløp;
+            return this;
+        }
+
+        public Builder medType(Naturalytelsetype type) {
+            kladd.type = type;
+            return this;
+        }
+
+        public Builder medErBortfalt(Boolean erBortfalt) {
+            kladd.erBortfalt = erBortfalt;
+            return this;
+        }
+
+        public NaturalytelseEntitet build() {
+            return kladd;
+        }
     }
 }
