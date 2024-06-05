@@ -2,6 +2,8 @@ package no.nav.familie.inntektsmelding.typer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
