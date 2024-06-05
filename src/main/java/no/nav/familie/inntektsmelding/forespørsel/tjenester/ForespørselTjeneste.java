@@ -4,31 +4,60 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
 
+@ApplicationScoped
+public class ForespørselTjeneste {
 
-public interface ForespørselTjeneste {
+    private ForespørselRepository forespørselRepository;
 
-    UUID opprettForespørsel(LocalDate skjæringstidspunkt,
-                            Ytelsetype ytelseType,
-                            AktørIdDto brukerAktørId,
-                            OrganisasjonsnummerDto orgnr,
-                            SaksnummerDto fagsakSaksnummer);
+    @Inject
+    public ForespørselTjeneste(ForespørselRepository forespørselRepository) {
+        this.forespørselRepository = forespørselRepository;
+    }
 
-    void setOppgaveId(UUID forespørselUUID, String oppgaveId);
+    public ForespørselTjeneste() {
+    }
 
-    void setSakId(UUID forespørselUUID, String sakId);
+    public UUID opprettForespørsel(LocalDate skjæringstidspunkt,
+                                   Ytelsetype ytelseType,
+                                   AktørIdDto brukerAktørId,
+                                   OrganisasjonsnummerDto orgnr,
+                                   SaksnummerDto fagsakSaksnummer) {
+        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.id(), orgnr.orgnr(),
+            fagsakSaksnummer.getSaksnr());
+    }
 
-    void ferdigstillSak(String sakId);
+    public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {
+        forespørselRepository.oppdaterOppgaveId(forespørselUUID, oppgaveId);
+    }
 
-    Optional<ForespørselEntitet> finnÅpenForespørsel(LocalDate skjæringstidspunkt,
-                                                     Ytelsetype ytelseType,
-                                                     AktørIdDto brukerAktørId,
-                                                     OrganisasjonsnummerDto orgnr);
 
-    Optional<ForespørselEntitet> finnForespørsel(UUID forespørselUuid);
+    public void setSakId(UUID forespørselUUID, String sakId) {
+        forespørselRepository.oppdaterSakId(forespørselUUID, sakId);
+
+    }
+
+    public void ferdigstillSak(String sakId) {
+        forespørselRepository.ferdigstillSak(sakId);
+    }
+
+    public Optional<ForespørselEntitet> finnÅpenForespørsel(LocalDate skjæringstidspunkt,
+                                                            Ytelsetype ytelseType,
+                                                            AktørIdDto brukerAktørId,
+                                                            OrganisasjonsnummerDto orgnr) {
+        return forespørselRepository.finnÅpenForespørsel(brukerAktørId.id(), ytelseType, orgnr.orgnr(), skjæringstidspunkt);
+    }
+
+    public Optional<ForespørselEntitet> finnForespørsel(UUID forespørselUuid) {
+        return forespørselRepository.hentForespørsel(forespørselUuid);
+    }
+
 }
