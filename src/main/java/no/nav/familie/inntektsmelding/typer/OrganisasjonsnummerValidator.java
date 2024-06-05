@@ -1,8 +1,8 @@
 package no.nav.familie.inntektsmelding.typer;
 
-public final class OrganisasjonsNummerValidator {
+public final class OrganisasjonsnummerValidator {
 
-    private OrganisasjonsNummerValidator() {
+    private OrganisasjonsnummerValidator() {
     }
 
     public static boolean erGyldig(String orgnummer) {

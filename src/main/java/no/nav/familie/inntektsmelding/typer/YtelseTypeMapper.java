@@ -3,6 +3,9 @@ package no.nav.familie.inntektsmelding.typer;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
 public class YtelseTypeMapper {
+
+    private YtelseTypeMapper() {}
+
     public static Ytelsetype map(YtelseTypeDto ytelseTypeDto) {
         return switch (ytelseTypeDto) {
             case FORELDREPENGER -> Ytelsetype.FORELDREPENGER;

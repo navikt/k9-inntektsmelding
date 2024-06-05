@@ -32,7 +32,7 @@ public class ForespørselTjeneste {
                                    OrganisasjonsnummerDto orgnr,
                                    SaksnummerDto fagsakSaksnummer) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.id(), orgnr.orgnr(),
-            fagsakSaksnummer.getSaksnr());
+            fagsakSaksnummer.saksnr());
     }
 
     public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {

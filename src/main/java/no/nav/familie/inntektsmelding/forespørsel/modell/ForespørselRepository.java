@@ -85,7 +85,7 @@ public class ForespørselRepository {
 
     public List<ForespørselEntitet> hentForespørsler(SaksnummerDto saksnummer) {
         var query = entityManager.createQuery("FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)
-            .setParameter("saksnr", saksnummer.getSaksnr());
+            .setParameter("saksnr", saksnummer.saksnr());
         return query.getResultList();
     }
 
