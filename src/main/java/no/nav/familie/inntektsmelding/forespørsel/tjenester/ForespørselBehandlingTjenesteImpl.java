@@ -55,7 +55,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
             var person = personTjeneste.hentPersonInfo(aktørId, ytelsetype);
             var merkelapp = finnMerkelapp(ytelsetype);
-            var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + uuid);
+            var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
 
             var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), merkelapp, organisasjonsnummer.orgnr(), lagSaksTittel(person),
                 skjemaUri);
