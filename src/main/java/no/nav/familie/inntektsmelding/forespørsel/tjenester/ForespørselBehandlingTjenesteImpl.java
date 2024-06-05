@@ -41,7 +41,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         this.forespørselTjeneste = forespørselTjeneste;
         this.arbeidsgiverNotifikasjon = arbeidsgiverNotifikasjon;
         this.personTjeneste = personTjeneste;
-        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://familie-inntektsmelding.nav.no");
+        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://arbeidsgiver.intern.dev.nav.no/fp-im-dialog");
     }
 
     @Override
@@ -55,13 +55,15 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
             var person = personTjeneste.hentPersonInfo(aktørId, ytelsetype);
             var merkelapp = finnMerkelapp(ytelsetype);
+            var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + uuid);
+
             var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), merkelapp, organisasjonsnummer.orgnr(), lagSaksTittel(person),
-                URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid));
+                skjemaUri);
 
             forespørselTjeneste.setSakId(uuid, sakId);
 
             var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), merkelapp, uuid.toString(), organisasjonsnummer.orgnr(),
-                "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", URI.create(inntektsmeldingSkjemaLenke + "/ny/" + uuid));
+                "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", skjemaUri);
 
             forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
         }
