@@ -16,5 +16,16 @@ public class YtelseTypeMapper {
             case PLEIEPENGER_NÆRSTÅENDE -> Ytelsetype.PLEIEPENGER_NÆRSTÅENDE;
         };
     }
+
+    public static YtelseTypeDto map(Ytelsetype ytelsetype) {
+        return switch (ytelsetype) {
+            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
+            case OMSORGSPENGER -> YtelseTypeDto.OMSORGSPENGER;
+            case OPPLÆRINGSPENGER -> YtelseTypeDto.OPPLÆRINGSPENGER;
+            case PLEIEPENGER_SYKT_BARN -> YtelseTypeDto.PLEIEPENGER_SYKT_BARN;
+            case PLEIEPENGER_NÆRSTÅENDE -> YtelseTypeDto.PLEIEPENGER_NÆRSTÅENDE;
+        };
+    }
 }
 

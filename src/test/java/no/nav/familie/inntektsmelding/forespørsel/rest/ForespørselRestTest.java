@@ -7,15 +7,14 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
-import no.nav.familie.inntektsmelding.database.JpaExtension;
-import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -26,22 +25,20 @@ import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.YtelseTypeDto;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
-@ExtendWith(JpaExtension.class)
 public class ForespørselRestTest extends EntityManagerAwareTest {
 
     private static final String BRREG_ORGNUMMER = "974760673";
     private final PersonInfo personMock = new PersonInfo("Navn Navnesen", new PersonIdent("01019100000"), new AktørIdDto("1111111111111"),
         LocalDate.of(1991, 01, 01).minusYears(30));
 
-    private ForespørselRepository forespørselRepository;
     private ForespørselRest forespørselRest;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
 
     @BeforeEach
     void setUp() {
-        this.forespørselRepository = new ForespørselRepository(getEntityManager());
         this.forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
         doNothing().when(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(any(), any(), any(), any(), any());
         this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste, new ForespørselTjeneste());
@@ -59,5 +56,37 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
         verify(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(eq(LocalDate.now()), eq(Ytelsetype.PLEIEPENGER_SYKT_BARN), eq(aktørId),
             eq(orgnummer), eq(fagsakSaksnummer));
+    }
+
+    @Test
+    void serdes_rerosepørsel_mapper() {
+        var expectedOrg = "123456789";
+        var expectedBruker = "123342532424";
+        var expectedSkjæringstidspunkt = LocalDate.now();
+        var input = new ForespørselEntitet(expectedOrg, expectedSkjæringstidspunkt, expectedBruker, Ytelsetype.FORELDREPENGER, "9876544321");
+
+        var resultat = ForespørselRest.mapTilDto(input);
+
+        assertThat(resultat).isNotNull().isInstanceOf(ForespørselRest.ForespørselDto.class);
+        assertThat(resultat.organisasjonsnummer()).isEqualTo(new OrganisasjonsnummerDto(expectedOrg));
+        assertThat(resultat.skjæringstidspunkt()).isEqualTo(expectedSkjæringstidspunkt);
+        assertThat(resultat.brukerAktørId()).isEqualTo(new AktørIdDto(expectedBruker));
+        assertThat(resultat.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
+        assertThat(resultat.uuid()).isNotNull();
+    }
+
+    @Test
+    void serdes() {
+        var expectedOrg = new OrganisasjonsnummerDto("123456789");
+        var expectedBruker = new AktørIdDto("123342532424");
+        var expectedSkjæringstidspunkt = LocalDate.now();
+        var dto = new ForespørselRest.ForespørselDto(UUID.randomUUID(), expectedOrg, expectedSkjæringstidspunkt, expectedBruker, YtelseTypeDto.SVANGERSKAPSPENGER);
+
+        var ser = DefaultJsonMapper.toJson(dto);
+        var des = DefaultJsonMapper.fromJson(ser, ForespørselRest.ForespørselDto.class);
+
+
+        assertThat(ser).contains(expectedOrg.orgnr(), expectedBruker.id(), expectedSkjæringstidspunkt.toString());
+        assertThat(des).isEqualTo(dto);
     }
 }
