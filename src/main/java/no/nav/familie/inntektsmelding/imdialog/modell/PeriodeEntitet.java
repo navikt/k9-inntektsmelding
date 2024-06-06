@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.typer.entitet;
+package no.nav.familie.inntektsmelding.imdialog.modell;
 
 
 import jakarta.persistence.Column;

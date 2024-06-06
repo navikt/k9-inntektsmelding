@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import no.nav.familie.inntektsmelding.typer.entitet.PeriodeEntitet;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
