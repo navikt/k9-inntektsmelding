@@ -42,7 +42,7 @@ public class InntektsmeldingEntitet {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private KontaktpersonEntitet kontaktperson;
 
-    @Column(name = "start_dato")
+    @Column(name = "start_dato_permisjon")
     private LocalDate startDato;
 
     @Column(name = "maaned_inntekt")
