@@ -29,7 +29,7 @@ public class KodeverkMapper {
         };
     }
 
-    public static Ytelsetype mapYtelsetypeTilEntitet(YtelseTypeDto dto) {
+    public static Ytelsetype mapYtelsetype(YtelseTypeDto dto) {
         return switch (dto) {
             case FORELDREPENGER -> Ytelsetype.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> Ytelsetype.SVANGERSKAPSPENGER;
@@ -39,4 +39,16 @@ public class KodeverkMapper {
             case PLEIEPENGER_NÆRSTÅENDE -> Ytelsetype.PLEIEPENGER_NÆRSTÅENDE;
         };
     }
+
+    public static YtelseTypeDto mapYtelsetype(Ytelsetype ytelsetype) {
+        return switch (ytelsetype) {
+            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
+            case OMSORGSPENGER -> YtelseTypeDto.OMSORGSPENGER;
+            case OPPLÆRINGSPENGER -> YtelseTypeDto.OPPLÆRINGSPENGER;
+            case PLEIEPENGER_SYKT_BARN -> YtelseTypeDto.PLEIEPENGER_SYKT_BARN;
+            case PLEIEPENGER_NÆRSTÅENDE -> YtelseTypeDto.PLEIEPENGER_NÆRSTÅENDE;
+        };
+    }
+
 }

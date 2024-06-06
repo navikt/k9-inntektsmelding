@@ -34,7 +34,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getArbeidsgiverIdent()).isEqualTo(request.arbeidsgiverIdent().ident());
         assertThat(entitet.getMånedInntekt()).isEqualByComparingTo(request.inntekt());
         assertThat(entitet.getStartDato()).isEqualTo(request.startdato());
-        assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetypeTilEntitet(request.ytelse()));
+        assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetype(request.ytelse()));
         assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
         assertThat(entitet.getNaturalYtelse()).isEmpty();
@@ -58,7 +58,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getArbeidsgiverIdent()).isEqualTo(request.arbeidsgiverIdent().ident());
         assertThat(entitet.getMånedInntekt()).isEqualByComparingTo(request.inntekt());
         assertThat(entitet.getStartDato()).isEqualTo(request.startdato());
-        assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetypeTilEntitet(request.ytelse()));
+        assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetype(request.ytelse()));
         assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
 

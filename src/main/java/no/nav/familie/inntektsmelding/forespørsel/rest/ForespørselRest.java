@@ -21,7 +21,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjenest
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
-import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
+import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
 @ApplicationScoped
 @Transactional
@@ -46,7 +46,7 @@ public class ForespørselRest {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Oppretter en forespørsel om inntektsmelding", tags = "forespørsel")
     public Response createForespørsel(OpprettForespørselRequest request) {
-        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), KodeverkMapper.mapYtelsetypeTilEntitet(request.ytelsetype()),
+        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdDto(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.saksnummer());
         return Response.ok().build();
     }
@@ -66,7 +66,7 @@ public class ForespørselRest {
             new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()),
             entitet.getSkjæringstidspunkt(),
             new AktørIdDto(entitet.getBrukerAktørId()),
-            YtelseTypeMapper.map(entitet.getYtelseType()));
+            KodeverkMapper.mapYtelsetype(entitet.getYtelseType()));
     }
 }
 

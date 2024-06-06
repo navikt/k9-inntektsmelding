@@ -18,7 +18,7 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
             .medMånedInntekt(dto.inntekt())
             .medStartDato(dto.startdato())
-            .medYtelsetype(KodeverkMapper.mapYtelsetypeTilEntitet(dto.ytelse()))
+            .medYtelsetype(KodeverkMapper.mapYtelsetype(dto.ytelse()))
             .medKontaktperson(mapKontaktPerson(dto))
             .medNaturalYtelse(mapNaturalytelser(dto.bortfaltNaturaltytelsePerioder()))
             .medRefusjonsPeriode(mapRefusjonsperioder(dto.refusjonsperioder()))
