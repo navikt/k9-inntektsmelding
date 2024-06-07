@@ -4,7 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -15,6 +18,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import no.nav.familie.inntektsmelding.koder.SakStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @Entity(name = "ForespørselEntitet")
 @Table(name = "FORESPOERSEL")
@@ -43,8 +47,9 @@ public class ForespørselEntitet {
     @Column(name = "skjaeringstidspunkt", nullable = false, updatable = false)
     private LocalDate skjæringstidspunkt;
 
-    @Column(name = "bruker_aktoer_id", nullable = false, updatable = false)
-    private String brukerAktørId;
+    @Embedded
+    @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "bruker_aktoer_id", nullable = false, updatable = false)))
+    private AktørIdEntitet brukerAktørId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ytelse_type", nullable = false, updatable = false)
@@ -61,7 +66,7 @@ public class ForespørselEntitet {
 
     public ForespørselEntitet(String organisasjonsnummer,
                               LocalDate skjæringstidspunkt,
-                              String brukerAktørId,
+                              AktørIdEntitet brukerAktørId,
                               Ytelsetype ytelseType,
                               String fagsystemSaksnummer) {
         this.uuid = UUID.randomUUID();
@@ -120,7 +125,7 @@ public class ForespørselEntitet {
         return skjæringstidspunkt;
     }
 
-    public String getBrukerAktørId() {
+    public AktørIdEntitet getBrukerAktørId() {
         return brukerAktørId;
     }
 

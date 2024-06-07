@@ -4,18 +4,18 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 public interface ForespørselBehandlingTjeneste {
 
     void håndterInnkommendeForespørsel(LocalDate skjæringstidspunkt,
                                        Ytelsetype ytelsetype,
-                                       AktørIdDto aktørId,
+                                       AktørIdEntitet aktørId,
                                        OrganisasjonsnummerDto organisasjonsnummer,
                                        SaksnummerDto fagsakSaksnummer);
 
-    void ferdigstillForespørsel(UUID foresporselUuid, AktørIdDto aktorId, OrganisasjonsnummerDto organisasjonsnummerDto, LocalDate startdato);
+    void ferdigstillForespørsel(UUID foresporselUuid, AktørIdEntitet aktorId, OrganisasjonsnummerDto organisasjonsnummerDto, LocalDate startdato);
 
 }

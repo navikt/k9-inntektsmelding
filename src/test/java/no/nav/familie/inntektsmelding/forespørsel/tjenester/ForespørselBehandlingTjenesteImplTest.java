@@ -22,9 +22,9 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.SakStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
 
 @ExtendWith(CdiAwareExtension.class)
@@ -58,17 +58,17 @@ public class ForespørselBehandlingTjenesteImplTest {
 
     @Test
     public void skal_opprette_forespørsel_og_sette_sak_og_oppgave() {
-        var personInfo = new PersonInfo("Navn Navnesen", new PersonIdent("01019100000"), new AktørIdDto(AKTØR_ID),
+        var personInfo = new PersonInfo("Navn Navnesen", new PersonIdent("01019100000"), new AktørIdEntitet(AKTØR_ID),
             LocalDate.of(1991, 1, 1).minusYears(30));
 
         var saksTittel = forespørselBehandlingTjeneste.lagSaksTittel(personInfo);
 
 
-        when(personTjeneste.hentPersonInfo(new AktørIdDto(AKTØR_ID), YTELSETYPE)).thenReturn(personInfo);
+        when(personTjeneste.hentPersonInfo(new AktørIdEntitet(AKTØR_ID), YTELSETYPE)).thenReturn(personInfo);
         when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(BRREG_ORGNUMMER), eq(saksTittel), any())).thenReturn(SAK_ID);
         when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(BRREG_ORGNUMMER), any(), any())).thenReturn(OPPGAVE_ID);
 
-        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, new AktørIdDto(AKTØR_ID),
+        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER), new SaksnummerDto(SAKSNUMMMER));
 
         var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER));
@@ -83,7 +83,7 @@ public class ForespørselBehandlingTjenesteImplTest {
     public void eksisterende_åpen_forespørsel_skal_gi_noop() {
         forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
 
-        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, new AktørIdDto(AKTØR_ID),
+        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER), new SaksnummerDto(SAKSNUMMMER));
 
 
@@ -96,7 +96,7 @@ public class ForespørselBehandlingTjenesteImplTest {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
         forespørselRepository.oppdaterSakId(forespørselUuid, SAK_ID);
 
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, new AktørIdDto(AKTØR_ID), new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
+        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, new AktørIdEntitet(AKTØR_ID), new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
             SKJÆRINGSTIDSPUNKT);
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);

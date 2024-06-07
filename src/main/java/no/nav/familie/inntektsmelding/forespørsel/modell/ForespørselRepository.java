@@ -10,9 +10,9 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import no.nav.familie.inntektsmelding.koder.SakStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @Dependent
 public class ForespørselRepository {
@@ -29,7 +29,7 @@ public class ForespørselRepository {
 
 
     public UUID lagreForespørsel(LocalDate skjæringstidspunkt, Ytelsetype ytelsetype, String aktørId, String orgnummer, String fagsakSaksnummer) {
-        var forespørselEntitet = new ForespørselEntitet(orgnummer, skjæringstidspunkt, aktørId, ytelsetype, fagsakSaksnummer);
+        var forespørselEntitet = new ForespørselEntitet(orgnummer, skjæringstidspunkt, new AktørIdEntitet(aktørId), ytelsetype, fagsakSaksnummer);
         entityManager.persist(forespørselEntitet);
         entityManager.flush();
         return forespørselEntitet.getUuid();
@@ -90,10 +90,10 @@ public class ForespørselRepository {
     }
 
 
-    public Optional<ForespørselEntitet> finnForespørsel(AktørIdDto aktørId, ArbeidsgiverDto arbeidsgiverIdent, LocalDate startdato) {
+    public Optional<ForespørselEntitet> finnForespørsel(AktørIdEntitet aktørId, ArbeidsgiverDto arbeidsgiverIdent, LocalDate startdato) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where brukerAktørId = :brukerAktørId and organisasjonsnummer = :arbeidsgiverIdent "
                 + "and skjæringstidspunkt = :skjæringstidspunkt", ForespørselEntitet.class)
-            .setParameter("brukerAktørId", aktørId.id())
+            .setParameter("brukerAktørId", aktørId)
             .setParameter("arbeidsgiverIdent", arbeidsgiverIdent.ident())
             .setParameter("skjæringstidspunkt", startdato);
 
@@ -108,7 +108,7 @@ public class ForespørselRepository {
         }
     }
 
-    public Optional<ForespørselEntitet> finnÅpenForespørsel(String aktørId, Ytelsetype ytelsetype, String arbeidsgiverIdent, LocalDate startdato) {
+    public Optional<ForespørselEntitet> finnÅpenForespørsel(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String arbeidsgiverIdent, LocalDate startdato) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where sakStatus='UNDER_BEHANDLING' "
                 + "and brukerAktørId = :brukerAktørId "
                 + "and organisasjonsnummer = :arbeidsgiverIdent "

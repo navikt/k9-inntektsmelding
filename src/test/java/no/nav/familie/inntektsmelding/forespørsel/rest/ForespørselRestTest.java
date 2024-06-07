@@ -9,8 +9,6 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,20 +17,18 @@ import org.mockito.Mockito;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class ForespørselRestTest extends EntityManagerAwareTest {
 
     private static final String BRREG_ORGNUMMER = "974760673";
-    private final PersonInfo personMock = new PersonInfo("Navn Navnesen", new PersonIdent("01019100000"), new AktørIdDto("1111111111111"),
-        LocalDate.of(1991, 01, 01).minusYears(30));
 
     private ForespørselRest forespørselRest;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
@@ -55,7 +51,7 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
             new OpprettForespørselRequest(aktørId, orgnummer, LocalDate.now(), YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
-        verify(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(eq(LocalDate.now()), eq(Ytelsetype.PLEIEPENGER_SYKT_BARN), eq(aktørId),
+        verify(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(eq(LocalDate.now()), eq(Ytelsetype.PLEIEPENGER_SYKT_BARN), eq(new AktørIdEntitet(aktørId.id())),
             eq(orgnummer), eq(fagsakSaksnummer));
     }
 
@@ -64,7 +60,7 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
         var expectedOrg = "123456789";
         var expectedBruker = "123342532424";
         var expectedSkjæringstidspunkt = LocalDate.now();
-        var input = new ForespørselEntitet(expectedOrg, expectedSkjæringstidspunkt, expectedBruker, Ytelsetype.FORELDREPENGER, "9876544321");
+        var input = new ForespørselEntitet(expectedOrg, expectedSkjæringstidspunkt, new AktørIdEntitet(expectedBruker), Ytelsetype.FORELDREPENGER, "9876544321");
 
         var resultat = ForespørselRest.mapTilDto(input);
 
