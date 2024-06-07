@@ -16,9 +16,9 @@ import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Mer
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
@@ -47,7 +47,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public void håndterInnkommendeForespørsel(LocalDate skjæringstidspunkt,
                                               Ytelsetype ytelsetype,
-                                              AktørIdDto aktørId,
+                                              AktørIdEntitet aktørId,
                                               OrganisasjonsnummerDto organisasjonsnummer,
                                               SaksnummerDto fagsakSaksnummer) {
         var åpenForespørsel = forespørselTjeneste.finnÅpenForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer);
@@ -71,7 +71,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     @Override
-    public void ferdigstillForespørsel(UUID foresporselUuid, AktørIdDto aktorId, OrganisasjonsnummerDto organisasjonsnummerDto, LocalDate startdato) {
+    public void ferdigstillForespørsel(UUID foresporselUuid, AktørIdEntitet aktorId, OrganisasjonsnummerDto organisasjonsnummerDto, LocalDate startdato) {
         var foresporsel = forespørselTjeneste.finnForespørsel(foresporselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
 
@@ -96,8 +96,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         }
     }
 
-    private void validerAktør(ForespørselEntitet forespørsel, AktørIdDto aktorId) {
-        if (!forespørsel.getBrukerAktørId().equals(aktorId.id())) {
+    private void validerAktør(ForespørselEntitet forespørsel, AktørIdEntitet aktorId) {
+        if (!forespørsel.getAktørId().equals(aktorId)) {
             throw new IllegalStateException("AktørId for bruker var ikke like");
         }
     }

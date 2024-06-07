@@ -9,9 +9,9 @@ import jakarta.inject.Inject;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @ApplicationScoped
 public class ForespørselTjeneste {
@@ -28,10 +28,10 @@ public class ForespørselTjeneste {
 
     public UUID opprettForespørsel(LocalDate skjæringstidspunkt,
                                    Ytelsetype ytelseType,
-                                   AktørIdDto brukerAktørId,
+                                   AktørIdEntitet brukerAktørId,
                                    OrganisasjonsnummerDto orgnr,
                                    SaksnummerDto fagsakSaksnummer) {
-        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.id(), orgnr.orgnr(),
+        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
             fagsakSaksnummer.saksnr());
     }
 
@@ -51,9 +51,9 @@ public class ForespørselTjeneste {
 
     public Optional<ForespørselEntitet> finnÅpenForespørsel(LocalDate skjæringstidspunkt,
                                                             Ytelsetype ytelseType,
-                                                            AktørIdDto brukerAktørId,
+                                                            AktørIdEntitet brukerAktørId,
                                                             OrganisasjonsnummerDto orgnr) {
-        return forespørselRepository.finnÅpenForespørsel(brukerAktørId.id(), ytelseType, orgnr.orgnr(), skjæringstidspunkt);
+        return forespørselRepository.finnÅpenForespørsel(brukerAktørId, ytelseType, orgnr.orgnr(), skjæringstidspunkt);
     }
 
     public Optional<ForespørselEntitet> finnForespørsel(UUID forespørselUuid) {

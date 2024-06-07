@@ -22,6 +22,7 @@ import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @ApplicationScoped
 @Transactional
@@ -47,7 +48,7 @@ public class ForespørselRest {
     @Operation(description = "Oppretter en forespørsel om inntektsmelding", tags = "forespørsel")
     public Response createForespørsel(OpprettForespørselRequest request) {
         forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), KodeverkMapper.mapYtelsetype(request.ytelsetype()),
-            new AktørIdDto(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.saksnummer());
+            new AktørIdEntitet(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.saksnummer());
         return Response.ok().build();
     }
 
@@ -65,7 +66,7 @@ public class ForespørselRest {
             entitet.getUuid(),
             new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()),
             entitet.getSkjæringstidspunkt(),
-            new AktørIdDto(entitet.getBrukerAktørId()),
+            new AktørIdDto(entitet.getAktørId().getAktørId()),
             KodeverkMapper.mapYtelsetype(entitet.getYtelseType()));
     }
 }

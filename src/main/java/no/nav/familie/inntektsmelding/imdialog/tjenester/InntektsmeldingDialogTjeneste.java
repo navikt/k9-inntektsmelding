@@ -8,6 +8,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @ApplicationScoped
 public class InntektsmeldingDialogTjeneste {
@@ -26,7 +27,7 @@ public class InntektsmeldingDialogTjeneste {
 
     public void mottaInntektsmelding(SendInntektsmeldingRequestDto mottattInntektsmeldingDto) {
         var foresporselUuid = UUID.fromString(mottattInntektsmeldingDto.foresporselUuid());
-        var aktorId = mottattInntektsmeldingDto.aktorId();
+        var aktorId = new AktørIdEntitet(mottattInntektsmeldingDto.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto);
         inntektsmeldingRepository.lagreInntektsmelding(entitet);

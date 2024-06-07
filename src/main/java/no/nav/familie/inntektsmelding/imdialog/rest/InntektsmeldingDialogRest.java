@@ -27,6 +27,7 @@ import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
@@ -66,8 +67,8 @@ public class InntektsmeldingDialogRest {
     @Operation(description = "Henter personinfo gitt id", tags = "imdialog")
     public Response hentPersoninfo(@NotNull @QueryParam("aktorId") @Valid AktørIdDto aktørIdRequestDto,
                                    @NotNull @QueryParam("ytelse") @Valid YtelseTypeDto ytelse) {
-        PersonInfo personInfo = personTjeneste.hentPersonInfo(aktørIdRequestDto, KodeverkMapper.mapYtelsetype(ytelse));
-        var dto = new PersonInfoResponseDto(personInfo.navn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().id());
+        PersonInfo personInfo = personTjeneste.hentPersonInfo(new AktørIdEntitet(aktørIdRequestDto.id()), KodeverkMapper.mapYtelsetype(ytelse));
+        var dto = new PersonInfoResponseDto(personInfo.navn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
         return Response.ok(dto).build();
     }
 
@@ -90,7 +91,7 @@ public class InntektsmeldingDialogRest {
     public Response hentInntekt(@Parameter(description = "Request for å hente inntekt, hvis startdato er null brukes dagens dato") @NotNull HentInntektRequestDto hentInntektRequestDto) {
         var startdato = hentInntektRequestDto.startdato == null ? LocalDate.now() : hentInntektRequestDto.startdato;
         var aktørId = new AktørIdDto(hentInntektRequestDto.aktorId().id());
-        var inntekt = inntektTjeneste.hentInntekt(aktørId, startdato, hentInntektRequestDto.arbeidsgiverIdent().ident());
+        var inntekt = inntektTjeneste.hentInntekt(new AktørIdEntitet(aktørId.id()), startdato, hentInntektRequestDto.arbeidsgiverIdent().ident());
         return Response.ok(inntekt.stream()
             .map(i -> new MånedsinntektResponsDto(i.måned().atDay(1), i.måned().atEndOfMonth(), i.beløp(), i.organisasjonsnummer()))
             .toList()).build();

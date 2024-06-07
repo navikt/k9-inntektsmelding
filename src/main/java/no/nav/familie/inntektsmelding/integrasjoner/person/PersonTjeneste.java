@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.pdl.Foedselsdato;
 import no.nav.pdl.FoedselsdatoResponseProjection;
@@ -40,9 +40,9 @@ public class PersonTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public PersonInfo hentPersonInfo(AktørIdDto aktørId, Ytelsetype ytelseType) {
+    public PersonInfo hentPersonInfo(AktørIdEntitet aktørId, Ytelsetype ytelseType) {
         var request = new HentPersonQueryRequest();
-        request.setIdent(aktørId.id());
+        request.setIdent(aktørId.getAktørId());
 
         var projection = new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
             .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
@@ -75,9 +75,9 @@ public class PersonTjeneste {
         return Optional.of(navn.getEtternavn() + " " + navn.getFornavn() + (navn.getMellomnavn() == null ? "" : " " + navn.getMellomnavn()));
     }
 
-    private Optional<PersonIdent> hentPersonidentForAktørId(AktørIdDto aktørId) {
+    private Optional<PersonIdent> hentPersonidentForAktørId(AktørIdEntitet aktørId) {
         var request = new HentIdenterQueryRequest();
-        request.setIdent(aktørId.id());
+        request.setIdent(aktørId.getAktørId());
         request.setGrupper(List.of(IdentGruppe.FOLKEREGISTERIDENT, IdentGruppe.NPID));
         request.setHistorikk(Boolean.FALSE);
         var projection = new IdentlisteResponseProjection().identer(new IdentInformasjonResponseProjection().ident());
