@@ -66,7 +66,7 @@ public class ForespørselRest {
             entitet.getUuid(),
             new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()),
             entitet.getSkjæringstidspunkt(),
-            new AktørIdDto(entitet.getBrukerAktørId().getAktørId()),
+            new AktørIdDto(entitet.getAktørId().getAktørId()),
             KodeverkMapper.mapYtelsetype(entitet.getYtelseType()));
     }
 }

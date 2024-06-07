@@ -58,7 +58,7 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
     @Test
     void serdes_rerosepørsel_mapper() {
         var expectedOrg = "123456789";
-        var expectedBruker = "123342532424";
+        var expectedBruker = "1233425324241";
         var expectedSkjæringstidspunkt = LocalDate.now();
         var input = new ForespørselEntitet(expectedOrg, expectedSkjæringstidspunkt, new AktørIdEntitet(expectedBruker), Ytelsetype.FORELDREPENGER, "9876544321");
 

@@ -97,7 +97,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     private void validerAktør(ForespørselEntitet forespørsel, AktørIdEntitet aktorId) {
-        if (!forespørsel.getBrukerAktørId().equals(aktorId)) {
+        if (!forespørsel.getAktørId().equals(aktorId)) {
             throw new IllegalStateException("AktørId for bruker var ikke like");
         }
     }

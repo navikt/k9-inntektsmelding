@@ -49,7 +49,7 @@ public class ForespørselEntitet {
 
     @Embedded
     @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "bruker_aktoer_id", nullable = false, updatable = false)))
-    private AktørIdEntitet brukerAktørId;
+    private AktørIdEntitet aktørId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ytelse_type", nullable = false, updatable = false)
@@ -66,13 +66,13 @@ public class ForespørselEntitet {
 
     public ForespørselEntitet(String organisasjonsnummer,
                               LocalDate skjæringstidspunkt,
-                              AktørIdEntitet brukerAktørId,
+                              AktørIdEntitet aktørId,
                               Ytelsetype ytelseType,
                               String fagsystemSaksnummer) {
         this.uuid = UUID.randomUUID();
         this.organisasjonsnummer = organisasjonsnummer;
         this.skjæringstidspunkt = skjæringstidspunkt;
-        this.brukerAktørId = brukerAktørId;
+        this.aktørId = aktørId;
         this.ytelseType = ytelseType;
         this.fagsystemSaksnummer = fagsystemSaksnummer;
     }
@@ -125,8 +125,8 @@ public class ForespørselEntitet {
         return skjæringstidspunkt;
     }
 
-    public AktørIdEntitet getBrukerAktørId() {
-        return brukerAktørId;
+    public AktørIdEntitet getAktørId() {
+        return aktørId;
     }
 
     public Ytelsetype getYtelseType() {

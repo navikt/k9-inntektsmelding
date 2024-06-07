@@ -91,7 +91,7 @@ public class ForespørselRepository {
 
 
     public Optional<ForespørselEntitet> finnForespørsel(AktørIdEntitet aktørId, ArbeidsgiverDto arbeidsgiverIdent, LocalDate startdato) {
-        var query = entityManager.createQuery("FROM ForespørselEntitet where brukerAktørId = :brukerAktørId and organisasjonsnummer = :arbeidsgiverIdent "
+        var query = entityManager.createQuery("FROM ForespørselEntitet where aktørId = :brukerAktørId and organisasjonsnummer = :arbeidsgiverIdent "
                 + "and skjæringstidspunkt = :skjæringstidspunkt", ForespørselEntitet.class)
             .setParameter("brukerAktørId", aktørId)
             .setParameter("arbeidsgiverIdent", arbeidsgiverIdent.ident())
@@ -110,7 +110,7 @@ public class ForespørselRepository {
 
     public Optional<ForespørselEntitet> finnÅpenForespørsel(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String arbeidsgiverIdent, LocalDate startdato) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where sakStatus='UNDER_BEHANDLING' "
-                + "and brukerAktørId = :brukerAktørId "
+                + "and aktørId = :brukerAktørId "
                 + "and organisasjonsnummer = :arbeidsgiverIdent "
                 + "and skjæringstidspunkt = :skjæringstidspunkt "
                 + "and ytelseType = :ytelsetype", ForespørselEntitet.class)
