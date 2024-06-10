@@ -16,14 +16,22 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class InntektsmeldingDialogTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingDialogTjeneste.class);
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private InntektsmeldingRepository inntektsmeldingRepository;
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private InntektTjeneste inntektTjeneste;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     InntektsmeldingDialogTjeneste() {
     }
@@ -33,12 +41,14 @@ public class InntektsmeldingDialogTjeneste {
                                          InntektsmeldingRepository inntektsmeldingRepository,
                                          PersonTjeneste personTjeneste,
                                          OrganisasjonTjeneste organisasjonTjeneste,
-                                         InntektTjeneste inntektTjeneste) {
+                                         InntektTjeneste inntektTjeneste,
+                                         ProsessTaskTjeneste prosessTaskTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.inntektsmeldingRepository = inntektsmeldingRepository;
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.inntektTjeneste = inntektTjeneste;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     public void mottaInntektsmelding(SendInntektsmeldingRequestDto mottattInntektsmeldingDto) {
@@ -49,7 +59,14 @@ public class InntektsmeldingDialogTjeneste {
         inntektsmeldingRepository.lagreInntektsmelding(entitet);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(foresporselUuid, aktorId, orgnummer, mottattInntektsmeldingDto.startdato());
-        // TODO: lagre i database og opprette prosesstask for å lagre i joark
+        opprettTaskForSendTilJoark();
+    }
+
+    private void opprettTaskForSendTilJoark() {
+        var task = ProsessTaskData.forProsessTask(SendTilJoarkTask.class);
+        task.setCallIdFraEksisterende();
+        prosessTaskTjeneste.lagre(task);
+        LOG.info("Opprettet task");
     }
 
     public InntektsmeldingDialogDto lagDialogDto(UUID forespørselUuid) {

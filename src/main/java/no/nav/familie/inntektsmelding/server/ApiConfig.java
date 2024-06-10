@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import no.nav.familie.inntektsmelding.forvaltning.FagerTestRestTjeneste;
 
+import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
+
 import org.glassfish.jersey.server.ServerProperties;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
@@ -54,7 +56,7 @@ public class ApiConfig extends Application {
     public Set<Class<?>> getClasses() {
         // eksponert grensesnitt bak sikkerhet
         return Set.of(AuthenticationFilter.class, OpenApiResource.class, JacksonJsonConfig.class, GeneralRestExceptionMapper.class,
-            InntektsmeldingDialogRest.class, ForespørselRest.class, FagerTestRestTjeneste.class);
+            InntektsmeldingDialogRest.class, ForespørselRest.class, FagerTestRestTjeneste.class, ProsessTaskRestTjeneste.class);
 
     }
 
