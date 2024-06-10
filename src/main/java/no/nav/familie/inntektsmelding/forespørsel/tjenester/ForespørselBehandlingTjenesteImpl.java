@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -82,6 +83,11 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         arbeidsgiverNotifikasjon.lukkOppgave(foresporsel.getOppgaveId(), OffsetDateTime.now());
         arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
         forespørselTjeneste.ferdigstillSak(foresporsel.getSakId()); // Oppdaterer status i forespørsel
+    }
+
+    @Override
+    public Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID) {
+        return forespørselTjeneste.finnForespørsel(forespørselUUID);
     }
 
     private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {

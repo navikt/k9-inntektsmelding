@@ -36,7 +36,11 @@ public class OrganisasjonTjeneste {
      *                                  enhetsreg
      */
 
-    public Optional<Organisasjon> finnOrganisasjon(String orgNummer) {
+    public Organisasjon finnOrganisasjon(String orgNummer) {
+        return finnOrganisasjonOptional(orgNummer).orElseThrow(() -> new IllegalStateException("Forventet å finne organisasjon med orgnummer " + orgNummer));
+    }
+
+    public Optional<Organisasjon> finnOrganisasjonOptional(String orgNummer) {
         if (orgNummer == null) {
             return Optional.empty();
         }
