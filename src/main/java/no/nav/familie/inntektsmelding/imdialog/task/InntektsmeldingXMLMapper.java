@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.task;
 
+import java.util.Map;
+
 import jakarta.xml.bind.JAXBElement;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -15,8 +17,6 @@ import no.seres.xsd.nav.inntektsmelding_m._20181211.Kontaktinformasjon;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.ObjectFactory;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Refusjon;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Skjemainnhold;
-
-import java.util.Map;
 
 public class InntektsmeldingXMLMapper {
 
@@ -56,6 +56,22 @@ public class InntektsmeldingXMLMapper {
 
     private static JAXBElement<Refusjon> lagRefusjonXml(InntektsmeldingEntitet inntektsmeldingEntitet, ObjectFactory of) {
         var refusjon = new Refusjon();
+        var refusjonFraStart = inntektsmeldingEntitet.getRefusjonsPeriode()
+            .stream()
+            .filter(rp -> rp.getPeriode().getFom().equals(inntektsmeldingEntitet.getStartDato()))
+            .findFirst();
+        refusjonFraStart.ifPresent(rp -> {
+            refusjon.setRefusjonsbeloepPrMnd(of.createRefusjonRefusjonsbeloepPrMnd(rp.getBeløp()));
+            refusjon.setRefusjonsopphoersdato(of.createRefusjonRefusjonsopphoersdato(rp.getPeriode().getTom()));
+        });
+        var refusjonsendringer = inntektsmeldingEntitet.getRefusjonsPeriode()
+            .stream()
+            .filter(rp -> !rp.getPeriode().getFom().equals(inntektsmeldingEntitet.getStartDato()))
+            .toList();
+        refusjonsendringer.forEach(rp -> {
+
+        });
+
         return null;
     }
 

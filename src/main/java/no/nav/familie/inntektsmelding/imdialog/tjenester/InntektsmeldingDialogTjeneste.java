@@ -61,7 +61,7 @@ public class InntektsmeldingDialogTjeneste {
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto);
         var imId = inntektsmeldingRepository.lagreInntektsmelding(entitet);
 
-//        forespørselBehandlingTjeneste.ferdigstillForespørsel(foresporselUuid, aktorId, orgnummer, mottattInntektsmeldingDto.startdato());
+        forespørselBehandlingTjeneste.ferdigstillForespørsel(foresporselUuid, aktorId, orgnummer, mottattInntektsmeldingDto.startdato());
         opprettTaskForSendTilJoark(imId);
     }
 
