@@ -64,6 +64,10 @@ public class InntektsmeldingEntitet {
         // Hibernate
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public AktørIdEntitet getAktørId() {
         return aktørId;
     }
