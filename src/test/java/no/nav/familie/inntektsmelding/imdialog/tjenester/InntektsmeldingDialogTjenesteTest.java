@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,12 +46,15 @@ class InntektsmeldingDialogTjenesteTest {
     @Mock
     private InntektTjeneste inntektTjeneste;
 
+    @Mock
+    private ProsessTaskTjeneste prosessTaskTjeneste;
+
     private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
 
     @BeforeEach
     void setUp() {
         inntektsmeldingDialogTjeneste = new InntektsmeldingDialogTjeneste(forespørselBehandlingTjeneste, inntektsmeldingRepository,
-            personTjeneste, organisasjonTjeneste, inntektTjeneste);
+            personTjeneste, organisasjonTjeneste, inntektTjeneste, prosessTaskTjeneste);
     }
 
     @Test
