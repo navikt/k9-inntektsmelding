@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.imdialog.rest;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +13,8 @@ public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto per
                                        @Valid @NotNull OrganisasjonInfoResponseDto arbeidsgiver,
                                        @Valid @NotNull List<MånedsinntektResponsDto> inntekter,
                                        @NotNull LocalDate startdatoPermisjon,
-                                       @Valid @NotNull YtelseTypeDto ytelse) {
+                                       @Valid @NotNull YtelseTypeDto ytelse,
+                                       @Valid @NotNull UUID forespørselUuid) {
 
     public record PersonInfoResponseDto(@NotNull String navn, @NotNull String fødselsnummer, @NotNull String aktørId) {}
 
