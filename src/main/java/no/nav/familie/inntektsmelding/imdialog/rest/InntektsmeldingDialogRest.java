@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.imdialog.rest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -62,6 +63,15 @@ public class InntektsmeldingDialogRest {
 
     @GET
     @UtenAutentisering
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Henter all info som trengs for innsending av inntektsmelding basert på en forespørsel UUID", tags = "imdialog")
+    public Response hentInnsendingsinfo(@Parameter(description = "Henter all info som trengs for innsending av inntektsmelding basert på en forespørsel UUID") @NotNull UUID forespørselUuid) {
+        var dto = inntektsmeldingDialogTjeneste.lagDialogDto(forespørselUuid);
+        return Response.ok(dto).build();
+    }
+
+    @GET
+    @UtenAutentisering
     @Path(HENT_PERSONINFO)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter personinfo gitt id", tags = "imdialog")
@@ -78,7 +88,7 @@ public class InntektsmeldingDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter organisasjonsnavn gitt organisasjonsnummer", tags = "imdialog")
     public Response hentOrganisasjon(@NotNull @Parameter(description = "Organisasjonsnummer") @QueryParam("organisasjonsnummer") @Valid OrganisasjonsnummerDto organisasjonsnummer) {
-        var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr());
+        var organisasjon = organisasjonTjeneste.finnOrganisasjonOptional(organisasjonsnummer.orgnr());
         var organisassjonInfoDto = organisasjon.map(o -> new OrganisasjonInfoResponseDto(o.navn(), o.orgnr()));
         return organisassjonInfoDto.map(oi -> Response.ok(organisassjonInfoDto).build()).orElse(Response.noContent().build());
     }

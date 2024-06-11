@@ -1,8 +1,10 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -18,4 +20,5 @@ public interface ForespørselBehandlingTjeneste {
 
     void ferdigstillForespørsel(UUID foresporselUuid, AktørIdEntitet aktorId, OrganisasjonsnummerDto organisasjonsnummerDto, LocalDate startdato);
 
+    Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID);
 }

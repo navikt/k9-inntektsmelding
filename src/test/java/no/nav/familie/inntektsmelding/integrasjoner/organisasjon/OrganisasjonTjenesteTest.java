@@ -33,7 +33,7 @@ class OrganisasjonTjenesteTest {
         when(eregRestKlient.hentOrganisasjon(testOrgnr)).thenReturn(respons);
         when(respons.getNavn()).thenReturn(testNavn);
         when(respons.organisasjonsnummer()).thenReturn(testOrgnr);
-        var organisasjon = organisasjonTjeneste.finnOrganisasjon(testOrgnr).orElseThrow();
+        var organisasjon = organisasjonTjeneste.finnOrganisasjonOptional(testOrgnr).orElseThrow();
 
         assertThat(organisasjon.navn()).isEqualTo(testNavn);
         assertThat(organisasjon.orgnr()).isEqualTo(testOrgnr);
