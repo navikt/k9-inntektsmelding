@@ -39,6 +39,7 @@ public class InntektsmeldingDialogRest {
     private static final String HENT_PERSONINFO = "/personinfo";
     private static final String HENT_ORGANISASJON = "/organisasjon";
     private static final String HENT_INNTEKT = "/inntekt";
+    private static final String HENT_GRUNNLAG = "/grunnlag";
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
 
     private PersonTjeneste personTjeneste;
@@ -63,9 +64,10 @@ public class InntektsmeldingDialogRest {
 
     @GET
     @UtenAutentisering
+    @Path(HENT_GRUNNLAG)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter all info som trengs for innsending av inntektsmelding basert på en forespørsel UUID", tags = "imdialog")
-    public Response hentInnsendingsinfo(@Parameter(description = "Henter all info som trengs for innsending av inntektsmelding basert på en forespørsel UUID") @NotNull UUID forespørselUuid) {
+    @Operation(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet.", tags = "imdialog")
+    public Response hentInnsendingsinfo(@Parameter(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet basert på en forespørsel UUID") @NotNull @QueryParam("foresporselUuid") UUID forespørselUuid) {
         var dto = inntektsmeldingDialogTjeneste.lagDialogDto(forespørselUuid);
         return Response.ok(dto).build();
     }

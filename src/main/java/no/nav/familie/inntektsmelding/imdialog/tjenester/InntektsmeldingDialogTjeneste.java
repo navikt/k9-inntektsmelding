@@ -58,7 +58,8 @@ public class InntektsmeldingDialogTjeneste {
         var personDto = lagPersonDto(forespørsel);
         var organisasjonDto = lagOrganisasjonDto(forespørsel);
         var inntektDtoer = lagInntekterDto(forespørsel);
-        return new InntektsmeldingDialogDto(personDto, organisasjonDto, inntektDtoer, forespørsel.getSkjæringstidspunkt(), KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()));
+        return new InntektsmeldingDialogDto(personDto, organisasjonDto, inntektDtoer,
+            forespørsel.getSkjæringstidspunkt(), KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), forespørsel.getUuid());
     }
 
     private List<InntektsmeldingDialogDto.MånedsinntektResponsDto> lagInntekterDto(ForespørselEntitet forespørsel) {
