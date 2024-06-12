@@ -45,6 +45,7 @@ public class ForespørselRest {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/opprett")
     @Operation(description = "Oppretter en forespørsel om inntektsmelding", tags = "forespørsel")
     public Response createForespørsel(OpprettForespørselRequest request) {
         forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), KodeverkMapper.mapYtelsetype(request.ytelsetype()),
