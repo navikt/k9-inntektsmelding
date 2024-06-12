@@ -68,12 +68,12 @@ class InntektsmeldingDialogTjenesteTest {
             .thenReturn(Optional.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer()))
             .thenReturn(new Organisasjon("Bedriften", forespørsel.getOrganisasjonsnummer()));
-        var a = new Navn();
-        a.setFornavn("Navn");
-        a.setEtternavn("Navnesen");
+        var navn = new Navn();
+        navn.setFornavn("Navn");
+        navn.setEtternavn("Navnesen");
 
         when(personTjeneste.hentPersonInfo(forespørsel.getAktørId(), forespørsel.getYtelseType()))
-            .thenReturn(new PersonInfo(a, new PersonIdent("12121212122"), forespørsel.getAktørId(), LocalDate.now()));
+            .thenReturn(new PersonInfo(navn, new PersonIdent("12121212122"), forespørsel.getAktørId(), LocalDate.now()));
         var inntekt1 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 3), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
         var inntekt2 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 4), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
         var inntekt3 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 5), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
