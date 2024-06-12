@@ -52,16 +52,7 @@ public class PersonTjeneste {
 
         var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
 
-        return new PersonInfo(mapNavn(person), personIdent, aktørId, mapFødselsdato(person));
-    }
-
-    private String mapNavn(Person person) {
-        return person.getNavn()
-            .stream()
-            .map(PersonTjeneste::mapNavn)
-            .flatMap(Optional::stream)
-            .findFirst()
-            .orElseGet(() -> Environment.current().isProd() ? null : "Navnløs i Folkeregister");
+        return new PersonInfo(person.getNavn().getFirst(), personIdent, aktørId, mapFødselsdato(person));
     }
 
     private LocalDate mapFødselsdato(Person person) {

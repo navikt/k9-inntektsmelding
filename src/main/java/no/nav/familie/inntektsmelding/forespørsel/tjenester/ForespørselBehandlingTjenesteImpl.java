@@ -120,7 +120,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     protected String lagSaksTittel(PersonInfo personInfo) {
-        return String.format("Inntektsmelding for %s: f. %s", StringUtils.capitalize(personInfo.navn()),
+        return String.format("Inntektsmelding for %s: f. %s", StringUtils.capitalize(personInfo.mapNavn()),
             personInfo.fødselsdato().format(DateTimeFormatter.ofPattern("ddMMyy")));
     }
 }

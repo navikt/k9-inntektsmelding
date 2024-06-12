@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
+import no.nav.pdl.Navn;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +60,10 @@ public class ForespørselBehandlingTjenesteImplTest {
 
     @Test
     public void skal_opprette_forespørsel_og_sette_sak_og_oppgave() {
-        var personInfo = new PersonInfo("Navn Navnesen", new PersonIdent("01019100000"), new AktørIdEntitet(AKTØR_ID),
+        var navn = new Navn();
+        navn.setFornavn("Navn");
+        navn.setEtternavn("Navnesen");
+        var personInfo = new PersonInfo(navn, new PersonIdent("01019100000"), new AktørIdEntitet(AKTØR_ID),
             LocalDate.of(1991, 1, 1).minusYears(30));
 
         var saksTittel = forespørselBehandlingTjeneste.lagSaksTittel(personInfo);
