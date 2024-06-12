@@ -1,20 +1,28 @@
 package no.nav.familie.inntektsmelding.imdialog.task;
 
+import java.util.Comparator;
 import java.util.Map;
 
 import jakarta.xml.bind.JAXBElement;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsgiver;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.ArbeidsgiverPrivat;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.EndringIRefusjon;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.EndringIRefusjonsListe;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.GjenopptakelseNaturalytelseListe;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Inntekt;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.InntektsmeldingM;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Kontaktinformasjon;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.NaturalytelseDetaljer;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.ObjectFactory;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.OpphoerAvNaturalytelseListe;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Refusjon;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Skjemainnhold;
 
@@ -45,13 +53,58 @@ public class InntektsmeldingXMLMapper {
         skjemainnhold.setAarsakTilInnsending("Ny");
         // FIXME
         skjemainnhold.setAvsendersystem(null);
-        // TODO Finn ut hva kodene her skal være
-        skjemainnhold.setYtelse(finnYtelseTekst(inntektsmelding.getYtelsetype()));
+        /**
+         * Følgende verdier er brukt av sykepenger:
+         *         Mapping(constant = "NAV_NO", target = "avsendersystem.systemnavn"),
+         *         Mapping(constant = "1.0", target = "avsendersystem.systemversjon"),
+         *         Mapping(source = "tidspunkt", target = "avsendersystem.innsendingstidspunkt")
+         */
 
-        skjemainnhold.setRefusjon(lagRefusjonXml(inntektsmelding, of));
+        skjemainnhold.setYtelse(mapTilYtelsetype(inntektsmelding.getYtelsetype()));
+
+        if (!inntektsmelding.getRefusjonsPeriode().isEmpty()) {
+            skjemainnhold.setRefusjon(lagRefusjonXml(inntektsmelding, of));
+        }
+
+        skjemainnhold.setOpphoerAvNaturalytelseListe(lagBortfaltNaturalytelse(inntektsmelding, of));
+        skjemainnhold.setGjenopptakelseNaturalytelseListe(lagGjennopptattNaturalytelse(inntektsmelding, of));
+
         var imXml = new InntektsmeldingM();
         imXml.setSkjemainnhold(skjemainnhold);
         return imXml;
+    }
+
+    private static JAXBElement<GjenopptakelseNaturalytelseListe> lagGjennopptattNaturalytelse(InntektsmeldingEntitet inntektsmeldingEntitet,
+                                                                                              ObjectFactory of) {
+        var gjennoptakelseListeObjekt = new GjenopptakelseNaturalytelseListe();
+        var gjennoptakelseListe = gjennoptakelseListeObjekt.getNaturalytelseDetaljer();
+        inntektsmeldingEntitet.getNaturalYtelse()
+            .stream()
+            .filter(n -> !n.getErBortfalt())
+            .forEach(nat -> {
+                var nd = new NaturalytelseDetaljer();
+                nd.setFom(of.createNaturalytelseDetaljerFom(nat.getPeriode().getFom()));
+                nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(nat.getBeløp()));
+                nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(nat.getType())));
+                gjennoptakelseListe.add(nd);
+            });
+        return of.createSkjemainnholdGjenopptakelseNaturalytelseListe(gjennoptakelseListeObjekt);
+    }
+
+    private static JAXBElement<OpphoerAvNaturalytelseListe> lagBortfaltNaturalytelse(InntektsmeldingEntitet inntektsmeldingEntitet, ObjectFactory of) {
+        var opphørListeObjekt = new OpphoerAvNaturalytelseListe();
+        var opphørListe = opphørListeObjekt.getOpphoerAvNaturalytelse();
+        inntektsmeldingEntitet.getNaturalYtelse()
+            .stream()
+            .filter(NaturalytelseEntitet::getErBortfalt)
+            .forEach(nat -> {
+                var nd = new NaturalytelseDetaljer();
+                nd.setFom(of.createNaturalytelseDetaljerFom(nat.getPeriode().getFom()));
+                nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(nat.getBeløp()));
+                nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(nat.getType())));
+                opphørListe.add(nd);
+            });
+        return of.createSkjemainnholdOpphoerAvNaturalytelseListe(opphørListeObjekt);
     }
 
     private static JAXBElement<Refusjon> lagRefusjonXml(InntektsmeldingEntitet inntektsmeldingEntitet, ObjectFactory of) {
@@ -62,27 +115,27 @@ public class InntektsmeldingXMLMapper {
             .findFirst();
         refusjonFraStart.ifPresent(rp -> {
             refusjon.setRefusjonsbeloepPrMnd(of.createRefusjonRefusjonsbeloepPrMnd(rp.getBeløp()));
-            refusjon.setRefusjonsopphoersdato(of.createRefusjonRefusjonsopphoersdato(rp.getPeriode().getTom()));
         });
+        var sisteTomRefusjon = inntektsmeldingEntitet.getRefusjonsPeriode()
+            .stream()
+            .map(rp -> rp.getPeriode().getTom())
+            .max(Comparator.naturalOrder())
+            .orElseThrow();
+        refusjon.setRefusjonsopphoersdato(of.createRefusjonRefusjonsopphoersdato(sisteTomRefusjon));
         var refusjonsendringer = inntektsmeldingEntitet.getRefusjonsPeriode()
             .stream()
             .filter(rp -> !rp.getPeriode().getFom().equals(inntektsmeldingEntitet.getStartDato()))
             .toList();
-        refusjonsendringer.forEach(rp -> {
-
-        });
-
-        return null;
-    }
-
-    private static String finnYtelseTekst(Ytelsetype ytelsetype) {
-        return switch (ytelsetype) {
-            case FORELDREPENGER -> "Foreldrepenger";
-            case SVANGERSKAPSPENGER -> "Svangerskapspenger";
-            case OPPLÆRINGSPENGER -> "Opplæringspenger";
-            case OMSORGSPENGER -> "Omsorgspenger";
-            case PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE -> throw new IllegalStateException("Ukjent kode ved map til XML " + ytelsetype);
-        };
+        var endringListe = new EndringIRefusjonsListe();
+        var liste = endringListe.getEndringIRefusjon();
+        refusjonsendringer.stream().map(rp -> {
+            var endring = new EndringIRefusjon();
+            endring.setEndringsdato(of.createEndringIRefusjonEndringsdato(rp.getPeriode().getFom()));
+            endring.setRefusjonsbeloepPrMnd(of.createEndringIRefusjonRefusjonsbeloepPrMnd(rp.getBeløp()));
+            return endring;
+        }).forEach(liste::add);
+        refusjon.setEndringIRefusjonListe(of.createRefusjonEndringIRefusjonListe(endringListe));
+        return of.createSkjemainnholdRefusjon(refusjon);
     }
 
     private static JAXBElement<Arbeidsforhold> lagArbeidsforholdXml(InntektsmeldingEntitet inntektsmeldingEntitet, ObjectFactory of) {
@@ -110,4 +163,38 @@ public class InntektsmeldingXMLMapper {
         return ki;
     }
 
+    private static String mapTilYtelsetype(Ytelsetype ytelsetype) {
+        return switch (ytelsetype) {
+            case FORELDREPENGER -> "Foreldrepenger";
+            case SVANGERSKAPSPENGER -> "Svangerskapspenger";
+            case OPPLÆRINGSPENGER -> "Opplaeringspenger";
+            case OMSORGSPENGER -> "Omsorgspenger";
+            case PLEIEPENGER_SYKT_BARN -> "PleiepengerBarn";
+            case PLEIEPENGER_NÆRSTÅENDE -> "PleiepengerNaerstaaende";
+        };
+    }
+
+    private static String mapTilNaturalytelsetype(Naturalytelsetype naturalytelsetype) {
+        return switch (naturalytelsetype) {
+            case ELEKTRISK_KOMMUNIKASJON -> "elektroniskKommunikasjon";
+            case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> "aksjerGrunnfondsbevisTilUnderkurs";
+            case LOSJI -> "losji";
+            case KOST_DØGN -> "kostDoegn";
+            case BESØKSREISER_HJEMMET_ANNET -> "besoeksreiserHjemmetAnnet";
+            case KOSTBESPARELSE_I_HJEMMET -> "kostbesparelseIHjemmet";
+            case RENTEFORDEL_LÅN -> "rentefordelLaan";
+            case BIL -> "bil";
+            case KOST_DAGER -> "kostDager";
+            case BOLIG -> "bolig";
+            case SKATTEPLIKTIG_DEL_FORSIKRINGER -> "skattepliktigDelForsikringer";
+            case FRI_TRANSPORT -> "friTransport";
+            case OPSJONER -> "opsjoner";
+            case TILSKUDD_BARNEHAGEPLASS -> "tilskuddBarnehageplass";
+            case ANNET -> "annet";
+            case BEDRIFTSBARNEHAGEPLASS -> "bedriftsbarnehageplass";
+            case YRKEBIL_TJENESTLIGBEHOV_KILOMETER -> "yrkebilTjenestligbehovKilometer";
+            case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS -> "yrkebilTjenestligbehovListepris";
+            case INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING -> "innbetalingTilUtenlandskPensjonsordning";
+        };
+    }
 }
