@@ -116,6 +116,12 @@ public class InntektsmeldingEntitet {
             return this;
         }
 
+        // Mulighet for å eksplisitt overstyre opprettet tidspunkt for bruk i test
+        public Builder medOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
+            kladd.opprettetTidspunkt = opprettetTidspunkt;
+            return this;
+        }
+
         public Builder medYtelsetype(Ytelsetype ytelsetype) {
             kladd.ytelsetype = ytelsetype;
             return this;

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +41,7 @@ class InntektsmeldingXMLTjenesteTest {
     @Test
     void skal_teste_xml_generering() {
         // Arrange
+        var opprettetTidspunkt = LocalDateTime.of(2024, 6, 30, 12, 12);
         var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.of(2024, 6, 1), Tid.TIDENES_ENDE, BigDecimal.valueOf(35000));
         var naturalytelse = NaturalytelseEntitet.builder()
             .medPeriode(LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 30))
@@ -55,6 +57,7 @@ class InntektsmeldingXMLTjenesteTest {
             .medYtelsetype(Ytelsetype.FORELDREPENGER)
             .medMånedInntekt(BigDecimal.valueOf(35000))
             .medAktørId(aktørIdSøker)
+            .medOpprettetTidspunkt(opprettetTidspunkt)
             .medKontaktperson(new KontaktpersonEntitet("Test Testen", "111111111"))
             .medNaturalYtelse(Collections.singletonList(naturalytelse))
             .medRefusjonsPeriode(Collections.singletonList(refusjonperiode))
@@ -105,6 +108,11 @@ class InntektsmeldingXMLTjenesteTest {
             			</opphoerAvNaturalytelse>
             		</opphoerAvNaturalytelseListe>
             		<gjenopptakelseNaturalytelseListe/>
+            		<avsendersystem>
+            			<systemnavn>NAV_NO</systemnavn>
+            			<systemversjon>1.0</systemversjon>
+            			<innsendingstidspunkt>2024-06-30T12:12</innsendingstidspunkt>
+            		</avsendersystem>
             	</Skjemainnhold>
             </melding>
             """;

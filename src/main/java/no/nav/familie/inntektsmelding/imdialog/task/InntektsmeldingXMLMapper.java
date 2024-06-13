@@ -14,6 +14,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsgiver;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.ArbeidsgiverPrivat;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.Avsendersystem;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.EndringIRefusjon;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.EndringIRefusjonsListe;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.GjenopptakelseNaturalytelseListe;
@@ -49,10 +50,9 @@ public class InntektsmeldingXMLMapper {
         skjemainnhold.setArbeidsforhold(lagArbeidsforholdXml(inntektsmelding, of));
         skjemainnhold.setArbeidstakerFnr(aktørIdFnrMap.get(inntektsmelding.getAktørId()).getIdent());
 
-        // TODO skal denne være Ny eller Endring?
+        // TODO sett ny eller endring når dette blir mulig
         skjemainnhold.setAarsakTilInnsending("Ny");
-        // FIXME
-        skjemainnhold.setAvsendersystem(null);
+        skjemainnhold.setAvsendersystem(lagAvsendersysem(inntektsmelding, of));
         /**
          * Følgende verdier er brukt av sykepenger:
          *         Mapping(constant = "NAV_NO", target = "avsendersystem.systemnavn"),
@@ -72,6 +72,15 @@ public class InntektsmeldingXMLMapper {
         var imXml = new InntektsmeldingM();
         imXml.setSkjemainnhold(skjemainnhold);
         return imXml;
+    }
+
+    // TODO Vi bør ta en diskusjon på hva denne skal være
+    private static Avsendersystem lagAvsendersysem(InntektsmeldingEntitet inntektsmelding, ObjectFactory of) {
+        var as = new Avsendersystem();
+        as.setSystemnavn("NAV_NO");
+        as.setSystemversjon("1.0");
+        as.setInnsendingstidspunkt(of.createAvsendersystemInnsendingstidspunkt(inntektsmelding.getOpprettetTidspunkt()));
+        return as;
     }
 
     private static JAXBElement<GjenopptakelseNaturalytelseListe> lagGjennopptattNaturalytelse(InntektsmeldingEntitet inntektsmeldingEntitet,
@@ -145,12 +154,11 @@ public class InntektsmeldingXMLMapper {
         var inntektBeløp = of.createInntektBeloep(inntektsmeldingEntitet.getMånedInntekt());
         var inntekt = new Inntekt();
         inntekt.setBeloep(inntektBeløp);
-        // TODO sett endringsårsak
+        // TODO Endringsårsak kan være enten "Tariffendring" eller "FeilInntekt", skal vi bruke disse?
         var inntektSkjemaVerdi = of.createArbeidsforholdBeregnetInntekt(inntekt);
         arbeidsforhold.setBeregnetInntekt(inntektSkjemaVerdi);
 
         // Startdato
-        // TODO blir det rett med createSkjemainnholdStartdatoForeldrepengeperiode her?
         arbeidsforhold.setFoersteFravaersdag(of.createSkjemainnholdStartdatoForeldrepengeperiode(inntektsmeldingEntitet.getStartDato()));
         return of.createSkjemainnholdArbeidsforhold(arbeidsforhold);
     }
