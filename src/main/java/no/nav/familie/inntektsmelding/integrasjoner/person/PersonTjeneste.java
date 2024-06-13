@@ -58,13 +58,6 @@ public class PersonTjeneste {
         return person.getFoedselsdato().stream().map(Foedselsdato::getFoedselsdato).findFirst().map(LocalDate::parse).orElse(null);
     }
 
-    private static Optional<String> mapNavn(Navn navn) {
-        if (navn.getEtternavn() == null || navn.getFornavn() == null) {
-            return Optional.empty();
-        }
-        return Optional.of(navn.getEtternavn() + " " + navn.getFornavn() + (navn.getMellomnavn() == null ? "" : " " + navn.getMellomnavn()));
-    }
-
     private Optional<PersonIdent> hentPersonidentForAktørId(AktørIdEntitet aktørId) {
         var request = new HentIdenterQueryRequest();
         request.setIdent(aktørId.getAktørId());
