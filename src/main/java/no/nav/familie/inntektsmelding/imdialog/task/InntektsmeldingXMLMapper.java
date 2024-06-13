@@ -53,12 +53,6 @@ public class InntektsmeldingXMLMapper {
         // TODO sett ny eller endring når dette blir mulig
         skjemainnhold.setAarsakTilInnsending("Ny");
         skjemainnhold.setAvsendersystem(lagAvsendersysem(inntektsmelding, of));
-        /**
-         * Følgende verdier er brukt av sykepenger:
-         *         Mapping(constant = "NAV_NO", target = "avsendersystem.systemnavn"),
-         *         Mapping(constant = "1.0", target = "avsendersystem.systemversjon"),
-         *         Mapping(source = "tidspunkt", target = "avsendersystem.innsendingstidspunkt")
-         */
 
         skjemainnhold.setYtelse(mapTilYtelsetype(inntektsmelding.getYtelsetype()));
 
