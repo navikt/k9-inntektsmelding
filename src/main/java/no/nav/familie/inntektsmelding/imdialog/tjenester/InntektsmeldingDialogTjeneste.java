@@ -96,9 +96,9 @@ public class InntektsmeldingDialogTjeneste {
     private InntektsmeldingDialogDto.PersonInfoResponseDto lagPersonDto(ForespørselEntitet forespørsel) {
         var persondata = personTjeneste.hentPersonInfo(forespørsel.getAktørId(), forespørsel.getYtelseType());
         var personDto = new InntektsmeldingDialogDto.PersonInfoResponseDto(
-            persondata.navn().getFornavn(),
-            persondata.navn().getMellomnavn(),
-            persondata.navn().getEtternavn(),
+            persondata.fornavn(),
+            persondata.mellomnavn(),
+            persondata.etternavn(),
             persondata.fødselsnummer().getIdent(),
             persondata.aktørId().getAktørId());
         return personDto;

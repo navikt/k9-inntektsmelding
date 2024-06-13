@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import no.nav.pdl.Navn;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -68,12 +67,9 @@ class InntektsmeldingDialogTjenesteTest {
             .thenReturn(Optional.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer()))
             .thenReturn(new Organisasjon("Bedriften", forespørsel.getOrganisasjonsnummer()));
-        var navn = new Navn();
-        navn.setFornavn("Navn");
-        navn.setEtternavn("Navnesen");
 
         when(personTjeneste.hentPersonInfo(forespørsel.getAktørId(), forespørsel.getYtelseType()))
-            .thenReturn(new PersonInfo(navn, new PersonIdent("12121212122"), forespørsel.getAktørId(), LocalDate.now()));
+            .thenReturn(new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), forespørsel.getAktørId(), LocalDate.now()));
         var inntekt1 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 3), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
         var inntekt2 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 4), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
         var inntekt3 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 5), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());

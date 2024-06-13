@@ -10,7 +10,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.pdl.Foedselsdato;
 import no.nav.pdl.FoedselsdatoResponseProjection;
 import no.nav.pdl.HentIdenterQueryRequest;
@@ -51,8 +50,8 @@ public class PersonTjeneste {
             () -> new IllegalStateException("Finner ikke personnummer for id " + aktørId));
 
         var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
-
-        return new PersonInfo(person.getNavn().getFirst(), personIdent, aktørId, mapFødselsdato(person));
+        var navn = person.getNavn().getFirst();
+        return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId, mapFødselsdato(person));
     }
 
     private LocalDate mapFødselsdato(Person person) {

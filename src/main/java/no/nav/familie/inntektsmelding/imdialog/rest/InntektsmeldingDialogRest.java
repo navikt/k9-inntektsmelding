@@ -80,7 +80,7 @@ public class InntektsmeldingDialogRest {
     public Response hentPersoninfo(@NotNull @QueryParam("aktorId") @Valid AktørIdDto aktørIdRequestDto,
                                    @NotNull @QueryParam("ytelse") @Valid YtelseTypeDto ytelse) {
         PersonInfo personInfo = personTjeneste.hentPersonInfo(new AktørIdEntitet(aktørIdRequestDto.id()), KodeverkMapper.mapYtelsetype(ytelse));
-        var dto = new InntektsmeldingDialogDto.PersonInfoResponseDto(personInfo.navn().getFornavn(), personInfo.navn().getMellomnavn(), personInfo.navn().getEtternavn(),
+        var dto = new InntektsmeldingDialogDto.PersonInfoResponseDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(),
             personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
         return Response.ok(dto).build();
     }
