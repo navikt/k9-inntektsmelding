@@ -38,9 +38,9 @@ public class ApiConfig extends Application {
         var oas = new OpenAPI();
         var info = new Info().title(ENV.getNaisAppName())
             .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
-            .description("REST grensesnitt for FTINNTEKTSMELDING.");
+            .description("REST grensesnitt for FPINNTEKTSMELDING.");
 
-        oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/ftinntektsmelding")));
+        oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpinntektsmelding")));
         var oasConfig = new SwaggerConfiguration().openAPI(oas)
             .prettyPrint(true)
             .resourceClasses(getClasses().stream().map(Class::getName).collect(Collectors.toSet()));

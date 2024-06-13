@@ -1,7 +1,7 @@
 kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
-  name: ftinntektsmelding
+  name: fpinntektsmelding
   namespace: teamforeldrepenger
   labels:
     team: teamforeldrepenger
@@ -13,23 +13,23 @@ spec:
     - {{url}}
   {{/each}}
   liveness:
-    path: /ftinntektsmelding/internal/health/isAlive
+    path: /fpinntektsmelding/internal/health/isAlive
     initialDelay: 10
     periodSeconds: 10
     failureThreshold: 20
     timeout: 3
   readiness:
-    path: /ftinntektsmelding/internal/health/isReady
+    path: /fpinntektsmelding/internal/health/isReady
     initialDelay: 10
     periodSeconds: 10
     failureThreshold: 20
     timeout: 3
   preStopHook:
     http:
-      path: /ftinntektsmelding/internal/health/preStop
+      path: /fpinntektsmelding/internal/health/preStop
   prometheus:
     enabled: true
-    path: /ftinntektsmelding/internal/metrics/prometheus
+    path: /fpinntektsmelding/internal/metrics/prometheus
   replicas:
     min: {{minReplicas}}
     max: {{maxReplicas}}
@@ -77,7 +77,6 @@ spec:
     inbound:
       rules:
         - application: fp-swagger
-          namespace: teamforeldrepenger
           permissions:
             scopes:
               - swagger
@@ -85,6 +84,7 @@ spec:
           namespace: teamforeldrepenger
           cluster: {{environment}}-fss
         - application: ft-inntektsmelding-frontend
+        - application: fpinntektsmelding-frontend
     outbound:
       rules:
         - application: notifikasjon-produsent-api
