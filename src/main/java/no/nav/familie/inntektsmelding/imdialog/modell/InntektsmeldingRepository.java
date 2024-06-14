@@ -22,9 +22,10 @@ public class InntektsmeldingRepository {
         this.entityManager = entityManager;
     }
 
-    public void lagreInntektsmelding(InntektsmeldingEntitet inntektsmeldingEntitet) {
+    public Long lagreInntektsmelding(InntektsmeldingEntitet inntektsmeldingEntitet) {
         entityManager.persist(inntektsmeldingEntitet);
         entityManager.flush();
+        return inntektsmeldingEntitet.getId();
     }
 
     public Optional<InntektsmeldingEntitet> hentSisteInntektsmelding(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato) {
@@ -35,5 +36,9 @@ public class InntektsmeldingRepository {
             .setMaxResults(1);
 
         return query.getResultStream().findFirst();
+    }
+
+    public InntektsmeldingEntitet hentInntektsmelding(int inntektsmeldingId) {
+        return entityManager.find(InntektsmeldingEntitet.class, inntektsmeldingId);
     }
 }

@@ -64,6 +64,10 @@ public class InntektsmeldingEntitet {
         // Hibernate
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public AktørIdEntitet getAktørId() {
         return aktørId;
     }
@@ -109,6 +113,12 @@ public class InntektsmeldingEntitet {
 
         public Builder medAktørId(AktørIdEntitet aktørId) {
             kladd.aktørId = aktørId;
+            return this;
+        }
+
+        // Mulighet for å eksplisitt overstyre opprettet tidspunkt for bruk i test
+        public Builder medOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
+            kladd.opprettetTidspunkt = opprettetTidspunkt;
             return this;
         }
 

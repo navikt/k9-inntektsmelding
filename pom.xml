@@ -21,6 +21,7 @@
 
         <felles.version>7.2.0</felles.version>
         <prosesstask.version>5.0.9</prosesstask.version>
+        <fp-kontrakter.version>9.1.15</fp-kontrakter.version>
     </properties>
 
     <dependencyManagement>
@@ -56,6 +57,13 @@
                 <artifactId>ereg-klient</artifactId>
                 <version>${felles.version}</version>
             </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+                <artifactId>fp-kontrakter-root</artifactId>
+                <version>${fp-kontrakter.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -87,6 +95,10 @@
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>ereg-klient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+            <artifactId>inntektsmelding-v1</artifactId>
         </dependency>
 
 

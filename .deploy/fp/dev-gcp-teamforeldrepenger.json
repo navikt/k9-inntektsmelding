@@ -11,7 +11,7 @@
     "mem": "1024Mi"
   },
   "ingresses": [
-    "https://ftinntektsmelding.intern.dev.nav.no"
+    "https://fpinntektsmelding.intern.dev.nav.no"
   ],
   "groups": [
     "27e77109-fef2-48ce-a174-269074490353",

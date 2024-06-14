@@ -18,7 +18,6 @@ import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
-import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
@@ -50,8 +49,14 @@ public class PersonTjeneste {
             () -> new IllegalStateException("Finner ikke personnummer for id " + aktørId));
 
         var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
+
         var navn = person.getNavn().getFirst();
         return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId, mapFødselsdato(person));
+    }
+
+    public PersonIdent finnPersonIdentForAktørId(AktørIdEntitet aktørIdEntitet) {
+        return hentPersonidentForAktørId(aktørIdEntitet).orElseThrow(
+            () -> new IllegalStateException("Finner ikke personnummer for id " + aktørIdEntitet));
     }
 
     private LocalDate mapFødselsdato(Person person) {
