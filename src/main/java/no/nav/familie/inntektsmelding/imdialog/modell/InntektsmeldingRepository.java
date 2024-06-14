@@ -38,10 +38,7 @@ public class InntektsmeldingRepository {
         return query.getResultStream().findFirst();
     }
 
-    public InntektsmeldingEntitet hentSisteInntektsmelding(int inntektsmeldingId) {
-        var query = entityManager.createQuery("FROM InntektsmeldingEntitet where id = :id", InntektsmeldingEntitet.class)
-            .setParameter("id", inntektsmeldingId);
-        return query.getSingleResult();
-
+    public InntektsmeldingEntitet hentInntektsmelding(int inntektsmeldingId) {
+        return entityManager.find(InntektsmeldingEntitet.class, inntektsmeldingId);
     }
 }

@@ -84,7 +84,7 @@ public class InntektsmeldingDialogTjeneste {
     }
 
     public InntektsmeldingEntitet hentInntektsmelding(int inntektsmeldingId) {
-        return inntektsmeldingRepository.hentSisteInntektsmelding(inntektsmeldingId);
+        return inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
     }
 
     private List<InntektsmeldingDialogDto.MånedsinntektResponsDto> lagInntekterDto(ForespørselEntitet forespørsel) {
