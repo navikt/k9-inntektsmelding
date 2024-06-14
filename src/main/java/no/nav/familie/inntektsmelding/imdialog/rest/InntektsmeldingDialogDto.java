@@ -16,7 +16,11 @@ public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto per
                                        @Valid @NotNull YtelseTypeDto ytelse,
                                        @Valid @NotNull UUID forespørselUuid) {
 
-    public record PersonInfoResponseDto(@NotNull String navn, @NotNull String fødselsnummer, @NotNull String aktørId) {}
+    public record PersonInfoResponseDto(@NotNull String fornavn,
+                                        @NotNull String mellomnavn,
+                                        @NotNull String etternavn,
+                                        @NotNull String fødselsnummer,
+                                        @NotNull String aktørId) {}
 
     public record OrganisasjonInfoResponseDto(@NotNull String organisasjonNavn, @NotNull String organisasjonNummer) {}
 

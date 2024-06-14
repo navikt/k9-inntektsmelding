@@ -10,7 +10,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.pdl.Foedselsdato;
 import no.nav.pdl.FoedselsdatoResponseProjection;
 import no.nav.pdl.HentIdenterQueryRequest;
@@ -19,7 +18,6 @@ import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
-import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
@@ -52,7 +50,8 @@ public class PersonTjeneste {
 
         var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
 
-        return new PersonInfo(mapNavn(person), personIdent, aktørId, mapFødselsdato(person));
+        var navn = person.getNavn().getFirst();
+        return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId, mapFødselsdato(person));
     }
 
     public PersonIdent finnPersonIdentForAktørId(AktørIdEntitet aktørIdEntitet) {
@@ -60,24 +59,8 @@ public class PersonTjeneste {
             () -> new IllegalStateException("Finner ikke personnummer for id " + aktørIdEntitet));
     }
 
-    private String mapNavn(Person person) {
-        return person.getNavn()
-            .stream()
-            .map(PersonTjeneste::mapNavn)
-            .flatMap(Optional::stream)
-            .findFirst()
-            .orElseGet(() -> Environment.current().isProd() ? null : "Navnløs i Folkeregister");
-    }
-
     private LocalDate mapFødselsdato(Person person) {
         return person.getFoedselsdato().stream().map(Foedselsdato::getFoedselsdato).findFirst().map(LocalDate::parse).orElse(null);
-    }
-
-    private static Optional<String> mapNavn(Navn navn) {
-        if (navn.getEtternavn() == null || navn.getFornavn() == null) {
-            return Optional.empty();
-        }
-        return Optional.of(navn.getEtternavn() + " " + navn.getFornavn() + (navn.getMellomnavn() == null ? "" : " " + navn.getMellomnavn()));
     }
 
     private Optional<PersonIdent> hentPersonidentForAktørId(AktørIdEntitet aktørId) {

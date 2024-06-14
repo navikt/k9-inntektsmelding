@@ -80,7 +80,8 @@ public class InntektsmeldingDialogRest {
     public Response hentPersoninfo(@NotNull @QueryParam("aktorId") @Valid AktørIdDto aktørIdRequestDto,
                                    @NotNull @QueryParam("ytelse") @Valid YtelseTypeDto ytelse) {
         PersonInfo personInfo = personTjeneste.hentPersonInfo(new AktørIdEntitet(aktørIdRequestDto.id()), KodeverkMapper.mapYtelsetype(ytelse));
-        var dto = new PersonInfoResponseDto(personInfo.navn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
+        var dto = new InntektsmeldingDialogDto.PersonInfoResponseDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(),
+            personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
         return Response.ok(dto).build();
     }
 
@@ -117,9 +118,6 @@ public class InntektsmeldingDialogRest {
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         inntektsmeldingDialogTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok(sendInntektsmeldingRequestDto).build();
-    }
-
-    public record PersonInfoResponseDto(@NotNull String navn, @NotNull String fødselsnummer, @NotNull String aktørId) {
     }
 
     public record OrganisasjonInfoResponseDto(@NotNull String organisasjonNavn, @NotNull String organisasjonNummer) {

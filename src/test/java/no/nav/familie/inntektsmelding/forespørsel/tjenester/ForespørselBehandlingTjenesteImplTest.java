@@ -58,7 +58,7 @@ public class ForespørselBehandlingTjenesteImplTest {
 
     @Test
     public void skal_opprette_forespørsel_og_sette_sak_og_oppgave() {
-        var personInfo = new PersonInfo("Navn Navnesen", new PersonIdent("01019100000"), new AktørIdEntitet(AKTØR_ID),
+        var personInfo = new PersonInfo("Navn", null, "Navnesen", new PersonIdent("01019100000"), new AktørIdEntitet(AKTØR_ID),
             LocalDate.of(1991, 1, 1).minusYears(30));
 
         var saksTittel = forespørselBehandlingTjeneste.lagSaksTittel(personInfo);

@@ -67,8 +67,9 @@ class InntektsmeldingDialogTjenesteTest {
             .thenReturn(Optional.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer()))
             .thenReturn(new Organisasjon("Bedriften", forespørsel.getOrganisasjonsnummer()));
+
         when(personTjeneste.hentPersonInfo(forespørsel.getAktørId(), forespørsel.getYtelseType()))
-            .thenReturn(new PersonInfo("Navn Navnesen", new PersonIdent("12121212122"), forespørsel.getAktørId(), LocalDate.now()));
+            .thenReturn(new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), forespørsel.getAktørId(), LocalDate.now()));
         var inntekt1 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 3), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
         var inntekt2 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 4), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
         var inntekt3 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 5), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
@@ -83,7 +84,8 @@ class InntektsmeldingDialogTjenesteTest {
         assertThat(imDialogDto.ytelse()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
 
         assertThat(imDialogDto.person().aktørId()).isEqualTo(forespørsel.getAktørId().getAktørId());
-        assertThat(imDialogDto.person().navn()).isEqualTo("Navn Navnesen");
+        assertThat(imDialogDto.person().fornavn()).isEqualTo("Navn");
+        assertThat(imDialogDto.person().etternavn()).isEqualTo("Navnesen");
 
         assertThat(imDialogDto.arbeidsgiver().organisasjonNavn()).isEqualTo("Bedriften");
         assertThat(imDialogDto.arbeidsgiver().organisasjonNummer()).isEqualTo(forespørsel.getOrganisasjonsnummer());
