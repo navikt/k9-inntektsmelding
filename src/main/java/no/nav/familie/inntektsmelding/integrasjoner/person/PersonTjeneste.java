@@ -55,6 +55,11 @@ public class PersonTjeneste {
         return new PersonInfo(mapNavn(person), personIdent, aktørId, mapFødselsdato(person));
     }
 
+    public PersonIdent finnPersonIdentForAktørId(AktørIdEntitet aktørIdEntitet) {
+        return hentPersonidentForAktørId(aktørIdEntitet).orElseThrow(
+            () -> new IllegalStateException("Finner ikke personnummer for id " + aktørIdEntitet));
+    }
+
     private String mapNavn(Person person) {
         return person.getNavn()
             .stream()

@@ -3,6 +3,10 @@ package no.nav.familie.inntektsmelding.imdialog.tjenester;
 import java.util.List;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
+
+import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,14 +59,15 @@ public class InntektsmeldingDialogTjeneste {
         var aktorId = new AktørIdEntitet(mottattInntektsmeldingDto.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto);
-        inntektsmeldingRepository.lagreInntektsmelding(entitet);
+        var imId = inntektsmeldingRepository.lagreInntektsmelding(entitet);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(foresporselUuid, aktorId, orgnummer, mottattInntektsmeldingDto.startdato());
-        opprettTaskForSendTilJoark();
+        opprettTaskForSendTilJoark(imId);
     }
 
-    private void opprettTaskForSendTilJoark() {
+    private void opprettTaskForSendTilJoark(Long imId) {
         var task = ProsessTaskData.forProsessTask(SendTilJoarkTask.class);
+        task.setProperty(SendTilJoarkTask.KEY_INNTEKTSMELDING_ID, imId.toString());
         task.setCallIdFraEksisterende();
         prosessTaskTjeneste.lagre(task);
         LOG.info("Opprettet task");
@@ -76,6 +81,10 @@ public class InntektsmeldingDialogTjeneste {
         var inntektDtoer = lagInntekterDto(forespørsel);
         return new InntektsmeldingDialogDto(personDto, organisasjonDto, inntektDtoer,
             forespørsel.getSkjæringstidspunkt(), KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), forespørsel.getUuid());
+    }
+
+    public InntektsmeldingEntitet hentInntektsmelding(int inntektsmeldingId) {
+        return inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
     }
 
     private List<InntektsmeldingDialogDto.MånedsinntektResponsDto> lagInntekterDto(ForespørselEntitet forespørsel) {
