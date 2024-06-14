@@ -52,4 +52,9 @@ public class RefusjonPeriodeEntitet {
     public BigDecimal getBeløp() {
         return beløp;
     }
+
+    @Override
+    public String toString() {
+        return "RefusjonPeriodeEntitet{" + "periode=" + periode + ", beløp=" + beløp + '}';
+    }
 }

@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity(name = "InntektsmeldingEntitet")
 @Table(name = "INNTEKTSMELDING")
@@ -102,6 +103,30 @@ public class InntektsmeldingEntitet {
 
     public LocalDateTime getOpprettetTidspunkt() {
         return opprettetTidspunkt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        InntektsmeldingEntitet entitet = (InntektsmeldingEntitet) o;
+        return Objects.equals(aktørId, entitet.aktørId) && ytelsetype == entitet.ytelsetype && Objects.equals(arbeidsgiverIdent,
+            entitet.arbeidsgiverIdent) && Objects.equals(startDato, entitet.startDato) && Objects.equals(opprettetTidspunkt,
+            entitet.opprettetTidspunkt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(aktørId, ytelsetype, arbeidsgiverIdent, startDato, opprettetTidspunkt);
+    }
+
+    @Override
+    public String toString() {
+        return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + aktørId + ", ytelsetype=" + ytelsetype + ", arbeidsgiverIdent='"
+            + arbeidsgiverIdent + '\'' + ", kontaktperson=" + kontaktperson + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt
+            + ", opprettetTidspunkt=" + opprettetTidspunkt + ", refusjonsPeriode=" + refusjonsPeriode + ", naturalYtelse=" + naturalYtelse + '}';
     }
 
     public static Builder builder() {
