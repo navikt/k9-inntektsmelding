@@ -47,7 +47,7 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
         var aktørId = new AktørIdDto("1234567890134");
 
         var fagsakSaksnummer = new SaksnummerDto("SAK");
-        var response = forespørselRest.createForespørsel(
+        var response = forespørselRest.opprettForespørsel(
             new OpprettForespørselRequest(aktørId, orgnummer, LocalDate.now(), YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
