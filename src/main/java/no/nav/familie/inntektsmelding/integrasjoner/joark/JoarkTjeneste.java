@@ -28,6 +28,8 @@ public class JoarkTjeneste {
     // Ved maskinell journalføring skal enhet være satt til 9999. Se https://confluence.adeo.no/display/BOA/opprettJournalpost
     private static final String JOURNALFØRENDE_ENHET = "9999";
     private static final String JOURNALFØRING_TITTEL = "Inntektsmelding";
+    // TODO Denne bør nok synkes med avsendersystem i XML
+    private static final String KANAL = "NAV_NO";
     // TODO Dette er brevkode for altinn skjema. Trenger vi egen?
     private static final String BREVKODE_IM = "4936";
 
@@ -50,7 +52,7 @@ public class JoarkTjeneste {
     public void journalførInntektsmelding(String XMLAvInntektsmelding, InntektsmeldingEntitet inntektsmelding) {
         var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding);
         try {
-            var response = joarkKlient.opprettJournalpost(request, true);
+            var response = joarkKlient.opprettJournalpost(request, false);
             // Kan nok fjerne loggingen etter en periode i dev, mest for feilsøking i starten.
             LOG.info("Journalført inntektsmelding fikk journalpostId " + response.journalpostId());
             LOG.info("Ble journalført inntektsmelding ferdigstilt:  " + response.journalpostferdigstilt());
@@ -71,7 +73,7 @@ public class JoarkTjeneste {
             .medTema(mapTema(inntektsmeldingEntitet.getYtelsetype()))
             .medEksternReferanseId(UUID.randomUUID().toString())
             .medJournalfoerendeEnhet(JOURNALFØRENDE_ENHET)
-            .medKanal("NAV_NO") // TODO Denne bør nok synkes med avsendersystem i XML
+            .medKanal(KANAL)
             .medDokumenter(lagDokumenter(xmlAvInntektsmelding))
             .build();
         return request;
