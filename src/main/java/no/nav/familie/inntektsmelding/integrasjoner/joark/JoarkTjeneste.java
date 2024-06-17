@@ -49,13 +49,14 @@ public class JoarkTjeneste {
     }
 
 
-    public void journalførInntektsmelding(String XMLAvInntektsmelding, InntektsmeldingEntitet inntektsmelding) {
+    public String journalførInntektsmelding(String XMLAvInntektsmelding, InntektsmeldingEntitet inntektsmelding) {
         var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding);
         try {
             var response = joarkKlient.opprettJournalpost(request, false);
             // Kan nok fjerne loggingen etter en periode i dev, mest for feilsøking i starten.
             LOG.info("Journalført inntektsmelding fikk journalpostId " + response.journalpostId());
             LOG.info("Ble journalført inntektsmelding ferdigstilt:  " + response.journalpostferdigstilt());
+            return response.journalpostId();
         } catch (Exception e) {
             throw new IllegalStateException("Klarte ikke journalføre innteketsmelding " + e);
         }
@@ -80,13 +81,17 @@ public class JoarkTjeneste {
     }
 
     private List<DokumentInfoOpprett> lagDokumenter(String xmlAvInntektsmelding) {
-        var dokumentvariant = new Dokumentvariant(Dokumentvariant.Variantformat.ORIGINAL, Dokumentvariant.Filtype.XML,
-            xmlAvInntektsmelding.getBytes(StandardCharsets.UTF_8)); // TODO Legg til PDF i denne lista
+        var dokumentXML = new Dokumentvariant(Dokumentvariant.Variantformat.ORIGINAL, Dokumentvariant.Filtype.XML,
+            xmlAvInntektsmelding.getBytes(StandardCharsets.UTF_8));
+
+        var dokumentPDF = new Dokumentvariant(Dokumentvariant.Variantformat.ARKIV, Dokumentvariant.Filtype.PDF,
+            "PDF_HER".getBytes(StandardCharsets.UTF_8)); // TODO Her må vi sette inn PDF
 
         var builder = DokumentInfoOpprett.builder()
             .medTittel(JOURNALFØRING_TITTEL)
             .medBrevkode(BREVKODE_IM)
-            .leggTilDokumentvariant(dokumentvariant);
+            .leggTilDokumentvariant(dokumentXML)
+            .leggTilDokumentvariant(dokumentPDF);
 
         return Collections.singletonList(builder.build());
     }
