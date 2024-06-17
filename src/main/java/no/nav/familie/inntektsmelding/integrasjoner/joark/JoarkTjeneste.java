@@ -121,7 +121,7 @@ public class JoarkTjeneste {
     private AvsenderMottaker lagAvsenderPrivatperson(InntektsmeldingEntitet inntektsmeldingEntitet) {
         var personInfo = personTjeneste.hentPersonInfo(new AktørIdEntitet(inntektsmeldingEntitet.getArbeidsgiverIdent()),
             inntektsmeldingEntitet.getYtelsetype());
-        return new AvsenderMottaker(personInfo.fødselsnummer().getIdent(), AvsenderMottaker.AvsenderMottakerIdType.FNR, personInfo.navn());
+        return new AvsenderMottaker(personInfo.fødselsnummer().getIdent(), AvsenderMottaker.AvsenderMottakerIdType.FNR, personInfo.mapNavn());
     }
 
     private AvsenderMottaker lagAvsenderBedrift(InntektsmeldingEntitet inntektsmeldingEntitet) {

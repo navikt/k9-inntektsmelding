@@ -54,7 +54,6 @@ class JoarkTjenesteTest {
     void skal_teste_oversending_organisasjon() {
         // Arrange
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
-        var fnrSøker = new PersonIdent("11111111111");
         var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.of(2024, 6, 1), Tid.TIDENES_ENDE, BigDecimal.valueOf(35000));
         var naturalytelse = NaturalytelseEntitet.builder()
             .medPeriode(LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 30))
@@ -91,7 +90,6 @@ class JoarkTjenesteTest {
     void skal_teste_oversending_privapterson() {
         // Arrange
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
-        var fnrSøker = new PersonIdent("11111111111");
         var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.of(2024, 6, 1), Tid.TIDENES_ENDE, BigDecimal.valueOf(35000));
         var naturalytelse = NaturalytelseEntitet.builder()
             .medPeriode(LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 30))
@@ -99,7 +97,6 @@ class JoarkTjenesteTest {
             .medErBortfalt(true)
             .medBeløp(BigDecimal.valueOf(2000))
             .build();
-        var arbeidsgiverIdent = "999999999";
         var aktørIdArbeidsgiver = "2222222222222";
         var inntektsmelding = InntektsmeldingEntitet.builder()
             .medArbeidsgiverIdent(aktørIdArbeidsgiver)
@@ -114,7 +111,7 @@ class JoarkTjenesteTest {
             .build();
 
         // Kan foreløpig ikke teste med spesifikk request i mock siden eksternreferanse genereres on the fly
-         when(personTjeneste.hentPersonInfo(new AktørIdEntitet(aktørIdArbeidsgiver), Ytelsetype.FORELDREPENGER)).thenReturn(new PersonInfo("Navn Navnesen", new PersonIdent("9999999999999"), aktørIdSøker, LocalDate.now()));
+         when(personTjeneste.hentPersonInfo(new AktørIdEntitet(aktørIdArbeidsgiver), Ytelsetype.FORELDREPENGER)).thenReturn(new PersonInfo("Navn",  null, "Navnesen", new PersonIdent("9999999999999"), aktørIdSøker, LocalDate.now()));
         when(klient.opprettJournalpost(any(), anyBoolean())).thenReturn(new OpprettJournalpostResponse("9999", false, Collections.emptyList()));
         // Act
         var journalpostId = joarkTjeneste.journalførInntektsmelding("XML", inntektsmelding);
