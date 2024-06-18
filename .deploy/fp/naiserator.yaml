@@ -67,7 +67,6 @@ spec:
       enabled: true
       claims:
         extra:
-          - "NAVident"
           - "azp_name"
         groups:
           {{#each groups as |group|}}
@@ -83,7 +82,6 @@ spec:
         - application: fpsak
           namespace: teamforeldrepenger
           cluster: {{environment}}-fss
-        - application: ft-inntektsmelding-frontend
         - application: fpinntektsmelding-frontend
     outbound:
       rules:
