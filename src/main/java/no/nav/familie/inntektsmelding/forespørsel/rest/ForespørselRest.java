@@ -3,6 +3,9 @@ package no.nav.familie.inntektsmelding.forespørsel.rest;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -29,6 +32,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 @Path(ForespørselRest.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 public class ForespørselRest {
+    private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
     public static final String BASE_PATH = "/foresporsel";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
@@ -48,6 +52,7 @@ public class ForespørselRest {
     @Path("/opprett")
     @Operation(description = "Oppretter en forespørsel om inntektsmelding", tags = "forespørsel")
     public Response opprettForespørsel(OpprettForespørselRequest request) {
+        LOG.info("Mottok forespørsel om inntektsmeldingoppgave på saksnummer " + request.saksnummer());
         forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdEntitet(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.saksnummer());
         return Response.ok().build();
