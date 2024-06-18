@@ -93,11 +93,11 @@ class InntektsmeldingDialogTjenesteTest {
         assertThat(imDialogDto.inntekter()).hasSize(3);
 
         assertThat(imDialogDto.inntekter())
-            .contains(new InntektsmeldingDialogDto.MånedsinntektResponsDto(LocalDate.of(2024,3,1), LocalDate.of(2024, 3, 31), BigDecimal.valueOf(52000)));
+            .contains(new InntektsmeldingDialogDto.MånedsinntektResponsDto(LocalDate.of(2024,3,1), LocalDate.of(2024, 3, 31), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer()));
         assertThat(imDialogDto.inntekter())
-            .contains(new InntektsmeldingDialogDto.MånedsinntektResponsDto(LocalDate.of(2024,4,1), LocalDate.of(2024, 4, 30), BigDecimal.valueOf(52000)));
+            .contains(new InntektsmeldingDialogDto.MånedsinntektResponsDto(LocalDate.of(2024,4,1), LocalDate.of(2024, 4, 30), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer()));
         assertThat(imDialogDto.inntekter())
-            .contains(new InntektsmeldingDialogDto.MånedsinntektResponsDto(LocalDate.of(2024,5,1), LocalDate.of(2024, 5, 31), BigDecimal.valueOf(52000)));
+            .contains(new InntektsmeldingDialogDto.MånedsinntektResponsDto(LocalDate.of(2024,5,1), LocalDate.of(2024, 5, 31), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer()));
     }
 
 
