@@ -98,7 +98,7 @@ public class JoarkTjeneste {
 
     private String mapTema(Ytelsetype ytelsetype) {
         return switch (ytelsetype) {
-            case FORELDREPENGER, SVANGERSKAPSPENGER -> "FORS_SVA";
+            case FORELDREPENGER, SVANGERSKAPSPENGER -> "FOR";
             case PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OMSORGSPENGER, OPPLÆRINGSPENGER -> "OMS";
         };
     }

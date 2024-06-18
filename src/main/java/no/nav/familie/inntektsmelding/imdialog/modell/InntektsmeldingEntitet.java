@@ -125,7 +125,7 @@ public class InntektsmeldingEntitet {
     @Override
     public String toString() {
         return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + aktørId + ", ytelsetype=" + ytelsetype + ", arbeidsgiverIdent='"
-            + arbeidsgiverIdent + '\'' + ", kontaktperson=" + kontaktperson + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt
+            + arbeidsgiverIdent + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt
             + ", opprettetTidspunkt=" + opprettetTidspunkt + ", refusjonsPeriode=" + refusjonsPeriode + ", naturalYtelse=" + naturalYtelse + '}';
     }
 
