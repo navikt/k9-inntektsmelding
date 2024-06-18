@@ -24,5 +24,5 @@ public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto per
 
     public record OrganisasjonInfoResponseDto(@NotNull String organisasjonNavn, @NotNull String organisasjonNummer) {}
 
-    public record MånedsinntektResponsDto(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull BigDecimal beløp, String organisasjonsnummer) {}
+    public record MånedsinntektResponsDto(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull BigDecimal beløp, String arbeidsgiverIdent) {}
 }
