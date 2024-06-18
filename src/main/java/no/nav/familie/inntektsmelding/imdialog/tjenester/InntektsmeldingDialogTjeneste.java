@@ -91,7 +91,7 @@ public class InntektsmeldingDialogTjeneste {
         var inntekter = inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(),
             forespørsel.getOrganisasjonsnummer());
         var inntektDtoer = inntekter.stream()
-            .map(i -> new InntektsmeldingDialogDto.MånedsinntektResponsDto(i.måned().atDay(1), i.måned().atEndOfMonth(), i.beløp()))
+            .map(i -> new InntektsmeldingDialogDto.MånedsinntektResponsDto(i.måned().atDay(1), i.måned().atEndOfMonth(), i.beløp(), forespørsel.getOrganisasjonsnummer()))
             .toList();
         return inntektDtoer;
     }
