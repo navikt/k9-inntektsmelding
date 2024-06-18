@@ -8,6 +8,10 @@ import java.util.stream.Collectors;
 
 import no.nav.familie.inntektsmelding.forvaltning.FagerTestRestTjeneste;
 
+import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
+import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapper;
+import no.nav.familie.inntektsmelding.server.exceptions.JsonMappingExceptionMapper;
+import no.nav.familie.inntektsmelding.server.exceptions.JsonParseExceptionMapper;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
 import org.glassfish.jersey.server.ServerProperties;
@@ -55,8 +59,19 @@ public class ApiConfig extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         // eksponert grensesnitt bak sikkerhet
-        return Set.of(AuthenticationFilter.class, OpenApiResource.class, JacksonJsonConfig.class, GeneralRestExceptionMapper.class,
-            InntektsmeldingDialogRest.class, ForespørselRest.class, FagerTestRestTjeneste.class, ProsessTaskRestTjeneste.class);
+        return Set.of(
+            AuthenticationFilter.class,
+            OpenApiResource.class,
+            JacksonJsonConfig.class,
+            GeneralRestExceptionMapper.class,
+            // ExceptionMappers pga de som finnes i Jackson+Jersey-media
+            ConstraintViolationMapper.class,
+            JsonMappingExceptionMapper.class,
+            JsonParseExceptionMapper.class,
+            InntektsmeldingDialogRest.class,
+            ForespørselRest.class,
+            FagerTestRestTjeneste.class,
+            ProsessTaskRestTjeneste.class);
 
     }
 
