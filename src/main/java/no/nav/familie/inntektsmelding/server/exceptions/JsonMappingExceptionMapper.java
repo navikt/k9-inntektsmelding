@@ -1,0 +1,20 @@
+package no.nav.familie.inntektsmelding.server.exceptions;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingException> {
+
+    private static final Logger log = LoggerFactory.getLogger(JsonMappingExceptionMapper.class);
+
+    @Override
+    public Response toResponse(JsonMappingException exception) {
+        var feil = "FIM-252294: JSON-mapping feil";
+        log.warn(feil);
+        return Response.status(Response.Status.BAD_REQUEST).entity(new FeilDto(feil)).type(MediaType.APPLICATION_JSON).build();
+    }
+}
