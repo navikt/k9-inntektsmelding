@@ -15,7 +15,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "altinn.url", scopesProperty = "altinn.scopes")
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "altinn.url", scopesProperty = "altinn.scopes")
 public class AltinnAutoriseringKlient {
     private static final String SERVICE_CODE = "4936";
     private static final String SERVICE_EDITION = "1";

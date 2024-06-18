@@ -53,6 +53,11 @@ public class ForespørselRest {
         return Response.ok().build();
     }
 
+    /**
+     * @deprecated See på InntektsmeldingDialogRest.hentInnsendingsinfo()
+     * @param forespørselUUID
+     */
+    @Deprecated(forRemoval = true, since = "18.06.2024")
     @GET
     @Path("/{uuid}")
     @Operation(description = "Henter en forespørsel for gitt UUID", tags = "forespørsel")

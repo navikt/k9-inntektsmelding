@@ -29,7 +29,6 @@ import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
 @ApplicationScoped
@@ -63,7 +62,6 @@ public class InntektsmeldingDialogRest {
     }
 
     @GET
-    @UtenAutentisering
     @Path(HENT_GRUNNLAG)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet.", tags = "imdialog")
@@ -72,8 +70,11 @@ public class InntektsmeldingDialogRest {
         return Response.ok(dto).build();
     }
 
+    /**
+     * @deprecated See på InntektsmeldingDialogRest.hentInnsendingsinfo()
+     */
+    @Deprecated(forRemoval = true, since = "18.06.2024")
     @GET
-    @UtenAutentisering
     @Path(HENT_PERSONINFO)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter personinfo gitt id", tags = "imdialog")
@@ -85,8 +86,11 @@ public class InntektsmeldingDialogRest {
         return Response.ok(dto).build();
     }
 
+    /**
+     * @deprecated See på InntektsmeldingDialogRest.hentInnsendingsinfo()
+     */
+    @Deprecated(forRemoval = true, since = "18.06.2024")
     @GET
-    @UtenAutentisering
     @Path(HENT_ORGANISASJON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter organisasjonsnavn gitt organisasjonsnummer", tags = "imdialog")
@@ -96,8 +100,11 @@ public class InntektsmeldingDialogRest {
         return organisassjonInfoDto.map(oi -> Response.ok(organisassjonInfoDto).build()).orElse(Response.noContent().build());
     }
 
+    /**
+     * @deprecated See på InntektsmeldingDialogRest.hentInnsendingsinfo()
+     */
+    @Deprecated(forRemoval = true, since = "18.06.2024")
     @POST
-    @UtenAutentisering
     @Path(HENT_INNTEKT)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter inntekt siste tre måneder for en aktør", tags = "imdialog")
@@ -111,7 +118,6 @@ public class InntektsmeldingDialogRest {
     }
 
     @POST
-    @UtenAutentisering
     @Path(SEND_INNTEKTSMELDING)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sender inn inntektsmelding", tags = "imdialog")
