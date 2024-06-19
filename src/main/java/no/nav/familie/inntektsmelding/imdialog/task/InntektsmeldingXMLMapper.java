@@ -55,7 +55,7 @@ public class InntektsmeldingXMLMapper {
         skjemainnhold.setAvsendersystem(lagAvsendersysem(inntektsmelding, of));
 
         skjemainnhold.setYtelse(mapTilYtelsetype(inntektsmelding.getYtelsetype()));
-
+        skjemainnhold.setStartdatoForeldrepengeperiode(of.createSkjemainnholdStartdatoForeldrepengeperiode(inntektsmelding.getStartDato()));
         if (!inntektsmelding.getRefusjonsPeriode().isEmpty()) {
             skjemainnhold.setRefusjon(lagRefusjonXml(inntektsmelding, of));
         }
@@ -153,7 +153,7 @@ public class InntektsmeldingXMLMapper {
         arbeidsforhold.setBeregnetInntekt(inntektSkjemaVerdi);
 
         // Startdato
-        arbeidsforhold.setFoersteFravaersdag(of.createSkjemainnholdStartdatoForeldrepengeperiode(inntektsmeldingEntitet.getStartDato()));
+        arbeidsforhold.setFoersteFravaersdag(of.createArbeidsforholdFoersteFravaersdag(inntektsmeldingEntitet.getStartDato()));
         return of.createSkjemainnholdArbeidsforhold(arbeidsforhold);
     }
 

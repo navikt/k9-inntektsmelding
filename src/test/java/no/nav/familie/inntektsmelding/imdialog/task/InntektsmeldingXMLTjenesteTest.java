@@ -41,7 +41,7 @@ class InntektsmeldingXMLTjenesteTest {
     @Test
     void skal_teste_xml_generering() {
         // Arrange
-        var opprettetTidspunkt = LocalDateTime.of(2024, 6, 30, 12, 12);
+        var opprettetTidspunkt = LocalDateTime.of(2024, 6, 30, 12, 12, 30);
         var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.of(2024, 6, 1), Tid.TIDENES_ENDE, BigDecimal.valueOf(35000));
         var naturalytelse = NaturalytelseEntitet.builder()
             .medPeriode(LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 30))
@@ -90,7 +90,7 @@ class InntektsmeldingXMLTjenesteTest {
             		<arbeidstakerFnr>11111111111</arbeidstakerFnr>
             		<naerRelasjon>false</naerRelasjon>
             		<arbeidsforhold>
-            			<startdatoForeldrepengeperiode>2024-06-01</startdatoForeldrepengeperiode>
+            			<foersteFravaersdag>2024-06-01</foersteFravaersdag>
             			<beregnetInntekt>
             				<beloep>35000</beloep>
             			</beregnetInntekt>
@@ -100,6 +100,7 @@ class InntektsmeldingXMLTjenesteTest {
             			<refusjonsopphoersdato>9999-12-31</refusjonsopphoersdato>
             			<endringIRefusjonListe/>
             		</refusjon>
+            		<startdatoForeldrepengeperiode>2024-06-01</startdatoForeldrepengeperiode>
             		<opphoerAvNaturalytelseListe>
             			<opphoerAvNaturalytelse>
             				<naturalytelseType>aksjerGrunnfondsbevisTilUnderkurs</naturalytelseType>
@@ -111,7 +112,7 @@ class InntektsmeldingXMLTjenesteTest {
             		<avsendersystem>
             			<systemnavn>NAV_NO</systemnavn>
             			<systemversjon>1.0</systemversjon>
-            			<innsendingstidspunkt>2024-06-30T12:12</innsendingstidspunkt>
+            			<innsendingstidspunkt>2024-06-30T12:12:30</innsendingstidspunkt>
             		</avsendersystem>
             	</Skjemainnhold>
             </melding>
