@@ -65,6 +65,11 @@ public class NaturalytelseEntitet {
         this.inntektsmelding = inntektsmelding;
     }
 
+    @Override
+    public String toString() {
+        return "NaturalytelseEntitet{" + "periode=" + periode + ", type=" + type + ", beløp=" + beløp + ", erBortfalt=" + erBortfalt + '}';
+    }
+
     public static Builder builder() {
         return new Builder();
     }

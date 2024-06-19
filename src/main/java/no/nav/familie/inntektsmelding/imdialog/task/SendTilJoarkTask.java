@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.task;
 
+import no.nav.familie.inntektsmelding.integrasjoner.joark.JoarkTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
 
     private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
     private InntektsmeldingXMLTjeneste inntektsmeldingXMLTjeneste;
+    private JoarkTjeneste joarkTjeneste;
 
     SendTilJoarkTask() {
         // CDI
@@ -25,10 +28,11 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
 
     @Inject
     public SendTilJoarkTask(InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste,
-                            InntektsmeldingXMLTjeneste inntektsmeldingXMLTjeneste) {
+                            InntektsmeldingXMLTjeneste inntektsmeldingXMLTjeneste,
+                            JoarkTjeneste joarkTjeneste) {
         this.inntektsmeldingDialogTjeneste = inntektsmeldingDialogTjeneste;
         this.inntektsmeldingXMLTjeneste = inntektsmeldingXMLTjeneste;
-
+        this.joarkTjeneste = joarkTjeneste;
     }
 
     @Override
@@ -38,5 +42,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
         var inntektsmelding = inntektsmeldingDialogTjeneste.hentInntektsmelding(inntektsmeldingId);
         var xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
         LOG.info("Genererte XML " + xml);
+        joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding);
+        LOG.info("Sluttfører task oversendJoark");
     }
 }
