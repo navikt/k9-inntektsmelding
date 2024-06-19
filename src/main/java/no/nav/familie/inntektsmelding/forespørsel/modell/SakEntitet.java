@@ -39,14 +39,13 @@ public class SakEntitet {
     private String fagerSakId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "sak_status", nullable = false, updatable = false)
+    @Column(name = "sak_status", nullable = false)
     private SakStatus sakStatus = SakStatus.UNDER_BEHANDLING;
 
     @Column(name = "orgnr", nullable = false, updatable = false)
     private String organisasjonsnummer;
 
     @Embedded
-    @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "bruker_aktoer_id", nullable = false, updatable = false)))
     private AktørIdEntitet aktørId;
 
     @Enumerated(EnumType.STRING)

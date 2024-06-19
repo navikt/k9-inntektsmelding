@@ -37,7 +37,6 @@ public class ForespørselEntitet {
     @Column(name = "uuid", nullable = false, updatable = false)
     private UUID uuid;
 
-    @JsonBackReference
     @ManyToOne(optional = false)
     @JoinColumn(name = "INTERN_SAK_ID", nullable = false, updatable = false)
     private SakEntitet sak;

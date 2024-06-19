@@ -59,6 +59,17 @@ public class ForespørselRest {
         return Response.ok().build();
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/ferdigstill")
+    @Operation(description = "Ferdigstiller en sak på min side arbeidsgiver", tags = "sak")
+    public Response ferdigstillSak(SakRequest request) {
+        forespørselBehandlingTjeneste.ferdigstillSak(new AktørIdEntitet(request.aktørId().id()),
+            new OrganisasjonsnummerDto(request.orgnummer().orgnr()), KodeverkMapper.mapYtelsetype(request.ytelsetype()), request.saksnummer());
+        return Response.ok().build();
+    }
+
+
     /**
      * @deprecated See på InntektsmeldingDialogRest.hentInnsendingsinfo()
      * @param forespørselUUID

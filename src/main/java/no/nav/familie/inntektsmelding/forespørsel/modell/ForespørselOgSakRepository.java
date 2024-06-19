@@ -105,7 +105,7 @@ public class ForespørselOgSakRepository {
                                                             String fagsakSaksnummer,
                                                             LocalDate startdato) {
         var query = entityManager.createQuery(
-                "FROM ForespørselEntitet where forespørselStatus='NY' " +
+                "FROM ForespørselEntitet where forespørselStatus=:status " +
                     "and skjæringstidspunkt = :startdato " +
                     "and sak.aktørId = :brukerAktørId " +
                     "and sak.organisasjonsnummer = :arbeidsgiverIdent " +
@@ -115,7 +115,8 @@ public class ForespørselOgSakRepository {
             .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
             .setParameter("fagsakSaksnummer", fagsakSaksnummer)
             .setParameter("ytelsetype", ytelsetype)
-            .setParameter("startdato", startdato);
+            .setParameter("startdato", startdato)
+            .setParameter("status", ForespørselStatus.NY);
 
 
         var resultList = query.getResultList();
