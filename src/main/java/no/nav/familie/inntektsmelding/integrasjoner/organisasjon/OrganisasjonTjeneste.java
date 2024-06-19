@@ -4,12 +4,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
 public class OrganisasjonTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(OrganisasjonTjeneste.class);
 
     private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(24, TimeUnit.HOURS);
 
@@ -41,10 +45,11 @@ public class OrganisasjonTjeneste {
     }
 
     public Optional<Organisasjon> finnOrganisasjonOptional(String orgNummer) {
-        if (orgNummer == null) {
+        if (!OrganisasjonsNummerValidator.erGyldig(orgNummer)) {
+            LOG.info("Ugyldig orgnummer: " + orgNummer);
             return Optional.empty();
         }
-        return OrganisasjonsNummerValidator.erGyldig(orgNummer) ? Optional.of(hent(orgNummer)) : Optional.empty();
+        return Optional.of(hent(orgNummer));
     }
 
     private Organisasjon hent(String orgnr) {

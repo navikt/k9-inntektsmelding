@@ -11,6 +11,9 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.YearMonth;
 import java.util.Collections;
 
@@ -18,6 +21,7 @@ import java.util.Collections;
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "hentinntektlistebolk.url", endpointDefault = "https://app.adeo.no/inntektskomponenten-ws/rs/api/v1/hentinntektlistebolk",
     scopesProperty = "hentinntektlistebolk.scopes", scopesDefault = "api://prod-fss.team-inntekt.inntektskomponenten/.default")
 public class InntektskomponentKlient {
+    private static final Logger LOG = LoggerFactory.getLogger(InntektskomponentKlient.class);
     private static final YearMonth INNTK_TIDLIGSTE_DATO = YearMonth.of(2015, 7);
 
     private final RestClient restClient;
@@ -34,6 +38,7 @@ public class InntektskomponentKlient {
 
     public HentInntektListeBolkResponse finnInntekt(FinnInntektRequest finnInntektRequest) {
         var request = lagRequest(finnInntektRequest);
+        LOG.info("Henter inntekt");
 
         HentInntektListeBolkResponse response;
         try {

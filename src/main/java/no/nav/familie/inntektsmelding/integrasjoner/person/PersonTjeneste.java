@@ -5,6 +5,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
@@ -27,6 +30,7 @@ import no.nav.vedtak.felles.integrasjon.person.Persondata;
 
 @ApplicationScoped
 public class PersonTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(PersonTjeneste.class);
     private PdlKlient pdlKlient;
 
     PersonTjeneste() {
@@ -48,6 +52,7 @@ public class PersonTjeneste {
         PersonIdent personIdent = hentPersonidentForAktørId(aktørId).orElseThrow(
             () -> new IllegalStateException("Finner ikke personnummer for id " + aktørId));
 
+        LOG.info("Henter personobjekt");
         var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
 
         var navn = person.getNavn().getFirst();
@@ -70,10 +75,12 @@ public class PersonTjeneste {
         request.setHistorikk(Boolean.FALSE);
         var projection = new IdentlisteResponseProjection().identer(new IdentInformasjonResponseProjection().ident());
         try {
+            LOG.info("Henter ident for person");
             var identliste = pdlKlient.hentIdenter(request, projection);
             return identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(PersonIdent::new);
         } catch (VLException v) {
             if (Persondata.PDL_KLIENT_NOT_FOUND_KODE.equals(v.getKode())) {
+                LOG.warn("Finner ikke person i PDL, returnerer tomt objekt. Gjelder aktørId " + aktørId);
                 return Optional.empty();
             }
             throw v;
