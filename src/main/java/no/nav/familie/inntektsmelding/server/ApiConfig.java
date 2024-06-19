@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import no.nav.familie.inntektsmelding.forespørsel.rest.SakRest;
 import no.nav.familie.inntektsmelding.forvaltning.FagerTestRestTjeneste;
 
 import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
@@ -70,6 +71,7 @@ public class ApiConfig extends Application {
             JsonParseExceptionMapper.class,
             InntektsmeldingDialogRest.class,
             ForespørselRest.class,
+            SakRest.class,
             FagerTestRestTjeneste.class,
             ProsessTaskRestTjeneste.class);
 

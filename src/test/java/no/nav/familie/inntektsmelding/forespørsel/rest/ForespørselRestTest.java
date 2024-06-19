@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.modell.SakEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -60,7 +61,9 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
         var expectedOrg = "123456789";
         var expectedBruker = "1233425324241";
         var expectedSkjæringstidspunkt = LocalDate.now();
-        var input = new ForespørselEntitet(expectedOrg, expectedSkjæringstidspunkt, new AktørIdEntitet(expectedBruker), Ytelsetype.FORELDREPENGER, "9876544321");
+        var sakEntitet = new SakEntitet(expectedOrg, new AktørIdEntitet(expectedBruker), Ytelsetype.FORELDREPENGER, "SAKEN");
+        var input = new ForespørselEntitet(sakEntitet, expectedSkjæringstidspunkt);
+
 
         var resultat = ForespørselRest.mapTilDto(input);
 

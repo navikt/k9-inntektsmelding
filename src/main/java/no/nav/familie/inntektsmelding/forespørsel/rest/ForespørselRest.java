@@ -19,6 +19,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.modell.SakEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
@@ -73,12 +74,13 @@ public class ForespørselRest {
     record ForespørselDto(UUID uuid, OrganisasjonsnummerDto organisasjonsnummer, LocalDate skjæringstidspunkt, AktørIdDto brukerAktørId, YtelseTypeDto ytelseType) {}
 
     static ForespørselDto mapTilDto(ForespørselEntitet entitet) {
+        var sak = entitet.getSak();
         return new ForespørselDto(
             entitet.getUuid(),
-            new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()),
+            new OrganisasjonsnummerDto(sak.getOrganisasjonsnummer()),
             entitet.getSkjæringstidspunkt(),
-            new AktørIdDto(entitet.getAktørId().getAktørId()),
-            KodeverkMapper.mapYtelsetype(entitet.getYtelseType()));
+            new AktørIdDto(sak.getAktørId().getAktørId()),
+            KodeverkMapper.mapYtelsetype(sak.getYtelseType()));
     }
 }
 
