@@ -1,6 +1,10 @@
 package no.nav.familie.inntektsmelding.integrasjoner.joark;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +36,6 @@ public class JoarkTjeneste {
     private static final String KANAL = "NAV_NO";
     // TODO Dette er brevkode for altinn skjema. Trenger vi egen?
     private static final String BREVKODE_IM = "4936";
-    private static final byte[] PDFSIGNATURE = { 0x25, 0x50, 0x44, 0x46 };
 
     private JoarkKlient joarkKlient;
     private OrganisasjonTjeneste organisasjonTjeneste;
@@ -85,8 +88,8 @@ public class JoarkTjeneste {
         var dokumentXML = new Dokumentvariant(Dokumentvariant.Variantformat.ORIGINAL, Dokumentvariant.Filtype.XML,
             xmlAvInntektsmelding.getBytes(StandardCharsets.UTF_8));
 
-        var dokumentPDF = new Dokumentvariant(Dokumentvariant.Variantformat.ARKIV, Dokumentvariant.Filtype.PDF,
-            PDFSIGNATURE); // TODO Her må vi sette inn PDF
+        var fysiskDokument = lesMockPdf();
+        var dokumentPDF = new Dokumentvariant(Dokumentvariant.Variantformat.ARKIV, Dokumentvariant.Filtype.PDF, fysiskDokument); // TODO Her må vi sette inn PDF
 
         var builder = DokumentInfoOpprett.builder()
             .medTittel(JOURNALFØRING_TITTEL)
@@ -95,6 +98,15 @@ public class JoarkTjeneste {
             .leggTilDokumentvariant(dokumentPDF);
 
         return Collections.singletonList(builder.build());
+    }
+
+    private byte[] lesMockPdf() {
+        Path pdfPath = Paths.get("./src/main/resources/test.pdf");
+        try {
+            return Files.readAllBytes(pdfPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String mapTema(Ytelsetype ytelsetype) {
