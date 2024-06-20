@@ -1,5 +1,12 @@
 package no.nav.familie.inntektsmelding.imdialog.modell;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CascadeType;
@@ -16,13 +23,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 @Entity(name = "InntektsmeldingEntitet")
 @Table(name = "INNTEKTSMELDING")
@@ -105,6 +105,25 @@ public class InntektsmeldingEntitet {
         return opprettetTidspunkt;
     }
 
+    void leggTilRefusjonsperiode(RefusjonPeriodeEntitet refusjonPeriodeEntitet) {
+        var finnesOverlapp = refusjonsPeriode.stream().anyMatch(rp -> rp.getPeriode().overlapper(refusjonPeriodeEntitet.getPeriode()));
+        if (finnesOverlapp) {
+            var msg = String.format("Overlapp mellom ny refusjonsperiode %s og allerede lagt til perioder %s", refusjonPeriodeEntitet,
+                refusjonsPeriode);
+            throw new IllegalArgumentException(msg);
+        }
+        refusjonPeriodeEntitet.setInntektsmelding(this);
+        refusjonsPeriode.add(refusjonPeriodeEntitet);
+    }
+
+    void leggTilNaturalytelse(NaturalytelseEntitet naturalytelseEntitet) {
+        naturalytelseEntitet.setInntektsmelding(this);
+        if (Boolean.TRUE.equals(naturalytelseEntitet.getErBortfalt()) && naturalytelseEntitet.getBeløp().compareTo(BigDecimal.ZERO) == 0) {
+            throw new IllegalStateException("Bortfalt naturalytelse på kr 0 " + naturalytelseEntitet);
+        }
+        naturalYtelse.add(naturalytelseEntitet);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -174,14 +193,12 @@ public class InntektsmeldingEntitet {
         }
 
         public Builder medRefusjonsPeriode(List<RefusjonPeriodeEntitet> refusjonsPeriode) {
-            refusjonsPeriode.forEach(rp -> rp.setInntektsmelding(kladd));
-            kladd.refusjonsPeriode = refusjonsPeriode;
+            refusjonsPeriode.forEach(kladd::leggTilRefusjonsperiode);
             return this;
         }
 
         public Builder medNaturalYtelse(List<NaturalytelseEntitet> naturalYtelse) {
-            naturalYtelse.forEach(ny -> ny.setInntektsmelding(kladd));
-            kladd.naturalYtelse = naturalYtelse;
+            naturalYtelse.forEach(kladd::leggTilNaturalytelse);
             return this;
         }
 

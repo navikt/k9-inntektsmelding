@@ -55,13 +55,12 @@ public class InntektsmeldingDialogTjeneste {
     }
 
     public void mottaInntektsmelding(SendInntektsmeldingRequestDto mottattInntektsmeldingDto) {
-        var foresporselUuid = UUID.fromString(mottattInntektsmeldingDto.foresporselUuid());
         var aktorId = new AktørIdEntitet(mottattInntektsmeldingDto.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto);
         var imId = inntektsmeldingRepository.lagreInntektsmelding(entitet);
 
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(foresporselUuid, aktorId, orgnummer, mottattInntektsmeldingDto.startdato());
+        forespørselBehandlingTjeneste.ferdigstillForespørsel(mottattInntektsmeldingDto.foresporselUuid(), aktorId, orgnummer, mottattInntektsmeldingDto.startdato());
         opprettTaskForSendTilJoark(imId);
     }
 
