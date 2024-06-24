@@ -71,11 +71,11 @@ public class InntektsmeldingXMLMapper {
     private static void mapYtelsespesifikkeFelter(Skjemainnhold skjemainnhold, ObjectFactory of, InntektsmeldingEntitet inntektsmelding) {
         switch (inntektsmelding.getYtelsetype()) {
             case FORELDREPENGER -> settFPStartdato(skjemainnhold, of, inntektsmelding);
-            case PLEIEPENGER_SYKT_BARN -> {
-                // Det er ingen ytelsespesifikke felter for denne ytelsen
+            case PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OPPLÆRINGSPENGER -> {
+                // Det er ingen ytelsespesifikke felter for disse ytelsene
             }
             // Følgende ytelser mangler implementasjon, må undersøke hva som skal settes for disse
-            case OPPLÆRINGSPENGER, SVANGERSKAPSPENGER, OMSORGSPENGER, PLEIEPENGER_NÆRSTÅENDE ->
+            case SVANGERSKAPSPENGER, OMSORGSPENGER ->
                 throw new IllegalStateException("Kan ikke mappe ytelsesspesifikke felter for ytelse " + inntektsmelding.getYtelsetype());
         }
     }
