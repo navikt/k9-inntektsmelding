@@ -17,7 +17,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
-import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselRest;
+import no.nav.familie.inntektsmelding.forespørsel.rest.ArbeidsgiverPortalRest;
 import no.nav.familie.inntektsmelding.forvaltning.FagerTestRestTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogRest;
 import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
@@ -60,7 +60,7 @@ public class ApiConfig extends Application {
         return Set.of(AuthenticationFilter.class, OpenApiResource.class, JacksonJsonConfig.class, GeneralRestExceptionMapper.class,
             // ExceptionMappers pga de som finnes i Jackson+Jersey-media
             ConstraintViolationMapper.class, JsonMappingExceptionMapper.class, JsonParseExceptionMapper.class, InntektsmeldingDialogRest.class,
-            ForespørselRest.class, FagerTestRestTjeneste.class, ProsessTaskRestTjeneste.class);
+            ArbeidsgiverPortalRest.class, FagerTestRestTjeneste.class, ProsessTaskRestTjeneste.class);
 
     }
 

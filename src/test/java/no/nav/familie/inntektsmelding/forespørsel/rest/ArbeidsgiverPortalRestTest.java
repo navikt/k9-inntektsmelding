@@ -27,11 +27,11 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
-public class ForespørselRestTest extends EntityManagerAwareTest {
+public class ArbeidsgiverPortalRestTest extends EntityManagerAwareTest {
 
     private static final String BRREG_ORGNUMMER = "974760673";
 
-    private ForespørselRest forespørselRest;
+    private ArbeidsgiverPortalRest arbeidsgiverPortalRest;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
 
@@ -39,7 +39,7 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
     void setUp() {
         this.forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
         doNothing().when(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(any(), any(), any(), any(), any());
-        this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste, new ForespørselTjeneste());
+        this.arbeidsgiverPortalRest = new ArbeidsgiverPortalRest(forespørselBehandlingTjeneste, new ForespørselTjeneste());
     }
 
     @Test
@@ -48,7 +48,7 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
         var aktørId = new AktørIdDto("1234567890134");
 
         var fagsakSaksnummer = new SaksnummerDto("SAK");
-        var response = forespørselRest.opprettForespørsel(
+        var response = arbeidsgiverPortalRest.opprettForespørsel(
             new OpprettForespørselRequest(aktørId, orgnummer, LocalDate.now(), YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -65,9 +65,9 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
         var input = new ForespørselEntitet(sakEntitet, expectedSkjæringstidspunkt);
 
 
-        var resultat = ForespørselRest.mapTilDto(input);
+        var resultat = ArbeidsgiverPortalRest.mapTilDto(input);
 
-        assertThat(resultat).isNotNull().isInstanceOf(ForespørselRest.ForespørselDto.class);
+        assertThat(resultat).isNotNull().isInstanceOf(ArbeidsgiverPortalRest.ForespørselDto.class);
         assertThat(resultat.organisasjonsnummer()).isEqualTo(new OrganisasjonsnummerDto(expectedOrg));
         assertThat(resultat.skjæringstidspunkt()).isEqualTo(expectedSkjæringstidspunkt);
         assertThat(resultat.brukerAktørId()).isEqualTo(new AktørIdDto(expectedBruker));
@@ -80,10 +80,10 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
         var expectedOrg = new OrganisasjonsnummerDto("123456789");
         var expectedBruker = new AktørIdDto("123342532424");
         var expectedSkjæringstidspunkt = LocalDate.now();
-        var dto = new ForespørselRest.ForespørselDto(UUID.randomUUID(), expectedOrg, expectedSkjæringstidspunkt, expectedBruker, YtelseTypeDto.SVANGERSKAPSPENGER);
+        var dto = new ArbeidsgiverPortalRest.ForespørselDto(UUID.randomUUID(), expectedOrg, expectedSkjæringstidspunkt, expectedBruker, YtelseTypeDto.SVANGERSKAPSPENGER);
 
         var ser = DefaultJsonMapper.toJson(dto);
-        var des = DefaultJsonMapper.fromJson(ser, ForespørselRest.ForespørselDto.class);
+        var des = DefaultJsonMapper.fromJson(ser, ArbeidsgiverPortalRest.ForespørselDto.class);
 
 
         assertThat(ser).contains(expectedOrg.orgnr(), expectedBruker.id(), expectedSkjæringstidspunkt.toString());
