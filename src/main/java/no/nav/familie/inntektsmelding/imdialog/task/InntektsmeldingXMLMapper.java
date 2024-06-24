@@ -55,7 +55,7 @@ public class InntektsmeldingXMLMapper {
         skjemainnhold.setAvsendersystem(lagAvsendersysem(inntektsmelding, of));
 
         skjemainnhold.setYtelse(mapTilYtelsetype(inntektsmelding.getYtelsetype()));
-        skjemainnhold.setStartdatoForeldrepengeperiode(of.createSkjemainnholdStartdatoForeldrepengeperiode(inntektsmelding.getStartDato()));
+        mapYtelsespesifikkeFelter(skjemainnhold, of, inntektsmelding);
         if (!inntektsmelding.getRefusjonsPeriode().isEmpty()) {
             skjemainnhold.setRefusjon(lagRefusjonXml(inntektsmelding, of));
         }
@@ -66,6 +66,22 @@ public class InntektsmeldingXMLMapper {
         var imXml = new InntektsmeldingM();
         imXml.setSkjemainnhold(skjemainnhold);
         return imXml;
+    }
+
+    private static void mapYtelsespesifikkeFelter(Skjemainnhold skjemainnhold, ObjectFactory of, InntektsmeldingEntitet inntektsmelding) {
+        switch (inntektsmelding.getYtelsetype()) {
+            case FORELDREPENGER -> settFPStartdato(skjemainnhold, of, inntektsmelding);
+            case PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OPPLÆRINGSPENGER -> {
+                // Det er ingen ytelsespesifikke felter for disse ytelsene
+            }
+            // Følgende ytelser mangler implementasjon, må undersøke hva som skal settes for disse
+            case SVANGERSKAPSPENGER, OMSORGSPENGER ->
+                throw new IllegalStateException("Kan ikke mappe ytelsesspesifikke felter for ytelse " + inntektsmelding.getYtelsetype());
+        }
+    }
+
+    private static void settFPStartdato(Skjemainnhold skjemainnhold, ObjectFactory of, InntektsmeldingEntitet inntektsmelding) {
+        skjemainnhold.setStartdatoForeldrepengeperiode(of.createSkjemainnholdStartdatoForeldrepengeperiode(inntektsmelding.getStartDato()));
     }
 
     // TODO Vi bør ta en diskusjon på hva denne skal være
