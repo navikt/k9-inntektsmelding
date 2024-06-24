@@ -42,6 +42,12 @@ public class PeriodeEntitet {
         this.tom = tomDato;
     }
 
+    public boolean overlapper(PeriodeEntitet other) {
+        var fomBeforeOrEqual = this.getFom().isBefore(other.getTom()) || this.getFom().isEqual(other.getTom());
+        var tomAfterOrEqual = this.getTom().isAfter(other.getFom()) || this.getTom().isEqual(other.getFom());
+        return fomBeforeOrEqual && tomAfterOrEqual;
+    }
+
     public static PeriodeEntitet fraOgMedTilOgMed(LocalDate fomDato, LocalDate tomDato) {
         return new PeriodeEntitet(fomDato, tomDato);
     }
