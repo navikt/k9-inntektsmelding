@@ -62,7 +62,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             return;
         }
         var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
-        var person = personTjeneste.hentPersonInfo(aktørId, ytelsetype);
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
         var merkelapp = finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
 

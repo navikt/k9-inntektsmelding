@@ -1,10 +1,6 @@
 package no.nav.familie.inntektsmelding.integrasjoner.joark;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -124,7 +120,7 @@ public class JoarkTjeneste {
     }
 
     private AvsenderMottaker lagAvsenderPrivatperson(InntektsmeldingEntitet inntektsmeldingEntitet) {
-        var personInfo = personTjeneste.hentPersonInfo(new AktørIdEntitet(inntektsmeldingEntitet.getArbeidsgiverIdent()),
+        var personInfo = personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(inntektsmeldingEntitet.getArbeidsgiverIdent()),
             inntektsmeldingEntitet.getYtelsetype());
         return new AvsenderMottaker(personInfo.fødselsnummer().getIdent(), AvsenderMottaker.AvsenderMottakerIdType.FNR, personInfo.mapNavn());
     }

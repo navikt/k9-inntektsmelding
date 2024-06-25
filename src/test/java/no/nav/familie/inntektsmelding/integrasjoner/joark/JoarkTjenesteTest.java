@@ -111,7 +111,7 @@ class JoarkTjenesteTest {
             .build();
 
         // Kan foreløpig ikke teste med spesifikk request i mock siden eksternreferanse genereres on the fly
-         when(personTjeneste.hentPersonInfo(new AktørIdEntitet(aktørIdArbeidsgiver), Ytelsetype.FORELDREPENGER)).thenReturn(new PersonInfo("Navn",  null, "Navnesen", new PersonIdent("9999999999999"), aktørIdSøker, LocalDate.now()));
+         when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørIdArbeidsgiver), Ytelsetype.FORELDREPENGER)).thenReturn(new PersonInfo("Navn",  null, "Navnesen", new PersonIdent("9999999999999"), aktørIdSøker, LocalDate.now()));
         when(klient.opprettJournalpost(any(), anyBoolean())).thenReturn(new OpprettJournalpostResponse("9999", false, Collections.emptyList()));
         // Act
         var journalpostId = joarkTjeneste.journalførInntektsmelding("XML", inntektsmelding);

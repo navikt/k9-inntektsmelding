@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 @Embeddable
@@ -59,5 +60,12 @@ public class AktørIdEntitet {
     @Override
     public int hashCode() {
         return Objects.hash(aktørId);
+    }
+
+    private static final AtomicLong DUMMY_AKTØRID = new AtomicLong(1000000000000L);
+
+    /** Genererer dummy aktørid unikt for test. */
+    public static AktørIdEntitet dummy( ) {
+        return new AktørIdEntitet(String.valueOf(DUMMY_AKTØRID.getAndIncrement()));
     }
 }

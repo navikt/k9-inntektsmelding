@@ -89,11 +89,11 @@ public class InntektsmeldingEntitet {
         return månedInntekt;
     }
 
-    public List<RefusjonPeriodeEntitet> getRefusjonsPeriode() {
+    public List<RefusjonPeriodeEntitet> getRefusjonsPerioder() {
         return refusjonsPeriode;
     }
 
-    public List<NaturalytelseEntitet> getNaturalYtelse() {
+    public List<NaturalytelseEntitet> getNaturalYtelser() {
         return naturalYtelse;
     }
 
