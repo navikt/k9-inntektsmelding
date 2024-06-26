@@ -83,7 +83,7 @@ class InntektsmeldingDialogTjenesteTest {
         assertThat(imDialogDto.ytelse()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
 
         assertThat(imDialogDto.person().aktørId()).isEqualTo(forespørsel.getAktørId().getAktørId());
-        assertThat(imDialogDto.person().fornavn()).isEqualTo("Navn");
+        assertThat(imDialogDto.person().fornavn()).isEqualTo("Navn ");
         assertThat(imDialogDto.person().etternavn()).isEqualTo("Navnesen");
 
         assertThat(imDialogDto.arbeidsgiver().organisasjonNavn()).isEqualTo("Bedriften");
