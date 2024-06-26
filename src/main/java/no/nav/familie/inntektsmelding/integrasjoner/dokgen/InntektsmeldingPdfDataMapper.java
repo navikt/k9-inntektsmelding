@@ -27,7 +27,7 @@ public class InntektsmeldingPdfDataMapper {
             .medArbeidsgiverIdent(arbeidsgvierIdent)
             .medArbeidsgiverNavn(arbeidsgiverNavn)
             .medAvsenderSystem("NAV_NO")
-            .medYtelseNavn(mapYtelseNavn(inntektsmelding.getYtelsetype()))
+            .medYtelseNavn(inntektsmelding.getYtelsetype())
             .medOpprettetTidspunkt(inntektsmelding.getOpprettetTidspunkt())
             .medStartDato(inntektsmelding.getStartDato())
             .medMånedInntekt(inntektsmelding.getMånedInntekt())
@@ -86,8 +86,8 @@ public class InntektsmeldingPdfDataMapper {
         };
     }
 
-    private static List<NaturalYtelse> mapNauralYtelser(List<NaturalytelseEntitet> naturalYtelser) {
-        return naturalYtelser.stream()
+    private static List<NaturalYtelse> mapNauralYtelser(List<NaturalytelseEntitet> naturalytelser) {
+        return naturalytelser.stream()
             .map(ny -> new NaturalYtelse(formaterDatoNorsk(ny.getPeriode().getFom()), formaterDatoNorsk(ny.getPeriode().getTom()), mapTypeTekst(ny.getType()), ny.getBeløp(),
                 ny.getErBortfalt()))
             .toList();
@@ -119,7 +119,7 @@ public class InntektsmeldingPdfDataMapper {
 
     private static List<RefusjonPeriode> mapEndringIRefusjonsperioder(List<RefusjonPeriodeEntitet> refusjonsPerioder) {
         return refusjonsPerioder.stream()
-            .filter(rpe -> rpe.getPeriode().getTom() != Tid.TIDENES_ENDE)
+            .filter(rpe -> !rpe.getPeriode().getTom().isEqual(Tid.TIDENES_ENDE))
             .map(rpe -> new RefusjonPeriode(formaterDatoNorsk(rpe.getPeriode().getFom()), formaterDatoNorsk(rpe.getPeriode().getTom()), rpe.getBeløp()))
             .toList();
     }

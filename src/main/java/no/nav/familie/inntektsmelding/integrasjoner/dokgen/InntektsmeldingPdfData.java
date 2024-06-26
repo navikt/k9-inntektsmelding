@@ -2,6 +2,8 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,13 +18,13 @@ public class InntektsmeldingPdfData {
     private String avsenderSystem;
     private String navnSøker;
     private String personnummer;
-    private String ytelseNavn;
+    private Ytelsetype ytelsetype;
     private String arbeidsgiverIdent;
     private String arbeidsgiverNavn;
     private Kontaktperson kontaktperson;
     private String startDato;
     private BigDecimal månedInntekt;
-    private LocalDateTime opprettetTidspunkt;
+    private String opprettetTidspunkt;
     private BigDecimal refusjonsbeløp;
     private String refusjonOpphørsdato;
     private List<RefusjonPeriode> endringIrefusjonsperioder = new ArrayList<>();
@@ -42,8 +44,8 @@ public class InntektsmeldingPdfData {
         return personnummer;
     }
 
-    public String getYtelseNavn() {
-        return ytelseNavn;
+    public Ytelsetype getYtelsetype() {
+        return ytelsetype;
     }
 
     public String getArbeidsgiverIdent() {
@@ -66,7 +68,7 @@ public class InntektsmeldingPdfData {
         return månedInntekt;
     }
 
-    public LocalDateTime getOpprettetTidspunkt() {
+    public String getOpprettetTidspunkt() {
         return opprettetTidspunkt;
     }
 
@@ -112,8 +114,8 @@ public class InntektsmeldingPdfData {
             this.kladd.personnummer = formaterPersonnummer(personnummer);
             return this;
         }
-        public Builder medYtelseNavn(String ytelsenavn) {
-            this.kladd.ytelseNavn = ytelsenavn;
+        public Builder medYtelseNavn(Ytelsetype ytelsenavn) {
+            this.kladd.ytelsetype = ytelsenavn;
             return this;
         }
         public Builder medArbeidsgiverIdent(String arbeidsgiverIdent) {
@@ -133,7 +135,7 @@ public class InntektsmeldingPdfData {
             return this;
         }
         public Builder medOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
-            this.kladd.opprettetTidspunkt = opprettetTidspunkt;
+            this.kladd.opprettetTidspunkt = formaterDatoOgTidNorsk(opprettetTidspunkt);
             return this;
         }
         public Builder medRefusjonsbeløp(BigDecimal refusjonsbeløp) {
@@ -182,6 +184,13 @@ public class InntektsmeldingPdfData {
             return null;
         }
         return dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO")));
+    }
+
+    public static String formaterDatoOgTidNorsk(LocalDateTime opprettetTidspunkt) {
+        if (opprettetTidspunkt == null) {
+            return null;
+        }
+        return opprettetTidspunkt.format(ofPattern("d. MMMM yyyy HH:mm:ss", Locale.forLanguageTag("NO")));
     }
 
     public void anonymiser() {

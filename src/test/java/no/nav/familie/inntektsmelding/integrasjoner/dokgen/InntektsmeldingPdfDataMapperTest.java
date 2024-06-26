@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
 
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoNorsk;
+import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoOgTidNorsk;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterPersonnummer;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -9,6 +10,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,12 +66,15 @@ class InntektsmeldingPdfDataMapperTest {
             .medNaturalYtelse(List.of(naturalytelse))
             .build();
 
+        var json = DefaultJsonMapper.toJson(inntektsmeldingEntitet);
 
         var personIdent = new PersonIdent("11111111111");
 
         var personinfo = new PersonInfo("Test", "Tester", "Testesen", personIdent, inntektsmeldingEntitet.getAktørId(), LocalDate.now());
 
         var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, arbeidsgiverNavn, personinfo, arbeidsgiverIdent);
+
+
 
         assertThat(pdfData.getArbeidsgiverIdent()).isEqualTo(arbeidsgiverIdent);
         assertThat(pdfData.getAvsenderSystem()).isEqualTo("NAV_NO");
@@ -77,8 +83,8 @@ class InntektsmeldingPdfDataMapperTest {
         assertThat(pdfData.getKontaktperson().telefonnummer()).isEqualTo(nr);
         assertThat(pdfData.getMånedInntekt()).isEqualTo(inntekt);
         assertThat(pdfData.getNavnSøker()).isEqualTo("Testesen Test Tester");
-        assertThat(pdfData.getYtelseNavn()).isEqualTo("Foreldrepenger");
-        assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(opprettetTidspunkt);
+        assertThat(pdfData.getYtelsetype()).isEqualTo(Ytelsetype.FORELDREPENGER);
+        assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(formaterDatoOgTidNorsk(opprettetTidspunkt));
         assertThat(pdfData.getStartDato()).isEqualTo(formaterDatoNorsk(startdato));
         assertThat(pdfData.getPersonnummer()).isEqualTo(formaterPersonnummer(personIdent.getIdent()));
         assertThat(pdfData.getRefusjonOpphørsdato()).isNull();
@@ -89,7 +95,7 @@ class InntektsmeldingPdfDataMapperTest {
         assertThat(pdfData.getNaturalytelser().getFirst().fom()).isEqualTo(formaterDatoNorsk(naturalytelseFraDato));
         assertThat(pdfData.getNaturalytelser().getFirst().tom()).isEqualTo(formaterDatoNorsk(naturalytelseTilDato));
         assertThat(pdfData.getNaturalytelser().getFirst().beloep()).isEqualTo(naturalytelseBeløp);
-        assertThat(pdfData.getNaturalytelser().getFirst().type()).isEqualTo("Aksjer grunnfondsbevis til underkurs");
+        assertThat(pdfData.getNaturalytelser().getFirst().naturalytelseType()).isEqualTo("Aksjer grunnfondsbevis til underkurs");
 
     }
 }

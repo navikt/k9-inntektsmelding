@@ -5,6 +5,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.ws.rs.Produces;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +37,15 @@ import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+
 @ApplicationScoped
 @Path(FpDokgenRestTjeneste.BASE_PATH)
+@Produces(MediaType.APPLICATION_JSON)
 public class FpDokgenRestTjeneste {
     public static final String BASE_PATH = "/inntektsmelding-pdf";
     private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
+    private static final boolean IS_PROD = Environment.current().isProd();
     private FpDokgenTjeneste fpDokgenTjeneste;
     private InntektsmeldingRepository inntektsmeldingRepository;
 
@@ -39,6 +54,7 @@ public class FpDokgenRestTjeneste {
         //CDI
     }
 
+    @Inject
     public FpDokgenRestTjeneste(FpDokgenTjeneste fpDokgenTjeneste,
                                 InntektsmeldingRepository inntektsmeldingRepository) {
         this.fpDokgenTjeneste = fpDokgenTjeneste;
@@ -46,29 +62,35 @@ public class FpDokgenRestTjeneste {
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Generer en pdf av en inntektsmelding", tags = "fpdokgen")
-    public Response genererPdf(InntektsmeldingDto inntektsmeldingDto) {
+    @Consumes(APPLICATION_JSON)
+    @Produces("application/pdf")
+    @UtenAutentisering
+    @Operation(description = "Generer en pdf av en inntektsmelding", tags = "forvaltning")
+    public Response genererPdf(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
+        if (IS_PROD) {
+            throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
+        }
         InntektsmeldingEntitet inntektsmeldingEntitet;
-        if (inntektsmeldingDto.inntektsmeldingId != null) {
+        if (inntektsmeldingRequest.inntektsmeldingId != null) {
             //Genererer en pdf på eksisterende inntektsmelding
-            inntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingDto.inntektsmeldingId.intValue());
-            LOG.info("Generer en pdf av en inntektsmelding med id: {}", inntektsmeldingDto.inntektsmeldingId);
+            inntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingRequest.inntektsmeldingId.intValue());
+            LOG.info("Generer en pdf av en inntektsmelding med id: {}", inntektsmeldingRequest.inntektsmeldingId);
         } else {
             //Basert på innsendte data - test formål
             inntektsmeldingEntitet = InntektsmeldingEntitet.builder()
                 .medAktørId(AktørIdEntitet.dummy())
-                .medKontaktperson(new KontaktpersonEntitet(inntektsmeldingDto.kontaktpersonNavn, inntektsmeldingDto.kontaktpersonTlf))
-                .medMånedInntekt(inntektsmeldingDto.månedInntekt())
-                .medYtelsetype(mapYtelseType(inntektsmeldingDto.ytelsetype()))
+                .medKontaktperson(new KontaktpersonEntitet(inntektsmeldingRequest.kontaktpersonNavn, inntektsmeldingRequest.kontaktpersonTlf))
+                .medMånedInntekt(inntektsmeldingRequest.maanedInntekt())
+                .medYtelsetype(mapYtelseType(inntektsmeldingRequest.ytelsetype()))
                 .medOpprettetTidspunkt(LocalDateTime.now())
-                .medStartDato(inntektsmeldingDto.startdatoPermisjon())
-                .medArbeidsgiverIdent(inntektsmeldingDto.arbeidsgiverIdent())
-                .medRefusjonsPeriode(mapRefusjonsperiode(inntektsmeldingDto.refusjonsperioder()))
+                .medStartDato(inntektsmeldingRequest.startdatoPermisjon())
+                .medArbeidsgiverIdent(inntektsmeldingRequest.arbeidsgiverIdent())
+                .medRefusjonsPeriode(mapRefusjonsperiode(inntektsmeldingRequest.refusjonsperioder()))
+                .medNaturalYtelse(mapNaturalytelser(inntektsmeldingRequest.naturalytelser))
                 .build();
         }
 
-        var pdf = fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet, inntektsmeldingEntitet.getId().intValue());
+        var pdf = fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet, inntektsmeldingEntitet.getId() != null ? inntektsmeldingEntitet.getId().intValue() : 1);
 
         var responseBuilder = Response.ok(pdf);
         responseBuilder.type("application/pdf");
@@ -102,14 +124,23 @@ public class FpDokgenRestTjeneste {
         };
     }
 
-    public record InntektsmeldingDto(Long inntektsmeldingId, @NotNull String ytelsetype, @NotNull String arbeidsgiverIdent,
-                                     @NotNull String kontaktpersonNavn, @NotNull String kontaktpersonTlf, @NotNull LocalDate startdatoPermisjon,
-                                     @NotNull BigDecimal månedInntekt, List<RefusjonPeriodeDto> refusjonsperioder, List<NaturalYtelseDto> naturalytelser) {
+    public record InntektsmeldingRequest(Long inntektsmeldingId,
+                                         @NotNull String ytelsetype,
+                                         @NotNull String arbeidsgiverIdent,
+                                         @NotNull String kontaktpersonNavn,
+                                         @NotNull String kontaktpersonTlf,
+                                         @NotNull LocalDate startdatoPermisjon,
+                                         @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedInntekt,
+                                         List<RefusjonPeriodeDto> refusjonsperioder,
+                                         List<NaturalYtelseDto> naturalytelser) {
     }
 
-    public record RefusjonPeriodeDto(LocalDate fom, LocalDate tom, BigDecimal beloep ) {
+    public record RefusjonPeriodeDto(@NotNull LocalDate fom, @NotNull LocalDate tom,
+                                     @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloep) {
     }
 
-    public record NaturalYtelseDto(LocalDate fom, LocalDate tom, String type, BigDecimal beloep, boolean erBortfalt) {
+    public record NaturalYtelseDto(@NotNull LocalDate fom, @NotNull LocalDate tom, String type,
+                                   @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloep,
+                                   Boolean erBortfalt) {
     }
 }
