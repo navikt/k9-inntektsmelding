@@ -37,7 +37,7 @@ public class InntektsmeldingPdfDataMapper {
             .medIngenBortfaltNaturalytelse(erIngenBortalteNaturalYtelser(inntektsmelding.getNaturalYtelser()))
             .medIngenGjenopptattNaturalytelse(erIngenGjenopptatteNaturalYtelser(inntektsmelding.getNaturalYtelser()));
 
-        utledRefusjonsbeløp(inntektsmelding.getRefusjonsPerioder(), inntektsmelding.getStartDato()).ifPresent(
+        utledRefusjonsbeløp(inntektsmelding.getRefusjonsPerioder()).ifPresent(
             imDokumentdataBuilder::medRefusjonsbeløp);
         utledOpphørsdato(inntektsmelding.getRefusjonsPerioder()).ifPresent(imDokumentdataBuilder::medRefusjonOpphørsdato);
 
@@ -61,7 +61,7 @@ public class InntektsmeldingPdfDataMapper {
         return naturalYtelser.isEmpty() || naturalYtelser.stream().noneMatch(NaturalytelseEntitet::getErBortfalt);
     }
 
-    private static Optional<BigDecimal> utledRefusjonsbeløp(List<RefusjonPeriodeEntitet> refusjonsPerioder, LocalDate stardato) {
+    private static Optional<BigDecimal> utledRefusjonsbeløp(List<RefusjonPeriodeEntitet> refusjonsPerioder) {
         var førsteFraDato = refusjonsPerioder.stream()
             .map(refusjonPeriodeEntitet -> refusjonPeriodeEntitet.getPeriode().getFom())
             .min(Comparator.naturalOrder())

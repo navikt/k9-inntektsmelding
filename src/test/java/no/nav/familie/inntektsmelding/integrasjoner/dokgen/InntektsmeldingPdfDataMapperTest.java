@@ -66,8 +66,6 @@ class InntektsmeldingPdfDataMapperTest {
             .medNaturalYtelse(List.of(naturalytelse))
             .build();
 
-        var json = DefaultJsonMapper.toJson(inntektsmeldingEntitet);
-
         var personIdent = new PersonIdent("11111111111");
 
         var personinfo = new PersonInfo("Test", "Tester", "Testesen", personIdent, inntektsmeldingEntitet.getAktørId(), LocalDate.now());

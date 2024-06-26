@@ -1,6 +1,5 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.UriBuilder;
 import no.nav.familie.inntektsmelding.koder.Språkkode;
