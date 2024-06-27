@@ -14,10 +14,14 @@ import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Dependent
 public class ForespørselRepository {
 
     private EntityManager entityManager;
+    private static final Logger LOG = LoggerFactory.getLogger(ForespørselRepository.class);
 
     public ForespørselRepository() {
     }
@@ -30,6 +34,9 @@ public class ForespørselRepository {
 
     public UUID lagreForespørsel(LocalDate skjæringstidspunkt, Ytelsetype ytelsetype, String aktørId, String orgnummer, String fagsakSaksnummer) {
         var forespørselEntitet = new ForespørselEntitet(orgnummer, skjæringstidspunkt, new AktørIdEntitet(aktørId), ytelsetype, fagsakSaksnummer);
+
+        LOG.info("ForespørselRepository: lagrer forespørsel entitet: {}", forespørselEntitet);
+
         entityManager.persist(forespørselEntitet);
         entityManager.flush();
         return forespørselEntitet.getUuid();
