@@ -136,4 +136,18 @@ public class ForespørselEntitet {
     public String getFagsystemSaksnummer() {
         return fagsystemSaksnummer;
     }
+
+    @Override
+    public String toString() {
+        return "ForespørselEntitet{" +
+            "id=" + id +
+            ", uuid=" + uuid +
+            ", sakId=" + sakId +
+            ", organisasjonsnummer=" + organisasjonsnummer +
+            ", skjæringstidspunkt=" + skjæringstidspunkt +
+            ", aktørId=" + aktørId +
+            ", ytelseType=" + ytelseType +
+            ", fagsystemSaksnummer=" + fagsystemSaksnummer +
+            '}';
+    }
 }
