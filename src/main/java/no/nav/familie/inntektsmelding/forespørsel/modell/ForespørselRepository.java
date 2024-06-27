@@ -8,6 +8,7 @@ import java.util.UUID;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import no.nav.familie.inntektsmelding.koder.SakStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
@@ -35,7 +36,10 @@ public class ForespørselRepository {
     public UUID lagreForespørsel(LocalDate skjæringstidspunkt, Ytelsetype ytelsetype, String aktørId, String orgnummer, String fagsakSaksnummer) {
         var forespørselEntitet = new ForespørselEntitet(orgnummer, skjæringstidspunkt, new AktørIdEntitet(aktørId), ytelsetype, fagsakSaksnummer);
 
-        LOG.info("ForespørselRepository: lagrer forespørsel entitet: {}", forespørselEntitet);
+        final Query query = entityManager.createNativeQuery("SELECT nextval('SEQ_FORESPOERSEL')");
+        var tall = (Number) query.getSingleResult();
+
+        LOG.info("ForespørselRepository: lagrer forespørsel entitet: {} med id:{}", forespørselEntitet, tall);
 
         entityManager.persist(forespørselEntitet);
         entityManager.flush();
