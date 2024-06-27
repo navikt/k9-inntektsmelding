@@ -90,7 +90,7 @@ public class FpDokgenRestTjeneste {
                 .build();
         }
 
-        var pdf = fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet, inntektsmeldingEntitet.getId() != null ? inntektsmeldingEntitet.getId().intValue() : 1);
+        var pdf = fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet);
 
         var responseBuilder = Response.ok(pdf);
         responseBuilder.type("application/pdf");

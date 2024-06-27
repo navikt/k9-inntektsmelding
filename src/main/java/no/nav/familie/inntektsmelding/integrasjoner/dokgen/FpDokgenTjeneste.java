@@ -38,36 +38,32 @@ public class FpDokgenTjeneste {
         this.organisasjonTjeneste = organisasjonTjeneste;
     }
 
-    public byte[] mapDataOgGenererPdf(InntektsmeldingEntitet inntektsmelding, int inntektsmeldingId) {
+    public byte[] mapDataOgGenererPdf(InntektsmeldingEntitet inntektsmelding) {
         PersonInfo personInfo;
         String arbeidsgiverNavn;
         var arbeidsgvierIdent = inntektsmelding.getArbeidsgiverIdent();
+        var inntektsmeldingsid = inntektsmelding.getId() != null ? inntektsmelding.getId().intValue() : 1;
 
-        if (Environment.current().isLocal()) {
-            personInfo = new PersonInfo("Test", "Tester", "Testesen", new PersonIdent("13418926699"), inntektsmelding.getAktørId(), LocalDate.now());
-            arbeidsgiverNavn = "Arbeidsgvier 1";
-        } else {
-            personInfo = personTjeneste.hentPersonInfoFraAktørId(inntektsmelding.getAktørId(), inntektsmelding.getYtelsetype());
-            arbeidsgiverNavn = finnArbeidsgiverNavn(inntektsmelding, arbeidsgvierIdent);
-        }
+        personInfo = personTjeneste.hentPersonInfoFraAktørId(inntektsmelding.getAktørId(), inntektsmelding.getYtelsetype());
+        arbeidsgiverNavn = finnArbeidsgiverNavn(inntektsmelding, arbeidsgvierIdent);
 
         var imDokumentdata = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
 
-        return genererPdf(imDokumentdata, inntektsmeldingId);
+        return genererPdf(imDokumentdata, inntektsmeldingsid);
     }
 
     private byte[] genererPdf(InntektsmeldingPdfData imDokumentData, int inntektsmeldingId) {
-        byte[] pdf;
         try {
+            byte[] pdf;
             pdf = fpDokgenKlient.genererPdf(imDokumentData);
+            LOG.info("Pdf av inntektsmelding med id {} ble generert.", inntektsmeldingId);
+            return pdf;
         } catch (Exception e) {
             imDokumentData.anonymiser();
             SECURE_LOG.warn("Klarte ikke å generere pdf av inntektsmelding: {}", DefaultJsonMapper.toJson(imDokumentData));
             throw new TekniskException("FPINNTEKTSMELDING_1",
                 String.format("Klarte ikke å generere pdf for inntektsmelding med id %s", inntektsmeldingId), e);
         }
-        LOG.info("Pdf av inntektsmelding med id {} ble generert.", inntektsmeldingId);
-        return pdf;
     }
 
     private String finnArbeidsgiverNavn(InntektsmeldingEntitet inntektsmelding, String arbeidsgvierIdent) {
