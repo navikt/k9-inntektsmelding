@@ -56,7 +56,7 @@ public class InntektsmeldingXMLMapper {
 
         skjemainnhold.setYtelse(mapTilYtelsetype(inntektsmelding.getYtelsetype()));
         mapYtelsespesifikkeFelter(skjemainnhold, of, inntektsmelding);
-        if (!inntektsmelding.getRefusjonsPeriode().isEmpty()) {
+        if (!inntektsmelding.getRefusjonsPerioder().isEmpty()) {
             skjemainnhold.setRefusjon(lagRefusjonXml(inntektsmelding, of));
         }
 
@@ -67,7 +67,6 @@ public class InntektsmeldingXMLMapper {
         imXml.setSkjemainnhold(skjemainnhold);
         return imXml;
     }
-
     private static void mapYtelsespesifikkeFelter(Skjemainnhold skjemainnhold, ObjectFactory of, InntektsmeldingEntitet inntektsmelding) {
         switch (inntektsmelding.getYtelsetype()) {
             case FORELDREPENGER -> settFPStartdato(skjemainnhold, of, inntektsmelding);
@@ -83,7 +82,6 @@ public class InntektsmeldingXMLMapper {
     private static void settFPStartdato(Skjemainnhold skjemainnhold, ObjectFactory of, InntektsmeldingEntitet inntektsmelding) {
         skjemainnhold.setStartdatoForeldrepengeperiode(of.createSkjemainnholdStartdatoForeldrepengeperiode(inntektsmelding.getStartDato()));
     }
-
     // TODO Vi bør ta en diskusjon på hva denne skal være
     private static Avsendersystem lagAvsendersysem(InntektsmeldingEntitet inntektsmelding, ObjectFactory of) {
         var as = new Avsendersystem();
@@ -97,7 +95,7 @@ public class InntektsmeldingXMLMapper {
                                                                                               ObjectFactory of) {
         var gjennoptakelseListeObjekt = new GjenopptakelseNaturalytelseListe();
         var gjennoptakelseListe = gjennoptakelseListeObjekt.getNaturalytelseDetaljer();
-        inntektsmeldingEntitet.getNaturalYtelse()
+        inntektsmeldingEntitet.getNaturalYtelser()
             .stream()
             .filter(n -> !n.getErBortfalt())
             .forEach(nat -> {
@@ -113,7 +111,7 @@ public class InntektsmeldingXMLMapper {
     private static JAXBElement<OpphoerAvNaturalytelseListe> lagBortfaltNaturalytelse(InntektsmeldingEntitet inntektsmeldingEntitet, ObjectFactory of) {
         var opphørListeObjekt = new OpphoerAvNaturalytelseListe();
         var opphørListe = opphørListeObjekt.getOpphoerAvNaturalytelse();
-        inntektsmeldingEntitet.getNaturalYtelse()
+        inntektsmeldingEntitet.getNaturalYtelser()
             .stream()
             .filter(NaturalytelseEntitet::getErBortfalt)
             .forEach(nat -> {
@@ -128,20 +126,20 @@ public class InntektsmeldingXMLMapper {
 
     private static JAXBElement<Refusjon> lagRefusjonXml(InntektsmeldingEntitet inntektsmeldingEntitet, ObjectFactory of) {
         var refusjon = new Refusjon();
-        var refusjonFraStart = inntektsmeldingEntitet.getRefusjonsPeriode()
+        var refusjonFraStart = inntektsmeldingEntitet.getRefusjonsPerioder()
             .stream()
             .filter(rp -> rp.getPeriode().getFom().equals(inntektsmeldingEntitet.getStartDato()))
             .findFirst();
         refusjonFraStart.ifPresent(rp -> {
             refusjon.setRefusjonsbeloepPrMnd(of.createRefusjonRefusjonsbeloepPrMnd(rp.getBeløp()));
         });
-        var sisteTomRefusjon = inntektsmeldingEntitet.getRefusjonsPeriode()
+        var sisteTomRefusjon = inntektsmeldingEntitet.getRefusjonsPerioder()
             .stream()
             .map(rp -> rp.getPeriode().getTom())
             .max(Comparator.naturalOrder())
             .orElseThrow();
         refusjon.setRefusjonsopphoersdato(of.createRefusjonRefusjonsopphoersdato(sisteTomRefusjon));
-        var refusjonsendringer = inntektsmeldingEntitet.getRefusjonsPeriode()
+        var refusjonsendringer = inntektsmeldingEntitet.getRefusjonsPerioder()
             .stream()
             .filter(rp -> !rp.getPeriode().getFom().equals(inntektsmeldingEntitet.getStartDato()))
             .toList();

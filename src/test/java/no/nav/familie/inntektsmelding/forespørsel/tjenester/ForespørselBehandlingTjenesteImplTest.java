@@ -64,7 +64,7 @@ public class ForespørselBehandlingTjenesteImplTest {
         var saksTittel = forespørselBehandlingTjeneste.lagSaksTittel(personInfo);
 
 
-        when(personTjeneste.hentPersonInfo(new AktørIdEntitet(AKTØR_ID), YTELSETYPE)).thenReturn(personInfo);
+        when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(AKTØR_ID), YTELSETYPE)).thenReturn(personInfo);
         when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(BRREG_ORGNUMMER), eq(saksTittel), any())).thenReturn(SAK_ID);
         when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(BRREG_ORGNUMMER), any(), any())).thenReturn(OPPGAVE_ID);
 

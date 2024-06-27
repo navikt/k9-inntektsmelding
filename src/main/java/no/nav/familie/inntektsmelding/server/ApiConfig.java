@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import no.nav.familie.inntektsmelding.forvaltning.FagerTestRestTjeneste;
 
+import no.nav.familie.inntektsmelding.forvaltning.FpDokgenRestTjeneste;
 import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.JsonMappingExceptionMapper;
@@ -71,7 +72,8 @@ public class ApiConfig extends Application {
             InntektsmeldingDialogRest.class,
             ForespørselRest.class,
             FagerTestRestTjeneste.class,
-            ProsessTaskRestTjeneste.class);
+            ProsessTaskRestTjeneste.class,
+            FpDokgenRestTjeneste.class);
 
     }
 

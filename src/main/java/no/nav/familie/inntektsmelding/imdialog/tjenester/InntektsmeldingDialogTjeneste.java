@@ -102,7 +102,7 @@ public class InntektsmeldingDialogTjeneste {
     }
 
     private InntektsmeldingDialogDto.PersonInfoResponseDto lagPersonDto(ForespørselEntitet forespørsel) {
-        var persondata = personTjeneste.hentPersonInfo(forespørsel.getAktørId(), forespørsel.getYtelseType());
+        var persondata = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId(), forespørsel.getYtelseType());
         var personDto = new InntektsmeldingDialogDto.PersonInfoResponseDto(
             persondata.fornavn(),
             persondata.mellomnavn(),

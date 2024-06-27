@@ -1,10 +1,6 @@
 package no.nav.familie.inntektsmelding.integrasjoner.joark;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +32,6 @@ public class JoarkTjeneste {
     private static final String KANAL = "NAV_NO";
     // TODO Dette er brevkode for altinn skjema. Trenger vi egen?
     private static final String BREVKODE_IM = "4936";
-    private static final byte[] PDFSIGNATURE = { 0x25, 0x50, 0x44, 0x46, 0x2d};
 
     private JoarkKlient joarkKlient;
     private OrganisasjonTjeneste organisasjonTjeneste;
@@ -54,8 +49,8 @@ public class JoarkTjeneste {
     }
 
 
-    public String journalførInntektsmelding(String XMLAvInntektsmelding, InntektsmeldingEntitet inntektsmelding) {
-        var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding);
+    public String journalførInntektsmelding(String XMLAvInntektsmelding, InntektsmeldingEntitet inntektsmelding, byte[] pdf) {
+        var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding, pdf);
         try {
             var response = joarkKlient.opprettJournalpost(request, false);
             // Kan nok fjerne loggingen etter en periode i dev, mest for feilsøking i starten.
@@ -67,7 +62,7 @@ public class JoarkTjeneste {
         }
     }
 
-    private OpprettJournalpostRequest opprettRequest(String xmlAvInntektsmelding, InntektsmeldingEntitet inntektsmeldingEntitet) {
+    private OpprettJournalpostRequest opprettRequest(String xmlAvInntektsmelding, InntektsmeldingEntitet inntektsmeldingEntitet, byte[] pdf) {
         boolean erBedrift = inntektsmeldingEntitet.getArbeidsgiverIdent().length() == 9;
         AvsenderMottaker avsenderMottaker = erBedrift ? lagAvsenderBedrift(inntektsmeldingEntitet) : lagAvsenderPrivatperson(inntektsmeldingEntitet);
         var request = OpprettJournalpostRequest.nyInngående()
@@ -80,17 +75,17 @@ public class JoarkTjeneste {
             .medEksternReferanseId(UUID.randomUUID().toString())
             .medJournalfoerendeEnhet(JOURNALFØRENDE_ENHET)
             .medKanal(KANAL)
-            .medDokumenter(lagDokumenter(xmlAvInntektsmelding))
+            .medDokumenter(lagDokumenter(xmlAvInntektsmelding, pdf))
             .build();
         return request;
     }
 
-    private List<DokumentInfoOpprett> lagDokumenter(String xmlAvInntektsmelding) {
+    private List<DokumentInfoOpprett> lagDokumenter(String xmlAvInntektsmelding, byte[] pdf ) {
         var dokumentXML = new Dokumentvariant(Dokumentvariant.Variantformat.ORIGINAL, Dokumentvariant.Filtype.XML,
             xmlAvInntektsmelding.getBytes(StandardCharsets.UTF_8));
 
         var dokumentPDF = new Dokumentvariant(Dokumentvariant.Variantformat.ARKIV, Dokumentvariant.Filtype.PDF,
-            PDFSIGNATURE); // TODO Her må vi sette inn PDF
+            pdf);
 
         var builder = DokumentInfoOpprett.builder()
             .medTittel(JOURNALFØRING_TITTEL)
@@ -124,7 +119,7 @@ public class JoarkTjeneste {
     }
 
     private AvsenderMottaker lagAvsenderPrivatperson(InntektsmeldingEntitet inntektsmeldingEntitet) {
-        var personInfo = personTjeneste.hentPersonInfo(new AktørIdEntitet(inntektsmeldingEntitet.getArbeidsgiverIdent()),
+        var personInfo = personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(inntektsmeldingEntitet.getArbeidsgiverIdent()),
             inntektsmeldingEntitet.getYtelsetype());
         return new AvsenderMottaker(personInfo.fødselsnummer().getIdent(), AvsenderMottaker.AvsenderMottakerIdType.FNR, personInfo.mapNavn());
     }

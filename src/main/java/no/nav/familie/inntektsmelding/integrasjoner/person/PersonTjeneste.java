@@ -42,7 +42,7 @@ public class PersonTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public PersonInfo hentPersonInfo(AktørIdEntitet aktørId, Ytelsetype ytelseType) {
+    public PersonInfo hentPersonInfoFraAktørId(AktørIdEntitet aktørId, Ytelsetype ytelseType) {
         var request = new HentPersonQueryRequest();
         request.setIdent(aktørId.getAktørId());
 
@@ -57,6 +57,19 @@ public class PersonTjeneste {
 
         var navn = person.getNavn().getFirst();
         return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId, mapFødselsdato(person));
+    }
+
+    public PersonInfo hentPersonFraIdent(PersonIdent personIdent, Ytelsetype ytelseType) {
+        var request = new HentPersonQueryRequest();
+        request.setIdent(personIdent.getIdent());
+
+        var projection = new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
+            .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
+
+        var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
+        var navn= person.getNavn().getFirst();
+
+        return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, null, mapFødselsdato(person));
     }
 
     public PersonIdent finnPersonIdentForAktørId(AktørIdEntitet aktørIdEntitet) {
