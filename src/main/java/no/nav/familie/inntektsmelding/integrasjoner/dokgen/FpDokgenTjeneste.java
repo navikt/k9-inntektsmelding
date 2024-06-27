@@ -44,7 +44,7 @@ public class FpDokgenTjeneste {
         var arbeidsgvierIdent = inntektsmelding.getArbeidsgiverIdent();
 
         if (Environment.current().isLocal()) {
-            personInfo = new PersonInfo("Test", "Tester", "Testesen", new PersonIdent("16097545298"), inntektsmelding.getAktørId(), LocalDate.now());
+            personInfo = new PersonInfo("Test", "Tester", "Testesen", new PersonIdent("13418926699"), inntektsmelding.getAktørId(), LocalDate.now());
             arbeidsgiverNavn = "Arbeidsgvier 1";
         } else {
             personInfo = personTjeneste.hentPersonInfoFraAktørId(inntektsmelding.getAktørId(), inntektsmelding.getYtelsetype());

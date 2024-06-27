@@ -125,12 +125,12 @@ public class FpDokgenRestTjeneste {
     }
 
     public record InntektsmeldingRequest(Long inntektsmeldingId,
-                                         @NotNull String ytelsetype,
-                                         @NotNull String arbeidsgiverIdent,
-                                         @NotNull String kontaktpersonNavn,
-                                         @NotNull String kontaktpersonTlf,
-                                         @NotNull LocalDate startdatoPermisjon,
-                                         @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedInntekt,
+                                         String ytelsetype,
+                                         String arbeidsgiverIdent,
+                                         String kontaktpersonNavn,
+                                         String kontaktpersonTlf,
+                                         LocalDate startdatoPermisjon,
+                                         @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedInntekt,
                                          List<RefusjonPeriodeDto> refusjonsperioder,
                                          List<NaturalYtelseDto> naturalytelser) {
     }
