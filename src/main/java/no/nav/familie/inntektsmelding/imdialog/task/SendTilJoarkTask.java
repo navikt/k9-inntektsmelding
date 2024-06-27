@@ -45,7 +45,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
         var inntektsmelding = inntektsmeldingDialogTjeneste.hentInntektsmelding(inntektsmeldingId);
         var xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
 
-        var pdf = fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmelding, inntektsmeldingId);
+        var pdf = fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);
 
         LOG.info("Genererte XML: {} og pdf av inntektsmeldingen ", xml);
         joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf);
