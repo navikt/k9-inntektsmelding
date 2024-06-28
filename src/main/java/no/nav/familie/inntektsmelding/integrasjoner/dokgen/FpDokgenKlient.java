@@ -27,7 +27,7 @@ public class FpDokgenKlient {
     }
 
     public byte[] genererPdf(InntektsmeldingPdfData dokumentdata) {
-        var templatePath = String.format("/template/%s/template_%s", "fpinntektsmelding-inntektsmelding", Språkkode.NB);
+        var templatePath = String.format("/template/%s/template_%s", "fpinntektsmelding-inntektsmelding", Språkkode.nb);
         var endpoint = UriBuilder.fromUri(restConfig.endpoint()).path(templatePath).path("/create-pdf-variation").build();
         var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
         var pdf = restClient.sendReturnByteArray(request);
