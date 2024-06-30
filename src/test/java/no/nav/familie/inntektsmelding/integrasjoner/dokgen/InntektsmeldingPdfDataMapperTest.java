@@ -1,22 +1,6 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
 
-import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoNorsk;
-import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoOgTidNorsk;
-import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterPersonnummer;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
@@ -27,6 +11,17 @@ import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class InntektsmeldingPdfDataMapperTest {
@@ -40,11 +35,11 @@ class InntektsmeldingPdfDataMapperTest {
         var naturalytelseTilDato = LocalDate.of(2024, 6, 30);
         var naturalytelseBeløp = BigDecimal.valueOf(2000);
         var naturalytelse = NaturalytelseEntitet.builder()
-            .medPeriode(naturalytelseFraDato, naturalytelseTilDato)
-            .medType(Naturalytelsetype.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
-            .medErBortfalt(true)
-            .medBeløp(naturalytelseBeløp)
-            .build();
+                .medPeriode(naturalytelseFraDato, naturalytelseTilDato)
+                .medType(Naturalytelsetype.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
+                .medErBortfalt(true)
+                .medBeløp(naturalytelseBeløp)
+                .build();
         var arbeidsgiverIdent = "999999999";
         var arbeidsgiverNavn = "Arbeidsgvier 1";
         var navn = "Kontaktperson navn";
@@ -55,23 +50,22 @@ class InntektsmeldingPdfDataMapperTest {
         var startdato = LocalDate.now();
 
         var inntektsmeldingEntitet = InntektsmeldingEntitet.builder()
-            .medAktørId(aktørIdSøker)
-            .medKontaktperson(new KontaktpersonEntitet(navn,nr))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
-            .medMånedInntekt(inntekt)
-            .medStartDato(startdato)
-            .medOpprettetTidspunkt(opprettetTidspunkt)
-            .medArbeidsgiverIdent(arbeidsgiverIdent)
-            .medRefusjonsPeriode(List.of(refusjonperiode))
-            .medNaturalYtelse(List.of(naturalytelse))
-            .build();
+                .medAktørId(aktørIdSøker)
+                .medKontaktperson(new KontaktpersonEntitet(navn, nr))
+                .medYtelsetype(Ytelsetype.FORELDREPENGER)
+                .medMånedInntekt(inntekt)
+                .medStartDato(startdato)
+                .medOpprettetTidspunkt(opprettetTidspunkt)
+                .medArbeidsgiverIdent(arbeidsgiverIdent)
+                .medRefusjonsPeriode(List.of(refusjonperiode))
+                .medNaturalYtelse(List.of(naturalytelse))
+                .build();
 
         var personIdent = new PersonIdent("11111111111");
 
-        var personinfo = new PersonInfo("Test", "Tester", "Testesen", personIdent, inntektsmeldingEntitet.getAktørId(), LocalDate.now());
+        var personinfo = new PersonInfo("Test", "Tester", "Testesen", personIdent, inntektsmeldingEntitet.getAktørId(), LocalDate.now(), null);
 
         var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, arbeidsgiverNavn, personinfo, arbeidsgiverIdent);
-
 
 
         assertThat(pdfData.getArbeidsgiverIdent()).isEqualTo(arbeidsgiverIdent);
