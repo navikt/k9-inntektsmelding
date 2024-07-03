@@ -7,7 +7,7 @@ import jakarta.xml.bind.JAXBElement;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
+import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -130,9 +130,7 @@ public class InntektsmeldingXMLMapper {
             .stream()
             .filter(rp -> rp.getPeriode().getFom().equals(inntektsmeldingEntitet.getStartDato()))
             .findFirst();
-        refusjonFraStart.ifPresent(rp -> {
-            refusjon.setRefusjonsbeloepPrMnd(of.createRefusjonRefusjonsbeloepPrMnd(rp.getBeløp()));
-        });
+        refusjonFraStart.ifPresent(rp -> refusjon.setRefusjonsbeloepPrMnd(of.createRefusjonRefusjonsbeloepPrMnd(rp.getBeløp())));
         var sisteTomRefusjon = inntektsmeldingEntitet.getRefusjonsPerioder()
             .stream()
             .map(rp -> rp.getPeriode().getTom())
@@ -190,7 +188,7 @@ public class InntektsmeldingXMLMapper {
         };
     }
 
-    private static String mapTilNaturalytelsetype(Naturalytelsetype naturalytelsetype) {
+    private static String mapTilNaturalytelsetype(NaturalytelseType naturalytelsetype) {
         return switch (naturalytelsetype) {
             case ELEKTRISK_KOMMUNIKASJON -> "elektroniskKommunikasjon";
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> "aksjerGrunnfondsbevisTilUnderkurs";

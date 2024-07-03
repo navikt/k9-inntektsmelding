@@ -20,7 +20,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
+import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
@@ -45,7 +45,7 @@ class InntektsmeldingXMLTjenesteTest {
         var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.of(2024, 6, 1), Tid.TIDENES_ENDE, BigDecimal.valueOf(35000));
         var naturalytelse = NaturalytelseEntitet.builder()
             .medPeriode(LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 30))
-            .medType(Naturalytelsetype.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
+            .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
             .medErBortfalt(true)
             .medBeløp(BigDecimal.valueOf(2000))
             .build();

@@ -1,7 +1,5 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
-import java.time.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +11,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
@@ -30,9 +27,7 @@ public class FpDokgenTjeneste {
     }
 
     @Inject
-    public FpDokgenTjeneste(FpDokgenKlient fpDokgenKlient,
-                            PersonTjeneste personTjeneste,
-                            OrganisasjonTjeneste organisasjonTjeneste) {
+    public FpDokgenTjeneste(FpDokgenKlient fpDokgenKlient, PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
         this.fpDokgenKlient = fpDokgenKlient;
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
