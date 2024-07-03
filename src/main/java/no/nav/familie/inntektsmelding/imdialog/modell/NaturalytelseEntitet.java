@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
+import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -33,7 +33,7 @@ public class NaturalytelseEntitet {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private Naturalytelsetype type;
+    private NaturalytelseType type;
 
     @Column(name = "beloep", nullable = false)
     private BigDecimal beløp;
@@ -49,7 +49,7 @@ public class NaturalytelseEntitet {
         return periode;
     }
 
-    public Naturalytelsetype getType() {
+    public NaturalytelseType getType() {
         return type;
     }
 
@@ -89,7 +89,7 @@ public class NaturalytelseEntitet {
             return this;
         }
 
-        public Builder medType(Naturalytelsetype type) {
+        public Builder medType(NaturalytelseType type) {
             kladd.type = type;
             return this;
         }

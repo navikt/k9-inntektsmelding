@@ -7,7 +7,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
-import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
+import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
@@ -36,7 +36,7 @@ class InntektsmeldingPdfDataMapperTest {
         var naturalytelseBeløp = BigDecimal.valueOf(2000);
         var naturalytelse = NaturalytelseEntitet.builder()
                 .medPeriode(naturalytelseFraDato, naturalytelseTilDato)
-                .medType(Naturalytelsetype.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
+                .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
                 .medErBortfalt(true)
                 .medBeløp(naturalytelseBeløp)
                 .build();

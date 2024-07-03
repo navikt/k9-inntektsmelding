@@ -5,7 +5,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
-import no.nav.familie.inntektsmelding.koder.Naturalytelsetype;
+import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.vedtak.konfig.Tid;
 
@@ -49,7 +49,7 @@ public class InntektsmeldingPdfDataMapper {
     }
 
     private static Optional<LocalDate> utledOpphørsdato(List<RefusjonPeriodeEntitet> refusjonsPerioder) {
-        var sisteTomRefusjon = refusjonsPerioder.stream().map(rp -> rp.getPeriode().getTom()).max(Comparator.naturalOrder()).orElseThrow();
+        var sisteTomRefusjon = refusjonsPerioder.stream().map(rp -> rp.getPeriode().getTom()).max(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
         return !Tid.TIDENES_ENDE.equals(sisteTomRefusjon) ? Optional.of(sisteTomRefusjon) : Optional.empty();
     }
 
@@ -75,17 +75,6 @@ public class InntektsmeldingPdfDataMapper {
             .map(RefusjonPeriodeEntitet::getBeløp);
     }
 
-    private static String mapYtelseNavn(Ytelsetype ytelsetype) {
-        return switch (ytelsetype) {
-            case FORELDREPENGER -> "Foreldrepenger";
-            case SVANGERSKAPSPENGER -> "Svangerskapspenger";
-            case PLEIEPENGER_SYKT_BARN -> "Pleiepenger sykt barn";
-            case PLEIEPENGER_NÆRSTÅENDE -> "Pleiepenger nærstående";
-            case OPPLÆRINGSPENGER -> "Opplæringspenger";
-            case OMSORGSPENGER -> "Omsorgspenger";
-        };
-    }
-
     private static List<NaturalYtelse> mapNauralYtelser(List<NaturalytelseEntitet> naturalytelser) {
         return naturalytelser.stream()
             .map(ny -> new NaturalYtelse(formaterDatoNorsk(ny.getPeriode().getFom()), formaterDatoNorsk(ny.getPeriode().getTom()), mapTypeTekst(ny.getType()), ny.getBeløp(),
@@ -93,7 +82,7 @@ public class InntektsmeldingPdfDataMapper {
             .toList();
     }
 
-    private static String mapTypeTekst(Naturalytelsetype type) {
+    private static String mapTypeTekst(NaturalytelseType type) {
         return switch (type) {
             case ELEKTRISK_KOMMUNIKASJON -> "Elektrisk kommunikasjon";
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> "Aksjer grunnfondsbevis til underkurs";
@@ -119,7 +108,7 @@ public class InntektsmeldingPdfDataMapper {
 
     private static List<RefusjonPeriode> mapEndringIRefusjonsperioder(List<RefusjonPeriodeEntitet> refusjonsPerioder) {
         return refusjonsPerioder.stream()
-            .filter(rpe -> !rpe.getPeriode().getTom().isEqual(Tid.TIDENES_ENDE))
+            .filter(rp -> rp.getPeriode().getTom().isBefore(Tid.TIDENES_ENDE))
             .map(rpe -> new RefusjonPeriode(formaterDatoNorsk(rpe.getPeriode().getFom()), formaterDatoNorsk(rpe.getPeriode().getTom()), rpe.getBeløp()))
             .toList();
     }
