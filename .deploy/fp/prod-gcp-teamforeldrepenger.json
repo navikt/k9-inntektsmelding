@@ -13,8 +13,10 @@
   "groups": [
     "0d226374-4748-4367-a38a-062dcad70034"
   ],
-  "dbTier": "TODO",
-  "dbDiskAutoresize": "true",
-  "dbHighAvailability": "true",
-  "dbPointInTimeRecovery": "true"
+  "db": {
+    "dbTier": "TODO",
+    "dbDiskAutoresize": "true",
+    "dbHighAvailability": "true",
+    "dbPointInTimeRecovery": "true"
+  }
 }
