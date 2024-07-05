@@ -42,6 +42,11 @@ public class PeriodeEntitet {
         this.tom = tomDato;
     }
 
+    @Override
+    public String toString() {
+        return "PeriodeEntitet{" + "fom=" + fom + ", tom=" + tom + '}';
+    }
+
     public boolean overlapper(PeriodeEntitet other) {
         var fomBeforeOrEqual = this.getFom().isBefore(other.getTom()) || this.getFom().isEqual(other.getTom());
         var tomAfterOrEqual = this.getTom().isAfter(other.getFom()) || this.getTom().isEqual(other.getFom());
