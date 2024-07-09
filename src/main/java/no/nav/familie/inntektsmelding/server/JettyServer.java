@@ -1,45 +1,40 @@
 package no.nav.familie.inntektsmelding.server;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import no.nav.foreldrepenger.konfig.Environment;
-import org.eclipse.jetty.ee10.cdi.CdiDecoratingListener;
-import org.eclipse.jetty.ee10.cdi.CdiServletContainerInitializer;
-import org.eclipse.jetty.ee10.servlet.ErrorPageErrorHandler;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.security.ConstraintMapping;
-import org.eclipse.jetty.ee10.servlet.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
-import org.eclipse.jetty.plus.jndi.EnvEntry;
-import org.eclipse.jetty.security.Constraint;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.util.resource.ResourceFactory;
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
-import org.jboss.weld.exceptions.IllegalStateException;
+import java.util.Properties;
+
+import jakarta.ws.rs.core.Application;
 
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 
-import static org.eclipse.jetty.ee10.webapp.MetaInfConfiguration.CONTAINER_JAR_PATTERN;
+import org.eclipse.jetty.ee10.cdi.CdiDecoratingListener;
+import org.eclipse.jetty.ee10.cdi.CdiServletContainerInitializer;
+import org.eclipse.jetty.ee10.servlet.DefaultServlet;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.security.ConstraintMapping;
+import org.eclipse.jetty.ee10.servlet.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.plus.jndi.EnvEntry;
+import org.eclipse.jetty.security.Constraint;
+import org.eclipse.jetty.server.Server;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import no.nav.foreldrepenger.konfig.Environment;
 
 public class JettyServer {
-
+    private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
     private static final Environment ENV = Environment.current();
 
     private static final String CONTEXT_PATH = ENV.getProperty("context.path","/fpinntektsmelding");
 
-    private static final String JETTY_SCAN_LOCATIONS = "^.*jersey-.*\\.jar$|^.*felles-.*\\.jar$|^.*app.*\\.jar$";
-
-    private static final String JETTY_LOCAL_CLASSES = "^.*/target/classes/|";
     private final Integer serverPort;
     JettyServer(int serverPort) {
         this.serverPort = serverPort;
@@ -53,6 +48,7 @@ public class JettyServer {
         return new JettyServer(ENV.getProperty("server.port", Integer.class, 8080));
     }
 
+<<<<<<< Updated upstream
     private static ContextHandler createContext() throws MalformedURLException {
         var ctx = new WebAppContext(CONTEXT_PATH, null, simpleConstraints(), null, new ErrorPageErrorHandler(), ServletContextHandler.NO_SESSIONS);
         ctx.setParentLoaderPriority(true);
@@ -102,12 +98,22 @@ public class JettyServer {
         System.setProperty(trustStorePasswordProp, password);
     }
 
+=======
+>>>>>>> Stashed changes
     void bootStrap() throws Exception {
         System.setProperty("task.manager.runner.threads", "4");
-        konfigurerSikkerhet();
-        var dataSource = setupDataSource();
-        migrer(dataSource);
+        konfigurerLogging();
+        migrer(setupDataSource());
         start();
+    }
+
+    /**
+     * Vi bruker SLF4J + logback, Jersey brukes JUL for logging.
+     * Setter opp en bridge til å få Jersey til å logge gjennom Logback også.
+     */
+    private static void konfigurerLogging() {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
     }
 
     private static void migrer(DataSource dataSource) {
@@ -115,17 +121,17 @@ public class JettyServer {
         flyway.load().migrate();
     }
 
-    public static FluentConfiguration flywayConfig(DataSource dataSource) {
+    private static FluentConfiguration flywayConfig(DataSource dataSource) {
         return Flyway.configure().dataSource(dataSource).locations("classpath:/db/postgres/defaultDS").baselineOnMigrate(true);
     }
 
-    public static DataSource setupDataSource() throws NamingException {
+    private static DataSource setupDataSource() throws NamingException {
         var dataSource = dataSource();
         new EnvEntry("jdbc/defaultDS", dataSource);
         return dataSource;
     }
 
-    public static DataSource dataSource() {
+    private static DataSource dataSource() {
         var config = new HikariConfig();
         config.setJdbcUrl(ENV.getRequiredProperty("DB_JDBC_URL"));
         config.setUsername(ENV.getRequiredProperty("DB_USERNAME"));
@@ -148,20 +154,48 @@ public class JettyServer {
         return new HikariDataSource(config);
     }
 
-    private void start() throws Exception {
-        var server = new Server(getServerPort());
-        server.setConnectors(createConnectors(server).toArray(new Connector[]{}));
-        server.setHandler(createContext());
-        server.start();
-        server.join();
+    private void start() {
+        try {
+            var server = new Server(getServerPort());
+            LOG.info("Starter server");
+            var context = new ServletContextHandler(CONTEXT_PATH, ServletContextHandler.NO_SESSIONS);
+
+            context.setSecurityHandler(simpleConstraints());
+
+            registerDefaultServlet(context);
+            registerServlet(context, 0, InternalApiConfig.API_URI, InternalApiConfig.class);
+            registerServlet(context, 1, ApiConfig.API_URI, ApiConfig.class);
+
+            // Starter asynk tjenester
+            context.addEventListener(new ServiceStarterListener());
+
+            // Enable Weld + CDI
+            context.setInitParameter(CdiServletContainerInitializer.CDI_INTEGRATION_ATTRIBUTE, CdiDecoratingListener.MODE);
+            context.addServletContainerInitializer(new CdiServletContainerInitializer());
+            context.addServletContainerInitializer(new org.jboss.weld.environment.servlet.EnhancedListener());
+
+            server.setHandler(context);
+            server.setStopAtShutdown(true);
+            server.setStopTimeout(10000);
+            server.start();
+
+            LOG.info("Server startet på port: {}", getServerPort());
+            server.join();
+        } catch (Exception e) {
+            LOG.error("Feilet under oppstart.", e);
+        }
     }
 
-    private List<Connector> createConnectors(Server server) {
-        List<Connector> connectors = new ArrayList<>();
-        var httpConnector = new ServerConnector(server);
-        httpConnector.setPort(getServerPort());
-        connectors.add(httpConnector);
-        return connectors;
+    private void registerDefaultServlet(ServletContextHandler context) {
+        var defaultServlet = new ServletHolder(new DefaultServlet());
+        context.addServlet(defaultServlet, "/*");
+    }
+
+    static void registerServlet(ServletContextHandler context, int prioritet, String path, Class<?> appClass) {
+        var servlet = new ServletHolder(new ServletContainer());
+        servlet.setInitOrder(prioritet);
+        servlet.setInitParameter(Application.class.getName(), appClass.getName());
+        context.addServlet(servlet, path + "/*");
     }
 
     private static ConstraintSecurityHandler simpleConstraints() {

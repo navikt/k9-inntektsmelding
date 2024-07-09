@@ -1,5 +1,9 @@
 package no.nav.familie.inntektsmelding.server;
 
+import static jakarta.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
+
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -7,14 +11,17 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
+<<<<<<< Updated upstream
 import no.nav.vedtak.log.metrics.LivenessAware;
 import no.nav.vedtak.log.metrics.ReadinessAware;
+=======
+
+>>>>>>> Stashed changes
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-import static jakarta.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
+import no.nav.vedtak.log.metrics.LivenessAware;
+import no.nav.vedtak.log.metrics.ReadinessAware;
 
 @Path("/health")
 @ApplicationScoped
