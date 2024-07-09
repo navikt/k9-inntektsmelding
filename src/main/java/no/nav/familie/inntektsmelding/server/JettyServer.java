@@ -4,6 +4,9 @@ import java.util.Properties;
 
 import jakarta.ws.rs.core.Application;
 
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import org.eclipse.jetty.ee10.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee10.cdi.CdiServletContainerInitializer;
 import org.eclipse.jetty.ee10.servlet.DefaultServlet;
@@ -24,8 +27,6 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 import no.nav.foreldrepenger.konfig.Environment;
 
 public class JettyServer {
@@ -47,61 +48,6 @@ public class JettyServer {
     private static JettyServer jettyServer() {
         return new JettyServer(ENV.getProperty("server.port", Integer.class, 8080));
     }
-
-<<<<<<<Updated upstream
-
-    private static ContextHandler createContext() throws MalformedURLException {
-        var ctx = new WebAppContext(CONTEXT_PATH, null, simpleConstraints(), null, new ErrorPageErrorHandler(), ServletContextHandler.NO_SESSIONS);
-        ctx.setParentLoaderPriority(true);
-
-        String baseResource;
-        try (var factory = ResourceFactory.closeable()) {
-            baseResource = factory.newResource(".").getRealURI().toURL().toExternalForm();
-        }
-        ctx.setBaseResourceAsString(baseResource);
-
-        ctx.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-        ctx.setInitParameter("pathInfoOnly", "true");
-
-        // Scanns the CLASSPATH for classes and jars.
-        ctx.setAttribute(CONTAINER_JAR_PATTERN, String.format("%s%s", ENV.isLocal() ? JETTY_LOCAL_CLASSES : "", JETTY_SCAN_LOCATIONS));
-
-        // Enable Weld + CDI
-        ctx.setInitParameter(CdiServletContainerInitializer.CDI_INTEGRATION_ATTRIBUTE, CdiDecoratingListener.MODE);
-        ctx.addServletContainerInitializer(new CdiServletContainerInitializer());
-        ctx.addServletContainerInitializer(new org.jboss.weld.environment.servlet.EnhancedListener());
-
-        ctx.setThrowUnavailableOnStartupException(true);
-
-        return ctx;
-    }
-
-    private static void konfigurerSikkerhet() {
-        if (ENV.isLocal()) {
-            initTrustStore();
-        }
-    }
-
-    private static void initTrustStore() {
-        final var trustStorePathProp = "javax.net.ssl.trustStore";
-        final var trustStorePasswordProp = "javax.net.ssl.trustStorePassword";
-
-        var defaultLocation = ENV.getProperty("user.home", ".") + "/.modig/truststore.jks";
-        var storePath = ENV.getProperty(trustStorePathProp, defaultLocation);
-        var storeFile = new File(storePath);
-        if (!storeFile.exists()) {
-            throw new IllegalStateException(
-                "Finner ikke truststore i " + storePath + "\n\tKonfigurer enten som System property '" + trustStorePathProp
-                    + "' eller environment variabel '" + trustStorePathProp.toUpperCase().replace('.', '_') + "'");
-        }
-        var password = ENV.getProperty(trustStorePasswordProp, "changeit");
-        System.setProperty(trustStorePathProp, storeFile.getAbsolutePath());
-        System.setProperty(trustStorePasswordProp, password);
-    }
-
-=======
-    >>>>>>>
-    Stashed changes
 
     void bootStrap() throws Exception {
         System.setProperty("task.manager.runner.threads", "4");
