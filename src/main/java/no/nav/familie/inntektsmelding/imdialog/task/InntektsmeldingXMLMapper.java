@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.Map;
 
 import jakarta.xml.bind.JAXBElement;
+
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -67,6 +68,7 @@ public class InntektsmeldingXMLMapper {
         imXml.setSkjemainnhold(skjemainnhold);
         return imXml;
     }
+
     private static void mapYtelsespesifikkeFelter(Skjemainnhold skjemainnhold, ObjectFactory of, InntektsmeldingEntitet inntektsmelding) {
         switch (inntektsmelding.getYtelsetype()) {
             case FORELDREPENGER -> settFPStartdato(skjemainnhold, of, inntektsmelding);
@@ -82,6 +84,7 @@ public class InntektsmeldingXMLMapper {
     private static void settFPStartdato(Skjemainnhold skjemainnhold, ObjectFactory of, InntektsmeldingEntitet inntektsmelding) {
         skjemainnhold.setStartdatoForeldrepengeperiode(of.createSkjemainnholdStartdatoForeldrepengeperiode(inntektsmelding.getStartDato()));
     }
+
     // TODO Vi bør ta en diskusjon på hva denne skal være
     private static Avsendersystem lagAvsendersysem(InntektsmeldingEntitet inntektsmelding, ObjectFactory of) {
         var as = new Avsendersystem();
@@ -95,32 +98,27 @@ public class InntektsmeldingXMLMapper {
                                                                                               ObjectFactory of) {
         var gjennoptakelseListeObjekt = new GjenopptakelseNaturalytelseListe();
         var gjennoptakelseListe = gjennoptakelseListeObjekt.getNaturalytelseDetaljer();
-        inntektsmeldingEntitet.getNaturalYtelser()
-            .stream()
-            .filter(n -> !n.getErBortfalt())
-            .forEach(nat -> {
-                var nd = new NaturalytelseDetaljer();
-                nd.setFom(of.createNaturalytelseDetaljerFom(nat.getPeriode().getFom()));
-                nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(nat.getBeløp()));
-                nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(nat.getType())));
-                gjennoptakelseListe.add(nd);
-            });
+        inntektsmeldingEntitet.getNaturalYtelser().stream().filter(n -> !n.getErBortfalt()).forEach(nat -> {
+            var nd = new NaturalytelseDetaljer();
+            nd.setFom(of.createNaturalytelseDetaljerFom(nat.getPeriode().getFom()));
+            nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(nat.getBeløp()));
+            nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(nat.getType())));
+            gjennoptakelseListe.add(nd);
+        });
         return of.createSkjemainnholdGjenopptakelseNaturalytelseListe(gjennoptakelseListeObjekt);
     }
 
-    private static JAXBElement<OpphoerAvNaturalytelseListe> lagBortfaltNaturalytelse(InntektsmeldingEntitet inntektsmeldingEntitet, ObjectFactory of) {
+    private static JAXBElement<OpphoerAvNaturalytelseListe> lagBortfaltNaturalytelse(InntektsmeldingEntitet inntektsmeldingEntitet,
+                                                                                     ObjectFactory of) {
         var opphørListeObjekt = new OpphoerAvNaturalytelseListe();
         var opphørListe = opphørListeObjekt.getOpphoerAvNaturalytelse();
-        inntektsmeldingEntitet.getNaturalYtelser()
-            .stream()
-            .filter(NaturalytelseEntitet::getErBortfalt)
-            .forEach(nat -> {
-                var nd = new NaturalytelseDetaljer();
-                nd.setFom(of.createNaturalytelseDetaljerFom(nat.getPeriode().getFom()));
-                nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(nat.getBeløp()));
-                nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(nat.getType())));
-                opphørListe.add(nd);
-            });
+        inntektsmeldingEntitet.getNaturalYtelser().stream().filter(NaturalytelseEntitet::getErBortfalt).forEach(nat -> {
+            var nd = new NaturalytelseDetaljer();
+            nd.setFom(of.createNaturalytelseDetaljerFom(nat.getPeriode().getFom()));
+            nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(nat.getBeløp()));
+            nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(nat.getType())));
+            opphørListe.add(nd);
+        });
         return of.createSkjemainnholdOpphoerAvNaturalytelseListe(opphørListeObjekt);
     }
 

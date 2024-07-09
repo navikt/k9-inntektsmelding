@@ -1,6 +1,13 @@
 package no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent;
 
+import java.time.YearMonth;
+import java.util.Collections;
+
 import jakarta.enterprise.context.ApplicationScoped;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.tjenester.aordningen.inntektsinformasjon.Aktoer;
 import no.nav.tjenester.aordningen.inntektsinformasjon.request.HentInntektListeBolkRequest;
 import no.nav.tjenester.aordningen.inntektsinformasjon.response.HentInntektListeBolkResponse;
@@ -11,15 +18,8 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.YearMonth;
-import java.util.Collections;
-
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "hentinntektlistebolk.url", endpointDefault = "https://app.adeo.no/inntektskomponenten-ws/rs/api/v1/hentinntektlistebolk",
-    scopesProperty = "hentinntektlistebolk.scopes", scopesDefault = "api://prod-fss.team-inntekt.inntektskomponenten/.default")
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "hentinntektlistebolk.url", endpointDefault = "https://app.adeo.no/inntektskomponenten-ws/rs/api/v1/hentinntektlistebolk", scopesProperty = "hentinntektlistebolk.scopes", scopesDefault = "api://prod-fss.team-inntekt.inntektskomponenten/.default")
 public class InntektskomponentKlient {
     private static final Logger LOG = LoggerFactory.getLogger(InntektskomponentKlient.class);
     private static final YearMonth INNTK_TIDLIGSTE_DATO = YearMonth.of(2015, 7);

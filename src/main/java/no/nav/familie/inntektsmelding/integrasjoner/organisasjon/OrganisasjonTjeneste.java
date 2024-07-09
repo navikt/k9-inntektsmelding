@@ -4,11 +4,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
@@ -41,7 +42,8 @@ public class OrganisasjonTjeneste {
      */
 
     public Organisasjon finnOrganisasjon(String orgNummer) {
-        return finnOrganisasjonOptional(orgNummer).orElseThrow(() -> new IllegalStateException("Forventet å finne organisasjon med orgnummer " + orgNummer));
+        return finnOrganisasjonOptional(orgNummer).orElseThrow(
+            () -> new IllegalStateException("Forventet å finne organisasjon med orgnummer " + orgNummer));
     }
 
     public Optional<Organisasjon> finnOrganisasjonOptional(String orgNummer) {

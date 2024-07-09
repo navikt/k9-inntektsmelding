@@ -5,11 +5,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
@@ -80,12 +81,11 @@ public class JoarkTjeneste {
         return request;
     }
 
-    private List<DokumentInfoOpprett> lagDokumenter(String xmlAvInntektsmelding, byte[] pdf ) {
+    private List<DokumentInfoOpprett> lagDokumenter(String xmlAvInntektsmelding, byte[] pdf) {
         var dokumentXML = new Dokumentvariant(Dokumentvariant.Variantformat.ORIGINAL, Dokumentvariant.Filtype.XML,
             xmlAvInntektsmelding.getBytes(StandardCharsets.UTF_8));
 
-        var dokumentPDF = new Dokumentvariant(Dokumentvariant.Variantformat.ARKIV, Dokumentvariant.Filtype.PDF,
-            pdf);
+        var dokumentPDF = new Dokumentvariant(Dokumentvariant.Variantformat.ARKIV, Dokumentvariant.Filtype.PDF, pdf);
 
         var builder = DokumentInfoOpprett.builder()
             .medTittel(JOURNALFØRING_TITTEL)
@@ -110,7 +110,8 @@ public class JoarkTjeneste {
             case PLEIEPENGER_SYKT_BARN -> Behandlingtema.PLEIEPENGER_SYKT_BARN.getOffisiellKode();
             case PLEIEPENGER_NÆRSTÅENDE -> Behandlingtema.PLEIEPENGER_LIVETS_SLUTTFASE.getOffisiellKode();
             case OMSORGSPENGER -> Behandlingtema.OMSORGSPENGER.getOffisiellKode();
-            case OPPLÆRINGSPENGER -> throw new IllegalArgumentException("Finner ikke behandlingtema for ytelsetype " + ytelsetype); // TODO Hva skal inn her?
+            case OPPLÆRINGSPENGER ->
+                throw new IllegalArgumentException("Finner ikke behandlingtema for ytelsetype " + ytelsetype); // TODO Hva skal inn her?
         };
     }
 

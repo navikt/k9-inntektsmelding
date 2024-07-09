@@ -8,7 +8,7 @@ public enum Behandlingtema {
     PLEIEPENGER_LIVETS_SLUTTFASE("ab0094"),
     OMSORGSPENGER("ab0149");
 
-    private String offisiellKode;
+    private final String offisiellKode;
 
     Behandlingtema(String offisiellKode) {
         this.offisiellKode = offisiellKode;

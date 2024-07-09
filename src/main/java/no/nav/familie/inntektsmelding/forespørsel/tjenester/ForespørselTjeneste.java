@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;

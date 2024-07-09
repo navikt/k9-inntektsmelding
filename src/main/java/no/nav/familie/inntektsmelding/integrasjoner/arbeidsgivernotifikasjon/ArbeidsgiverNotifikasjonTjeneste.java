@@ -120,7 +120,10 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String opprettOppgave(String grupperingsid, Merkelapp notifikasjonMerkelapp, String eksternId, String virksomhetsnummer,
+    public String opprettOppgave(String grupperingsid,
+                                 Merkelapp notifikasjonMerkelapp,
+                                 String eksternId,
+                                 String virksomhetsnummer,
                                  String notifikasjonTekst,
                                  URI notifikasjonLenke) {
 

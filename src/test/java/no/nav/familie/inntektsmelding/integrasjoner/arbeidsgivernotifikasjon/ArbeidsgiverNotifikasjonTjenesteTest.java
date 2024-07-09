@@ -71,8 +71,8 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         var requestCaptor = ArgumentCaptor.forClass(NyOppgaveMutationRequest.class);
 
-        tjeneste.opprettOppgave(expectedGrupperingsid, expectedNotifikasjonsMerkelapp, expectedEksternId, expectedVirksomhetsnummer, expectedNotifikasjonsTekst,
-            URI.create(expectedNotifikasjonsLenke));
+        tjeneste.opprettOppgave(expectedGrupperingsid, expectedNotifikasjonsMerkelapp, expectedEksternId, expectedVirksomhetsnummer,
+            expectedNotifikasjonsTekst, URI.create(expectedNotifikasjonsLenke));
 
         Mockito.verify(klient).opprettOppgave(requestCaptor.capture(), any(NyOppgaveResultatResponseProjection.class));
 

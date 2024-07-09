@@ -16,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+
 import no.nav.familie.inntektsmelding.koder.SakStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -59,7 +60,7 @@ public class ForespørselEntitet {
     private String fagsystemSaksnummer;
 
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
-    private LocalDateTime opprettetTidspunkt = LocalDateTime.now();
+    private final LocalDateTime opprettetTidspunkt = LocalDateTime.now();
 
     @Column(name = "endret_tid")
     private LocalDateTime endretTidspunkt;
@@ -139,15 +140,8 @@ public class ForespørselEntitet {
 
     @Override
     public String toString() {
-        return "ForespørselEntitet{" +
-            "id=" + id +
-            ", uuid=" + uuid +
-            ", sakId=" + sakId +
-            ", organisasjonsnummer=" + organisasjonsnummer +
-            ", skjæringstidspunkt=" + skjæringstidspunkt +
-            ", aktørId=" + aktørId +
-            ", ytelseType=" + ytelseType +
-            ", fagsystemSaksnummer=" + fagsystemSaksnummer +
-            '}';
+        return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + organisasjonsnummer
+            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + aktørId + ", ytelseType=" + ytelseType + ", fagsystemSaksnummer="
+            + fagsystemSaksnummer + '}';
     }
 }

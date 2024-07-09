@@ -3,10 +3,6 @@ package no.nav.familie.inntektsmelding.forespørsel.rest;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -18,6 +14,11 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.v3.oas.annotations.Operation;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
@@ -59,8 +60,8 @@ public class ForespørselRest {
     }
 
     /**
-     * @deprecated See på InntektsmeldingDialogRest.hentInnsendingsinfo()
      * @param forespørselUUID
+     * @deprecated See på InntektsmeldingDialogRest.hentInnsendingsinfo()
      */
     @Deprecated(forRemoval = true, since = "18.06.2024")
     @GET
@@ -70,15 +71,13 @@ public class ForespørselRest {
         return Response.ok(forespørselTjeneste.finnForespørsel(forespørselUUID).map(ForespørselRest::mapTilDto).orElseThrow()).build();
     }
 
-    record ForespørselDto(UUID uuid, OrganisasjonsnummerDto organisasjonsnummer, LocalDate skjæringstidspunkt, AktørIdDto brukerAktørId, YtelseTypeDto ytelseType) {}
+    record ForespørselDto(UUID uuid, OrganisasjonsnummerDto organisasjonsnummer, LocalDate skjæringstidspunkt, AktørIdDto brukerAktørId,
+                          YtelseTypeDto ytelseType) {
+    }
 
     static ForespørselDto mapTilDto(ForespørselEntitet entitet) {
-        return new ForespørselDto(
-            entitet.getUuid(),
-            new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()),
-            entitet.getSkjæringstidspunkt(),
-            new AktørIdDto(entitet.getAktørId().getAktørId()),
-            KodeverkMapper.mapYtelsetype(entitet.getYtelseType()));
+        return new ForespørselDto(entitet.getUuid(), new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()), entitet.getSkjæringstidspunkt(),
+            new AktørIdDto(entitet.getAktørId().getAktørId()), KodeverkMapper.mapYtelsetype(entitet.getYtelseType()));
     }
 }
 

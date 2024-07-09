@@ -11,9 +11,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ExtendWith(MockitoExtension.class)
 class AltinnAutoriseringKlientTest {

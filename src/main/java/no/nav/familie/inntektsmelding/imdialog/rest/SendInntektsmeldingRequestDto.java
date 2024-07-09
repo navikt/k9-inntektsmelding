@@ -10,14 +10,14 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
-public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid,
-                                            @NotNull @Valid AktørIdDto aktorId, @NotNull @Valid YtelseTypeDto ytelse,
-                                            @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
+public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid, @NotNull @Valid AktørIdDto aktorId,
+                                            @NotNull @Valid YtelseTypeDto ytelse, @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
                                             @NotNull @Valid KontaktpersonDto kontaktperson, @NotNull LocalDate startdato,
                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
                                             @NotNull List<@Valid RefusjonsperiodeRequestDto> refusjonsperioder,
@@ -31,6 +31,8 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
                                           @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
     }
 
-    public record KontaktpersonDto(@NotNull String navn, @NotNull String telefonnummer){};
+    public record KontaktpersonDto(@NotNull String navn, @NotNull String telefonnummer) {
+    }
+
 }
 

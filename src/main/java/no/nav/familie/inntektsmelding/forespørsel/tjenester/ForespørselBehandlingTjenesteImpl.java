@@ -7,12 +7,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
@@ -66,8 +67,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         var merkelapp = finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
 
-        var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), merkelapp, organisasjonsnummer.orgnr(), lagSaksTittel(person),
-            skjemaUri);
+        var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), merkelapp, organisasjonsnummer.orgnr(), lagSaksTittel(person), skjemaUri);
 
         forespørselTjeneste.setSakId(uuid, sakId);
 
@@ -78,7 +78,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     @Override
-    public void ferdigstillForespørsel(UUID foresporselUuid, AktørIdEntitet aktorId, OrganisasjonsnummerDto organisasjonsnummerDto, LocalDate startdato) {
+    public void ferdigstillForespørsel(UUID foresporselUuid,
+                                       AktørIdEntitet aktorId,
+                                       OrganisasjonsnummerDto organisasjonsnummerDto,
+                                       LocalDate startdato) {
         var foresporsel = forespørselTjeneste.finnForespørsel(foresporselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
 

@@ -1,5 +1,9 @@
 package no.nav.familie.inntektsmelding.server;
 
+import static jakarta.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
+
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -7,14 +11,12 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
-import no.nav.vedtak.log.metrics.LivenessAware;
-import no.nav.vedtak.log.metrics.ReadinessAware;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-import static jakarta.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
+import no.nav.vedtak.log.metrics.LivenessAware;
+import no.nav.vedtak.log.metrics.ReadinessAware;
 
 @Path("/health")
 @ApplicationScoped
@@ -27,9 +29,7 @@ public class HealtCheckRest {
     private ApplicationServiceStarter starter;
 
     @Inject
-    public HealtCheckRest(ApplicationServiceStarter starter,
-                          @Any Instance<LivenessAware> live,
-                          @Any Instance<ReadinessAware> ready) {
+    public HealtCheckRest(ApplicationServiceStarter starter, @Any Instance<LivenessAware> live, @Any Instance<ReadinessAware> ready) {
         this.live = live.stream().toList();
         this.ready = ready.stream().toList();
         this.starter = starter;

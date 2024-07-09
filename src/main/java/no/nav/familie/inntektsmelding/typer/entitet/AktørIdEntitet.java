@@ -1,11 +1,11 @@
 package no.nav.familie.inntektsmelding.typer.entitet;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class AktørIdEntitet {
@@ -49,10 +49,12 @@ public class AktørIdEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         AktørIdEntitet that = (AktørIdEntitet) o;
         return Objects.equals(aktørId, that.aktørId);
     }
@@ -64,8 +66,10 @@ public class AktørIdEntitet {
 
     private static final AtomicLong DUMMY_AKTØRID = new AtomicLong(1000000000000L);
 
-    /** Genererer dummy aktørid unikt for test. */
-    public static AktørIdEntitet dummy( ) {
+    /**
+     * Genererer dummy aktørid unikt for test.
+     */
+    public static AktørIdEntitet dummy() {
         return new AktørIdEntitet(String.valueOf(DUMMY_AKTØRID.getAndIncrement()));
     }
 }

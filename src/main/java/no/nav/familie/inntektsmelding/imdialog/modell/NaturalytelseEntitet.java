@@ -1,5 +1,8 @@
 package no.nav.familie.inntektsmelding.imdialog.modell;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -11,10 +14,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 
 @Entity(name = "NaturalytelseEntitet")
 @Table(name = "NATURALYTELSE")
@@ -75,12 +76,10 @@ public class NaturalytelseEntitet {
     }
 
     public static class Builder {
-        private NaturalytelseEntitet kladd = new NaturalytelseEntitet();
+        private final NaturalytelseEntitet kladd = new NaturalytelseEntitet();
 
         public Builder medPeriode(LocalDate fom, LocalDate tom) {
-            kladd.periode = tom == null
-                ? PeriodeEntitet.fraOgMed(fom)
-                : PeriodeEntitet.fraOgMedTilOgMed(fom, tom);
+            kladd.periode = tom == null ? PeriodeEntitet.fraOgMed(fom) : PeriodeEntitet.fraOgMedTilOgMed(fom, tom);
             return this;
         }
 

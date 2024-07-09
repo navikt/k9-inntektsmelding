@@ -1,14 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.rest;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -21,17 +14,13 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingDialogTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
-import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
-import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
-import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
 @ApplicationScoped

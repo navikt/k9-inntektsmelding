@@ -1,21 +1,34 @@
 package no.nav.familie.inntektsmelding.integrasjoner.person;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.ProcessingException;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.pdl.*;
-import no.nav.vedtak.exception.IntegrasjonException;
-import no.nav.vedtak.exception.VLException;
-import no.nav.vedtak.felles.integrasjon.person.Persondata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.SocketTimeoutException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.ProcessingException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.pdl.Foedselsdato;
+import no.nav.pdl.FoedselsdatoResponseProjection;
+import no.nav.pdl.HentIdenterQueryRequest;
+import no.nav.pdl.HentPersonQueryRequest;
+import no.nav.pdl.IdentGruppe;
+import no.nav.pdl.IdentInformasjon;
+import no.nav.pdl.IdentInformasjonResponseProjection;
+import no.nav.pdl.IdentlisteResponseProjection;
+import no.nav.pdl.NavnResponseProjection;
+import no.nav.pdl.Person;
+import no.nav.pdl.PersonResponseProjection;
+import no.nav.pdl.TelefonnummerResponseProjection;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.felles.integrasjon.person.Persondata;
 
 @ApplicationScoped
 public class PersonTjeneste {
@@ -36,10 +49,10 @@ public class PersonTjeneste {
         request.setIdent(aktørId.getAktørId());
 
         var projection = new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
-                .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
+            .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
 
         PersonIdent personIdent = hentPersonidentForAktørId(aktørId).orElseThrow(
-                () -> new IllegalStateException("Finner ikke personnummer for id " + aktørId));
+            () -> new IllegalStateException("Finner ikke personnummer for id " + aktørId));
 
         LOG.info("Henter personobjekt");
         var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
@@ -53,18 +66,19 @@ public class PersonTjeneste {
         request.setIdent(personIdent.getIdent());
 
         var projection = new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
-                .telefonnummer(new TelefonnummerResponseProjection().landskode().nummer())
-                .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
+            .telefonnummer(new TelefonnummerResponseProjection().landskode().nummer())
+            .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
 
         var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
         var navn = person.getNavn().getFirst();
 
-        return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, null, mapFødselsdato(person), mapTelefonnummer(person));
+        return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, null, mapFødselsdato(person),
+            mapTelefonnummer(person));
     }
 
     public PersonIdent finnPersonIdentForAktørId(AktørIdEntitet aktørIdEntitet) {
         return hentPersonidentForAktørId(aktørIdEntitet).orElseThrow(
-                () -> new IllegalStateException("Finner ikke personnummer for id " + aktørIdEntitet));
+            () -> new IllegalStateException("Finner ikke personnummer for id " + aktørIdEntitet));
     }
 
     private LocalDate mapFødselsdato(Person person) {
@@ -72,7 +86,11 @@ public class PersonTjeneste {
     }
 
     private String mapTelefonnummer(Person person) {
-        return person.getTelefonnummer().stream().findFirst().map(telefonnummer -> telefonnummer.getLandskode() + telefonnummer.getNummer()).orElse(null);
+        return person.getTelefonnummer()
+            .stream()
+            .findFirst()
+            .map(telefonnummer -> telefonnummer.getLandskode() + telefonnummer.getNummer())
+            .orElse(null);
     }
 
     private Optional<PersonIdent> hentPersonidentForAktørId(AktørIdEntitet aktørId) {

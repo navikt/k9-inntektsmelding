@@ -51,8 +51,8 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
             new OpprettForespørselRequest(aktørId, orgnummer, LocalDate.now(), YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
-        verify(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(eq(LocalDate.now()), eq(Ytelsetype.PLEIEPENGER_SYKT_BARN), eq(new AktørIdEntitet(aktørId.id())),
-            eq(orgnummer), eq(fagsakSaksnummer));
+        verify(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(eq(LocalDate.now()), eq(Ytelsetype.PLEIEPENGER_SYKT_BARN),
+            eq(new AktørIdEntitet(aktørId.id())), eq(orgnummer), eq(fagsakSaksnummer));
     }
 
     @Test
@@ -60,7 +60,8 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
         var expectedOrg = "123456789";
         var expectedBruker = "1233425324241";
         var expectedSkjæringstidspunkt = LocalDate.now();
-        var input = new ForespørselEntitet(expectedOrg, expectedSkjæringstidspunkt, new AktørIdEntitet(expectedBruker), Ytelsetype.FORELDREPENGER, "9876544321");
+        var input = new ForespørselEntitet(expectedOrg, expectedSkjæringstidspunkt, new AktørIdEntitet(expectedBruker), Ytelsetype.FORELDREPENGER,
+            "9876544321");
 
         var resultat = ForespørselRest.mapTilDto(input);
 
@@ -77,7 +78,8 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
         var expectedOrg = new OrganisasjonsnummerDto("123456789");
         var expectedBruker = new AktørIdDto("123342532424");
         var expectedSkjæringstidspunkt = LocalDate.now();
-        var dto = new ForespørselRest.ForespørselDto(UUID.randomUUID(), expectedOrg, expectedSkjæringstidspunkt, expectedBruker, YtelseTypeDto.SVANGERSKAPSPENGER);
+        var dto = new ForespørselRest.ForespørselDto(UUID.randomUUID(), expectedOrg, expectedSkjæringstidspunkt, expectedBruker,
+            YtelseTypeDto.SVANGERSKAPSPENGER);
 
         var ser = DefaultJsonMapper.toJson(dto);
         var des = DefaultJsonMapper.fromJson(ser, ForespørselRest.ForespørselDto.class);
