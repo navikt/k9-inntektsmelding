@@ -6,6 +6,7 @@ import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
+
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -20,9 +21,13 @@ public class AltinnAutoriseringKlient {
     private static final String SERVICE_CODE = "4936";
     private static final String SERVICE_EDITION = "1";
     private static final String FILTER_AKTIVE_BEDRIFTER = "Type ne 'Person' and Status eq 'Active'";
-    /** Altinn takler ikke høyere limit */
+    /**
+     * Altinn takler ikke høyere limit
+     */
     static final int ALTINN_SIZE_LIMIT = 500;
-    /** Antar at ingen har tilganger til flere enn dette, for å unngå uendelig antall kall ved feil */
+    /**
+     * Antar at ingen har tilganger til flere enn dette, for å unngå uendelig antall kall ved feil
+     */
     private static final int ALTINN_TOTAL_SIZE_LIMIT = 100_000;
 
     private final RestClient restClient;

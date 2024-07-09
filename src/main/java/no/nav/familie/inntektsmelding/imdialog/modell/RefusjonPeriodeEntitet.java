@@ -1,5 +1,8 @@
 package no.nav.familie.inntektsmelding.imdialog.modell;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -9,9 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Entity(name = "RefusjonPeriodeEntitet")
 @Table(name = "REFUSJON_PERIODE")
@@ -35,9 +35,7 @@ public class RefusjonPeriodeEntitet {
     }
 
     public RefusjonPeriodeEntitet(LocalDate fom, LocalDate tom, BigDecimal beløp) {
-        this.periode = tom == null
-            ? PeriodeEntitet.fraOgMed(fom)
-            : PeriodeEntitet.fraOgMedTilOgMed(fom, tom);
+        this.periode = tom == null ? PeriodeEntitet.fraOgMed(fom) : PeriodeEntitet.fraOgMedTilOgMed(fom, tom);
         this.beløp = beløp;
     }
 

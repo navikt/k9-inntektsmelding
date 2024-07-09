@@ -24,7 +24,7 @@ public class KontaktpersonEntitet {
     @Column(name = "telefonnummer")
     private String telefonnummer;
 
-    @Column(name ="navn")
+    @Column(name = "navn")
     private String navn;
 
     public KontaktpersonEntitet() {

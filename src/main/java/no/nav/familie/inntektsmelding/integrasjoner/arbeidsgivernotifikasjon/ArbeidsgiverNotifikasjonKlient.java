@@ -5,13 +5,14 @@ import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikas
 
 import java.net.http.HttpRequest;
 
+import jakarta.enterprise.context.Dependent;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
 import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
 
-import jakarta.enterprise.context.Dependent;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
@@ -27,8 +28,8 @@ class ArbeidsgiverNotifikasjonKlient {
 
     private static final String ERROR_RESPONSE = "F-102030";
 
-    private RestClient restKlient;
-    private RestConfig restConfig;
+    private final RestClient restKlient;
+    private final RestConfig restConfig;
 
     ArbeidsgiverNotifikasjonKlient() {
         this(RestClient.client());
@@ -73,7 +74,8 @@ class ArbeidsgiverNotifikasjonKlient {
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
 
-    public String oppdaterSakStatusMedGrupperingsid(NyStatusSakByGrupperingsidMutationRequest request, NyStatusSakResultatResponseProjection projection) {
+    public String oppdaterSakStatusMedGrupperingsid(NyStatusSakByGrupperingsidMutationRequest request,
+                                                    NyStatusSakResultatResponseProjection projection) {
         LOG.info("FAGER: Oppdater sak status med grupperingsid");
         var resultat = query(new GraphQLRequest(request, projection), NyStatusSakByGrupperingsidMutationResponse.class).nyStatusSakByGrupperingsid();
         if (resultat instanceof NyStatusSakVellykket vellykket) {
@@ -109,7 +111,8 @@ class ArbeidsgiverNotifikasjonKlient {
 
     public String lukkOppgaveByEksternId(OppgaveUtfoertByEksternId_V2MutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
         LOG.info("FAGER: Lukk Oppgave by ekstern id");
-        var resultat = query(new GraphQLRequest(request, projection), OppgaveUtfoertByEksternId_V2MutationResponse.class).oppgaveUtfoertByEksternId_V2();
+        var resultat = query(new GraphQLRequest(request, projection),
+            OppgaveUtfoertByEksternId_V2MutationResponse.class).oppgaveUtfoertByEksternId_V2();
         if (resultat instanceof OppgaveUtfoertVellykket vellykket) {
             return vellykket.getId();
         } else {

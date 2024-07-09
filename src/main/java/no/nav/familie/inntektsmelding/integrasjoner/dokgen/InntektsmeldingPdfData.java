@@ -1,8 +1,6 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import static java.time.format.DateTimeFormatter.ofPattern;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,7 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static java.time.format.DateTimeFormatter.ofPattern;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class InntektsmeldingPdfData {
@@ -96,77 +96,94 @@ public class InntektsmeldingPdfData {
         return ingenBortfaltNaturalytelse;
     }
 
-    public static class Builder{
-        private InntektsmeldingPdfData kladd;
+    public static class Builder {
+        private final InntektsmeldingPdfData kladd;
 
-        public Builder(){
+        public Builder() {
             kladd = new InntektsmeldingPdfData();
         }
+
         public Builder medAvsenderSystem(String avsenderSystem) {
             this.kladd.avsenderSystem = avsenderSystem;
             return this;
         }
+
         public Builder medNavn(String navn) {
             this.kladd.navnSøker = navn;
             return this;
         }
+
         public Builder medPersonnummer(String personnummer) {
             this.kladd.personnummer = formaterPersonnummer(personnummer);
             return this;
         }
+
         public Builder medYtelseNavn(Ytelsetype ytelsenavn) {
             this.kladd.ytelsetype = ytelsenavn;
             return this;
         }
+
         public Builder medArbeidsgiverIdent(String arbeidsgiverIdent) {
             this.kladd.arbeidsgiverIdent = arbeidsgiverIdent;
             return this;
         }
+
         public Builder medArbeidsgiverNavn(String arbeidsgiverNavn) {
             this.kladd.arbeidsgiverNavn = arbeidsgiverNavn;
             return this;
         }
+
         public Builder medStartDato(LocalDate startDato) {
             this.kladd.startDato = formaterDatoNorsk(startDato);
             return this;
         }
+
         public Builder medMånedInntekt(BigDecimal månedInntekt) {
             this.kladd.månedInntekt = månedInntekt;
             return this;
         }
+
         public Builder medOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
             this.kladd.opprettetTidspunkt = formaterDatoOgTidNorsk(opprettetTidspunkt);
             return this;
         }
+
         public Builder medRefusjonsbeløp(BigDecimal refusjonsbeløp) {
             this.kladd.refusjonsbeløp = refusjonsbeløp;
             return this;
         }
+
         public Builder medRefusjonOpphørsdato(LocalDate refusjonOpphørsdato) {
             this.kladd.refusjonOpphørsdato = formaterDatoNorsk(refusjonOpphørsdato);
             return this;
         }
+
         public Builder medEndringIRefusjonsperioder(List<RefusjonPeriode> refusjonsperioder) {
             this.kladd.endringIrefusjonsperioder = refusjonsperioder;
             return this;
         }
+
         public Builder medNaturalytelser(List<NaturalYtelse> naturalYtelser) {
             this.kladd.naturalytelser = naturalYtelser;
             return this;
         }
+
         public Builder medIngenBortfaltNaturalytelse(boolean ingenBortfalt) {
             this.kladd.ingenBortfaltNaturalytelse = ingenBortfalt;
             return this;
         }
+
         public Builder medIngenGjenopptattNaturalytelse(boolean ingenGjennopptatt) {
             this.kladd.ingenGjenopptattNaturalytelse = ingenGjennopptatt;
             return this;
         }
+
         public Builder medKontaktperson(Kontaktperson kontaktperson) {
             this.kladd.kontaktperson = kontaktperson;
             return this;
         }
-        public InntektsmeldingPdfData build(){
+
+        public InntektsmeldingPdfData build() {
             return kladd;
         }
     }
@@ -179,6 +196,7 @@ public class InntektsmeldingPdfData {
         }
         return personnummer;
     }
+
     public static String formaterDatoNorsk(LocalDate dato) {
         if (dato == null) {
             return null;

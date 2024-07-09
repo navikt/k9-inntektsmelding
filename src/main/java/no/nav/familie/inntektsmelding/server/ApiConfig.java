@@ -1,6 +1,19 @@
 package no.nav.familie.inntektsmelding.server;
 
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import jakarta.ws.rs.ApplicationPath;
+
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.GenericOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
@@ -8,7 +21,6 @@ import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
-import jakarta.ws.rs.ApplicationPath;
 import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselRest;
 import no.nav.familie.inntektsmelding.forvaltning.FagerTestRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.FpDokgenRestTjeneste;
@@ -21,16 +33,6 @@ import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.ServerProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends ResourceConfig {
@@ -71,13 +73,13 @@ public class ApiConfig extends ResourceConfig {
     private void registerOpenApi() {
         var oas = new OpenAPI();
         var info = new Info().title(ENV.getNaisAppName())
-                .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
-                .description("REST grensesnitt for FPINNTEKTSMELDING.");
+            .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
+            .description("REST grensesnitt for FPINNTEKTSMELDING.");
 
         oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpinntektsmelding")));
         var oasConfig = new SwaggerConfiguration().openAPI(oas)
-                .prettyPrint(true)
-                .resourceClasses(getApplicationClasses().stream().map(Class::getName).collect(Collectors.toSet()));
+            .prettyPrint(true)
+            .resourceClasses(getApplicationClasses().stream().map(Class::getName).collect(Collectors.toSet()));
         try {
             new GenericOpenApiContextBuilder<>().openApiConfiguration(oasConfig).buildContext(true).read();
         } catch (OpenApiConfigurationException e) {
@@ -88,12 +90,8 @@ public class ApiConfig extends ResourceConfig {
     }
 
     private Set<Class<?>> getApplicationClasses() {
-        return Set.of(
-                ForespørselRest.class,
-                InntektsmeldingDialogRest.class,
-                FagerTestRestTjeneste.class,
-                ProsessTaskRestTjeneste.class,
-                FpDokgenRestTjeneste.class);
+        return Set.of(ForespørselRest.class, InntektsmeldingDialogRest.class, FagerTestRestTjeneste.class, ProsessTaskRestTjeneste.class,
+            FpDokgenRestTjeneste.class);
     }
 
     private Map<String, Object> getApplicationProperties() {

@@ -31,8 +31,7 @@ public class InntektsmeldingMapper {
 
     private static List<NaturalytelseEntitet> mapNaturalytelser(List<SendInntektsmeldingRequestDto.NaturalytelseRequestDto> dto) {
         return dto.stream()
-            .map(d -> new NaturalytelseEntitet.Builder()
-                .medPeriode(d.fom(), d.tom())
+            .map(d -> new NaturalytelseEntitet.Builder().medPeriode(d.fom(), d.tom())
                 .medBeløp(d.beløp())
                 .medType(KodeverkMapper.mapNaturalytelseTilEntitet(d.naturalytelsetype()))
                 .medErBortfalt(d.erBortfalt())

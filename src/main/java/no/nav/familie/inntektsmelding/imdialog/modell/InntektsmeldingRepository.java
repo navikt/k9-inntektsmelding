@@ -6,6 +6,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @Dependent
@@ -29,7 +30,9 @@ public class InntektsmeldingRepository {
     }
 
     public Optional<InntektsmeldingEntitet> hentSisteInntektsmelding(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato) {
-        var query = entityManager.createQuery("FROM InntektsmeldingEntitet where aktørId = :brukerAktørId and arbeidsgiverIdent = :arbeidsgiverIdent and startDato = :startDato order by opprettetTidspunkt desc", InntektsmeldingEntitet.class)
+        var query = entityManager.createQuery(
+                "FROM InntektsmeldingEntitet where aktørId = :brukerAktørId and arbeidsgiverIdent = :arbeidsgiverIdent and startDato = :startDato order by opprettetTidspunkt desc",
+                InntektsmeldingEntitet.class)
             .setParameter("brukerAktørId", aktørId)
             .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
             .setParameter("startDato", startDato)

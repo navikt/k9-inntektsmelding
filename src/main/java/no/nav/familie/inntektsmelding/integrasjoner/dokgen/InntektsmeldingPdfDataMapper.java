@@ -1,13 +1,6 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
-import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.vedtak.konfig.Tid;
+import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoNorsk;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,7 +8,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoNorsk;
+import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
+import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
+import no.nav.vedtak.konfig.Tid;
 
 public class InntektsmeldingPdfDataMapper {
     public static InntektsmeldingPdfData mapInntektsmeldingData(InntektsmeldingEntitet inntektsmelding,
@@ -37,8 +36,7 @@ public class InntektsmeldingPdfDataMapper {
             .medIngenBortfaltNaturalytelse(erIngenBortalteNaturalYtelser(inntektsmelding.getNaturalYtelser()))
             .medIngenGjenopptattNaturalytelse(erIngenGjenopptatteNaturalYtelser(inntektsmelding.getNaturalYtelser()));
 
-        utledRefusjonsbeløp(inntektsmelding.getRefusjonsPerioder()).ifPresent(
-            imDokumentdataBuilder::medRefusjonsbeløp);
+        utledRefusjonsbeløp(inntektsmelding.getRefusjonsPerioder()).ifPresent(imDokumentdataBuilder::medRefusjonsbeløp);
         utledOpphørsdato(inntektsmelding.getRefusjonsPerioder()).ifPresent(imDokumentdataBuilder::medRefusjonOpphørsdato);
 
         return imDokumentdataBuilder.build();
@@ -77,8 +75,8 @@ public class InntektsmeldingPdfDataMapper {
 
     private static List<NaturalYtelse> mapNauralYtelser(List<NaturalytelseEntitet> naturalytelser) {
         return naturalytelser.stream()
-            .map(ny -> new NaturalYtelse(formaterDatoNorsk(ny.getPeriode().getFom()), formaterDatoNorsk(ny.getPeriode().getTom()), mapTypeTekst(ny.getType()), ny.getBeløp(),
-                ny.getErBortfalt()))
+            .map(ny -> new NaturalYtelse(formaterDatoNorsk(ny.getPeriode().getFom()), formaterDatoNorsk(ny.getPeriode().getTom()),
+                mapTypeTekst(ny.getType()), ny.getBeløp(), ny.getErBortfalt()))
             .toList();
     }
 
@@ -109,7 +107,8 @@ public class InntektsmeldingPdfDataMapper {
     private static List<RefusjonPeriode> mapEndringIRefusjonsperioder(List<RefusjonPeriodeEntitet> refusjonsPerioder) {
         return refusjonsPerioder.stream()
             .filter(rp -> rp.getPeriode().getTom().isBefore(Tid.TIDENES_ENDE))
-            .map(rpe -> new RefusjonPeriode(formaterDatoNorsk(rpe.getPeriode().getFom()), formaterDatoNorsk(rpe.getPeriode().getTom()), rpe.getBeløp()))
+            .map(rpe -> new RefusjonPeriode(formaterDatoNorsk(rpe.getPeriode().getFom()), formaterDatoNorsk(rpe.getPeriode().getTom()),
+                rpe.getBeløp()))
             .toList();
     }
 }

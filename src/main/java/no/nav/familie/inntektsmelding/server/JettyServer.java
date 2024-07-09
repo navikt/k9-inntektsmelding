@@ -4,9 +4,6 @@ import java.util.Properties;
 
 import jakarta.ws.rs.core.Application;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import org.eclipse.jetty.ee10.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee10.cdi.CdiServletContainerInitializer;
 import org.eclipse.jetty.ee10.servlet.DefaultServlet;
@@ -27,15 +24,18 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import no.nav.foreldrepenger.konfig.Environment;
 
 public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
     private static final Environment ENV = Environment.current();
 
-    private static final String CONTEXT_PATH = ENV.getProperty("context.path","/fpinntektsmelding");
+    private static final String CONTEXT_PATH = ENV.getProperty("context.path", "/fpinntektsmelding");
 
     private final Integer serverPort;
+
     JettyServer(int serverPort) {
         this.serverPort = serverPort;
     }
@@ -48,7 +48,8 @@ public class JettyServer {
         return new JettyServer(ENV.getProperty("server.port", Integer.class, 8080));
     }
 
-<<<<<<< Updated upstream
+<<<<<<<Updated upstream
+
     private static ContextHandler createContext() throws MalformedURLException {
         var ctx = new WebAppContext(CONTEXT_PATH, null, simpleConstraints(), null, new ErrorPageErrorHandler(), ServletContextHandler.NO_SESSIONS);
         ctx.setParentLoaderPriority(true);
@@ -99,7 +100,9 @@ public class JettyServer {
     }
 
 =======
->>>>>>> Stashed changes
+    >>>>>>>
+    Stashed changes
+
     void bootStrap() throws Exception {
         System.setProperty("task.manager.runner.threads", "4");
         konfigurerLogging();

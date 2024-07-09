@@ -2,12 +2,13 @@ package no.nav.familie.inntektsmelding.typer.dto;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-public record SaksnummerDto (@JsonValue @NotNull @Pattern(regexp = REGEXP, message = "Saksnummer [${validatedValue}] matcher ikke tillatt pattern [{regexp}]") String saksnr) {
+import com.fasterxml.jackson.annotation.JsonValue;
+
+public record SaksnummerDto(
+    @JsonValue @NotNull @Pattern(regexp = REGEXP, message = "Saksnummer [${validatedValue}] matcher ikke tillatt pattern [{regexp}]") String saksnr) {
 
     private static final String REGEXP = "^[\\p{Alnum}]+$";
 

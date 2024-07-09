@@ -21,6 +21,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -55,11 +56,11 @@ public class InntektsmeldingEntitet {
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
     private LocalDateTime opprettetTidspunkt = LocalDateTime.now();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy ="inntektsmelding")
-    private List<RefusjonPeriodeEntitet> refusjonsPeriode= new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
+    private List<RefusjonPeriodeEntitet> refusjonsPeriode = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy ="inntektsmelding")
-    private List<NaturalytelseEntitet> naturalYtelse= new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
+    private List<NaturalytelseEntitet> naturalYtelse = new ArrayList<>();
 
     public InntektsmeldingEntitet() {
         // Hibernate
@@ -126,10 +127,12 @@ public class InntektsmeldingEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         InntektsmeldingEntitet entitet = (InntektsmeldingEntitet) o;
         return Objects.equals(aktørId, entitet.aktørId) && ytelsetype == entitet.ytelsetype && Objects.equals(arbeidsgiverIdent,
             entitet.arbeidsgiverIdent) && Objects.equals(startDato, entitet.startDato) && Objects.equals(opprettetTidspunkt,
@@ -144,8 +147,8 @@ public class InntektsmeldingEntitet {
     @Override
     public String toString() {
         return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + aktørId + ", ytelsetype=" + ytelsetype + ", arbeidsgiverIdent='"
-            + arbeidsgiverIdent + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt
-            + ", opprettetTidspunkt=" + opprettetTidspunkt + ", refusjonsPeriode=" + refusjonsPeriode + ", naturalYtelse=" + naturalYtelse + '}';
+            + arbeidsgiverIdent + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt + ", opprettetTidspunkt=" + opprettetTidspunkt
+            + ", refusjonsPeriode=" + refusjonsPeriode + ", naturalYtelse=" + naturalYtelse + '}';
     }
 
     public static Builder builder() {
@@ -153,7 +156,7 @@ public class InntektsmeldingEntitet {
     }
 
     public static class Builder {
-        private InntektsmeldingEntitet kladd = new InntektsmeldingEntitet();
+        private final InntektsmeldingEntitet kladd = new InntektsmeldingEntitet();
 
         public Builder medAktørId(AktørIdEntitet aktørId) {
             kladd.aktørId = aktørId;

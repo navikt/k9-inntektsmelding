@@ -5,5 +5,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
-public record AltinnReportee(String name, String organizationForm, String organizationNumber, String parentOrganizationNumber, String socialSecurityNumber, String status, String type) {
+public record AltinnReportee(String name, String organizationForm, String organizationNumber, String parentOrganizationNumber,
+                             String socialSecurityNumber, String status, String type) {
 }

@@ -1,9 +1,9 @@
 package no.nav.familie.inntektsmelding.typer.dto;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public record AktørIdDto(@JsonValue @NotNull @Digits(integer = 19, fraction = 0) String id) {
     @Override

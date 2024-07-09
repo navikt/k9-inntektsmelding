@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.UriBuilder;
+
 import no.nav.familie.inntektsmelding.koder.Språkkode;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
@@ -10,6 +11,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+
 @Dependent
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "fpdokgen.url", endpointDefault = "http://fpdokgen.teamforeldrepenger", application = FpApplication.FPDOKGEN)
 public class FpDokgenKlient {

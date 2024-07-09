@@ -1,5 +1,10 @@
 package no.nav.familie.inntektsmelding.server.exceptions;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
@@ -10,11 +15,6 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViolationException> {
 

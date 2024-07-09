@@ -2,11 +2,11 @@ package no.nav.familie.inntektsmelding.server;
 
 import java.util.Set;
 
+import jakarta.ws.rs.ApplicationPath;
+
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.ws.rs.ApplicationPath;
 
 @ApplicationPath(InternalApiConfig.API_URI)
 public class InternalApiConfig extends ResourceConfig {

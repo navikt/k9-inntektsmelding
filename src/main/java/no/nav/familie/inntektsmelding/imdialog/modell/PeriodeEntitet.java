@@ -1,11 +1,12 @@
 package no.nav.familie.inntektsmelding.imdialog.modell;
 
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import no.nav.vedtak.konfig.Tid;
 
-import java.time.LocalDate;
+import no.nav.vedtak.konfig.Tid;
 
 @Embeddable
 public class PeriodeEntitet {
