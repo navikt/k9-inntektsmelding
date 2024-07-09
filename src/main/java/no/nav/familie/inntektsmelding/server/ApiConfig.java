@@ -1,25 +1,6 @@
 package no.nav.familie.inntektsmelding.server;
 
-<<<<<<< Updated upstream
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import no.nav.familie.inntektsmelding.forvaltning.FagerTestRestTjeneste;
-
-import no.nav.familie.inntektsmelding.forvaltning.FpDokgenRestTjeneste;
-import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
-import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapper;
-import no.nav.familie.inntektsmelding.server.exceptions.JsonMappingExceptionMapper;
-import no.nav.familie.inntektsmelding.server.exceptions.JsonParseExceptionMapper;
-import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
-
-import org.glassfish.jersey.server.ServerProperties;
-
-=======
->>>>>>> Stashed changes
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.GenericOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
@@ -28,17 +9,17 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import jakarta.ws.rs.ApplicationPath;
-<<<<<<< Updated upstream
-import jakarta.ws.rs.core.Application;
-=======
->>>>>>> Stashed changes
 import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselRest;
+import no.nav.familie.inntektsmelding.forvaltning.FagerTestRestTjeneste;
+import no.nav.familie.inntektsmelding.forvaltning.FpDokgenRestTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogRest;
+import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
+import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapper;
+import no.nav.familie.inntektsmelding.server.exceptions.JsonMappingExceptionMapper;
+import no.nav.familie.inntektsmelding.server.exceptions.JsonParseExceptionMapper;
 import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
-<<<<<<< Updated upstream
-=======
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
@@ -50,7 +31,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
->>>>>>> Stashed changes
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends ResourceConfig {
