@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -150,20 +151,8 @@ public class InntektsmeldingPdfData {
         if (dato == null) {
             return null;
         }
-        var navnPåUkedag = hentNavnPåDag(dato.getDayOfWeek());
+        var navnPåUkedag = dato.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("NO"));
         return String.format(navnPåUkedag + " " + dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO"))));
-    }
-
-    private static NavnPåUkedag hentNavnPåDag(DayOfWeek dayOfWeek) {
-        return switch (dayOfWeek) {
-            case MONDAY -> NavnPåUkedag.Mandag;
-            case TUESDAY -> NavnPåUkedag.Tirsdag;
-            case WEDNESDAY -> NavnPåUkedag.Onsdag;
-            case THURSDAY -> NavnPåUkedag.Torsdag;
-            case FRIDAY -> NavnPåUkedag.Fredag;
-            case SATURDAY -> NavnPåUkedag.Lørdag;
-            case SUNDAY -> NavnPåUkedag.Søndag;
-        };
     }
 
     public static String formaterDatoOgTidNorsk(LocalDateTime opprettetTidspunkt) {
