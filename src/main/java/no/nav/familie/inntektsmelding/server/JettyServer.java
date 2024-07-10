@@ -2,8 +2,6 @@ package no.nav.familie.inntektsmelding.server;
 
 import java.util.Properties;
 
-import jakarta.ws.rs.core.Application;
-
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
@@ -32,6 +30,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
     private static final Environment ENV = Environment.current();
+    protected static final String APPLICATION = "jakarta.ws.rs.Application";
 
     private static final String CONTEXT_PATH = ENV.getProperty("context.path", "/fpinntektsmelding");
 
@@ -143,7 +142,7 @@ public class JettyServer {
     static void registerServlet(ServletContextHandler context, int prioritet, String path, Class<?> appClass) {
         var servlet = new ServletHolder(new ServletContainer());
         servlet.setInitOrder(prioritet);
-        servlet.setInitParameter(Application.class.getName(), appClass.getName());
+        servlet.setInitParameter(APPLICATION, appClass.getName());
         context.addServlet(servlet, path + "/*");
     }
 
