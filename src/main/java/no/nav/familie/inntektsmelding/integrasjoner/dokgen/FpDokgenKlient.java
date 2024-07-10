@@ -2,8 +2,6 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.UriBuilder;
-
-import no.nav.familie.inntektsmelding.koder.Språkkode;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -29,8 +27,8 @@ public class FpDokgenKlient {
     }
 
     public byte[] genererPdf(InntektsmeldingPdfData dokumentdata) {
-        var templatePath = String.format("/template/%s/template_%s", "fpinntektsmelding-inntektsmelding", Språkkode.nb);
-        var endpoint = UriBuilder.fromUri(restConfig.endpoint()).path(templatePath).path("/create-pdf-variation").build();
+        var templatePath = "/template/fpinntektsmelding-inntektsmelding/pdfinntektsmelding";
+        var endpoint = UriBuilder.fromUri(restConfig.endpoint()).path(templatePath).path("/create-pdf-format-variation").build();
         var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
         var pdf = restClient.sendReturnByteArray(request);
 

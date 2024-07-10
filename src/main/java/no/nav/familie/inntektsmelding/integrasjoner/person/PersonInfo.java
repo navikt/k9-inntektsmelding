@@ -13,4 +13,11 @@ public record PersonInfo(String fornavn, String mellomnavn, String etternavn, Pe
         }
         return etternavn + " " + fornavn + (mellomnavn == null ? "" : " " + mellomnavn);
     }
+
+    public String mapFornavn() {
+        if (fornavn == null) {
+            return "";
+        }
+        return fornavn;
+    }
 }
