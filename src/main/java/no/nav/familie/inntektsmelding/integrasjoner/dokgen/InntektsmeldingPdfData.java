@@ -167,16 +167,6 @@ public class InntektsmeldingPdfData {
         this.arbeidsgiverIdent = arbeidsgiverIdent.substring(0, 4) + "** *****";
     }
 
-    public enum NavnPåUkedag {
-        Mandag,
-        Tirsdag,
-        Onsdag,
-        Torsdag,
-        Fredag,
-        Lørdag,
-        Søndag
-    }
-
     public static class Builder {
         private InntektsmeldingPdfData kladd;
 
