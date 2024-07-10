@@ -3,11 +3,14 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
@@ -17,6 +20,7 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 public class InntektsmeldingPdfData {
     private String avsenderSystem;
     private String navnSøker;
+    private String fornavnSøker;
     private String personnummer;
     private Ytelsetype ytelsetype;
     private String arbeidsgiverIdent;
@@ -96,8 +100,75 @@ public class InntektsmeldingPdfData {
         return ingenBortfaltNaturalytelse;
     }
 
+    public String getFornavnSøker() {
+        return fornavnSøker;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        InntektsmeldingPdfData that = (InntektsmeldingPdfData) o;
+        return ingenBortfaltNaturalytelse == that.ingenBortfaltNaturalytelse && ingenGjenopptattNaturalytelse == that.ingenGjenopptattNaturalytelse
+            && Objects.equals(avsenderSystem, that.avsenderSystem) && Objects.equals(navnSøker, that.navnSøker) && Objects.equals(fornavnSøker,
+            that.fornavnSøker) && Objects.equals(personnummer, that.personnummer) && ytelsetype == that.ytelsetype
+            && Objects.equals(arbeidsgiverIdent,
+            that.arbeidsgiverIdent) && Objects.equals(arbeidsgiverNavn, that.arbeidsgiverNavn) && Objects.equals(kontaktperson, that.kontaktperson)
+            && Objects.equals(startDato, that.startDato) && Objects.equals(månedInntekt, that.månedInntekt) && Objects.equals(opprettetTidspunkt,
+            that.opprettetTidspunkt) && Objects.equals(refusjonsbeløp, that.refusjonsbeløp) && Objects.equals(refusjonOpphørsdato,
+            that.refusjonOpphørsdato) && Objects.equals(endringIrefusjonsperioder, that.endringIrefusjonsperioder) && Objects.equals(naturalytelser,
+            that.naturalytelser);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(avsenderSystem, navnSøker, fornavnSøker, personnummer, ytelsetype, arbeidsgiverIdent, arbeidsgiverNavn, kontaktperson,
+            startDato, månedInntekt, opprettetTidspunkt, refusjonsbeløp, refusjonOpphørsdato, endringIrefusjonsperioder, naturalytelser,
+            ingenBortfaltNaturalytelse, ingenGjenopptattNaturalytelse);
+    }
+
+    public static String formaterPersonnummer(String personnummer) {
+        if (personnummer != null && personnummer.length() == 11) {
+            var formatertPersonnummer = new StringBuilder(personnummer);
+            formatertPersonnummer.insert(6, " ");
+            return formatertPersonnummer.toString();
+        }
+        return personnummer;
+    }
+
+    public static String formaterDatoNorsk(LocalDate dato) {
+        if (dato == null) {
+            return null;
+        }
+        return dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO")));
+    }
+
+    public static String formaterDatoMedNavnPåUkedag(LocalDate dato) {
+        if (dato == null) {
+            return null;
+        }
+        var navnPåUkedag = dato.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("NO"));
+        return String.format(navnPåUkedag + " " + dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO"))));
+    }
+
+    public static String formaterDatoOgTidNorsk(LocalDateTime opprettetTidspunkt) {
+        if (opprettetTidspunkt == null) {
+            return null;
+        }
+        return opprettetTidspunkt.format(ofPattern("d. MMMM yyyy HH:mm:ss", Locale.forLanguageTag("NO")));
+    }
+
+    public void anonymiser() {
+        this.personnummer = personnummer.substring(0, 4) + "** *****";
+        this.arbeidsgiverIdent = arbeidsgiverIdent.substring(0, 4) + "** *****";
+    }
+
     public static class Builder {
-        private final InntektsmeldingPdfData kladd;
+        private InntektsmeldingPdfData kladd;
 
         public Builder() {
             kladd = new InntektsmeldingPdfData();
@@ -110,6 +181,11 @@ public class InntektsmeldingPdfData {
 
         public Builder medNavn(String navn) {
             this.kladd.navnSøker = navn;
+            return this;
+        }
+
+        public Builder medForNavnSøker(String fornavn) {
+            this.kladd.fornavnSøker = fornavn;
             return this;
         }
 
@@ -134,7 +210,7 @@ public class InntektsmeldingPdfData {
         }
 
         public Builder medStartDato(LocalDate startDato) {
-            this.kladd.startDato = formaterDatoNorsk(startDato);
+            this.kladd.startDato = formaterDatoMedNavnPåUkedag(startDato);
             return this;
         }
 
@@ -186,33 +262,5 @@ public class InntektsmeldingPdfData {
         public InntektsmeldingPdfData build() {
             return kladd;
         }
-    }
-
-    public static String formaterPersonnummer(String personnummer) {
-        if (personnummer != null && personnummer.length() == 11) {
-            var formatertPersonnummer = new StringBuilder(personnummer);
-            formatertPersonnummer.insert(6, " ");
-            return formatertPersonnummer.toString();
-        }
-        return personnummer;
-    }
-
-    public static String formaterDatoNorsk(LocalDate dato) {
-        if (dato == null) {
-            return null;
-        }
-        return dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO")));
-    }
-
-    public static String formaterDatoOgTidNorsk(LocalDateTime opprettetTidspunkt) {
-        if (opprettetTidspunkt == null) {
-            return null;
-        }
-        return opprettetTidspunkt.format(ofPattern("d. MMMM yyyy HH:mm:ss", Locale.forLanguageTag("NO")));
-    }
-
-    public void anonymiser() {
-        this.personnummer = personnummer.substring(0, 4) + "** *****";
-        this.arbeidsgiverIdent = arbeidsgiverIdent.substring(0, 4) + "** *****";
     }
 }

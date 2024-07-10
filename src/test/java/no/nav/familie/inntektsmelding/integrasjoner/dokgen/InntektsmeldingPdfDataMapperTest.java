@@ -1,6 +1,5 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
-
-
+import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoMedNavnPåUkedag;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoNorsk;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoOgTidNorsk;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterPersonnummer;
@@ -9,7 +8,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +44,10 @@ class InntektsmeldingPdfDataMapperTest {
             .medErBortfalt(true)
             .medBeløp(naturalytelseBeløp)
             .build();
+
+        var fornavn = "Test";
+        var mellomNavn = "Tester";
+        var etternavn = "Testesen";
         var arbeidsgiverIdent = "999999999";
         var arbeidsgiverNavn = "Arbeidsgvier 1";
         var navn = "Kontaktperson navn";
@@ -66,7 +71,7 @@ class InntektsmeldingPdfDataMapperTest {
 
         var personIdent = new PersonIdent("11111111111");
 
-        var personinfo = new PersonInfo("Test", "Tester", "Testesen", personIdent, inntektsmeldingEntitet.getAktørId(), LocalDate.now(), null);
+        var personinfo = new PersonInfo(fornavn, mellomNavn, etternavn, personIdent, inntektsmeldingEntitet.getAktørId(), LocalDate.now(), null);
 
         var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, arbeidsgiverNavn, personinfo, arbeidsgiverIdent);
 
@@ -77,10 +82,11 @@ class InntektsmeldingPdfDataMapperTest {
         assertThat(pdfData.getKontaktperson().navn()).isEqualTo(navn);
         assertThat(pdfData.getKontaktperson().telefonnummer()).isEqualTo(nr);
         assertThat(pdfData.getMånedInntekt()).isEqualTo(inntekt);
-        assertThat(pdfData.getNavnSøker()).isEqualTo("Testesen Test Tester");
+        assertThat(pdfData.getNavnSøker()).isEqualTo(etternavn + " " + fornavn + " " + mellomNavn);
+        assertThat(pdfData.getFornavnSøker()).isEqualTo(fornavn);
         assertThat(pdfData.getYtelsetype()).isEqualTo(Ytelsetype.FORELDREPENGER);
         assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(formaterDatoOgTidNorsk(opprettetTidspunkt));
-        assertThat(pdfData.getStartDato()).isEqualTo(formaterDatoNorsk(startdato));
+        assertThat(pdfData.getStartDato()).isEqualTo(formaterDatoMedNavnPåUkedag(startdato));
         assertThat(pdfData.getPersonnummer()).isEqualTo(formaterPersonnummer(personIdent.getIdent()));
         assertThat(pdfData.getRefusjonOpphørsdato()).isNull();
         assertThat(pdfData.getRefusjonsbeløp()).isEqualTo(refusjonsbeløp);
