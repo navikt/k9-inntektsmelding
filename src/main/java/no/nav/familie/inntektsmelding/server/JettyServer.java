@@ -41,7 +41,6 @@ public class JettyServer {
     protected static final String APPLICATION = "jakarta.ws.rs.Application";
 
     private static final String CONTEXT_PATH = ENV.getProperty("context.path", "/fpinntektsmelding");
-    protected static final String APPLICATION = "jakarta.ws.rs.Application";
 
     private final Integer serverPort;
 

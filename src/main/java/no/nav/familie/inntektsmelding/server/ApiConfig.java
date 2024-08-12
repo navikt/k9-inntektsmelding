@@ -91,7 +91,10 @@ public class ApiConfig extends ResourceConfig {
     }
 
     private Set<Class<?>> getApplicationClasses() {
-        return Set.of(ForespørselRest.class, InntektsmeldingDialogRest.class, FagerTestRestTjeneste.class, ProsessTaskRestTjeneste.class,
+        return Set.of(ForespørselRest.class,
+            InntektsmeldingDialogRest.class,
+            FagerTestRestTjeneste.class,
+            ProsessTaskRestTjeneste.class,
             FpDokgenRestTjeneste.class);
     }
 
