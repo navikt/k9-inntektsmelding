@@ -14,7 +14,6 @@ import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.GenericOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
@@ -31,6 +30,7 @@ import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapp
 import no.nav.familie.inntektsmelding.server.exceptions.JsonMappingExceptionMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.JsonParseExceptionMapper;
 import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
+import no.nav.familie.inntektsmelding.server.openapi.OpenApiRest;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
@@ -87,7 +87,7 @@ public class ApiConfig extends ResourceConfig {
             throw new TekniskException("OPEN-API", e.getMessage(), e);
         }
 
-        register(OpenApiResource.class);
+        register(OpenApiRest.class);
     }
 
     private Set<Class<?>> getApplicationClasses() {

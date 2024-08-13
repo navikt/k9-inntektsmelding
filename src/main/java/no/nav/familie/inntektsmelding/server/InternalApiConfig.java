@@ -8,6 +8,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.server.auth.AuthenticationFilter;
+
 @ApplicationPath(InternalApiConfig.API_URI)
 public class InternalApiConfig extends ResourceConfig {
     private static final Logger LOG = LoggerFactory.getLogger(InternalApiConfig.class);
@@ -15,12 +17,19 @@ public class InternalApiConfig extends ResourceConfig {
 
     public InternalApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
+        // Sikkerhet
+        registerAuthenticationFilter();
+
         registerClasses(getApplicationClasses());
         LOG.info("Ferdig med initialisering av {}", API_URI);
     }
 
     private Set<Class<?>> getApplicationClasses() {
         return Set.of(HealtCheckRest.class, PrometheusRestService.class);
+    }
+
+    void registerAuthenticationFilter() {
+        register(AuthenticationFilter.class);
     }
 
 }
