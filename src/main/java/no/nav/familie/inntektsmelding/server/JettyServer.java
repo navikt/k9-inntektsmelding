@@ -1,10 +1,6 @@
 package no.nav.familie.inntektsmelding.server;
 
-import java.util.EnumSet;
 import java.util.Properties;
-import java.util.Set;
-
-import jakarta.servlet.DispatcherType;
 
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -12,7 +8,6 @@ import javax.sql.DataSource;
 import org.eclipse.jetty.ee10.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee10.cdi.CdiServletContainerInitializer;
 import org.eclipse.jetty.ee10.servlet.DefaultServlet;
-import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.ee10.servlet.security.ConstraintMapping;
@@ -30,10 +25,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import no.nav.familie.inntektsmelding.server.auth.config.MultiIssuerConfiguration;
-import no.nav.familie.inntektsmelding.server.auth.filter.JaxrsJwtTokenValidationFilter;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
@@ -118,7 +110,6 @@ public class JettyServer {
 
             // Sikkerhet
             context.setSecurityHandler(simpleConstraints());
-            registerAuthenticationFilter(context);
 
             // Servlets
             registerDefaultServlet(context);
@@ -155,13 +146,6 @@ public class JettyServer {
         servlet.setInitOrder(prioritet);
         servlet.setInitParameter(APPLICATION, appClass.getName());
         context.addServlet(servlet, path + "/*");
-    }
-
-    private static void registerAuthenticationFilter(ServletContextHandler context) {
-        var supportedIssuers = Set.of(OpenIDProvider.AZUREAD, OpenIDProvider.TOKENX);
-        var filter = new JaxrsJwtTokenValidationFilter(new MultiIssuerConfiguration(supportedIssuers));
-        var filterHolder = new FilterHolder(filter);
-        context.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
     }
 
     private static ConstraintSecurityHandler simpleConstraints() {

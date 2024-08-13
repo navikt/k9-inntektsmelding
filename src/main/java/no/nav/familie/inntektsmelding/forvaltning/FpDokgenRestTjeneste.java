@@ -37,12 +37,10 @@ import no.nav.familie.inntektsmelding.server.auth.api.Autentisert;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @ApplicationScoped
 @Path(FpDokgenRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
-@Autentisert
 public class FpDokgenRestTjeneste {
     public static final String BASE_PATH = "/inntektsmelding-pdf";
     private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
@@ -62,9 +60,9 @@ public class FpDokgenRestTjeneste {
     }
 
     @POST
+    @Autentisert
     @Consumes(APPLICATION_JSON)
     @Produces("application/pdf")
-    @UtenAutentisering
     @Operation(description = "Generer en pdf av en inntektsmelding", tags = "forvaltning")
     public Response genererPdf(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
         if (IS_PROD) {
