@@ -44,7 +44,7 @@ public class TokenValidationHandler {
         var unvalidatedToken = hentTokenFraHeader(request);
         Map<String, JwtToken> validatedTokens = unvalidatedToken.stream()
             .map(this::validate)
-            .filter(entry -> entry != null)
+            .filter(Objects::nonNull)
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, ConcurrentHashMap::new));
 
         return BasisKontekst.ikkeAutentisertRequest("sdfsd");
@@ -60,6 +60,26 @@ public class TokenValidationHandler {
                 LOG.debug("Found token from trusted issuer={} with shortName={} in request", jwtToken.getIssuer(), issuerShortName);
                 var validationResult = getValidator(jwtToken).validate(jwtToken.getTokenString());
                 LOG.debug("Validated token from issuer[{}]", jwtToken.getIssuer());
+
+                // Håndter valideringsresultat
+                if (validationResult.isValid()) {
+                    var expiresAt = Optional.ofNullable(jwtToken.getTokenClaims().getExpirationTime())
+                        .orElseThrow(() -> new WebApplicationException("Token mangler expires at claim"));
+                    var token = new OpenIDToken(issuerConfig.getProvider(),
+                        OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE,
+                        jwtToken.getTokenString(),
+                        null,
+                        expiresAt.toEpochMilli());
+                    RequestKontekst.forRequest(validationResult.subject(),
+                        validationResult.compactSubject(),
+                        validationResult.identType(),
+                        token,
+                        validationResult.getGrupper());
+                    LOG.trace("token validert");
+                } else {
+                    throw new WebApplicationException("Ugyldig token");
+                }
+
                 return new SimpleImmutableEntry<>(issuerShortName, jwtToken);
             } else {
                 LOG.debug("Found token from unknown issuer[{}], skipping validation.", jwtToken.getIssuer());

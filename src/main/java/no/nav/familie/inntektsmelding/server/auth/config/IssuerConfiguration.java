@@ -7,20 +7,24 @@ import no.nav.vedtak.sikkerhet.oidc.validator.OidcTokenValidator;
 public class IssuerConfiguration {
 
     protected static final String AUTHORIZATION = "Authorization";
-    private final OpenIDProvider shortname;
+    private final OpenIDProvider provider;
     private final String acceptedAudience;
     private final String headerName;
     private final OidcTokenValidator tokenValidator;
 
     public IssuerConfiguration(OpenIDProvider providerName, OpenIDConfiguration openIDConfiguration) {
-        this.shortname = providerName;
+        this.provider = providerName;
         this.acceptedAudience = openIDConfiguration.clientId();
         this.headerName = AUTHORIZATION;
         this.tokenValidator = new OidcTokenValidator(openIDConfiguration);
     }
 
     public String getShortname() {
-        return shortname.name();
+        return provider.name();
+    }
+
+    public OpenIDProvider getProvider() {
+        return provider;
     }
 
     public String getAcceptedAudience() {
