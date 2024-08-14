@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.server;
+package no.nav.familie.inntektsmelding.server.app.forvaltning;
 
 
 import java.util.HashMap;
@@ -20,10 +20,8 @@ import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
-import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselRest;
 import no.nav.familie.inntektsmelding.forvaltning.FagerTestRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.FpDokgenRestTjeneste;
-import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogRest;
 import no.nav.familie.inntektsmelding.server.auth.AuthenticationFilter;
 import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapper;
@@ -35,33 +33,27 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
-@ApplicationPath(ApiConfig.API_URI)
-public class ApiConfig extends ResourceConfig {
+@ApplicationPath(ForvaltningApiConfig.API_URI)
+public class ForvaltningApiConfig extends ResourceConfig {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ApiConfig.class);
-    public static final String API_URI = "/api";
+    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningApiConfig.class);
+    public static final String API_URI = "/forvaltning/api";
     private static final Environment ENV = Environment.current();
 
-    public ApiConfig() {
+    public ForvaltningApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
         // Sikkerhet
-        registerAuthenticationFilter();
+        register(AuthenticationFilter.class);
         registerOpenApi();
 
-        registerRestServices();
+        // REST
+        registerClasses(getApplicationClasses());
+
         registerExceptionMappers();
         register(JacksonJsonConfig.class);
 
         setProperties(getApplicationProperties());
         LOG.info("Ferdig med initialisering av {}", API_URI);
-    }
-
-    void registerRestServices() {
-        registerClasses(getApplicationClasses());
-    }
-
-    void registerAuthenticationFilter() {
-        register(AuthenticationFilter.class);
     }
 
     void registerExceptionMappers() {
@@ -91,9 +83,7 @@ public class ApiConfig extends ResourceConfig {
     }
 
     private Set<Class<?>> getApplicationClasses() {
-        return Set.of(ForespørselRest.class,
-            InntektsmeldingDialogRest.class,
-            FagerTestRestTjeneste.class,
+        return Set.of(FagerTestRestTjeneste.class,
             ProsessTaskRestTjeneste.class,
             FpDokgenRestTjeneste.class);
     }

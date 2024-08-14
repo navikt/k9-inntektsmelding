@@ -1,6 +1,10 @@
 package no.nav.familie.inntektsmelding.server;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
+import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
+import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
+
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -8,11 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-
-import no.nav.familie.inntektsmelding.server.auth.api.Autentisert;
-import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMed;
-import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Sjekker at alle REST endepunkt har definert autorisasjon konfigurasjon for Autentisering.
@@ -20,8 +20,8 @@ import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
  */
 class RestApiAutentiseringAnnoteringTest {
 
-    protected static final List<Class<? extends Annotation>> GYLDIGE_ANNOTERINGER = List.of(Autentisert.class,
-        AutentisertMed.class,
+    protected static final List<Class<? extends Annotation>> GYLDIGE_ANNOTERINGER = List.of(AutentisertMedAzure.class,
+        AutentisertMedTokenX.class,
         UtenAutentisering.class);
 
     @Test
@@ -29,8 +29,8 @@ class RestApiAutentiseringAnnoteringTest {
         for (var restMethod : RestApiTester.finnAlleRestMetoder()) {
             assertThat(finnGyldigAnnotering(restMethod))
                 .withFailMessage(String.format("Mangler @%s eller @%s -annotering på %s",
-                    Autentisert.class.getSimpleName(),
-                    AutentisertMed.class.getSimpleName(),
+                    AutentisertMedAzure.class.getSimpleName(),
+                    AutentisertMedTokenX.class.getSimpleName(),
                     restMethod))
                 .isNotNull();
         }

@@ -25,6 +25,9 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import no.nav.familie.inntektsmelding.server.app.api.ApiConfig;
+import no.nav.familie.inntektsmelding.server.app.forvaltning.ForvaltningApiConfig;
+import no.nav.familie.inntektsmelding.server.app.internal.InternalApiConfig;
 import no.nav.foreldrepenger.konfig.Environment;
 
 public class JettyServer {
@@ -115,6 +118,7 @@ public class JettyServer {
             registerDefaultServlet(context);
             registerServlet(context, 0, InternalApiConfig.API_URI, InternalApiConfig.class);
             registerServlet(context, 1, ApiConfig.API_URI, ApiConfig.class);
+            registerServlet(context, 2, ForvaltningApiConfig.API_URI, ForvaltningApiConfig.class);
 
             // Starter tjenester
             context.addEventListener(new ServiceStarterListener());
@@ -154,6 +158,7 @@ public class JettyServer {
         handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, InternalApiConfig.API_URI + "/*"));
         // Slipp gjennom til autentisering i JaxRs / auth-filter
         handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, ApiConfig.API_URI + "/*"));
+        handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, ForvaltningApiConfig.API_URI + "/*"));
         // Alt annet av paths og metoder forbudt - 403
         handler.addConstraintMapping(pathConstraint(Constraint.FORBIDDEN, "/*"));
         return handler;

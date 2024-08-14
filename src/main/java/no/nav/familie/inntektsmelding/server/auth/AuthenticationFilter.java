@@ -8,9 +8,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
-import no.nav.familie.inntektsmelding.server.auth.api.Autentisert;
-import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMed;
-import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
+import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.jaxrs.AuthenticationFilterDelegate;
@@ -40,9 +39,7 @@ import java.util.Optional;
 public class AuthenticationFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticationFilter.class);
-    private static final List<Class<? extends Annotation>> GYLDIGE_ANNOTERINGER = List.of(Autentisert.class,
-            AutentisertMed.class,
-            UtenAutentisering.class);
+    private static final List<Class<? extends Annotation>> GYLDIGE_ANNOTERINGER = List.of(AutentisertMedAzure.class, AutentisertMedTokenX.class, UtenAutentisering.class);
 
     @Context
     private ResourceInfo resourceinfo;
@@ -71,10 +68,9 @@ public class AuthenticationFilter implements ContainerRequestFilter, ContainerRe
     }
 
     private void assertValidAnnotation(Method method, ContainerRequestContext req) {
-        var annotation = getAnnotation(method, GYLDIGE_ANNOTERINGER);
+        var annotation = getAnnotation(method);
         LOG.debug("Annotering på {} -> {}", method.getName(), annotation);
-
-        if (annotation != null || Environment.current().getProperty("handle.missing.annotation.with.default", Boolean.class, Boolean.FALSE)) {
+        if (annotation != null) {
             assertValidAnnotation(annotation, req);
         } else {
             throw new WebApplicationException(String.format("Mangler gyldig annotering på %s.", method.getName()), Response.Status.FORBIDDEN);
@@ -85,17 +81,15 @@ public class AuthenticationFilter implements ContainerRequestFilter, ContainerRe
      * Letter etter en gyldig annotering på methoden og så på klassen.
      * Annoteringen på methodenivå overstyrer annotering på klassenivå.
      *
-     * @param method         REST mothoden som kalles
-     * @param supportedTypes Supporterte annoteringer.
+     * @param method REST mothoden som kalles
      * @return funnet annotering.
      */
-    private static Annotation getAnnotation(Method method, List<Class<? extends Annotation>> supportedTypes) {
-        return findAnnotation(supportedTypes, method.getAnnotations()).or(() -> findAnnotation(supportedTypes,
-                method.getDeclaringClass().getAnnotations())).orElse(null);
+    private static Annotation getAnnotation(Method method) {
+        return findAnnotation(method.getAnnotations()).or(() -> findAnnotation(method.getDeclaringClass().getAnnotations())).orElse(null);
     }
 
-    private static Optional<Annotation> findAnnotation(List<Class<? extends Annotation>> types, Annotation[] annotations) {
-        return Arrays.stream(annotations).filter(a -> types.contains(a.annotationType())).findFirst();
+    private static Optional<Annotation> findAnnotation(Annotation[] annotations) {
+        return Arrays.stream(annotations).filter(a -> GYLDIGE_ANNOTERINGER.contains(a.annotationType())).findFirst();
     }
 
     private void assertValidAnnotation(Annotation annotering, ContainerRequestContext req) {
@@ -104,9 +98,9 @@ public class AuthenticationFilter implements ContainerRequestFilter, ContainerRe
                 LOG.warn("Åpen endepunkt '{}' uten autentisering.", req.getMethod());
                 KontekstHolder.setKontekst(BasisKontekst.ikkeAutentisertRequest(MDCOperations.getConsumerId()));
             }
-            case Autentisert ignored -> validerToken(req);
-            case AutentisertMed autentiserMedAnnotering -> validerTokenMed(req, autentiserMedAnnotering);
-            case null, default -> AuthenticationFilterDelegate.validerSettKontekst(resourceinfo, req);
+            case AutentisertMedAzure ignored -> validerToken(req, OpenIDProvider.AZUREAD);
+            case AutentisertMedTokenX ignored -> validerToken(req, OpenIDProvider.TOKENX);
+            case null, default -> throw new IllegalStateException("Utviklerfeil: Mangler annotering på endepunkt.");
         }
     }
 
@@ -119,9 +113,7 @@ public class AuthenticationFilter implements ContainerRequestFilter, ContainerRe
     }
 
     private static void setCallAndConsumerId(ContainerRequestContext request) {
-        String callId = Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_CALL_ID))
-                .or(() -> Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_ALT_CALL_ID)))
-                .orElseGet(MDCOperations::generateCallId);
+        String callId = Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_CALL_ID)).or(() -> Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_ALT_CALL_ID))).orElseGet(MDCOperations::generateCallId);
         MDCOperations.putCallId(callId);
 
         Optional.ofNullable(request.getHeaderString(MDCOperations.HTTP_HEADER_CONSUMER_ID)).ifPresent(MDCOperations::putConsumerId);
@@ -134,16 +126,9 @@ public class AuthenticationFilter implements ContainerRequestFilter, ContainerRe
         }
     }
 
-    private void validerTokenMed(ContainerRequestContext request, AutentisertMed authN) {
+    private void validerToken(ContainerRequestContext request, OpenIDProvider provider) {
         var tokenString = getTokenFreHeader(request);
-        validerTokenSetKontekst(tokenString, authN.issuer());
-        setUserAndConsumerId(KontekstHolder.getKontekst().getUid());
-    }
-
-
-    private void validerToken(ContainerRequestContext request) {
-        var tokenString = getTokenFreHeader(request);
-        validerTokenSetKontekst(tokenString, OpenIDProvider.AZUREAD);
+        validerTokenSetKontekst(tokenString, provider);
         setUserAndConsumerId(KontekstHolder.getKontekst().getUid());
     }
 
@@ -153,8 +138,7 @@ public class AuthenticationFilter implements ContainerRequestFilter, ContainerRe
 
     private static Optional<TokenString> getTokenFromHeader(ContainerRequestContext request) {
         String headerValue = request.getHeaderString(HttpHeaders.AUTHORIZATION);
-        return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE) ? Optional.of(new TokenString(headerValue.substring(
-                OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length()))) : Optional.empty();
+        return headerValue != null && headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE) ? Optional.of(new TokenString(headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length()))) : Optional.empty();
     }
 
     private static void validerTokenSetKontekst(TokenString tokenString, OpenIDProvider forventetTokenProvider) {
@@ -166,14 +150,11 @@ public class AuthenticationFilter implements ContainerRequestFilter, ContainerRe
             var tokenIssuer = Optional.ofNullable(JwtUtil.getIssuer(claims)).orElseThrow(() -> new WebApplicationException("Token mangler issuer."));
             LOG.debug("Issuer fra token: {}", tokenIssuer);
 
-            var openIdKonfig = ConfigProvider.getOpenIDConfiguration(tokenIssuer)
-                    .orElseThrow(() -> new WebApplicationException("Issuer støttes ikke: " + tokenIssuer));
+            var openIdKonfig = ConfigProvider.getOpenIDConfiguration(tokenIssuer).orElseThrow(() -> new WebApplicationException("Issuer støttes ikke: " + tokenIssuer));
 
             var tokenProvider = openIdKonfig.type();
             if (!Objects.equals(tokenProvider, forventetTokenProvider)) {
-                throw new WebApplicationException(String.format("Trenger en gyldig %s token, men har fått %s.",
-                        forventetTokenProvider,
-                        tokenProvider));
+                throw new WebApplicationException(String.format("Trenger en gyldig %s token, men har fått %s.", forventetTokenProvider, tokenProvider));
             }
 
             // Valider
@@ -182,14 +163,9 @@ public class AuthenticationFilter implements ContainerRequestFilter, ContainerRe
 
             // Håndter valideringsresultat
             if (validateResult.isValid()) {
-                var expiresAt = Optional.ofNullable(JwtUtil.getExpirationTime(claims))
-                        .orElseThrow(() -> new WebApplicationException("Token mangler expires at claim"));
+                var expiresAt = Optional.ofNullable(JwtUtil.getExpirationTime(claims)).orElseThrow(() -> new WebApplicationException("Token mangler expires at claim"));
                 var token = new OpenIDToken(tokenProvider, OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE, tokenString, null, expiresAt.toEpochMilli());
-                KontekstHolder.setKontekst(RequestKontekst.forRequest(validateResult.subject(),
-                        validateResult.compactSubject(),
-                        validateResult.identType(),
-                        token,
-                        validateResult.getGrupper()));
+                KontekstHolder.setKontekst(RequestKontekst.forRequest(validateResult.subject(), validateResult.compactSubject(), validateResult.identType(), token, validateResult.getGrupper()));
                 LOG.trace("token validert");
             } else {
                 throw new WebApplicationException("Ugyldig token");

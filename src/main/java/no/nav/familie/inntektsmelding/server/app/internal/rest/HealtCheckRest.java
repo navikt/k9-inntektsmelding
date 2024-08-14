@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.server;
+package no.nav.familie.inntektsmelding.server.app.internal.rest;
 
 import static jakarta.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
 
@@ -15,6 +15,7 @@ import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.server.ApplicationServiceStarter;
 import no.nav.vedtak.log.metrics.LivenessAware;
 import no.nav.vedtak.log.metrics.ReadinessAware;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;

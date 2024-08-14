@@ -1,6 +1,5 @@
 package no.nav.familie.inntektsmelding.server.auth.api;
 
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -13,5 +12,5 @@ import jakarta.ws.rs.NameBinding;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @NameBinding
-public @interface Autentisert {
+public @interface AutentisertMedAzure {
 }
