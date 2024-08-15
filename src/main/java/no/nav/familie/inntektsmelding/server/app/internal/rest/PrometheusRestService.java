@@ -9,7 +9,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @Path("/metrics")
 @Produces(TEXT_PLAIN)
@@ -19,7 +18,6 @@ public class PrometheusRestService {
     @GET
     @Operation(hidden = true)
     @Path("/prometheus")
-    @UtenAutentisering
     public String prometheus() {
         return REGISTRY.scrape();
     }

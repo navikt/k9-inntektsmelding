@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.server.app.internal.rest.HealtCheckRest;
 import no.nav.familie.inntektsmelding.server.app.internal.rest.PrometheusRestService;
-import no.nav.familie.inntektsmelding.server.auth.AuthenticationFilter;
 
 @ApplicationPath(InternalApiConfig.API_URI)
 public class InternalApiConfig extends ResourceConfig {
@@ -17,9 +16,6 @@ public class InternalApiConfig extends ResourceConfig {
 
     public InternalApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
-        // Sikkerhet
-        register(AuthenticationFilter.class);
-
         register(HealtCheckRest.class);
         register(PrometheusRestService.class);
         LOG.info("Ferdig med initialisering av {}", API_URI);
