@@ -9,13 +9,14 @@ import java.util.List;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import no.nav.familie.inntektsmelding.server.app.api.ApiConfig;
+import no.nav.familie.inntektsmelding.server.app.forvaltning.ForvaltningApiConfig;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
 public class RestApiTester {
 
-    static final List<Class<?>> UNNTATT = List.of(OpenApiResource.class, ProsessTaskRestTjeneste.class);
+    //TODO: Fjern denne etter ProsesstaskRestTjeneste er annotert riktig.
+    static final List<Class<?>> UNNTATT = List.of(ProsessTaskRestTjeneste.class);
 
     static Collection<Method> finnAlleRestMetoder() {
         List<Method> liste = new ArrayList<>();
@@ -30,7 +31,10 @@ public class RestApiTester {
     }
 
     static Collection<Class<?>> finnAlleRestTjenester() {
-        return new ArrayList<>(finnAlleRestTjenester(new ApiConfig()));
+        var resultList = new ArrayList<Class<?>>();
+        resultList.addAll(finnAlleRestTjenester(new ApiConfig()));
+        resultList.addAll(finnAlleRestTjenester(new ForvaltningApiConfig()));
+        return resultList;
     }
 
     static Collection<Class<?>> finnAlleRestTjenester(Application config) {
