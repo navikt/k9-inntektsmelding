@@ -1,12 +1,13 @@
-package no.nav.familie.inntektsmelding.server;
-
-import java.util.Set;
+package no.nav.familie.inntektsmelding.server.app.internal;
 
 import jakarta.ws.rs.ApplicationPath;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import no.nav.familie.inntektsmelding.server.app.internal.rest.HealtCheckRest;
+import no.nav.familie.inntektsmelding.server.app.internal.rest.PrometheusRestService;
 
 @ApplicationPath(InternalApiConfig.API_URI)
 public class InternalApiConfig extends ResourceConfig {
@@ -15,12 +16,8 @@ public class InternalApiConfig extends ResourceConfig {
 
     public InternalApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
-        registerClasses(getApplicationClasses());
+        register(HealtCheckRest.class);
+        register(PrometheusRestService.class);
         LOG.info("Ferdig med initialisering av {}", API_URI);
     }
-
-    private Set<Class<?>> getApplicationClasses() {
-        return Set.of(HealtCheckRest.class, PrometheusRestService.class);
-    }
-
 }

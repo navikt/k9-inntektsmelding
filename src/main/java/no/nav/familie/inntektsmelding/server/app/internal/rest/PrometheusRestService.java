@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.server;
+package no.nav.familie.inntektsmelding.server.app.internal.rest;
 
 import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 import static no.nav.vedtak.log.metrics.MetricsUtil.REGISTRY;

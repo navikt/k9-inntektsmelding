@@ -33,21 +33,21 @@ import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 @ApplicationScoped
 @Path(FpDokgenRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
+@AutentisertMedAzure
 public class FpDokgenRestTjeneste {
     public static final String BASE_PATH = "/inntektsmelding-pdf";
     private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
     private static final boolean IS_PROD = Environment.current().isProd();
     private FpDokgenTjeneste fpDokgenTjeneste;
     private InntektsmeldingRepository inntektsmeldingRepository;
-
 
     public FpDokgenRestTjeneste() {
         //CDI
@@ -62,7 +62,6 @@ public class FpDokgenRestTjeneste {
     @POST
     @Consumes(APPLICATION_JSON)
     @Produces("application/pdf")
-    @UtenAutentisering
     @Operation(description = "Generer en pdf av en inntektsmelding", tags = "forvaltning")
     public Response genererPdf(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
         if (IS_PROD) {

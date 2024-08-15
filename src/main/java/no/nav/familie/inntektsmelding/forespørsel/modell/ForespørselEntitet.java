@@ -15,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 import no.nav.familie.inntektsmelding.koder.SakStatus;
@@ -26,6 +27,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 public class ForespørselEntitet {
 
     @Id
+    @SequenceGenerator(name = "SEQ_FORESPOERSEL", sequenceName = "SEQ_FORESPOERSEL")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_FORESPOERSEL")
     private Long id;
 
