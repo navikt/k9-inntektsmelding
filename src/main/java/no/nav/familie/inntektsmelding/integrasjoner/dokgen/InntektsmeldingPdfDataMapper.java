@@ -33,12 +33,14 @@ public class InntektsmeldingPdfDataMapper {
             .medStartDato(inntektsmelding.getStartDato())
             .medMånedInntekt(inntektsmelding.getMånedInntekt())
             .medKontaktperson(mapKontaktperson(inntektsmelding.getKontaktperson()))
-            .medEndringIRefusjonsperioder(mapEndringIRefusjonsperioder(inntektsmelding.getRefusjonsPerioder()))
             .medNaturalytelser(mapNauralYtelser(inntektsmelding.getNaturalYtelser()))
             .medIngenBortfaltNaturalytelse(erIngenBortalteNaturalYtelser(inntektsmelding.getNaturalYtelser()))
             .medIngenGjenopptattNaturalytelse(erIngenGjenopptatteNaturalYtelser(inntektsmelding.getNaturalYtelser()));
 
-        utledRefusjonsbeløp(inntektsmelding.getRefusjonsPerioder()).ifPresent(imDokumentdataBuilder::medRefusjonsbeløp);
+        //Refusjon
+        var startDato = inntektsmelding.getStartDato();
+        utledRefusjonsbeløp(inntektsmelding.getRefusjonsPerioder(), startDato).ifPresent(imDokumentdataBuilder::medRefusjonsbeløp);
+        imDokumentdataBuilder.medEndringIRefusjonsperioder(mapEndringIRefusjonsperioder(inntektsmelding.getRefusjonsPerioder(), startDato));
         utledOpphørsdato(inntektsmelding.getRefusjonsPerioder()).ifPresent(imDokumentdataBuilder::medRefusjonOpphørsdato);
 
         return imDokumentdataBuilder.build();
@@ -61,16 +63,9 @@ public class InntektsmeldingPdfDataMapper {
         return naturalYtelser.isEmpty() || naturalYtelser.stream().noneMatch(NaturalytelseEntitet::getErBortfalt);
     }
 
-    private static Optional<BigDecimal> utledRefusjonsbeløp(List<RefusjonPeriodeEntitet> refusjonsPerioder) {
-        var førsteFraDato = refusjonsPerioder.stream()
-            .map(refusjonPeriodeEntitet -> refusjonPeriodeEntitet.getPeriode().getFom())
-            .min(Comparator.naturalOrder())
-            .orElse(null);
-        if (førsteFraDato == null) {
-            return Optional.empty();
-        }
+    private static Optional<BigDecimal> utledRefusjonsbeløp(List<RefusjonPeriodeEntitet> refusjonsPerioder, LocalDate startDato) {
         return refusjonsPerioder.stream()
-            .filter(refusjonPeriodeEntitet -> (førsteFraDato).equals(refusjonPeriodeEntitet.getPeriode().getFom()))
+            .filter(refusjonPeriodeEntitet -> (startDato).equals(refusjonPeriodeEntitet.getPeriode().getFom()))
             .findFirst()
             .map(RefusjonPeriodeEntitet::getBeløp);
     }
@@ -106,9 +101,9 @@ public class InntektsmeldingPdfDataMapper {
         };
     }
 
-    private static List<RefusjonPeriode> mapEndringIRefusjonsperioder(List<RefusjonPeriodeEntitet> refusjonsPerioder) {
+    private static List<RefusjonPeriode> mapEndringIRefusjonsperioder(List<RefusjonPeriodeEntitet> refusjonsPerioder, LocalDate startDato) {
         return refusjonsPerioder.stream()
-            .filter(rp -> rp.getPeriode().getTom().isBefore(Tid.TIDENES_ENDE))
+            .filter(refusjonsPeriode -> refusjonsPeriode.getPeriode().getFom().isAfter(startDato))
             .map(rpe -> new RefusjonPeriode(formaterDatoNorsk(rpe.getPeriode().getFom()), formaterDatoNorsk(rpe.getPeriode().getTom()),
                 rpe.getBeløp()))
             .toList();

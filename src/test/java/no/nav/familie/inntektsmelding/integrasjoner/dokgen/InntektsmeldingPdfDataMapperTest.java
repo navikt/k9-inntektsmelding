@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -31,10 +32,10 @@ import no.nav.vedtak.konfig.Tid;
 class InntektsmeldingPdfDataMapperTest {
 
     @Test
-    public void skal_opprette_pdfData() {
+    public void skal_opprette_pdfData_uten_refusjonsendringer() {
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
         var refusjonsbeløp = BigDecimal.valueOf(35000);
-        var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.of(2024, 6, 1), Tid.TIDENES_ENDE, refusjonsbeløp);
+        var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.now(), Tid.TIDENES_ENDE, refusjonsbeløp);
         var naturalytelseFraDato = LocalDate.of(2024, 6, 10);
         var naturalytelseTilDato = LocalDate.of(2024, 6, 30);
         var naturalytelseBeløp = BigDecimal.valueOf(2000);
@@ -98,5 +99,66 @@ class InntektsmeldingPdfDataMapperTest {
         assertThat(pdfData.getNaturalytelser().getFirst().beloep()).isEqualTo(naturalytelseBeløp);
         assertThat(pdfData.getNaturalytelser().getFirst().naturalytelseType()).isEqualTo("Aksjer grunnfondsbevis til underkurs");
 
+    }
+    @Test
+    public void skal_opprette_pdfData_med_endringIRefusjonsendringer() {
+        var aktørIdSøker = new AktørIdEntitet("1234567891234");
+        var refusjonsbeløp = BigDecimal.valueOf(35000);
+        var refBeløp2 = refusjonsbeløp.subtract(BigDecimal.valueOf(2500));
+        var refBeløp3 = refusjonsbeløp.subtract(BigDecimal.valueOf(5000));
+        var tilDato2 =  LocalDate.now().plusWeeks(2);
+        var tilDato3 = LocalDate.now().plusWeeks(8);
+        var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.now(), LocalDate.now().plusWeeks(1), refusjonsbeløp);
+        var refusjonperiode2 = new RefusjonPeriodeEntitet(LocalDate.now().plusWeeks(1).plusDays(1), tilDato2, refBeløp2);
+        var refusjonPeriode3 = new RefusjonPeriodeEntitet(LocalDate.now().plusWeeks(2).plusDays(1), tilDato3, refBeløp3);
+        var naturalytelseFraDato = LocalDate.of(2024, 6, 10);
+        var naturalytelseTilDato = LocalDate.of(2024, 6, 30);
+        var naturalytelseBeløp = BigDecimal.valueOf(2000);
+        var naturalytelse = NaturalytelseEntitet.builder()
+            .medPeriode(naturalytelseFraDato, naturalytelseTilDato)
+            .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
+            .medErBortfalt(true)
+            .medBeløp(naturalytelseBeløp)
+            .build();
+
+        var fornavn = "Test";
+        var mellomNavn = "Tester";
+        var etternavn = "Testesen";
+        var arbeidsgiverIdent = "999999999";
+        var arbeidsgiverNavn = "Arbeidsgvier 1";
+        var navn = "Kontaktperson navn";
+        var nr = "999999999";
+        var inntekt = BigDecimal.valueOf(40000);
+
+        var opprettetTidspunkt = LocalDateTime.now();
+        var startdato = LocalDate.now();
+
+        var inntektsmeldingEntitet = InntektsmeldingEntitet.builder()
+            .medAktørId(aktørIdSøker)
+            .medKontaktperson(new KontaktpersonEntitet(navn, nr))
+            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medMånedInntekt(inntekt)
+            .medStartDato(startdato)
+            .medOpprettetTidspunkt(opprettetTidspunkt)
+            .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .medRefusjonsPeriode(List.of(refusjonperiode, refusjonperiode2, refusjonPeriode3))
+            .medNaturalYtelse(List.of(naturalytelse))
+            .build();
+
+        var personIdent = new PersonIdent("11111111111");
+
+        var personinfo = new PersonInfo(fornavn, mellomNavn, etternavn, personIdent, inntektsmeldingEntitet.getAktørId(), LocalDate.now(), null);
+
+        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, arbeidsgiverNavn, personinfo, arbeidsgiverIdent);
+
+
+        assertThat(pdfData.getRefusjonOpphørsdato()).isEqualTo(formaterDatoMedNavnPåUkedag(tilDato3));
+        assertThat(pdfData.getRefusjonsbeløp()).isEqualTo(refusjonsbeløp);
+        var endringIRefusjonPerioderSortert = pdfData.getEndringIrefusjonsperioder().stream().sorted(Comparator.comparing(RefusjonPeriode::tom)).toList();
+        assertThat(endringIRefusjonPerioderSortert).hasSize(2);
+        assertThat(endringIRefusjonPerioderSortert.getFirst().beloep()).isEqualTo(refBeløp2);
+        assertThat(endringIRefusjonPerioderSortert.get(1).beloep()).isEqualTo(refBeløp3);
+        assertThat(endringIRefusjonPerioderSortert.getFirst().tom()).isEqualTo(formaterDatoNorsk(tilDato2));
+        assertThat(endringIRefusjonPerioderSortert.get(1).tom()).isEqualTo(formaterDatoNorsk(tilDato3));
     }
 }

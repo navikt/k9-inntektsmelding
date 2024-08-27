@@ -230,7 +230,7 @@ public class InntektsmeldingPdfData {
         }
 
         public Builder medRefusjonOpphørsdato(LocalDate refusjonOpphørsdato) {
-            this.kladd.refusjonOpphørsdato = formaterDatoNorsk(refusjonOpphørsdato);
+            this.kladd.refusjonOpphørsdato = formaterDatoMedNavnPåUkedag(refusjonOpphørsdato);
             return this;
         }
 
