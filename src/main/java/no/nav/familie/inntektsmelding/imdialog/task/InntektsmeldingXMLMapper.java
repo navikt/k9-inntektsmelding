@@ -1,6 +1,5 @@
 package no.nav.familie.inntektsmelding.imdialog.task;
 
-import java.util.Comparator;
 import java.util.Map;
 
 import jakarta.xml.bind.JAXBElement;
@@ -57,9 +56,7 @@ public class InntektsmeldingXMLMapper {
 
         skjemainnhold.setYtelse(mapTilYtelsetype(inntektsmelding.getYtelsetype()));
         mapYtelsespesifikkeFelter(skjemainnhold, of, inntektsmelding);
-        if (!inntektsmelding.getRefusjonsPerioder().isEmpty()) {
-            skjemainnhold.setRefusjon(lagRefusjonXml(inntektsmelding, of));
-        }
+        skjemainnhold.setRefusjon(lagRefusjonXml(inntektsmelding, of));
 
         skjemainnhold.setOpphoerAvNaturalytelseListe(lagBortfaltNaturalytelse(inntektsmelding, of));
         skjemainnhold.setGjenopptakelseNaturalytelseListe(lagGjennopptattNaturalytelse(inntektsmelding, of));
@@ -124,27 +121,18 @@ public class InntektsmeldingXMLMapper {
 
     private static JAXBElement<Refusjon> lagRefusjonXml(InntektsmeldingEntitet inntektsmeldingEntitet, ObjectFactory of) {
         var refusjon = new Refusjon();
-        var refusjonFraStart = inntektsmeldingEntitet.getRefusjonsPerioder()
-            .stream()
-            .filter(rp -> rp.getPeriode().getFom().equals(inntektsmeldingEntitet.getStartDato()))
-            .findFirst();
-        refusjonFraStart.ifPresent(rp -> refusjon.setRefusjonsbeloepPrMnd(of.createRefusjonRefusjonsbeloepPrMnd(rp.getBeløp())));
-        var sisteTomRefusjon = inntektsmeldingEntitet.getRefusjonsPerioder()
-            .stream()
-            .map(rp -> rp.getPeriode().getTom())
-            .max(Comparator.naturalOrder())
-            .orElseThrow();
-        refusjon.setRefusjonsopphoersdato(of.createRefusjonRefusjonsopphoersdato(sisteTomRefusjon));
-        var refusjonsendringer = inntektsmeldingEntitet.getRefusjonsPerioder()
-            .stream()
-            .filter(rp -> !rp.getPeriode().getFom().equals(inntektsmeldingEntitet.getStartDato()))
-            .toList();
+        if (inntektsmeldingEntitet.getMånedRefusjon() != null) {
+            refusjon.setRefusjonsbeloepPrMnd(of.createRefusjonRefusjonsbeloepPrMnd(inntektsmeldingEntitet.getMånedRefusjon()));
+        }
+        if (inntektsmeldingEntitet.getOpphørsdatoRefusjon() != null) {
+            refusjon.setRefusjonsopphoersdato(of.createRefusjonRefusjonsopphoersdato(inntektsmeldingEntitet.getOpphørsdatoRefusjon()));
+        }
         var endringListe = new EndringIRefusjonsListe();
         var liste = endringListe.getEndringIRefusjon();
-        refusjonsendringer.stream().map(rp -> {
+        inntektsmeldingEntitet.getRefusjonsendringer().stream().map(rp -> {
             var endring = new EndringIRefusjon();
-            endring.setEndringsdato(of.createEndringIRefusjonEndringsdato(rp.getPeriode().getFom()));
-            endring.setRefusjonsbeloepPrMnd(of.createEndringIRefusjonRefusjonsbeloepPrMnd(rp.getBeløp()));
+            endring.setEndringsdato(of.createEndringIRefusjonEndringsdato(rp.getFom()));
+            endring.setRefusjonsbeloepPrMnd(of.createEndringIRefusjonRefusjonsbeloepPrMnd(rp.getRefusjonPrMnd()));
             return endring;
         }).forEach(liste::add);
         refusjon.setEndringIRefusjonListe(of.createRefusjonEndringIRefusjonListe(endringListe));

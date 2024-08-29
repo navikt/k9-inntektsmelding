@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
@@ -42,7 +41,6 @@ class InntektsmeldingXMLTjenesteTest {
     void skal_teste_xml_generering() {
         // Arrange
         var opprettetTidspunkt = LocalDateTime.of(2024, 6, 30, 12, 12, 30);
-        var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.of(2024, 6, 1), Tid.TIDENES_ENDE, BigDecimal.valueOf(35000));
         var naturalytelse = NaturalytelseEntitet.builder()
             .medPeriode(LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 30))
             .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
@@ -57,10 +55,11 @@ class InntektsmeldingXMLTjenesteTest {
             .medYtelsetype(Ytelsetype.FORELDREPENGER)
             .medMånedInntekt(BigDecimal.valueOf(35000))
             .medAktørId(aktørIdSøker)
+            .medMånedRefusjon(BigDecimal.valueOf(35000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medOpprettetTidspunkt(opprettetTidspunkt)
             .medKontaktperson(new KontaktpersonEntitet("Test Testen", "111111111"))
             .medNaturalYtelse(Collections.singletonList(naturalytelse))
-            .medRefusjonsPeriode(Collections.singletonList(refusjonperiode))
             .build();
 
         when(personTjeneste.finnPersonIdentForAktørId(aktørIdSøker)).thenReturn(fnrSøker);
