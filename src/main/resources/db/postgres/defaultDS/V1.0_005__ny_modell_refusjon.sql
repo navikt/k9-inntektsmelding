@@ -20,6 +20,6 @@ create unique index IDX_REFUSJON_ENDRING_PRIMARY_KEY on REFUSJON_ENDRING (ID);
 
 comment on table REFUSJON_ENDRING is 'Endringer i refusjon';
 comment on column REFUSJON_ENDRING.ID is 'PK';
-comment on column REFUSJON_ENDRING.INNTEKTSMELDING_ID is 'Inntektsmeldingen endringene gjelder for';
+comment on column REFUSJON_ENDRING.INNTEKTSMELDING_ID is 'Inntektsmeldingen endringen er oppgitt i';
 comment on column REFUSJON_ENDRING.FOM is 'Endringen gjelder fra og med denne datoen';
 comment on column REFUSJON_ENDRING.MAANED_REFUSJON is 'Hva refusjonsbeløpet pr mnd endres til';
