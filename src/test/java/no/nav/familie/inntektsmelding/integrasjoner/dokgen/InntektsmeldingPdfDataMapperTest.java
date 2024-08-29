@@ -23,7 +23,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(MockitoExtension.class)
 class InntektsmeldingPdfDataMapperTest {
@@ -61,7 +60,6 @@ class InntektsmeldingPdfDataMapperTest {
             .medMånedInntekt(inntekt)
             .medStartDato(startdato)
             .medMånedRefusjon(refusjonsbeløp)
-            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medOpprettetTidspunkt(opprettetTidspunkt)
             .medArbeidsgiverIdent(arbeidsgiverIdent)
             .medNaturalYtelse(List.of(naturalytelse))

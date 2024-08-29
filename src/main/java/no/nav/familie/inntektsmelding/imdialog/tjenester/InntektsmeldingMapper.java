@@ -23,7 +23,7 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
             .medMånedInntekt(dto.inntekt())
             .medMånedRefusjon(dto.refusjon())
-            .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjonEndringer()).orElse(Tid.TIDENES_ENDE)) // TODO Foretrekker vi null eller tidenes ende?
+            .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjonEndringer()).orElse(null)) // TODO Foretrekker vi null eller tidenes ende?
             .medStartDato(dto.startdato())
             .medYtelsetype(KodeverkMapper.mapYtelsetype(dto.ytelse()))
             .medKontaktperson(mapKontaktPerson(dto))
