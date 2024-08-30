@@ -6,7 +6,7 @@ CREATE TABLE BORTFALT_NATURALYTELSE
             references INNTEKTSMELDING,
     FOM DATE NOT NULL,
     TOM DATE NOT NULL,
-    BELOEP NUMERIC(19, 2) NOT NULL,
+    MAANED_BELOEP NUMERIC(19, 2) NOT NULL,
     TYPE VARCHAR(100) NOT NULL
 );
 
@@ -19,7 +19,7 @@ comment on column BORTFALT_NATURALYTELSE.ID is 'PK';
 comment on column BORTFALT_NATURALYTELSE.INNTEKTSMELDING_ID is 'Foreign Key til inntektsmelding';
 comment on column BORTFALT_NATURALYTELSE.FOM is 'Fra og med dato for når naturalytelse bortfaller';
 comment on column BORTFALT_NATURALYTELSE.TOM is 'Til og med dato for når naturalytelse bortfaller';
-comment on column BORTFALT_NATURALYTELSE.BELOEP is 'Beløpet som skal kompenseres';
-comment on column BORTFALT_NATURALYTELSE.TYPE is 'Typen naturalytelse som er bortfalt';
+comment on column BORTFALT_NATURALYTELSE.MAANED_BELOEP is 'Det månedlige beløpet som skal kompenseres';
+comment on column BORTFALT_NATURALYTELSE.TYPE is 'Type naturalytelse som er bortfalt';
 
 
