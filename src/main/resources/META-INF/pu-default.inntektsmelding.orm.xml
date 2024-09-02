@@ -8,6 +8,7 @@
 
     <sequence-generator name="SEQ_FORESPOERSEL" allocation-size="50" sequence-name="SEQ_FORESPOERSEL" />
     <sequence-generator name="SEQ_NATURALYTELSE" allocation-size="50" sequence-name="SEQ_NATURALYTELSE" />
+    <sequence-generator name="SEQ_BORTFALT_NATURALYTELSE" allocation-size="50" sequence-name="SEQ_BORTFALT_NATURALYTELSE" />
     <sequence-generator name="SEQ_REFUSJON_PERIODE" allocation-size="50" sequence-name="SEQ_REFUSJON_PERIODE" />
     <sequence-generator name="SEQ_KONTAKTPERSON" allocation-size="50" sequence-name="SEQ_KONTAKTPERSON" />
     <sequence-generator name="SEQ_INNTEKTSMELDING" allocation-size="50" sequence-name="SEQ_INNTEKTSMELDING" />

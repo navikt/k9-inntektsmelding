@@ -71,6 +71,9 @@ public class InntektsmeldingEntitet {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private List<NaturalytelseEntitet> naturalYtelse = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
+    private List<BortaltNaturalytelseEntitet> borfalteNaturalYtelser = new ArrayList<>();
+
     public InntektsmeldingEntitet() {
         // Hibernate
     }
@@ -107,6 +110,10 @@ public class InntektsmeldingEntitet {
         return naturalYtelse;
     }
 
+    public List<BortaltNaturalytelseEntitet> getBorfalteNaturalYtelser() {
+        return borfalteNaturalYtelser;
+    }
+
     public KontaktpersonEntitet getKontaktperson() {
         return kontaktperson;
     }
@@ -127,28 +134,17 @@ public class InntektsmeldingEntitet {
         return refusjonsendringer;
     }
 
-    void leggTilRefusjonsperiode(RefusjonPeriodeEntitet refusjonPeriodeEntitet) {
-        var finnesOverlapp = refusjonsPeriode.stream().anyMatch(rp -> rp.getPeriode().overlapper(refusjonPeriodeEntitet.getPeriode()));
-        if (finnesOverlapp) {
-            var msg = String.format("Overlapp mellom ny refusjonsperiode %s og allerede lagt til perioder %s", refusjonPeriodeEntitet,
-                refusjonsPeriode);
-            throw new IllegalArgumentException(msg);
-        }
-        refusjonPeriodeEntitet.setInntektsmelding(this);
-        refusjonsPeriode.add(refusjonPeriodeEntitet);
-    }
-
     private void leggTilRefusjonsendring(RefusjonEndringEntitet refusjonEndringEntitet) {
         refusjonEndringEntitet.setInntektsmelding(this);
         refusjonsendringer.add(refusjonEndringEntitet);
     }
 
-    void leggTilNaturalytelse(NaturalytelseEntitet naturalytelseEntitet) {
-        naturalytelseEntitet.setInntektsmelding(this);
-        if (Boolean.TRUE.equals(naturalytelseEntitet.getErBortfalt()) && naturalytelseEntitet.getBeløp().compareTo(BigDecimal.ZERO) == 0) {
-            throw new IllegalStateException("Bortfalt naturalytelse på kr 0 " + naturalytelseEntitet);
+    void leggTilBortfalteNaturalytelse(BortaltNaturalytelseEntitet bortfaltNaturalytelse) {
+        bortfaltNaturalytelse.setInntektsmelding(this);
+        if (bortfaltNaturalytelse.getMånedBeløp().compareTo(BigDecimal.ZERO) == 0) {
+            throw new IllegalStateException("Bortfalt naturalytelse på kr 0 " + bortfaltNaturalytelse);
         }
-        naturalYtelse.add(naturalytelseEntitet);
+        borfalteNaturalYtelser.add(bortfaltNaturalytelse);
     }
 
     @Override
@@ -236,8 +232,8 @@ public class InntektsmeldingEntitet {
             return this;
         }
 
-        public Builder medNaturalYtelse(List<NaturalytelseEntitet> naturalYtelse) {
-            naturalYtelse.forEach(kladd::leggTilNaturalytelse);
+        public Builder medBortfaltNaturalytelser(List<BortaltNaturalytelseEntitet> naturalYtelse) {
+            naturalYtelse.forEach(kladd::leggTilBortfalteNaturalytelse);
             return this;
         }
 

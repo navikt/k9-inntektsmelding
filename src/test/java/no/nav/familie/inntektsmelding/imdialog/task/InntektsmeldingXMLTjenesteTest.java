@@ -14,9 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
@@ -41,11 +42,10 @@ class InntektsmeldingXMLTjenesteTest {
     void skal_teste_xml_generering() {
         // Arrange
         var opprettetTidspunkt = LocalDateTime.of(2024, 6, 30, 12, 12, 30);
-        var naturalytelse = NaturalytelseEntitet.builder()
-            .medPeriode(LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 30))
+        var naturalytelse = BortaltNaturalytelseEntitet.builder()
+            .medPeriode(LocalDate.of(2024, 6, 10), Tid.TIDENES_ENDE)
             .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
-            .medErBortfalt(true)
-            .medBeløp(BigDecimal.valueOf(2000))
+            .medMånedBeløp(BigDecimal.valueOf(2000))
             .build();
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
         var fnrSøker = new PersonIdent("11111111111");
@@ -59,7 +59,7 @@ class InntektsmeldingXMLTjenesteTest {
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medOpprettetTidspunkt(opprettetTidspunkt)
             .medKontaktperson(new KontaktpersonEntitet("Test Testen", "111111111"))
-            .medNaturalYtelse(Collections.singletonList(naturalytelse))
+            .medBortfaltNaturalytelser(Collections.singletonList(naturalytelse))
             .build();
 
         when(personTjeneste.finnPersonIdentForAktørId(aktørIdSøker)).thenReturn(fnrSøker);

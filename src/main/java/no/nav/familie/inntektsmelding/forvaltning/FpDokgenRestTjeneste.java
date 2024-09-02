@@ -27,10 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -90,7 +92,7 @@ public class FpDokgenRestTjeneste {
                 builder.medRefusjonsendringer(mapRefusjonsendringer(inntektsmeldingRequest.refusjonsendringer()));
             }
             if (inntektsmeldingRequest.naturalytelser() != null) {
-                builder.medNaturalYtelse(mapNaturalytelser(inntektsmeldingRequest.naturalytelser));
+                builder.medBortfaltNaturalytelser(mapBortfalteNaturalytelser(inntektsmeldingRequest.naturalytelser));
             }
             inntektsmeldingEntitet = builder.build();
         }
@@ -107,12 +109,11 @@ public class FpDokgenRestTjeneste {
         return refusjonsendringer.stream().map(periode -> new RefusjonEndringEntitet(periode.fom(), periode.beloep())).toList();
     }
 
-    private List<NaturalytelseEntitet> mapNaturalytelser(List<NaturalYtelseDto> naturalYtelser) {
+    private List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<NaturalYtelseDto> naturalYtelser) {
         return naturalYtelser.stream()
-            .map(periode -> new NaturalytelseEntitet.Builder().medPeriode(periode.fom(), periode.tom())
+            .map(periode -> new BortaltNaturalytelseEntitet.Builder().medPeriode(periode.fom(), periode.tom())
                 .medType(periode.type())
-                .medBeløp(periode.beloep())
-                .medErBortfalt(periode.erBortfalt())
+                .medMånedBeløp(periode.beloep())
                 .build())
             .toList();
     }

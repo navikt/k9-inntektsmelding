@@ -11,13 +11,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import no.nav.vedtak.konfig.Tid;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
@@ -32,13 +35,11 @@ class InntektsmeldingPdfDataMapperTest {
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
         var refusjonsbeløp = BigDecimal.valueOf(35000);
         var naturalytelseFraDato = LocalDate.of(2024, 6, 10);
-        var naturalytelseTilDato = LocalDate.of(2024, 6, 30);
         var naturalytelseBeløp = BigDecimal.valueOf(2000);
-        var naturalytelse = NaturalytelseEntitet.builder()
-            .medPeriode(naturalytelseFraDato, naturalytelseTilDato)
+        var naturalytelse = BortaltNaturalytelseEntitet.builder()
+            .medPeriode(naturalytelseFraDato, Tid.TIDENES_ENDE)
             .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
-            .medErBortfalt(true)
-            .medBeløp(naturalytelseBeløp)
+            .medMånedBeløp(naturalytelseBeløp)
             .build();
 
         var fornavn = "Test";
@@ -62,7 +63,7 @@ class InntektsmeldingPdfDataMapperTest {
             .medMånedRefusjon(refusjonsbeløp)
             .medOpprettetTidspunkt(opprettetTidspunkt)
             .medArbeidsgiverIdent(arbeidsgiverIdent)
-            .medNaturalYtelse(List.of(naturalytelse))
+            .medBortfaltNaturalytelser(List.of(naturalytelse))
             .build();
 
         var personIdent = new PersonIdent("11111111111");
@@ -90,7 +91,6 @@ class InntektsmeldingPdfDataMapperTest {
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isFalse();
         assertThat(pdfData.getNaturalytelser().getFirst().fom()).isEqualTo(formaterDatoNorsk(naturalytelseFraDato));
-        assertThat(pdfData.getNaturalytelser().getFirst().tom()).isEqualTo(formaterDatoNorsk(naturalytelseTilDato));
         assertThat(pdfData.getNaturalytelser().getFirst().beloep()).isEqualTo(naturalytelseBeløp);
         assertThat(pdfData.getNaturalytelser().getFirst().naturalytelseType()).isEqualTo("Aksjer grunnfondsbevis til underkurs");
 

@@ -16,9 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -54,11 +54,10 @@ class JoarkTjenesteTest {
     void skal_teste_oversending_organisasjon() {
         // Arrange
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
-        var naturalytelse = NaturalytelseEntitet.builder()
+        var naturalytelse = BortaltNaturalytelseEntitet.builder()
             .medPeriode(LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 30))
             .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
-            .medErBortfalt(true)
-            .medBeløp(BigDecimal.valueOf(2000))
+            .medMånedBeløp(BigDecimal.valueOf(2000))
             .build();
         var arbeidsgiverIdent = "999999999";
         var inntektsmelding = InntektsmeldingEntitet.builder()
@@ -71,7 +70,7 @@ class JoarkTjenesteTest {
             .medAktørId(aktørIdSøker)
             .medOpprettetTidspunkt(LocalDateTime.now())
             .medKontaktperson(new KontaktpersonEntitet("Test Testen", "111111111"))
-            .medNaturalYtelse(Collections.singletonList(naturalytelse))
+            .medBortfaltNaturalytelser(Collections.singletonList(naturalytelse))
             .build();
 
         var testBedrift = new Organisasjon("Test Bedrift", arbeidsgiverIdent);
@@ -91,11 +90,10 @@ class JoarkTjenesteTest {
     void skal_teste_oversending_privapterson() {
         // Arrange
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
-        var naturalytelse = NaturalytelseEntitet.builder()
+        var naturalytelse = BortaltNaturalytelseEntitet.builder()
             .medPeriode(LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 30))
             .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
-            .medErBortfalt(true)
-            .medBeløp(BigDecimal.valueOf(2000))
+            .medMånedBeløp(BigDecimal.valueOf(2000))
             .build();
         var aktørIdArbeidsgiver = "2222222222222";
         var inntektsmelding = InntektsmeldingEntitet.builder()
@@ -108,7 +106,7 @@ class JoarkTjenesteTest {
             .medAktørId(aktørIdSøker)
             .medOpprettetTidspunkt(LocalDateTime.now())
             .medKontaktperson(new KontaktpersonEntitet("Test Testen", "111111111"))
-            .medNaturalYtelse(Collections.singletonList(naturalytelse))
+            .medBortfaltNaturalytelser(Collections.singletonList(naturalytelse))
             .build();
 
         // Kan foreløpig ikke teste med spesifikk request i mock siden eksternreferanse genereres on the fly
