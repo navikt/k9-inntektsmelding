@@ -39,7 +39,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
         assertThat(entitet.getNaturalYtelser()).isEmpty();
         assertThat(entitet.getMånedRefusjon()).isNull();
-        assertThat(entitet.getOpphørsdatoRefusjon()).isNull();
+        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(Tid.TIDENES_ENDE);
 
     }
 
