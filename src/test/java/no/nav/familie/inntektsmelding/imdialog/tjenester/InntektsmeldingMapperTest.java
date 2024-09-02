@@ -48,7 +48,7 @@ class InntektsmeldingMapperTest {
         // Arrange
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(), new AktørIdDto("9999999999999"), YtelseTypeDto.FORELDREPENGER,
             new ArbeidsgiverDto("999999999"), new SendInntektsmeldingRequestDto.KontaktpersonDto("Testy test", "999999999"), LocalDate.now(),
-            BigDecimal.valueOf(5000), BigDecimal.valueOf(5000), Collections.singletonList(new SendInntektsmeldingRequestDto.RefusjonEndringRequestDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
+            BigDecimal.valueOf(5000), BigDecimal.valueOf(5000), Collections.singletonList(new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.singletonList(
                 new SendInntektsmeldingRequestDto.NaturalytelseRequestDto(LocalDate.now(), Tid.TIDENES_ENDE, NaturalytelsetypeDto.ANNET, true,
                     BigDecimal.valueOf(4000))));
@@ -70,13 +70,13 @@ class InntektsmeldingMapperTest {
 
         assertThat(entitet.getNaturalYtelser()).hasSize(1);
         assertThat(entitet.getNaturalYtelser().getFirst().getBeløp()).isEqualByComparingTo(
-            request.bortfaltNaturaltytelsePerioder().getFirst().beløp());
+            request.bortfaltNaturalytelsePerioder().getFirst().beløp());
         assertThat(entitet.getNaturalYtelser().getFirst().getType()).isEqualByComparingTo(
-            KodeverkMapper.mapNaturalytelseTilEntitet(request.bortfaltNaturaltytelsePerioder().getFirst().naturalytelsetype()));
-        assertThat(entitet.getNaturalYtelser().getFirst().getPeriode().getFom()).isEqualTo(request.bortfaltNaturaltytelsePerioder().getFirst().fom());
-        assertThat(entitet.getNaturalYtelser().getFirst().getPeriode().getTom()).isEqualTo(request.bortfaltNaturaltytelsePerioder().getFirst().tom());
+            KodeverkMapper.mapNaturalytelseTilEntitet(request.bortfaltNaturalytelsePerioder().getFirst().naturalytelsetype()));
+        assertThat(entitet.getNaturalYtelser().getFirst().getPeriode().getFom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().fom());
+        assertThat(entitet.getNaturalYtelser().getFirst().getPeriode().getTom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().tom());
         assertThat(entitet.getNaturalYtelser().getFirst().getErBortfalt()).isEqualTo(
-            request.bortfaltNaturaltytelsePerioder().getFirst().erBortfalt());
+            request.bortfaltNaturalytelsePerioder().getFirst().erBortfalt());
     }
 
 }

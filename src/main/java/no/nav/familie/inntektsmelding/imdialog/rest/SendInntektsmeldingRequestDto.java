@@ -21,10 +21,10 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
                                             @NotNull @Valid KontaktpersonDto kontaktperson, @NotNull LocalDate startdato,
                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
                                             @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal refusjon,
-                                            @NotNull List<@Valid RefusjonEndringRequestDto> refusjonEndringer,
-                                            @NotNull List<@Valid NaturalytelseRequestDto> bortfaltNaturaltytelsePerioder) {
+                                            @NotNull List<@Valid RefusjonendringRequestDto> refusjonEndringer,
+                                            @NotNull List<@Valid NaturalytelseRequestDto> bortfaltNaturalytelsePerioder) {
 
-    public record RefusjonEndringRequestDto(@NotNull LocalDate fom,
+    public record RefusjonendringRequestDto(@NotNull LocalDate fom,
                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
     }
 
