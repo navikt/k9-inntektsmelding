@@ -3,16 +3,18 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoNorsk;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonEndringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
+import no.nav.vedtak.konfig.Tid;
 
 public class InntektsmeldingPdfDataMapper {
     public static InntektsmeldingPdfData mapInntektsmeldingData(InntektsmeldingEntitet inntektsmelding,
@@ -33,10 +35,10 @@ public class InntektsmeldingPdfDataMapper {
             .medRefusjonOpphørsdato(inntektsmelding.getOpphørsdatoRefusjon())
             .medMånedInntekt(inntektsmelding.getMånedInntekt())
             .medKontaktperson(mapKontaktperson(inntektsmelding.getKontaktperson()))
-            .medEndringIRefusjonsperioder(mapEndringIRefusjonsperioder(inntektsmelding.getRefusjonsendringer(), inntektsmelding.getOpphørsdatoRefusjon()))
-            .medNaturalytelser(mapNauralYtelser(inntektsmelding.getNaturalYtelser()))
-            .medIngenBortfaltNaturalytelse(erIngenBortalteNaturalYtelser(inntektsmelding.getNaturalYtelser()))
-            .medIngenGjenopptattNaturalytelse(erIngenGjenopptatteNaturalYtelser(inntektsmelding.getNaturalYtelser()));
+            .medNaturalytelser(mapNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
+            .medIngenBortfaltNaturalytelse(erIngenBortalteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
+            .medIngenGjenopptattNaturalytelse(erIngenGjenopptatteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
+            .medEndringIRefusjonsperioder(mapEndringIRefusjonsperioder(inntektsmelding.getRefusjonsendringer(), inntektsmelding.getOpphørsdatoRefusjon()));
         return imDokumentdataBuilder.build();
     }
 
@@ -44,20 +46,26 @@ public class InntektsmeldingPdfDataMapper {
         return new Kontaktperson(kontaktpersonEntitet.getNavn(), kontaktpersonEntitet.getTelefonnummer());
     }
 
-    private static boolean erIngenGjenopptatteNaturalYtelser(List<NaturalytelseEntitet> naturalYtelser) {
-        return naturalYtelser.isEmpty() || naturalYtelser.stream().allMatch(NaturalytelseEntitet::getErBortfalt);
+    private static boolean erIngenGjenopptatteNaturalYtelser(List<BortaltNaturalytelseEntitet> naturalYtelser) {
+        return naturalYtelser.isEmpty() || naturalYtelser.stream().filter(n -> n.getPeriode().getTom().isBefore(Tid.TIDENES_ENDE)).toList().isEmpty();
     }
 
-    private static boolean erIngenBortalteNaturalYtelser(List<NaturalytelseEntitet> naturalYtelser) {
-        return naturalYtelser.isEmpty() || naturalYtelser.stream().noneMatch(NaturalytelseEntitet::getErBortfalt);
+    private static boolean erIngenBortalteNaturalYtelser(List<BortaltNaturalytelseEntitet> naturalYtelser) {
+        return naturalYtelser.isEmpty() || naturalYtelser.stream().filter(n -> n.getPeriode().getTom().isEqual(Tid.TIDENES_ENDE)).toList().isEmpty();
     }
 
-    private static List<NaturalYtelse> mapNauralYtelser(List<NaturalytelseEntitet> naturalytelser) {
-        return naturalytelser.stream()
-            .map(ny -> new NaturalYtelse(formaterDatoNorsk(ny.getPeriode().getFom()), formaterDatoNorsk(ny.getPeriode().getTom()),
-                mapTypeTekst(ny.getType()), ny.getBeløp(), ny.getErBortfalt()))
-            .toList();
+    private static List<NaturalYtelse> mapNaturalYtelser(List<BortaltNaturalytelseEntitet> naturalytelser) {
+        List<NaturalYtelse> naturalytelserTilBrev = new ArrayList<>();
+        naturalytelser.stream().filter(bn -> bn.getPeriode().getTom().isEqual(Tid.TIDENES_ENDE))
+            .map(bortfalt -> opprettNaturalYtelseTilBrev(bortfalt, true)).forEach(naturalytelserTilBrev::add);
+        naturalytelser.stream().filter(bn -> bn.getPeriode().getTom().isBefore(Tid.TIDENES_ENDE))
+            .map(tilkommet -> opprettNaturalYtelseTilBrev(tilkommet, false)).forEach(naturalytelserTilBrev::add);
+        return naturalytelserTilBrev;
     }
+
+    private static NaturalYtelse opprettNaturalYtelseTilBrev(BortaltNaturalytelseEntitet bn, boolean erBortfalt) {
+        return new NaturalYtelse(formaterDatoNorsk(bn.getPeriode().getFom()), mapTypeTekst(bn.getType()), bn.getMånedBeløp(), erBortfalt);
+        }
 
     private static String mapTypeTekst(NaturalytelseType type) {
         return switch (type) {

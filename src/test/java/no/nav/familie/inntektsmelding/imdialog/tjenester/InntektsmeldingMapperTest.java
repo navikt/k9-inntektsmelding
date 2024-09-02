@@ -67,16 +67,13 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
 
-
-        assertThat(entitet.getNaturalYtelser()).hasSize(1);
-        assertThat(entitet.getNaturalYtelser().getFirst().getBeløp()).isEqualByComparingTo(
+        assertThat(entitet.getBorfalteNaturalYtelser()).hasSize(1);
+        assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getMånedBeløp()).isEqualByComparingTo(
             request.bortfaltNaturalytelsePerioder().getFirst().beløp());
-        assertThat(entitet.getNaturalYtelser().getFirst().getType()).isEqualByComparingTo(
+        assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getType()).isEqualByComparingTo(
             KodeverkMapper.mapNaturalytelseTilEntitet(request.bortfaltNaturalytelsePerioder().getFirst().naturalytelsetype()));
-        assertThat(entitet.getNaturalYtelser().getFirst().getPeriode().getFom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().fom());
-        assertThat(entitet.getNaturalYtelser().getFirst().getPeriode().getTom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().tom());
-        assertThat(entitet.getNaturalYtelser().getFirst().getErBortfalt()).isEqualTo(
-            request.bortfaltNaturalytelsePerioder().getFirst().erBortfalt());
+        assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getPeriode().getFom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().fom());
+        assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getPeriode().getTom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().tom());
     }
 
 }

@@ -6,9 +6,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonEndringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
@@ -27,7 +27,7 @@ public class InntektsmeldingMapper {
             .medStartDato(dto.startdato())
             .medYtelsetype(KodeverkMapper.mapYtelsetype(dto.ytelse()))
             .medKontaktperson(mapKontaktPerson(dto))
-            .medNaturalYtelse(mapNaturalytelser(dto.bortfaltNaturalytelsePerioder()))
+            .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(dto.bortfaltNaturalytelsePerioder()))
             .medRefusjonsendringer(mapRefusjonsendringer(dto.refusjonEndringer()))
             .build();
     }
@@ -42,12 +42,11 @@ public class InntektsmeldingMapper {
         return refusjonEndringRequestDtos.stream().map(dto -> new RefusjonEndringEntitet(dto.fom(), dto.beløp())).toList();
     }
 
-    private static List<NaturalytelseEntitet> mapNaturalytelser(List<SendInntektsmeldingRequestDto.NaturalytelseRequestDto> dto) {
+    private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<SendInntektsmeldingRequestDto.NaturalytelseRequestDto> dto) {
         return dto.stream()
-            .map(d -> new NaturalytelseEntitet.Builder().medPeriode(d.fom(), d.tom())
-                .medBeløp(d.beløp())
+            .map(d -> new BortaltNaturalytelseEntitet.Builder().medPeriode(d.fom(), d.tom() != null ? d.tom() : Tid.TIDENES_ENDE )
+                .medMånedBeløp(d.beløp())
                 .medType(KodeverkMapper.mapNaturalytelseTilEntitet(d.naturalytelsetype()))
-                .medErBortfalt(d.erBortfalt())
                 .build())
             .toList();
     }

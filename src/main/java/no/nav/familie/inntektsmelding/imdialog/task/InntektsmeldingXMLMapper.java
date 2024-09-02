@@ -5,12 +5,12 @@ import java.util.Map;
 import jakarta.xml.bind.JAXBElement;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.vedtak.konfig.Tid;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsgiver;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.ArbeidsgiverPrivat;
@@ -61,6 +61,7 @@ public class InntektsmeldingXMLMapper {
         skjemainnhold.setOpphoerAvNaturalytelseListe(lagBortfaltNaturalytelse(inntektsmelding, of));
         skjemainnhold.setGjenopptakelseNaturalytelseListe(lagGjennopptattNaturalytelse(inntektsmelding, of));
 
+
         var imXml = new InntektsmeldingM();
         imXml.setSkjemainnhold(skjemainnhold);
         return imXml;
@@ -95,11 +96,11 @@ public class InntektsmeldingXMLMapper {
                                                                                               ObjectFactory of) {
         var gjennoptakelseListeObjekt = new GjenopptakelseNaturalytelseListe();
         var gjennoptakelseListe = gjennoptakelseListeObjekt.getNaturalytelseDetaljer();
-        inntektsmeldingEntitet.getNaturalYtelser().stream().filter(n -> !n.getErBortfalt()).forEach(nat -> {
+        inntektsmeldingEntitet.getBorfalteNaturalYtelser().stream().filter(by -> by.getPeriode().getTom().isBefore(Tid.TIDENES_ENDE)).forEach(tilkommetNat -> {
             var nd = new NaturalytelseDetaljer();
-            nd.setFom(of.createNaturalytelseDetaljerFom(nat.getPeriode().getFom()));
-            nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(nat.getBeløp()));
-            nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(nat.getType())));
+            nd.setFom(of.createNaturalytelseDetaljerFom(tilkommetNat.getPeriode().getFom()));
+            nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(tilkommetNat.getMånedBeløp()));
+            nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(tilkommetNat.getType())));
             gjennoptakelseListe.add(nd);
         });
         return of.createSkjemainnholdGjenopptakelseNaturalytelseListe(gjennoptakelseListeObjekt);
@@ -109,10 +110,10 @@ public class InntektsmeldingXMLMapper {
                                                                                      ObjectFactory of) {
         var opphørListeObjekt = new OpphoerAvNaturalytelseListe();
         var opphørListe = opphørListeObjekt.getOpphoerAvNaturalytelse();
-        inntektsmeldingEntitet.getNaturalYtelser().stream().filter(NaturalytelseEntitet::getErBortfalt).forEach(nat -> {
+        inntektsmeldingEntitet.getBorfalteNaturalYtelser().stream().filter(by -> by.getPeriode().getTom().isEqual(Tid.TIDENES_ENDE)).forEach(nat -> {
             var nd = new NaturalytelseDetaljer();
             nd.setFom(of.createNaturalytelseDetaljerFom(nat.getPeriode().getFom()));
-            nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(nat.getBeløp()));
+            nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(nat.getMånedBeløp()));
             nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(nat.getType())));
             opphørListe.add(nd);
         });
