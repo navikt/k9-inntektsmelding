@@ -1,4 +1,5 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
+
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoMedNavnPåUkedag;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoNorsk;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoOgTidNorsk;
@@ -8,9 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.TextStyle;
 import java.util.List;
-import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,13 +18,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(MockitoExtension.class)
 class InntektsmeldingPdfDataMapperTest {
@@ -34,7 +31,6 @@ class InntektsmeldingPdfDataMapperTest {
     public void skal_opprette_pdfData() {
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
         var refusjonsbeløp = BigDecimal.valueOf(35000);
-        var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.of(2024, 6, 1), Tid.TIDENES_ENDE, refusjonsbeløp);
         var naturalytelseFraDato = LocalDate.of(2024, 6, 10);
         var naturalytelseTilDato = LocalDate.of(2024, 6, 30);
         var naturalytelseBeløp = BigDecimal.valueOf(2000);
@@ -63,9 +59,9 @@ class InntektsmeldingPdfDataMapperTest {
             .medYtelsetype(Ytelsetype.FORELDREPENGER)
             .medMånedInntekt(inntekt)
             .medStartDato(startdato)
+            .medMånedRefusjon(refusjonsbeløp)
             .medOpprettetTidspunkt(opprettetTidspunkt)
             .medArbeidsgiverIdent(arbeidsgiverIdent)
-            .medRefusjonsPeriode(List.of(refusjonperiode))
             .medNaturalYtelse(List.of(naturalytelse))
             .build();
 

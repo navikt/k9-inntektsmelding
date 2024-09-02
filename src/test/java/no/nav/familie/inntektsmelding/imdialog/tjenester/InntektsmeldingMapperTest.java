@@ -24,7 +24,7 @@ class InntektsmeldingMapperTest {
         // Arrange
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(), new AktørIdDto("9999999999999"), YtelseTypeDto.FORELDREPENGER,
             new ArbeidsgiverDto("999999999"), new SendInntektsmeldingRequestDto.KontaktpersonDto("Testy test", "999999999"), LocalDate.now(),
-            BigDecimal.valueOf(5000), Collections.emptyList(), Collections.emptyList());
+            BigDecimal.valueOf(5000), null, Collections.emptyList(), Collections.emptyList());
 
         // Act
         var entitet = InntektsmeldingMapper.mapTilEntitet(request);
@@ -38,7 +38,9 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
         assertThat(entitet.getNaturalYtelser()).isEmpty();
-        assertThat(entitet.getRefusjonsPerioder()).isEmpty();
+        assertThat(entitet.getMånedRefusjon()).isNull();
+        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(Tid.TIDENES_ENDE);
+
     }
 
     @Test
@@ -46,8 +48,7 @@ class InntektsmeldingMapperTest {
         // Arrange
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(), new AktørIdDto("9999999999999"), YtelseTypeDto.FORELDREPENGER,
             new ArbeidsgiverDto("999999999"), new SendInntektsmeldingRequestDto.KontaktpersonDto("Testy test", "999999999"), LocalDate.now(),
-            BigDecimal.valueOf(5000), Collections.singletonList(
-            new SendInntektsmeldingRequestDto.RefusjonsperiodeRequestDto(LocalDate.now(), Tid.TIDENES_ENDE, BigDecimal.valueOf(4000))),
+            BigDecimal.valueOf(5000), BigDecimal.valueOf(5000), Collections.singletonList(new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.singletonList(
                 new SendInntektsmeldingRequestDto.NaturalytelseRequestDto(LocalDate.now(), Tid.TIDENES_ENDE, NaturalytelsetypeDto.ANNET, true,
                     BigDecimal.valueOf(4000))));
@@ -61,26 +62,21 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getMånedInntekt()).isEqualByComparingTo(request.inntekt());
         assertThat(entitet.getStartDato()).isEqualTo(request.startdato());
         assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetype(request.ytelse()));
+        assertThat(entitet.getMånedRefusjon()).isEqualByComparingTo(BigDecimal.valueOf(5000));
+        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(LocalDate.now().plusDays(10));
         assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
 
+
         assertThat(entitet.getNaturalYtelser()).hasSize(1);
         assertThat(entitet.getNaturalYtelser().getFirst().getBeløp()).isEqualByComparingTo(
-            request.bortfaltNaturaltytelsePerioder().getFirst().beløp());
+            request.bortfaltNaturalytelsePerioder().getFirst().beløp());
         assertThat(entitet.getNaturalYtelser().getFirst().getType()).isEqualByComparingTo(
-            KodeverkMapper.mapNaturalytelseTilEntitet(request.bortfaltNaturaltytelsePerioder().getFirst().naturalytelsetype()));
-        assertThat(entitet.getNaturalYtelser().getFirst().getPeriode().getFom()).isEqualTo(request.bortfaltNaturaltytelsePerioder().getFirst().fom());
-        assertThat(entitet.getNaturalYtelser().getFirst().getPeriode().getTom()).isEqualTo(request.bortfaltNaturaltytelsePerioder().getFirst().tom());
+            KodeverkMapper.mapNaturalytelseTilEntitet(request.bortfaltNaturalytelsePerioder().getFirst().naturalytelsetype()));
+        assertThat(entitet.getNaturalYtelser().getFirst().getPeriode().getFom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().fom());
+        assertThat(entitet.getNaturalYtelser().getFirst().getPeriode().getTom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().tom());
         assertThat(entitet.getNaturalYtelser().getFirst().getErBortfalt()).isEqualTo(
-            request.bortfaltNaturaltytelsePerioder().getFirst().erBortfalt());
-
-
-        assertThat(entitet.getRefusjonsPerioder()).hasSize(1);
-        assertThat(entitet.getRefusjonsPerioder().getFirst().getBeløp()).isEqualByComparingTo(request.refusjonsperioder().getFirst().beløp());
-        assertThat(entitet.getRefusjonsPerioder().getFirst().getPeriode().getFom()).isEqualTo(request.refusjonsperioder().getFirst().fom());
-        assertThat(entitet.getRefusjonsPerioder().getFirst().getPeriode().getTom()).isEqualTo(request.refusjonsperioder().getFirst().tom());
-
-
+            request.bortfaltNaturalytelsePerioder().getFirst().erBortfalt());
     }
 
 }

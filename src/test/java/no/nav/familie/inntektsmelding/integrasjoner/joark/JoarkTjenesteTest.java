@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -55,7 +54,6 @@ class JoarkTjenesteTest {
     void skal_teste_oversending_organisasjon() {
         // Arrange
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
-        var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.of(2024, 6, 1), Tid.TIDENES_ENDE, BigDecimal.valueOf(35000));
         var naturalytelse = NaturalytelseEntitet.builder()
             .medPeriode(LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 30))
             .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
@@ -67,12 +65,13 @@ class JoarkTjenesteTest {
             .medArbeidsgiverIdent(arbeidsgiverIdent)
             .medStartDato(LocalDate.of(2024, 6, 1))
             .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medMånedRefusjon(BigDecimal.valueOf(35000))
             .medMånedInntekt(BigDecimal.valueOf(35000))
             .medAktørId(aktørIdSøker)
             .medOpprettetTidspunkt(LocalDateTime.now())
             .medKontaktperson(new KontaktpersonEntitet("Test Testen", "111111111"))
             .medNaturalYtelse(Collections.singletonList(naturalytelse))
-            .medRefusjonsPeriode(Collections.singletonList(refusjonperiode))
             .build();
 
         var testBedrift = new Organisasjon("Test Bedrift", arbeidsgiverIdent);
@@ -92,7 +91,6 @@ class JoarkTjenesteTest {
     void skal_teste_oversending_privapterson() {
         // Arrange
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
-        var refusjonperiode = new RefusjonPeriodeEntitet(LocalDate.of(2024, 6, 1), Tid.TIDENES_ENDE, BigDecimal.valueOf(35000));
         var naturalytelse = NaturalytelseEntitet.builder()
             .medPeriode(LocalDate.of(2024, 6, 10), LocalDate.of(2024, 6, 30))
             .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
@@ -105,11 +103,12 @@ class JoarkTjenesteTest {
             .medStartDato(LocalDate.of(2024, 6, 1))
             .medYtelsetype(Ytelsetype.FORELDREPENGER)
             .medMånedInntekt(BigDecimal.valueOf(35000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medMånedRefusjon(BigDecimal.valueOf(35000))
             .medAktørId(aktørIdSøker)
             .medOpprettetTidspunkt(LocalDateTime.now())
             .medKontaktperson(new KontaktpersonEntitet("Test Testen", "111111111"))
             .medNaturalYtelse(Collections.singletonList(naturalytelse))
-            .medRefusjonsPeriode(Collections.singletonList(refusjonperiode))
             .build();
 
         // Kan foreløpig ikke teste med spesifikk request i mock siden eksternreferanse genereres on the fly

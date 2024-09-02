@@ -53,11 +53,20 @@ public class InntektsmeldingEntitet {
     @Column(name = "maaned_inntekt")
     private BigDecimal månedInntekt;
 
+    @Column(name = "maaned_refusjon")
+    private BigDecimal månedRefusjon;
+
+    @Column(name = "refusjon_opphoersdato")
+    private LocalDate opphørsdatoRefusjon;
+
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
     private LocalDateTime opprettetTidspunkt = LocalDateTime.now();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
-    private List<RefusjonPeriodeEntitet> refusjonsPeriode = new ArrayList<>();
+    private List<RefusjonPeriodeEntitet> refusjonsPeriode = new ArrayList<>(); // TODO slett denne når frontend ikke lenger populerer den
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
+    private List<RefusjonEndringEntitet> refusjonsendringer = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private List<NaturalytelseEntitet> naturalYtelse = new ArrayList<>();
@@ -106,6 +115,18 @@ public class InntektsmeldingEntitet {
         return opprettetTidspunkt;
     }
 
+    public BigDecimal getMånedRefusjon() {
+        return månedRefusjon;
+    }
+
+    public LocalDate getOpphørsdatoRefusjon() {
+        return opphørsdatoRefusjon;
+    }
+
+    public List<RefusjonEndringEntitet> getRefusjonsendringer() {
+        return refusjonsendringer;
+    }
+
     void leggTilRefusjonsperiode(RefusjonPeriodeEntitet refusjonPeriodeEntitet) {
         var finnesOverlapp = refusjonsPeriode.stream().anyMatch(rp -> rp.getPeriode().overlapper(refusjonPeriodeEntitet.getPeriode()));
         if (finnesOverlapp) {
@@ -115,6 +136,11 @@ public class InntektsmeldingEntitet {
         }
         refusjonPeriodeEntitet.setInntektsmelding(this);
         refusjonsPeriode.add(refusjonPeriodeEntitet);
+    }
+
+    private void leggTilRefusjonsendring(RefusjonEndringEntitet refusjonEndringEntitet) {
+        refusjonEndringEntitet.setInntektsmelding(this);
+        refusjonsendringer.add(refusjonEndringEntitet);
     }
 
     void leggTilNaturalytelse(NaturalytelseEntitet naturalytelseEntitet) {
@@ -195,8 +221,18 @@ public class InntektsmeldingEntitet {
             return this;
         }
 
-        public Builder medRefusjonsPeriode(List<RefusjonPeriodeEntitet> refusjonsPeriode) {
-            refusjonsPeriode.forEach(kladd::leggTilRefusjonsperiode);
+        public Builder medMånedRefusjon(BigDecimal månedRefusjon) {
+            kladd.månedRefusjon = månedRefusjon;
+            return this;
+        }
+
+        public Builder medRefusjonOpphørsdato(LocalDate opphørsdato) {
+            kladd.opphørsdatoRefusjon = opphørsdato;
+            return this;
+        }
+
+        public Builder medRefusjonsendringer(List<RefusjonEndringEntitet> refusjonsPeriode) {
+            refusjonsPeriode.forEach(kladd::leggTilRefusjonsendring);
             return this;
         }
 
@@ -210,4 +246,5 @@ public class InntektsmeldingEntitet {
         }
 
     }
+
 }

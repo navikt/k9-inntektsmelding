@@ -21,6 +21,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonEndringEntitet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +31,6 @@ import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -80,11 +81,13 @@ public class FpDokgenRestTjeneste {
                 .medMånedInntekt(inntektsmeldingRequest.maanedInntekt())
                 .medYtelsetype(mapYtelseType(inntektsmeldingRequest.ytelsetype()))
                 .medOpprettetTidspunkt(LocalDateTime.now())
+                .medRefusjonOpphørsdato(inntektsmeldingRequest.opphoersdatoRefusjon())
+                .medMånedRefusjon(inntektsmeldingRequest.maanedRefusjon())
                 .medStartDato(inntektsmeldingRequest.startdatoPermisjon())
                 .medArbeidsgiverIdent(inntektsmeldingRequest.arbeidsgiverIdent());
 
-            if (inntektsmeldingRequest.refusjonsperioder() != null) {
-                builder.medRefusjonsPeriode(mapRefusjonsperiode(inntektsmeldingRequest.refusjonsperioder()));
+            if (inntektsmeldingRequest.refusjonsendringer() != null) {
+                builder.medRefusjonsendringer(mapRefusjonsendringer(inntektsmeldingRequest.refusjonsendringer()));
             }
             if (inntektsmeldingRequest.naturalytelser() != null) {
                 builder.medNaturalYtelse(mapNaturalytelser(inntektsmeldingRequest.naturalytelser));
@@ -100,8 +103,8 @@ public class FpDokgenRestTjeneste {
         return responseBuilder.build();
     }
 
-    private List<RefusjonPeriodeEntitet> mapRefusjonsperiode(List<RefusjonPeriodeDto> refusjonsperioder) {
-        return refusjonsperioder.stream().map(periode -> new RefusjonPeriodeEntitet(periode.fom(), periode.tom(), periode.beloep())).toList();
+    private List<RefusjonEndringEntitet> mapRefusjonsendringer(List<EndringRefusjonDto> refusjonsendringer) {
+        return refusjonsendringer.stream().map(periode -> new RefusjonEndringEntitet(periode.fom(), periode.beloep())).toList();
     }
 
     private List<NaturalytelseEntitet> mapNaturalytelser(List<NaturalYtelseDto> naturalYtelser) {
@@ -127,12 +130,13 @@ public class FpDokgenRestTjeneste {
     }
 
     public record InntektsmeldingRequest(Long inntektsmeldingId, String ytelsetype, String arbeidsgiverIdent, String kontaktpersonNavn,
-                                         String kontaktpersonTlf, LocalDate startdatoPermisjon,
+                                         String kontaktpersonTlf, LocalDate startdatoPermisjon, LocalDate opphoersdatoRefusjon,
+                                         @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedRefusjon,
                                          @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedInntekt,
-                                         List<RefusjonPeriodeDto> refusjonsperioder, List<NaturalYtelseDto> naturalytelser) {
+                                         List<EndringRefusjonDto> refusjonsendringer, List<NaturalYtelseDto> naturalytelser) {
     }
 
-    public record RefusjonPeriodeDto(@NotNull LocalDate fom, @NotNull LocalDate tom,
+    public record EndringRefusjonDto(@NotNull LocalDate fom,
                                      @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloep) {
     }
 
