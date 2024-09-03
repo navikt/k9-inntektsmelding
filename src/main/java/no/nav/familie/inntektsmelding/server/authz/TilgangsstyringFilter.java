@@ -101,14 +101,14 @@ public class TilgangsstyringFilter implements ContainerRequestFilter, ContainerR
         var action = annotation.action();
 
         // her kjøres selve reglene - tidligere kall til PDP/ABAC - mulig å lage et rammeverk rundt dette - men var overkill til å gjøre dette her.
-        var tilgangBesluttning = switch (kontekst.getIdentType()) {
+        var tilgangBeslutning = switch (kontekst.getIdentType()) {
             case EksternBruker -> vurderBorgerTilgang(policy, action);
             case Systemressurs -> vurderSystemTilgang(policy, action);
             case null, default -> ikkeTilgang(String.format("Mangler policy for %s", kontekst.getIdentType()));
         };
 
-        if (!tilgangBesluttning.fikkTilgang()) {
-            throw new NektetTilgangException("IKKE-TILGANG", tilgangBesluttning.begrunnelse());
+        if (!tilgangBeslutning.fikkTilgang()) {
+            throw new NektetTilgangException("IKKE-TILGANG", tilgangBeslutning.begrunnelse());
         } else {
             LOG.info("Tilgang ok.");
         }
@@ -120,7 +120,7 @@ public class TilgangsstyringFilter implements ContainerRequestFilter, ContainerR
             return ikkeTilgang("Kun Azure brukere støttes.");
         }
 
-        if (PolicyType.PORTAL.equals(policy)) {
+        if (PolicyType.ARBEIDSGIVER_PORTAL.equals(policy)) {
             if (ActionType.WRITE.equals(action)) {
                 var konsumentUid = kontekst.getUid();
                 if (erPreautorisert(konsumentUid) && erISammeKlusterKlasseOgNamespace(konsumentUid)) {
@@ -142,8 +142,14 @@ public class TilgangsstyringFilter implements ContainerRequestFilter, ContainerR
 
         var input = finnTilgangsstyringInput();
 
-        if (PolicyType.INNTEKTSMELDING.equals(policy)) {
+        if (PolicyType.ARBEIDSGIVER.equals(policy)) {
             if (Set.of(ActionType.READ, ActionType.WRITE).contains(action)) {
+
+                //            TODO: Avklar om vi må sjekke om AG representanten kan sende inn en IM for seg selv. Mulig har kan lese data om segselv
+                //                  men bør ikke kunne sende inn.
+                //                if (!kontekst.getUid().equals(input.getVerdier(TilgangsstyringInputTyper.AKTØR_ID)) {
+                //                    return ikkeTilgang("Brukeren kan ikke sende inn for seg selv.");
+                //                }
 
                 var orgNrSet = input.getVerdier(TilgangsstyringInputTyper.FORESPORSEL_ID)
                     .stream()
@@ -252,7 +258,7 @@ public class TilgangsstyringFilter implements ContainerRequestFilter, ContainerR
     }
 
     private static Tilgangsbeslutning okTilgang() {
-        return new Tilgangsbeslutning(TilgangResultat.GODKJENT, "OK.");
+        return new Tilgangsbeslutning(TilgangResultat.GODKJENT, "OK");
     }
 
     record Tilgangsbeslutning(TilgangResultat beslutningKode, String begrunnelse) {

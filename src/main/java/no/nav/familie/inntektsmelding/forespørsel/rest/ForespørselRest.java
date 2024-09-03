@@ -55,7 +55,7 @@ public class ForespørselRest {
 
     @POST
     @Path("/opprett")
-    @Tilgangsstyring(policy = PolicyType.PORTAL, action = ActionType.WRITE)
+    @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER_PORTAL, action = ActionType.WRITE)
     public Response opprettForespørsel(OpprettForespørselRequest request) {
         LOG.info("Mottok forespørsel om inntektsmeldingoppgave på saksnummer " + request.saksnummer());
         forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), KodeverkMapper.mapYtelsetype(request.ytelsetype()),
@@ -70,7 +70,7 @@ public class ForespørselRest {
     @Deprecated(forRemoval = true, since = "18.06.2024")
     @GET
     @Path("/{uuid}")
-    @Tilgangsstyring(policy = PolicyType.PORTAL, action = ActionType.READ)
+    @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER_PORTAL, action = ActionType.READ)
     public Response readForespørsel(@PathParam("uuid") UUID forespørselUUID) {
         return Response.ok(forespørselTjeneste.finnForespørsel(forespørselUUID).map(ForespørselRest::mapTilDto).orElseThrow()).build();
     }

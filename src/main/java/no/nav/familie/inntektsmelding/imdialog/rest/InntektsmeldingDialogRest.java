@@ -34,7 +34,6 @@ import no.nav.familie.inntektsmelding.server.authz.api.TilgangsstyringInputSuppl
 @ApplicationScoped
 @Transactional
 @AutentisertMedTokenX
-@Tilgangsstyring(policy = PolicyType.PORTAL, action = ActionType.READ)
 public class InntektsmeldingDialogRest {
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingDialogRest.class);
 
@@ -57,7 +56,7 @@ public class InntektsmeldingDialogRest {
     @Path(HENT_GRUNNLAG)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet.", tags = "imdialog")
-    @Tilgangsstyring(policy = PolicyType.PORTAL, action = ActionType.READ)
+    @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER, action = ActionType.READ)
     public Response hentInnsendingsinfo(
         @Parameter(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet basert på en forespørsel UUID") @NotNull
         @QueryParam("foresporselUuid")
@@ -83,6 +82,7 @@ public class InntektsmeldingDialogRest {
     @Path(SEND_INNTEKTSMELDING)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sender inn inntektsmelding", tags = "imdialog")
+    @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER, action = ActionType.WRITE)
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
                                         @TilgangsstyringInputSupplier(ForespørselIdSupplier.class)
                                         SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
