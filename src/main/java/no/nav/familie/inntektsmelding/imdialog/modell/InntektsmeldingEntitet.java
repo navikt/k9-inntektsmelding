@@ -66,7 +66,7 @@ public class InntektsmeldingEntitet {
     private List<RefusjonPeriodeEntitet> refusjonsPeriode = new ArrayList<>(); // TODO slett denne når frontend ikke lenger populerer den
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
-    private List<RefusjonEndringEntitet> refusjonsendringer = new ArrayList<>();
+    private List<RefusjonsendringEntitet> refusjonsendringer = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private List<NaturalytelseEntitet> naturalYtelse = new ArrayList<>();
@@ -130,13 +130,13 @@ public class InntektsmeldingEntitet {
         return opphørsdatoRefusjon;
     }
 
-    public List<RefusjonEndringEntitet> getRefusjonsendringer() {
+    public List<RefusjonsendringEntitet> getRefusjonsendringer() {
         return refusjonsendringer;
     }
 
-    private void leggTilRefusjonsendring(RefusjonEndringEntitet refusjonEndringEntitet) {
-        refusjonEndringEntitet.setInntektsmelding(this);
-        refusjonsendringer.add(refusjonEndringEntitet);
+    private void leggTilRefusjonsendring(RefusjonsendringEntitet refusjonsendringEntitet) {
+        refusjonsendringEntitet.setInntektsmelding(this);
+        refusjonsendringer.add(refusjonsendringEntitet);
     }
 
     void leggTilBortfalteNaturalytelse(BortaltNaturalytelseEntitet bortfaltNaturalytelse) {
@@ -227,7 +227,7 @@ public class InntektsmeldingEntitet {
             return this;
         }
 
-        public Builder medRefusjonsendringer(List<RefusjonEndringEntitet> refusjonsPeriode) {
+        public Builder medRefusjonsendringer(List<RefusjonsendringEntitet> refusjonsPeriode) {
             refusjonsPeriode.forEach(kladd::leggTilRefusjonsendring);
             return this;
         }

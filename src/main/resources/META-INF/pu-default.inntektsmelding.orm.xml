@@ -19,7 +19,7 @@
     <entity class="no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet"/>
     <entity class="no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet"/>
     <entity class="no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet"/>
-    <entity class="no.nav.familie.inntektsmelding.imdialog.modell.RefusjonEndringEntitet"/>
+    <entity class="no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet"/>
     <entity class="no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet"/>
 
 </entity-mappings>

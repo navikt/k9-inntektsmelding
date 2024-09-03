@@ -66,7 +66,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medStartDato(LocalDate.now())
-            .medRefusjonsendringer(Collections.singletonList(new RefusjonEndringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent("999999999")
             .build();
 

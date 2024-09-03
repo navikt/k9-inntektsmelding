@@ -21,7 +21,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonEndringEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +31,6 @@ import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntite
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.NaturalytelseEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -105,8 +103,8 @@ public class FpDokgenRestTjeneste {
         return responseBuilder.build();
     }
 
-    private List<RefusjonEndringEntitet> mapRefusjonsendringer(List<EndringRefusjonDto> refusjonsendringer) {
-        return refusjonsendringer.stream().map(periode -> new RefusjonEndringEntitet(periode.fom(), periode.beloep())).toList();
+    private List<RefusjonsendringEntitet> mapRefusjonsendringer(List<EndringRefusjonDto> refusjonsendringer) {
+        return refusjonsendringer.stream().map(periode -> new RefusjonsendringEntitet(periode.fom(), periode.beloep())).toList();
     }
 
     private List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<NaturalYtelseDto> naturalYtelser) {

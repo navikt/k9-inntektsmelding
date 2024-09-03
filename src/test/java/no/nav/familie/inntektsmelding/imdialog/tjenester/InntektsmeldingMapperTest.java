@@ -23,7 +23,7 @@ class InntektsmeldingMapperTest {
     void skal_teste_mapping_uten_ref_og_naturalytelse() {
         // Arrange
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(), new AktørIdDto("9999999999999"), YtelseTypeDto.FORELDREPENGER,
-            new ArbeidsgiverDto("999999999"), new SendInntektsmeldingRequestDto.KontaktpersonDto("Testy test", "999999999"), LocalDate.now(),
+            new ArbeidsgiverDto("999999999"), new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"), LocalDate.now(),
             BigDecimal.valueOf(5000), null, Collections.emptyList(), Collections.emptyList());
 
         // Act
@@ -47,10 +47,10 @@ class InntektsmeldingMapperTest {
     void skal_teste_mapping_med_ref_og_naturalytelse() {
         // Arrange
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(), new AktørIdDto("9999999999999"), YtelseTypeDto.FORELDREPENGER,
-            new ArbeidsgiverDto("999999999"), new SendInntektsmeldingRequestDto.KontaktpersonDto("Testy test", "999999999"), LocalDate.now(),
+            new ArbeidsgiverDto("999999999"), new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"), LocalDate.now(),
             BigDecimal.valueOf(5000), BigDecimal.valueOf(5000), Collections.singletonList(new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.singletonList(
-                new SendInntektsmeldingRequestDto.NaturalytelseRequestDto(LocalDate.now(), Tid.TIDENES_ENDE, NaturalytelsetypeDto.ANNET, true,
+                new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(LocalDate.now(), Tid.TIDENES_ENDE, NaturalytelsetypeDto.ANNET, true,
                     BigDecimal.valueOf(4000))));
 
         // Act

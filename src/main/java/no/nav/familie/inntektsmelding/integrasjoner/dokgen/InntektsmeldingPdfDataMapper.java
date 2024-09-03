@@ -11,7 +11,7 @@ import java.util.Optional;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonEndringEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.vedtak.konfig.Tid;
@@ -91,16 +91,16 @@ public class InntektsmeldingPdfDataMapper {
         };
     }
 
-    private static List<RefusjonPeriode> mapEndringIRefusjonsperioder(List<RefusjonEndringEntitet> refusjonsendringer, LocalDate opphørsdatoRefusjon) {
+    private static List<RefusjonPeriode> mapEndringIRefusjonsperioder(List<RefusjonsendringEntitet> refusjonsendringer, LocalDate opphørsdatoRefusjon) {
         return refusjonsendringer.stream()
             .map(rpe -> new RefusjonPeriode(formaterDatoNorsk(rpe.getFom()), formaterDatoNorsk(finnNesteFom(refusjonsendringer, rpe.getFom()).orElse(opphørsdatoRefusjon)),
                 rpe.getRefusjonPrMnd()))
             .toList();
     }
 
-    private static Optional<LocalDate> finnNesteFom(List<RefusjonEndringEntitet> refusjonsendringer, LocalDate fom) {
+    private static Optional<LocalDate> finnNesteFom(List<RefusjonsendringEntitet> refusjonsendringer, LocalDate fom) {
         var nesteFom = refusjonsendringer.stream()
-            .map(RefusjonEndringEntitet::getFom)
+            .map(RefusjonsendringEntitet::getFom)
             .filter(reFom -> reFom.isAfter(fom))
             .min(Comparator.naturalOrder());
         return nesteFom.map(date -> date.minusDays(1));

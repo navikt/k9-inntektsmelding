@@ -9,7 +9,7 @@ import java.util.Optional;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonEndringEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -23,26 +23,26 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
             .medMånedInntekt(dto.inntekt())
             .medMånedRefusjon(dto.refusjon())
-            .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjonEndringer()).orElse(Tid.TIDENES_ENDE)) // TODO Foretrekker vi null eller tidenes ende?
+            .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjonsendringer()).orElse(Tid.TIDENES_ENDE)) // TODO Foretrekker vi null eller tidenes ende?
             .medStartDato(dto.startdato())
             .medYtelsetype(KodeverkMapper.mapYtelsetype(dto.ytelse()))
             .medKontaktperson(mapKontaktPerson(dto))
             .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(dto.bortfaltNaturalytelsePerioder()))
-            .medRefusjonsendringer(mapRefusjonsendringer(dto.refusjonEndringer()))
+            .medRefusjonsendringer(mapRefusjonsendringer(dto.refusjonsendringer()))
             .build();
     }
 
-    private static Optional<LocalDate> finnOpphørsdato(List<SendInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonEndringRequestDtos) {
-        var sisteEndring = refusjonEndringRequestDtos.stream().max(Comparator.comparing(SendInntektsmeldingRequestDto.RefusjonendringRequestDto::fom));
+    private static Optional<LocalDate> finnOpphørsdato(List<SendInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDtos) {
+        var sisteEndring = refusjonsendringRequestDtos.stream().max(Comparator.comparing(SendInntektsmeldingRequestDto.RefusjonendringRequestDto::fom));
         // Hvis siste endring setter refusjon til 0 er det å regne som opphørsdato
         return sisteEndring.filter(en -> en.beløp().compareTo(BigDecimal.ZERO) == 0).map(SendInntektsmeldingRequestDto.RefusjonendringRequestDto::fom);
     }
 
-    private static List<RefusjonEndringEntitet> mapRefusjonsendringer(List<SendInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonEndringRequestDtos) {
-        return refusjonEndringRequestDtos.stream().map(dto -> new RefusjonEndringEntitet(dto.fom(), dto.beløp())).toList();
+    private static List<RefusjonsendringEntitet> mapRefusjonsendringer(List<SendInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDtos) {
+        return refusjonsendringRequestDtos.stream().map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp())).toList();
     }
 
-    private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<SendInntektsmeldingRequestDto.NaturalytelseRequestDto> dto) {
+    private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto> dto) {
         return dto.stream()
             .map(d -> new BortaltNaturalytelseEntitet.Builder().medPeriode(d.fom(), d.tom() != null ? d.tom() : Tid.TIDENES_ENDE )
                 .medMånedBeløp(d.beløp())
