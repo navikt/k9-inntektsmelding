@@ -14,7 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselRest;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogRest;
-import no.nav.familie.inntektsmelding.server.auth.AuthenticationFilter;
+import no.nav.familie.inntektsmelding.server.auth.AutentiseringFilter;
+import no.nav.familie.inntektsmelding.server.authz.TilgangsstyringFilter;
 import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.JsonMappingExceptionMapper;
@@ -30,7 +31,8 @@ public class ApiConfig extends ResourceConfig {
     public ApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
         // Sikkerhet
-        register(AuthenticationFilter.class);
+        register(AutentiseringFilter.class);
+        register(TilgangsstyringFilter.class);
 
         // REST
         registerClasses(getApplicationClasses());

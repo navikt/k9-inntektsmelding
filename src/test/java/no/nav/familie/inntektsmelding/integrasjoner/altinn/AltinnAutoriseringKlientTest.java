@@ -1,7 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn;
 
 import static no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnAutoriseringKlient.ALTINN_SIZE_LIMIT;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -38,7 +38,7 @@ class AltinnAutoriseringKlientTest {
 
         when(klient.sendReturnList(any(RestRequest.class), any())).thenReturn(List.of(lagAltinnReportee("Saltrød og høneby", "999999999")));
 
-        altinnAutoriseringKlient.sjekkTilgang("999999999");
+        altinnAutoriseringKlient.harTilgangTilBedriften("999999999");
 
         verify(klient).sendReturnList(any(RestRequest.class), any());
     }
@@ -49,8 +49,7 @@ class AltinnAutoriseringKlientTest {
 
         when(klient.sendReturnList(any(RestRequest.class), any())).thenReturn(List.of(lagAltinnReportee("Saltrød og høneby", "999999999")));
 
-        assertThatThrownBy(() -> altinnAutoriseringKlient.sjekkTilgang("000000000")).isInstanceOf(RuntimeException.class);
-
+        assertThat(altinnAutoriseringKlient.harTilgangTilBedriften("000000000")).isFalse();
         verify(klient).sendReturnList(any(RestRequest.class), any());
     }
 
@@ -65,7 +64,7 @@ class AltinnAutoriseringKlientTest {
         List<AltinnReportee> side2 = List.of(lagAltinnReportee("Bedrift på side 2 AS", "999999999"));
         when(klient.sendReturnList(any(RestRequest.class), eq(AltinnReportee.class))).thenReturn(side1, side2);
 
-        altinnAutoriseringKlient.sjekkTilgang("999999999");
+        altinnAutoriseringKlient.harTilgangTilBedriften("999999999");
 
         verify(klient, times(2)).sendReturnList(any(RestRequest.class), any());
     }
