@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 
 @Entity(name = "RefusjonEndringEntitet")
 @Table(name = "REFUSJON_ENDRING")
-public class RefusjonEndringEntitet {
+public class RefusjonsendringEntitet {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_REFUSJON_ENDRING")
     private Long id;
@@ -29,11 +29,11 @@ public class RefusjonEndringEntitet {
     @Column(name = "maaned_refusjon")
     private BigDecimal refusjonPrMnd;
 
-    public RefusjonEndringEntitet() {
+    public RefusjonsendringEntitet() {
         // Hibernate
     }
 
-    public RefusjonEndringEntitet(LocalDate fom, BigDecimal refusjonPrMnd) {
+    public RefusjonsendringEntitet(LocalDate fom, BigDecimal refusjonPrMnd) {
         this.inntektsmelding = inntektsmelding;
         this.fom = fom;
         this.refusjonPrMnd = refusjonPrMnd;
