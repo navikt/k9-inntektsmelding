@@ -37,7 +37,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetype(request.ytelse()));
         assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
-        assertThat(entitet.getNaturalYtelser()).isEmpty();
+        assertThat(entitet.getBorfalteNaturalYtelser()).isEmpty();
         assertThat(entitet.getMånedRefusjon()).isNull();
         assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(Tid.TIDENES_ENDE);
 
@@ -50,8 +50,7 @@ class InntektsmeldingMapperTest {
             new ArbeidsgiverDto("999999999"), new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"), LocalDate.now(),
             BigDecimal.valueOf(5000), BigDecimal.valueOf(5000), Collections.singletonList(new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.singletonList(
-                new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(LocalDate.now(), Tid.TIDENES_ENDE, NaturalytelsetypeDto.ANNET, true,
-                    BigDecimal.valueOf(4000))));
+                new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(LocalDate.now(), Tid.TIDENES_ENDE, NaturalytelsetypeDto.ANNET, BigDecimal.valueOf(4000))));
 
         // Act
         var entitet = InntektsmeldingMapper.mapTilEntitet(request);

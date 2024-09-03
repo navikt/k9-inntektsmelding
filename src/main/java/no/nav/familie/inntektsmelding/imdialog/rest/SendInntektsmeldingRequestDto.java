@@ -29,7 +29,6 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
     }
 
     public record BortfaltNaturalytelseRequestDto(@NotNull LocalDate fom, LocalDate tom, @NotNull NaturalytelsetypeDto naturalytelsetype,
-                                                  Boolean erBortfalt,
                                                   @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
     }
 

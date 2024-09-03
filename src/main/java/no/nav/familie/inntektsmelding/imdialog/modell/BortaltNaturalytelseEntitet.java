@@ -61,7 +61,7 @@ public class BortaltNaturalytelseEntitet {
 
     @Override
     public String toString() {
-        return "NaturalytelseEntitet{" + "periode=" + periode + ", type=" + type + ", beløp=" + månedBeløp + '}';
+        return "BortfaltNaturalytelseEntitet{" + "periode=" + periode + ", type=" + type + ", beløp=" + månedBeløp + '}';
     }
 
     public static Builder builder() {
