@@ -63,9 +63,6 @@ public class InntektsmeldingEntitet {
     private LocalDateTime opprettetTidspunkt = LocalDateTime.now();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
-    private List<RefusjonPeriodeEntitet> refusjonsPeriode = new ArrayList<>(); // TODO slett denne når frontend ikke lenger populerer den
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private List<RefusjonsendringEntitet> refusjonsendringer = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
@@ -97,10 +94,6 @@ public class InntektsmeldingEntitet {
 
     public BigDecimal getMånedInntekt() {
         return månedInntekt;
-    }
-
-    public List<RefusjonPeriodeEntitet> getRefusjonsPerioder() {
-        return refusjonsPeriode;
     }
 
     public List<BortaltNaturalytelseEntitet> getBorfalteNaturalYtelser() {
@@ -163,7 +156,7 @@ public class InntektsmeldingEntitet {
     public String toString() {
         return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + aktørId + ", ytelsetype=" + ytelsetype + ", arbeidsgiverIdent='"
             + arbeidsgiverIdent + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt + ", opprettetTidspunkt=" + opprettetTidspunkt
-            + ", refusjonsPeriode=" + refusjonsPeriode + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser + '}';
+            + ", refusjonendringer=" + refusjonsendringer + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser + '}';
     }
 
     public static Builder builder() {
