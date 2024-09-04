@@ -32,6 +32,7 @@ public class InntektsmeldingDialogRest {
 
     public static final String BASE_PATH = "/imdialog";
     private static final String HENT_GRUNNLAG = "/grunnlag";
+    private static final String HENT_INNTEKTSMELDINGER_FOR_OPPGAVE = "/inntektsmeldinger";
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
     private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
 
@@ -53,6 +54,18 @@ public class InntektsmeldingDialogRest {
         @QueryParam("foresporselUuid") UUID forespørselUuid) {
         LOG.info("Henter grunnlag for forespørsel " + forespørselUuid);
         var dto = inntektsmeldingDialogTjeneste.lagDialogDto(forespørselUuid);
+        return Response.ok(dto).build();
+    }
+
+    @GET
+    @Path(HENT_INNTEKTSMELDINGER_FOR_OPPGAVE)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel", tags = "imdialog")
+    public Response hentInntektsmeldingerForOppgave(
+        @Parameter(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel") @NotNull
+        @QueryParam("foresporselUuid") UUID forespørselUuid) {
+        LOG.info("Henter inntektsmeldinger for forespørsel " + forespørselUuid);
+        var dto = inntektsmeldingDialogTjeneste.hentInntektsmeldinger(forespørselUuid);
         return Response.ok(dto).build();
     }
 

@@ -92,6 +92,15 @@ public class InntektsmeldingDialogTjeneste {
         return inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
     }
 
+    public List<SendInntektsmeldingRequestDto> hentInntektsmeldinger(UUID forespørselUuid) {
+        var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
+            .orElseThrow(
+                () -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
+
+        var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldinger(forespørsel.getAktørId(), forespørsel.getOrganisasjonsnummer(), forespørsel.getSkjæringstidspunkt(), forespørsel.getYtelseType());
+        return inntektsmeldinger.stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel)).toList();
+    }
+
     private InntektsmeldingDialogDto.InnsenderDto lagInnmelderDto(Ytelsetype ytelsetype) {
         if (!KontekstHolder.harKontekst() || !IdentType.EksternBruker.equals(KontekstHolder.getKontekst().getIdentType())) {
             throw new IllegalStateException("Mangler innlogget bruker kontekst.");
