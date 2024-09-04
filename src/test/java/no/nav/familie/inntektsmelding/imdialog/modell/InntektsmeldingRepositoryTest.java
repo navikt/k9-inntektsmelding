@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 
 import no.nav.vedtak.konfig.Tid;
@@ -42,7 +43,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         // Act
         inntektsmeldingRepository.lagreInntektsmelding(førLagring);
         var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(førLagring.getAktørId(), førLagring.getArbeidsgiverIdent(),
-            førLagring.getStartDato());
+            førLagring.getStartDato(), førLagring.getYtelsetype());
 
         // Assert
         assertThat(etterLagring).isPresent();
@@ -73,7 +74,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         // Act
         inntektsmeldingRepository.lagreInntektsmelding(førLagring);
         var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(førLagring.getAktørId(), førLagring.getArbeidsgiverIdent(),
-            førLagring.getStartDato());
+            førLagring.getStartDato(), førLagring.getYtelsetype());
 
         // Assert
         assertThat(etterLagring).isPresent();
@@ -89,6 +90,121 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         assertThat(etterLagring.get().getRefusjonsendringer()).hasSize(1);
         assertThat(etterLagring.get().getRefusjonsendringer().get(0).getFom()).isEqualTo(førLagring.getRefusjonsendringer().get(0).getFom());
         assertThat(etterLagring.get().getRefusjonsendringer().get(0).getRefusjonPrMnd()).isEqualByComparingTo(førLagring.getRefusjonsendringer().get(0).getRefusjonPrMnd());
+    }
+
+    @Test
+    void skal_hente_siste_inntektsmelding() {
+        // Arrange
+        var aktørId = new AktørIdEntitet("9999999999999");
+        var arbeidsgiverIdent = "999999999";
+        var startDato = LocalDate.now();
+
+        var im1 = InntektsmeldingEntitet.builder()
+            .medAktørId(aktørId)
+            .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
+            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(startDato)
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .build();
+
+        var im2 = InntektsmeldingEntitet.builder()
+            .medAktørId(aktørId)
+            .medKontaktperson(new KontaktpersonEntitet("Andre", "999999999"))
+            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(startDato)
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .build();
+
+        // Act
+        inntektsmeldingRepository.lagreInntektsmelding(im1);
+        inntektsmeldingRepository.lagreInntektsmelding(im2);
+
+        var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(aktørId, arbeidsgiverIdent, startDato, Ytelsetype.FORELDREPENGER);
+
+        // Assert
+        assertThat(etterLagring).isPresent();
+        assertThat(etterLagring.get().getKontaktperson().getTelefonnummer()).isEqualTo(im2.getKontaktperson().getNavn());
+    }
+
+    @Test
+    void skal_hente_alle_im_for_forespørsel() {
+        // Arrange
+        var aktørId = new AktørIdEntitet("9999999999999");
+        var arbeidsgiverIdent = "999999999";
+        var startDato = LocalDate.now();
+
+        var im1 = InntektsmeldingEntitet.builder()
+            .medAktørId(aktørId)
+            .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
+            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(startDato)
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
+            .build();
+
+        var im2 = InntektsmeldingEntitet.builder()
+            .medAktørId(new AktørIdEntitet("1234567891111"))
+            .medKontaktperson(new KontaktpersonEntitet("Andre", "999999999"))
+            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(startDato)
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(2))
+            .build();
+
+        var im3 = InntektsmeldingEntitet.builder()
+            .medAktørId(aktørId)
+            .medKontaktperson(new KontaktpersonEntitet("Tredje", "999999999"))
+            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(startDato)
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(3))
+            .build();
+
+        var im4 = InntektsmeldingEntitet.builder()
+            .medAktørId(aktørId)
+            .medKontaktperson(new KontaktpersonEntitet("Fjerde", "999999999"))
+            .medYtelsetype(Ytelsetype.SVANGERSKAPSPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(startDato)
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(4))
+            .build();
+
+        // Act
+        inntektsmeldingRepository.lagreInntektsmelding(im1);
+        inntektsmeldingRepository.lagreInntektsmelding(im2);
+        inntektsmeldingRepository.lagreInntektsmelding(im3);
+        inntektsmeldingRepository.lagreInntektsmelding(im4);
+
+        var etterLagring = inntektsmeldingRepository.hentInntektsmeldinger(aktørId, arbeidsgiverIdent, startDato, Ytelsetype.FORELDREPENGER);
+
+        // Assert
+        assertThat(etterLagring).hasSize(2);
+        assertThat(etterLagring.get(0).getKontaktperson().getNavn()).isEqualTo(im3.getKontaktperson().getNavn());
+        assertThat(etterLagring.get(1).getKontaktperson().getNavn()).isEqualTo(im1.getKontaktperson().getNavn());
     }
 
 

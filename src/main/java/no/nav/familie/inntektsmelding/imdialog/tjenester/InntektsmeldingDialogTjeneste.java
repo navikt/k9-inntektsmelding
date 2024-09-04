@@ -97,7 +97,7 @@ public class InntektsmeldingDialogTjeneste {
             .orElseThrow(
                 () -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
 
-        var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldinger(forespørsel.getAktørId(), forespørsel.getOrganisasjonsnummer(), forespørsel.getSkjæringstidspunkt());
+        var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldinger(forespørsel.getAktørId(), forespørsel.getOrganisasjonsnummer(), forespørsel.getSkjæringstidspunkt(), forespørsel.getYtelseType());
         return inntektsmeldinger.stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel)).toList();
     }
 

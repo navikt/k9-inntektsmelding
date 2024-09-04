@@ -8,6 +8,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @Dependent
@@ -30,16 +31,17 @@ public class InntektsmeldingRepository {
         return inntektsmeldingEntitet.getId();
     }
 
-    public Optional<InntektsmeldingEntitet> hentSisteInntektsmelding(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato) {
-        return hentInntektsmeldinger(aktørId, arbeidsgiverIdent,  startDato).stream().findFirst();
+    public Optional<InntektsmeldingEntitet> hentSisteInntektsmelding(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato, Ytelsetype ytelsetype) {
+        return hentInntektsmeldinger(aktørId, arbeidsgiverIdent,  startDato, ytelsetype).stream().findFirst();
     }
 
-    public List<InntektsmeldingEntitet> hentInntektsmeldinger(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato) {
+    public List<InntektsmeldingEntitet> hentInntektsmeldinger(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato, Ytelsetype ytelsetype) {
         var query = entityManager.createQuery(
-                "FROM InntektsmeldingEntitet where aktørId = :brukerAktørId and arbeidsgiverIdent = :arbeidsgiverIdent and startDato = :startDato order by opprettetTidspunkt desc",
+                "FROM InntektsmeldingEntitet where aktørId = :brukerAktørId and ytelsetype = :ytelsetype and arbeidsgiverIdent = :arbeidsgiverIdent and startDato = :startDato order by opprettetTidspunkt desc",
                 InntektsmeldingEntitet.class)
             .setParameter("brukerAktørId", aktørId)
             .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
+            .setParameter("ytelsetype", ytelsetype)
             .setParameter("startDato", startDato);
 
         return query.getResultList();
