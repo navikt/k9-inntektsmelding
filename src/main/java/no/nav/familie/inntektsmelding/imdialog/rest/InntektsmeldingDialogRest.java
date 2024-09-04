@@ -60,9 +60,9 @@ public class InntektsmeldingDialogRest {
     @GET
     @Path(HENT_INNTEKTSMELDINGER_FOR_OPPGAVE)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter alle inntektsmeldinger som er sendt inn for en oppgave", tags = "imdialog")
+    @Operation(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel", tags = "imdialog")
     public Response hentInntektsmeldingerForOppgave(
-        @Parameter(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet basert på en forespørsel UUID") @NotNull
+        @Parameter(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel") @NotNull
         @QueryParam("foresporselUuid") UUID forespørselUuid) {
         LOG.info("Henter inntektsmeldinger for forespørsel " + forespørselUuid);
         var dto = inntektsmeldingDialogTjeneste.hentInntektsmeldinger(forespørselUuid);

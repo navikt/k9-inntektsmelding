@@ -37,12 +37,12 @@ public class InntektsmeldingMapper {
             .build();
     }
 
-    public static SendInntektsmeldingRequestDto mapFraEntitet(InntektsmeldingEntitet dto, ForespørselEntitet forespørsel) {
-        var refusjonsendringer = dto.getRefusjonsendringer().stream().map(i ->
+    public static SendInntektsmeldingRequestDto mapFraEntitet(InntektsmeldingEntitet entitet, ForespørselEntitet forespørsel) {
+        var refusjonsendringer = entitet.getRefusjonsendringer().stream().map(i ->
             new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(i.getFom(), i.getRefusjonPrMnd())
         ).toList();
 
-        var bortfalteNaturalytelser = dto.getBorfalteNaturalYtelser().stream().map(i ->
+        var bortfalteNaturalytelser = entitet.getBorfalteNaturalYtelser().stream().map(i ->
             new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
                 i.getPeriode().getFom(),
                 i.getPeriode().getTom(),
@@ -53,13 +53,13 @@ public class InntektsmeldingMapper {
 
         return new SendInntektsmeldingRequestDto(
             forespørsel.getUuid(),
-            new AktørIdDto(dto.getAktørId().getAktørId()),
-             YtelseTypeDto.valueOf(dto.getYtelsetype().toString()),
-            new ArbeidsgiverDto(dto.getArbeidsgiverIdent()),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(dto.getKontaktperson().getNavn(), dto.getKontaktperson().getTelefonnummer()),
-            dto.getStartDato(),
-            dto.getMånedInntekt(),
-            dto.getMånedRefusjon(),
+            new AktørIdDto(entitet.getAktørId().getAktørId()),
+             YtelseTypeDto.valueOf(entitet.getYtelsetype().toString()),
+            new ArbeidsgiverDto(entitet.getArbeidsgiverIdent()),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(entitet.getKontaktperson().getNavn(), entitet.getKontaktperson().getTelefonnummer()),
+            entitet.getStartDato(),
+            entitet.getMånedInntekt(),
+            entitet.getMånedRefusjon(),
             refusjonsendringer,
             bortfalteNaturalytelser
             );
