@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.modell;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.Dependent;
@@ -30,15 +31,18 @@ public class InntektsmeldingRepository {
     }
 
     public Optional<InntektsmeldingEntitet> hentSisteInntektsmelding(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato) {
+        return hentInntektsmeldinger(aktørId, arbeidsgiverIdent,  startDato).stream().findFirst();
+    }
+
+    public List<InntektsmeldingEntitet> hentInntektsmeldinger(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato) {
         var query = entityManager.createQuery(
                 "FROM InntektsmeldingEntitet where aktørId = :brukerAktørId and arbeidsgiverIdent = :arbeidsgiverIdent and startDato = :startDato order by opprettetTidspunkt desc",
                 InntektsmeldingEntitet.class)
             .setParameter("brukerAktørId", aktørId)
             .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
-            .setParameter("startDato", startDato)
-            .setMaxResults(1);
+            .setParameter("startDato", startDato);
 
-        return query.getResultStream().findFirst();
+        return query.getResultList();
     }
 
     public InntektsmeldingEntitet hentInntektsmelding(int inntektsmeldingId) {

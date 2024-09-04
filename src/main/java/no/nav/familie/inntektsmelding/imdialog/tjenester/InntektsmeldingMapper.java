@@ -6,12 +6,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
+import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
+import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
 
@@ -30,6 +35,34 @@ public class InntektsmeldingMapper {
             .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(dto.bortfaltNaturalytelsePerioder()))
             .medRefusjonsendringer(mapRefusjonsendringer(dto.refusjonsendringer()))
             .build();
+    }
+
+    public static SendInntektsmeldingRequestDto mapFraEntitet(InntektsmeldingEntitet dto, ForespørselEntitet forespørsel) {
+        var refusjonsendringer = dto.getRefusjonsendringer().stream().map(i ->
+            new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(i.getFom(), i.getRefusjonPrMnd())
+        ).toList();
+
+        var bortfalteNaturalytelser = dto.getBorfalteNaturalYtelser().stream().map(i ->
+            new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
+                i.getPeriode().getFom(),
+                i.getPeriode().getTom(),
+                NaturalytelsetypeDto.valueOf(i.getType().toString()),
+                i.getMånedBeløp()
+            )
+        ).toList();
+
+        return new SendInntektsmeldingRequestDto(
+            forespørsel.getUuid(),
+            new AktørIdDto(dto.getAktørId().getAktørId()),
+             YtelseTypeDto.valueOf(dto.getYtelsetype().toString()),
+            new ArbeidsgiverDto(dto.getArbeidsgiverIdent()),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(dto.getKontaktperson().getNavn(), dto.getKontaktperson().getTelefonnummer()),
+            dto.getStartDato(),
+            dto.getMånedInntekt(),
+            dto.getMånedRefusjon(),
+            refusjonsendringer,
+            bortfalteNaturalytelser
+            );
     }
 
     private static Optional<LocalDate> finnOpphørsdato(List<SendInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDtos) {
