@@ -109,6 +109,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(startDato)
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
             .build();
 
         var im2 = InntektsmeldingEntitet.builder()
@@ -121,6 +122,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(startDato)
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(2))
             .build();
 
         // Act
@@ -131,7 +133,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(etterLagring).isPresent();
-        assertThat(etterLagring.get().getKontaktperson().getTelefonnummer()).isEqualTo(im2.getKontaktperson().getNavn());
+        assertThat(etterLagring.get().getKontaktperson().getNavn()).isEqualTo(im2.getKontaktperson().getNavn());
     }
 
     @Test
