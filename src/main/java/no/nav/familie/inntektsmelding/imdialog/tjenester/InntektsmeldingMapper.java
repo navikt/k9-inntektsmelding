@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
@@ -37,7 +38,7 @@ public class InntektsmeldingMapper {
             .build();
     }
 
-    public static SendInntektsmeldingRequestDto mapFraEntitet(InntektsmeldingEntitet entitet, ForespørselEntitet forespørsel) {
+    public static SendInntektsmeldingRequestDto mapFraEntitet(InntektsmeldingEntitet entitet, UUID forespørselUuid) {
         var refusjonsendringer = entitet.getRefusjonsendringer().stream().map(i ->
             new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(i.getFom(), i.getRefusjonPrMnd())
         ).toList();
@@ -52,7 +53,7 @@ public class InntektsmeldingMapper {
         ).toList();
 
         return new SendInntektsmeldingRequestDto(
-            forespørsel.getUuid(),
+            forespørselUuid,
             new AktørIdDto(entitet.getAktørId().getAktørId()),
              YtelseTypeDto.valueOf(entitet.getYtelsetype().toString()),
             new ArbeidsgiverDto(entitet.getArbeidsgiverIdent()),

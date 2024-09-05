@@ -4,8 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.UUID;
+
+import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 import org.junit.jupiter.api.Test;
 
@@ -73,6 +81,40 @@ class InntektsmeldingMapperTest {
             KodeverkMapper.mapNaturalytelseTilEntitet(request.bortfaltNaturalytelsePerioder().getFirst().naturalytelsetype()));
         assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getPeriode().getFom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().fom());
         assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getPeriode().getTom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().tom());
+    }
+
+    @Test
+    void skal_teste_mapping_tilbake_til_dto() {
+        // Arrange
+        var imEntitet = InntektsmeldingEntitet.builder()
+            .medAktørId(new AktørIdEntitet("9999999999999"))
+            .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
+            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(5000))
+            .medMånedRefusjon(BigDecimal.valueOf(5000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(LocalDate.now())
+            .medArbeidsgiverIdent("999999999")
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
+            .build();
+
+        var forespørselUuid = UUID.randomUUID();
+
+        // Act
+        var imDto = InntektsmeldingMapper.mapFraEntitet(imEntitet, forespørselUuid);
+
+        // Assert
+        assertThat(imDto.aktorId().id()).isEqualTo(imEntitet.getAktørId().getAktørId());
+        assertThat(imDto.arbeidsgiverIdent().ident()).isEqualTo(imEntitet.getArbeidsgiverIdent());
+        assertThat(imDto.inntekt()).isEqualByComparingTo(imEntitet.getMånedInntekt());
+        assertThat(imDto.startdato()).isEqualTo(imEntitet.getStartDato());
+        assertThat(KodeverkMapper.mapYtelsetype(imDto.ytelse())).isEqualTo(imEntitet.getYtelsetype());
+        assertThat(BigDecimal.valueOf(5000)).isEqualByComparingTo(imEntitet.getMånedRefusjon());
+        assertThat(Tid.TIDENES_ENDE).isEqualTo(imEntitet.getOpphørsdatoRefusjon());
+        assertThat(imDto.kontaktperson().navn()).isEqualTo(imEntitet.getKontaktperson().getNavn());
+        assertThat(imDto.kontaktperson().telefonnummer()).isEqualTo(imEntitet.getKontaktperson().getTelefonnummer());
+        assertThat(imDto.bortfaltNaturalytelsePerioder()).hasSize(0);
+        assertThat(imDto.refusjonsendringer()).hasSize(0);
     }
 
 }
