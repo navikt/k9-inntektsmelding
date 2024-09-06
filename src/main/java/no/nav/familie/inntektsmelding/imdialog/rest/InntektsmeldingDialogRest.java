@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.rest;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,6 +23,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingDialogTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
+import no.nav.familie.inntektsmelding.server.authz.TilgangsstyringInputTyper;
+import no.nav.familie.inntektsmelding.server.authz.api.ActionType;
+import no.nav.familie.inntektsmelding.server.authz.api.PolicyType;
+import no.nav.familie.inntektsmelding.server.authz.api.Tilgangsstyring;
+import no.nav.familie.inntektsmelding.server.authz.api.TilgangsstyringInput;
+import no.nav.familie.inntektsmelding.server.authz.api.TilgangsstyringInputSupplier;
 
 @Path(InntektsmeldingDialogRest.BASE_PATH)
 @ApplicationScoped
@@ -36,22 +43,24 @@ public class InntektsmeldingDialogRest {
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
     private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
 
+    InntektsmeldingDialogRest() {
+        // CDI
+    }
+
     @Inject
     public InntektsmeldingDialogRest(InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste) {
         this.inntektsmeldingDialogTjeneste = inntektsmeldingDialogTjeneste;
-    }
-
-    InntektsmeldingDialogRest() {
-        // CDI
     }
 
     @GET
     @Path(HENT_GRUNNLAG)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet.", tags = "imdialog")
+    @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER, action = ActionType.READ)
     public Response hentInnsendingsinfo(
         @Parameter(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet basert på en forespørsel UUID") @NotNull
-        @QueryParam("foresporselUuid") UUID forespørselUuid) {
+        @QueryParam("foresporselUuid")
+        @TilgangsstyringInputSupplier(ForespørselIdSupplier.class) UUID forespørselUuid) {
         LOG.info("Henter grunnlag for forespørsel " + forespørselUuid);
         var dto = inntektsmeldingDialogTjeneste.lagDialogDto(forespørselUuid);
         return Response.ok(dto).build();
@@ -73,10 +82,20 @@ public class InntektsmeldingDialogRest {
     @Path(SEND_INNTEKTSMELDING)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sender inn inntektsmelding", tags = "imdialog")
+    @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER, action = ActionType.WRITE)
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
+                                        @TilgangsstyringInputSupplier(ForespørselIdSupplier.class)
                                         SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         LOG.info("Mottok inntektsmelding for forespørsel " + sendInntektsmeldingRequestDto.foresporselUuid());
         inntektsmeldingDialogTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok(sendInntektsmeldingRequestDto).build();
+    }
+
+    public static class ForespørselIdSupplier implements Function<Object, TilgangsstyringInput> {
+        @Override
+        public TilgangsstyringInput apply(Object obj) {
+            var uuid = (UUID) obj;
+            return TilgangsstyringInput.opprett().leggTil(TilgangsstyringInputTyper.FORESPORSEL_ID, uuid);
+        }
     }
 }

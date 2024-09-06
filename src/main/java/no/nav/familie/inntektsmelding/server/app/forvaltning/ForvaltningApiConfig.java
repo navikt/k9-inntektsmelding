@@ -22,7 +22,8 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import no.nav.familie.inntektsmelding.forvaltning.FagerTestRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.FpDokgenRestTjeneste;
-import no.nav.familie.inntektsmelding.server.auth.AuthenticationFilter;
+import no.nav.familie.inntektsmelding.server.auth.AutentiseringFilter;
+import no.nav.familie.inntektsmelding.server.authz.TilgangsstyringFilter;
 import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.JsonMappingExceptionMapper;
@@ -43,7 +44,8 @@ public class ForvaltningApiConfig extends ResourceConfig {
     public ForvaltningApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
         // Sikkerhet
-        register(AuthenticationFilter.class);
+        register(AutentiseringFilter.class);
+        register(TilgangsstyringFilter.class);
         registerOpenApi();
 
         // REST
