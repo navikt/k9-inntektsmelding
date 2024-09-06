@@ -189,6 +189,11 @@ public class InntektsmeldingEntitet {
             return this;
         }
 
+        public Builder medÅrsakTilInnsending(ÅrsakTilInnsending årsakTilInnsending) {
+            kladd.årsakTilInnsending = årsakTilInnsending;
+            return this;
+        }
+
         public Builder medArbeidsgiverIdent(String arbeidsgiverIdent) {
             kladd.arbeidsgiverIdent = arbeidsgiverIdent;
             return this;
