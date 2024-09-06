@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntite
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
+import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
@@ -29,7 +31,7 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
             .medMånedInntekt(dto.inntekt())
             .medMånedRefusjon(dto.refusjon())
-            .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjonsendringer()).orElse(Tid.TIDENES_ENDE)) // TODO Foretrekker vi null eller tidenes ende?
+            .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjonsendringer()).orElse(Tid.TIDENES_ENDE))
             .medStartDato(dto.startdato())
             .medYtelsetype(KodeverkMapper.mapYtelsetype(dto.ytelse()))
             .medKontaktperson(mapKontaktPerson(dto))
@@ -38,7 +40,7 @@ public class InntektsmeldingMapper {
             .build();
     }
 
-    public static SendInntektsmeldingRequestDto mapFraEntitet(InntektsmeldingEntitet entitet, UUID forespørselUuid) {
+    public static InntektsmeldingResponseDto mapFraEntitet(InntektsmeldingEntitet entitet, UUID forespørselUuid) {
         var refusjonsendringer = entitet.getRefusjonsendringer().stream().map(i ->
             new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(i.getFom(), i.getRefusjonPrMnd())
         ).toList();
@@ -46,13 +48,13 @@ public class InntektsmeldingMapper {
         var bortfalteNaturalytelser = entitet.getBorfalteNaturalYtelser().stream().map(i ->
             new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
                 i.getPeriode().getFom(),
-                i.getPeriode().getTom(),
+                Objects.equals(i.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : i.getPeriode().getTom(),
                 NaturalytelsetypeDto.valueOf(i.getType().toString()),
                 i.getMånedBeløp()
             )
         ).toList();
 
-        return new SendInntektsmeldingRequestDto(
+        return new InntektsmeldingResponseDto(
             forespørselUuid,
             new AktørIdDto(entitet.getAktørId().getAktørId()),
              YtelseTypeDto.valueOf(entitet.getYtelsetype().toString()),
@@ -61,6 +63,7 @@ public class InntektsmeldingMapper {
             entitet.getStartDato(),
             entitet.getMånedInntekt(),
             entitet.getMånedRefusjon(),
+            entitet.getOpprettetTidspunkt(),
             refusjonsendringer,
             bortfalteNaturalytelser
             );

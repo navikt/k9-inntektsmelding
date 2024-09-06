@@ -6,11 +6,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
+import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -54,11 +57,20 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_teste_mapping_med_ref_og_naturalytelse() {
         // Arrange
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(), new AktørIdDto("9999999999999"), YtelseTypeDto.FORELDREPENGER,
-            new ArbeidsgiverDto("999999999"), new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"), LocalDate.now(),
-            BigDecimal.valueOf(5000), BigDecimal.valueOf(5000), Collections.singletonList(new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
+        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+            new AktørIdDto("9999999999999"),
+            YtelseTypeDto.FORELDREPENGER,
+            new ArbeidsgiverDto("999999999"),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            LocalDate.now(),
+            BigDecimal.valueOf(5000),
+            BigDecimal.valueOf(5000),
+            Collections.singletonList(new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.singletonList(
-                new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(LocalDate.now(), Tid.TIDENES_ENDE, NaturalytelsetypeDto.ANNET, BigDecimal.valueOf(4000))));
+                new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(LocalDate.now(),
+                    Tid.TIDENES_ENDE,
+                    NaturalytelsetypeDto.ANNET,
+                    BigDecimal.valueOf(4000))));
 
         // Act
         var entitet = InntektsmeldingMapper.mapTilEntitet(request);
@@ -79,8 +91,12 @@ class InntektsmeldingMapperTest {
             request.bortfaltNaturalytelsePerioder().getFirst().beløp());
         assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getType()).isEqualByComparingTo(
             KodeverkMapper.mapNaturalytelseTilEntitet(request.bortfaltNaturalytelsePerioder().getFirst().naturalytelsetype()));
-        assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getPeriode().getFom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().fom());
-        assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getPeriode().getTom()).isEqualTo(request.bortfaltNaturalytelsePerioder().getFirst().tom());
+        assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getPeriode().getFom()).isEqualTo(request.bortfaltNaturalytelsePerioder()
+            .getFirst()
+            .fom());
+        assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getPeriode().getTom()).isEqualTo(request.bortfaltNaturalytelsePerioder()
+            .getFirst()
+            .tom());
     }
 
     @Test
@@ -96,6 +112,23 @@ class InntektsmeldingMapperTest {
             .medStartDato(LocalDate.now())
             .medArbeidsgiverIdent("999999999")
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
+            .medBortfaltNaturalytelser(List.of(
+                    BortaltNaturalytelseEntitet.builder()
+                        .medPeriode(LocalDate.now(), Tid.TIDENES_ENDE)
+                        .medType(NaturalytelseType.LOSJI)
+                        .medMånedBeløp(new BigDecimal(20))
+                        .build(),
+                    BortaltNaturalytelseEntitet.builder()
+                        .medPeriode(LocalDate.now(), LocalDate.now().plusMonths(1))
+                        .medType(NaturalytelseType.BIL)
+                        .medMånedBeløp(new BigDecimal(77))
+                        .build()
+                )
+            )
+            .medRefusjonsendringer(List.of(
+                new RefusjonsendringEntitet(LocalDate.now(), new BigDecimal(500)),
+                new RefusjonsendringEntitet(LocalDate.now().plusDays(5), new BigDecimal(0))
+            ))
             .build();
 
         var forespørselUuid = UUID.randomUUID();
@@ -110,11 +143,16 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.startdato()).isEqualTo(imEntitet.getStartDato());
         assertThat(KodeverkMapper.mapYtelsetype(imDto.ytelse())).isEqualTo(imEntitet.getYtelsetype());
         assertThat(BigDecimal.valueOf(5000)).isEqualByComparingTo(imEntitet.getMånedRefusjon());
-        assertThat(Tid.TIDENES_ENDE).isEqualTo(imEntitet.getOpphørsdatoRefusjon());
         assertThat(imDto.kontaktperson().navn()).isEqualTo(imEntitet.getKontaktperson().getNavn());
         assertThat(imDto.kontaktperson().telefonnummer()).isEqualTo(imEntitet.getKontaktperson().getTelefonnummer());
-        assertThat(imDto.bortfaltNaturalytelsePerioder()).hasSize(0);
-        assertThat(imDto.refusjonsendringer()).hasSize(0);
+        assertThat(imDto.bortfaltNaturalytelsePerioder()).hasSize(2);
+        assertThat(imDto.bortfaltNaturalytelsePerioder().get(0).tom()).isNull();
+        assertThat(imDto.bortfaltNaturalytelsePerioder().get(0).fom()).isEqualTo(imEntitet.getBorfalteNaturalYtelser().get(0).getPeriode().getFom());
+        assertThat(imDto.refusjonsendringer()).hasSize(2);
+        assertThat(imDto.refusjonsendringer().get(0).fom()).isEqualTo(imEntitet.getRefusjonsendringer().get(0).getFom());
+        assertThat(imDto.refusjonsendringer().get(0).beløp()).isEqualTo(imEntitet.getRefusjonsendringer().get(0).getRefusjonPrMnd());
+        assertThat(imDto.opprettetTidspunkt()).isEqualTo(imEntitet.getOpprettetTidspunkt());
+
     }
 
 }
