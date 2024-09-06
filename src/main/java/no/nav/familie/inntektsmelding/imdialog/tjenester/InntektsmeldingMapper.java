@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,7 +48,7 @@ public class InntektsmeldingMapper {
         var bortfalteNaturalytelser = entitet.getBorfalteNaturalYtelser().stream().map(i ->
             new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
                 i.getPeriode().getFom(),
-                i.getPeriode().getTom() == Tid.TIDENES_ENDE ? null : i.getPeriode().getTom(),
+                Objects.equals(i.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : i.getPeriode().getTom(),
                 NaturalytelsetypeDto.valueOf(i.getType().toString()),
                 i.getMånedBeløp()
             )
