@@ -151,6 +151,8 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.refusjonsendringer()).hasSize(2);
         assertThat(imDto.refusjonsendringer().get(0).fom()).isEqualTo(imEntitet.getRefusjonsendringer().get(0).getFom());
         assertThat(imDto.refusjonsendringer().get(0).beløp()).isEqualTo(imEntitet.getRefusjonsendringer().get(0).getRefusjonPrMnd());
+        assertThat(imDto.opprettetTidspunkt()).isEqualTo(imEntitet.getOpprettetTidspunkt());
+
     }
 
 }

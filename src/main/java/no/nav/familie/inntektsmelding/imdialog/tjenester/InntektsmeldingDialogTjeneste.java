@@ -6,6 +6,8 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +94,7 @@ public class InntektsmeldingDialogTjeneste {
         return inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
     }
 
-    public List<SendInntektsmeldingRequestDto> hentInntektsmeldinger(UUID forespørselUuid) {
+    public List<InntektsmeldingResponseDto> hentInntektsmeldinger(UUID forespørselUuid) {
         var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(
                 () -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));

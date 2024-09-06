@@ -12,6 +12,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntite
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
+import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
@@ -38,7 +39,7 @@ public class InntektsmeldingMapper {
             .build();
     }
 
-    public static SendInntektsmeldingRequestDto mapFraEntitet(InntektsmeldingEntitet entitet, UUID forespørselUuid) {
+    public static InntektsmeldingResponseDto mapFraEntitet(InntektsmeldingEntitet entitet, UUID forespørselUuid) {
         var refusjonsendringer = entitet.getRefusjonsendringer().stream().map(i ->
             new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(i.getFom(), i.getRefusjonPrMnd())
         ).toList();
@@ -52,7 +53,7 @@ public class InntektsmeldingMapper {
             )
         ).toList();
 
-        return new SendInntektsmeldingRequestDto(
+        return new InntektsmeldingResponseDto(
             forespørselUuid,
             new AktørIdDto(entitet.getAktørId().getAktørId()),
              YtelseTypeDto.valueOf(entitet.getYtelsetype().toString()),
@@ -61,6 +62,7 @@ public class InntektsmeldingMapper {
             entitet.getStartDato(),
             entitet.getMånedInntekt(),
             entitet.getMånedRefusjon(),
+            entitet.getOpprettetTidspunkt(),
             refusjonsendringer,
             bortfalteNaturalytelser
             );
