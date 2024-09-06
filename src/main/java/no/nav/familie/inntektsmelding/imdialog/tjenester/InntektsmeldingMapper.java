@@ -29,7 +29,7 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
             .medMånedInntekt(dto.inntekt())
             .medMånedRefusjon(dto.refusjon())
-            .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjonsendringer()).orElse(Tid.TIDENES_ENDE)) // TODO Foretrekker vi null eller tidenes ende?
+            .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjonsendringer()).orElse(Tid.TIDENES_ENDE))
             .medStartDato(dto.startdato())
             .medYtelsetype(KodeverkMapper.mapYtelsetype(dto.ytelse()))
             .medKontaktperson(mapKontaktPerson(dto))
@@ -46,7 +46,7 @@ public class InntektsmeldingMapper {
         var bortfalteNaturalytelser = entitet.getBorfalteNaturalYtelser().stream().map(i ->
             new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
                 i.getPeriode().getFom(),
-                i.getPeriode().getTom(),
+                i.getPeriode().getTom() == Tid.TIDENES_ENDE ? null : i.getPeriode().getTom(),
                 NaturalytelsetypeDto.valueOf(i.getType().toString()),
                 i.getMånedBeløp()
             )
