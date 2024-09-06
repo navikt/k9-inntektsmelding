@@ -6,7 +6,7 @@ import jakarta.xml.bind.JAXBElement;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-import no.nav.familie.inntektsmelding.koder.InnsendingsÅrsak;
+import no.nav.familie.inntektsmelding.koder.ÅrsakTilInnsending;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
@@ -51,7 +51,7 @@ public class InntektsmeldingXMLMapper {
         skjemainnhold.setArbeidsforhold(lagArbeidsforholdXml(inntektsmelding, of));
         skjemainnhold.setArbeidstakerFnr(aktørIdFnrMap.get(inntektsmelding.getAktørId()).getIdent());
 
-        skjemainnhold.setAarsakTilInnsending(mapTilInnsendingsÅrsak(inntektsmelding.getInnsendingsÅrsak()));
+        skjemainnhold.setAarsakTilInnsending(mapTilÅrsakTilInnsending(inntektsmelding.getÅrsakTilInnsending()));
         skjemainnhold.setAvsendersystem(lagAvsendersysem(inntektsmelding, of));
 
         skjemainnhold.setYtelse(mapTilYtelsetype(inntektsmelding.getYtelsetype()));
@@ -199,8 +199,8 @@ public class InntektsmeldingXMLMapper {
         };
     }
 
-    private static String mapTilInnsendingsÅrsak(InnsendingsÅrsak innsendingsÅrsak) {
-        return switch (innsendingsÅrsak) {
+    private static String mapTilÅrsakTilInnsending(ÅrsakTilInnsending årsakTilInnsending) {
+        return switch (årsakTilInnsending) {
             case NY -> "Ny";
             case ENDRING -> "Endring";
         };

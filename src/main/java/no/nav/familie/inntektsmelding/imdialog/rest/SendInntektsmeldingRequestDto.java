@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-import no.nav.familie.inntektsmelding.koder.InnsendingsÅrsak;
+import no.nav.familie.inntektsmelding.koder.ÅrsakTilInnsending;
 import no.nav.familie.inntektsmelding.server.authz.TilgangsstyringInputTyper;
 import no.nav.familie.inntektsmelding.server.authz.api.TilgangsstyringDto;
 import no.nav.familie.inntektsmelding.server.authz.api.TilgangsstyringInput;
@@ -23,7 +23,7 @@ import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid,
                                             @NotNull @Valid AktørIdDto aktorId,
                                             @NotNull @Valid YtelseTypeDto ytelse,
-                                            @NotNull InnsendingsÅrsak innsendingsÅrsak,
+                                            @NotNull ÅrsakTilInnsending årsakTilInnsending,
                                             @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
                                             @NotNull @Valid KontaktpersonRequestDto kontaktperson,
                                             @NotNull LocalDate startdato,

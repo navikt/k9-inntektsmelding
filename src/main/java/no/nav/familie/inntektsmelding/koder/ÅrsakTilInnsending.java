@@ -1,6 +1,6 @@
 package no.nav.familie.inntektsmelding.koder;
 
-public enum InnsendingsÅrsak {
+public enum ÅrsakTilInnsending {
     NY,
     ENDRING
 }

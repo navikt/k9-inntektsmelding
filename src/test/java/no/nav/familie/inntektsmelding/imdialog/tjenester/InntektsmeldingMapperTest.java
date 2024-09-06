@@ -13,7 +13,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntite
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
-import no.nav.familie.inntektsmelding.koder.InnsendingsÅrsak;
+import no.nav.familie.inntektsmelding.koder.ÅrsakTilInnsending;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
@@ -37,7 +37,7 @@ class InntektsmeldingMapperTest {
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.FORELDREPENGER,
-            InnsendingsÅrsak.NY,
+            ÅrsakTilInnsending.NY,
             new ArbeidsgiverDto("999999999"),
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
             LocalDate.now(),
@@ -69,7 +69,7 @@ class InntektsmeldingMapperTest {
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.FORELDREPENGER,
-            InnsendingsÅrsak.NY,
+            ÅrsakTilInnsending.NY,
             new ArbeidsgiverDto("999999999"),
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
             LocalDate.now(),
