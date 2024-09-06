@@ -70,6 +70,7 @@ public class InntektsmeldingDialogRest {
     @Path(HENT_INNTEKTSMELDINGER_FOR_OPPGAVE)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel", tags = "imdialog")
+    @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER, action = ActionType.READ)
     public Response hentInntektsmeldingerForOppgave(
         @Parameter(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel") @NotNull
         @QueryParam("foresporselUuid") UUID forespørselUuid) {
