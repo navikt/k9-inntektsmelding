@@ -32,9 +32,9 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)
-public class AuthenticationFilter implements ContainerRequestFilter, ContainerResponseFilter {
+public class AutentiseringFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AuthenticationFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AutentiseringFilter.class);
     private static final List<Class<? extends Annotation>> GYLDIGE_ANNOTERINGER = List.of(AutentisertMedAzure.class,
         AutentisertMedTokenX.class,
         UtenAutentisering.class);
@@ -42,7 +42,7 @@ public class AuthenticationFilter implements ContainerRequestFilter, ContainerRe
     @Context
     private ResourceInfo resourceinfo;
 
-    public AuthenticationFilter() {
+    public AutentiseringFilter() {
         // Ingenting
     }
 

@@ -1,6 +1,5 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,13 +51,10 @@ public class AltinnAutoriseringKlient {
         return inst;
     }
 
-    public void sjekkTilgang(String orgnr) {
-        var altinnReportees = gjørKallMedPagineringOgRetry();
-
-        if (altinnReportees.stream().noneMatch(reportee -> orgnr.equals(reportee.organizationNumber()))) {
-            throw new RuntimeException("Innlogget bruker har ikke tilgang til organisasjon");
-        }
+    public boolean harTilgangTilBedriften(String orgnr) {
+        return gjørKallMedPagineringOgRetry().stream().anyMatch(reportee -> orgnr.equals(reportee.organizationNumber()));
     }
+
 
     private List<AltinnReportee> gjørKallMedPagineringOgRetry() {
         List<AltinnReportee> altinnReportees = new ArrayList<>();
@@ -79,7 +75,7 @@ public class AltinnAutoriseringKlient {
     }
 
     private List<AltinnReportee> gjørKall(int skip) {
-        URI uri = UriBuilder.fromUri(restConfig.endpoint())
+        var uri = UriBuilder.fromUri(restConfig.endpoint())
             .queryParam("serviceCode", SERVICE_CODE)
             .queryParam("serviceEdition", SERVICE_EDITION)
             .queryParam("$filter", FILTER_AKTIVE_BEDRIFTER)
@@ -87,11 +83,11 @@ public class AltinnAutoriseringKlient {
             .queryParam("$skip", skip)
             .queryParam("X-Consumer-ID", KontekstHolder.getKontekst().getKonsumentId())
             .build();
-        RestRequest request = RestRequest.newGET(uri, restConfig);
+        var request = RestRequest.newGET(uri, restConfig);
         try {
             return restClient.sendReturnList(request, AltinnReportee.class);
         } catch (RuntimeException e) {
-            throw new IntegrasjonException("FP-TBD",
+            throw new IntegrasjonException("FP-965432",
                 "Feil ved kall til altinn-rettigheter-proxy. Meld til #team_fager hvis dette skjer over lengre tidsperiode.", e);
         }
     }
