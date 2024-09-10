@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,6 +57,8 @@ class InntektsmeldingDialogTjenesteTest {
     private OrganisasjonTjeneste organisasjonTjeneste;
     @Mock
     private InntektTjeneste inntektTjeneste;
+    @Mock
+    private FpDokgenTjeneste fpDokgenTjeneste;
 
     @Mock
     private ProsessTaskTjeneste prosessTaskTjeneste;
@@ -75,7 +79,7 @@ class InntektsmeldingDialogTjenesteTest {
     @BeforeEach
     void setUp() {
         inntektsmeldingDialogTjeneste = new InntektsmeldingDialogTjeneste(forespørselBehandlingTjeneste, inntektsmeldingRepository, personTjeneste,
-            organisasjonTjeneste, inntektTjeneste, prosessTaskTjeneste);
+            organisasjonTjeneste, inntektTjeneste, fpDokgenTjeneste, prosessTaskTjeneste);
     }
 
     @Test

@@ -41,6 +41,7 @@ public class InntektsmeldingDialogRest {
     private static final String HENT_GRUNNLAG = "/grunnlag";
     private static final String HENT_INNTEKTSMELDINGER_FOR_OPPGAVE = "/inntektsmeldinger";
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
+    private static final String LAST_NED_PDF = "/last-ned-pdf";
     private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
 
     InntektsmeldingDialogRest() {
@@ -90,6 +91,23 @@ public class InntektsmeldingDialogRest {
         LOG.info("Mottok inntektsmelding for forespørsel " + sendInntektsmeldingRequestDto.foresporselUuid());
         inntektsmeldingDialogTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok(sendInntektsmeldingRequestDto).build();
+    }
+
+    @GET
+    @Path(LAST_NED_PDF)
+    @Produces("application/pdf")
+    @Operation(description = "Lager PDF av inntektsmelding", tags = "imdialog")
+    @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER, action = ActionType.READ)
+    public Response lastNedPDF(
+        @Parameter(description = "id for inntektsmelding å lage PDF av") @NotNull
+        @QueryParam("id") Long id) {
+        LOG.info("Henter inntektsmelding for id " + id);
+        var pdf = inntektsmeldingDialogTjeneste.hentPDF(id);
+
+        var responseBuilder = Response.ok(pdf);
+        responseBuilder.type("application/pdf");
+        responseBuilder.header("Content-Disposition", "attachment; filename=dokument.pdf");
+        return responseBuilder.build();
     }
 
     public static class ForespørselIdSupplier implements Function<Object, TilgangsstyringInput> {
