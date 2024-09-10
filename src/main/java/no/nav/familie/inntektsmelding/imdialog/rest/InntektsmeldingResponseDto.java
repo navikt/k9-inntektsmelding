@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record InntektsmeldingResponseDto(
+    @NotNull Long id,
     @NotNull @Valid UUID foresporselUuid, @NotNull @Valid AktørIdDto aktorId,
     @NotNull @Valid YtelseTypeDto ytelse, @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
     @NotNull @Valid SendInntektsmeldingRequestDto.KontaktpersonRequestDto kontaktperson, @NotNull LocalDate startdato,
