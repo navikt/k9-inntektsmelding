@@ -55,6 +55,7 @@ public class InntektsmeldingMapper {
         ).toList();
 
         return new InntektsmeldingResponseDto(
+            entitet.getId(),
             forespørselUuid,
             new AktørIdDto(entitet.getAktørId().getAktørId()),
              YtelseTypeDto.valueOf(entitet.getYtelsetype().toString()),
