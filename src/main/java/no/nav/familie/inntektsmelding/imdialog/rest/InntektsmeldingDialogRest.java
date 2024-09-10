@@ -100,13 +100,13 @@ public class InntektsmeldingDialogRest {
     @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER, action = ActionType.READ)
     public Response lastNedPDF(
         @Parameter(description = "id for inntektsmelding å lage PDF av") @NotNull
-        @QueryParam("id") Long id) {
+        @QueryParam("id") long id) {
         LOG.info("Henter inntektsmelding for id " + id);
         var pdf = inntektsmeldingDialogTjeneste.hentPDF(id);
 
         var responseBuilder = Response.ok(pdf);
         responseBuilder.type("application/pdf");
-        responseBuilder.header("Content-Disposition", "attachment; filename=dokument.pdf");
+        responseBuilder.header("Content-Disposition", "attachment; filename=inntektsmelding.pdf");
         return responseBuilder.build();
     }
 

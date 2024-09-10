@@ -109,7 +109,7 @@ public class InntektsmeldingDialogTjeneste {
     }
 
     public byte[] hentPDF(long id) {
-        var inntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding((int) id);
+        var inntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(id);
         return fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet);
     }
 
