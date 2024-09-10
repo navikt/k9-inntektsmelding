@@ -8,6 +8,8 @@ import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 
+import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,7 @@ public class InntektsmeldingDialogTjeneste {
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private InntektTjeneste inntektTjeneste;
+    private FpDokgenTjeneste fpDokgenTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
 
     InntektsmeldingDialogTjeneste() {
@@ -50,12 +53,14 @@ public class InntektsmeldingDialogTjeneste {
                                          PersonTjeneste personTjeneste,
                                          OrganisasjonTjeneste organisasjonTjeneste,
                                          InntektTjeneste inntektTjeneste,
+                                         FpDokgenTjeneste fpDokgenTjeneste,
                                          ProsessTaskTjeneste prosessTaskTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.inntektsmeldingRepository = inntektsmeldingRepository;
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.inntektTjeneste = inntektTjeneste;
+        this.fpDokgenTjeneste = fpDokgenTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
@@ -101,6 +106,11 @@ public class InntektsmeldingDialogTjeneste {
 
         var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldinger(forespørsel.getAktørId(), forespørsel.getOrganisasjonsnummer(), forespørsel.getSkjæringstidspunkt(), forespørsel.getYtelseType());
         return inntektsmeldinger.stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid())).toList();
+    }
+
+    public byte[] hentPDF(long id) {
+        var inntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(id);
+        return fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet);
     }
 
     private InntektsmeldingDialogDto.InnsenderDto lagInnmelderDto(Ytelsetype ytelsetype) {

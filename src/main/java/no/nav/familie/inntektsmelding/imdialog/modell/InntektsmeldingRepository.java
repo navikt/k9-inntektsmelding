@@ -47,7 +47,7 @@ public class InntektsmeldingRepository {
         return query.getResultList();
     }
 
-    public InntektsmeldingEntitet hentInntektsmelding(int inntektsmeldingId) {
+    public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {
         return entityManager.find(InntektsmeldingEntitet.class, inntektsmeldingId);
     }
 }
