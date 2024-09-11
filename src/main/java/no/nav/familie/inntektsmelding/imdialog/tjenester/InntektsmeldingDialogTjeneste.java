@@ -64,7 +64,7 @@ public class InntektsmeldingDialogTjeneste {
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
-    public void mottaInntektsmelding(SendInntektsmeldingRequestDto mottattInntektsmeldingDto) {
+    public InntektsmeldingResponseDto mottaInntektsmelding(SendInntektsmeldingRequestDto mottattInntektsmeldingDto) {
         var aktorId = new AktørIdEntitet(mottattInntektsmeldingDto.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto);
@@ -73,6 +73,9 @@ public class InntektsmeldingDialogTjeneste {
         forespørselBehandlingTjeneste.ferdigstillForespørsel(mottattInntektsmeldingDto.foresporselUuid(), aktorId, orgnummer,
             mottattInntektsmeldingDto.startdato());
         opprettTaskForSendTilJoark(imId);
+
+        var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
+        return InntektsmeldingMapper.mapFraEntitet(imEntitet, mottattInntektsmeldingDto.foresporselUuid());
     }
 
     private void opprettTaskForSendTilJoark(Long imId) {
