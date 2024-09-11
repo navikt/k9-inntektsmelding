@@ -89,8 +89,8 @@ public class InntektsmeldingDialogRest {
                                         @TilgangsstyringInputSupplier(ForespørselIdSupplier.class)
                                         SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         LOG.info("Mottok inntektsmelding for forespørsel " + sendInntektsmeldingRequestDto.foresporselUuid());
-        inntektsmeldingDialogTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
-        return Response.ok(sendInntektsmeldingRequestDto).build();
+        var imResponse = inntektsmeldingDialogTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
+        return Response.ok(imResponse).build();
     }
 
     @GET
