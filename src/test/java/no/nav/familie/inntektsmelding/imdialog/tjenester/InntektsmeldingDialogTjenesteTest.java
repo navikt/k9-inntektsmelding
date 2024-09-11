@@ -135,5 +135,17 @@ class InntektsmeldingDialogTjenesteTest {
                 forespørsel.getOrganisasjonsnummer()));
     }
 
+    @Test
+    void skal_lage_tomme_innteker() {
+        var organisasjonsnummer = "999999999";
+        var i1 = InntektTjeneste.fyllInnTommeInntekter(LocalDate.of(2024, 2, 15), organisasjonsnummer);
+
+        assertThat(i1.size()).isEqualTo(3);
+        assertThat(i1.get(0).beløp()).isNull();
+        assertThat(i1.get(0).organisasjonsnummer()).isEqualTo(organisasjonsnummer);
+        assertThat(i1.get(0).måned()).isEqualTo(YearMonth.of(2023, 11));
+        assertThat(i1.get(1).måned()).isEqualTo(YearMonth.of(2023, 12));
+        assertThat(i1.get(2).måned()).isEqualTo(YearMonth.of(2024, 1));
+    }
 
 }
