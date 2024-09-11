@@ -6,6 +6,8 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -33,7 +35,19 @@ public class InntektTjeneste {
     public List<Månedsinntekt> hentInntekt(AktørIdEntitet aktørId, LocalDate startdato, String organisasjonsnummer) {
         var request = lagRequest(aktørId, startdato);
         var respons = inntektskomponentKlient.finnInntekt(request);
-        return oversettRespons(respons, aktørId, organisasjonsnummer);
+        var inntekter = oversettRespons(respons, aktørId, organisasjonsnummer);
+        return inntekter.isEmpty() ? fyllInnTommeInntekter(startdato, organisasjonsnummer) : inntekter;
+    }
+
+    public static List<Månedsinntekt> fyllInnTommeInntekter(LocalDate startdato, String organisasjonsnummer) {
+        return Stream.iterate(startdato.minusMonths(3).withDayOfMonth(1),
+                date -> date.plusMonths(1))
+            .limit(3)
+            .map(fomDato -> new Månedsinntekt(
+                YearMonth.of(fomDato.getYear(), fomDato.getMonth()),
+                null,
+                organisasjonsnummer))
+            .collect(Collectors.toList());
     }
 
     private List<Månedsinntekt> oversettRespons(HentInntektListeBolkResponse response, AktørIdEntitet aktørId, String organisasjonsnummer) {
@@ -44,7 +58,6 @@ public class InntektTjeneste {
 
         List<ArbeidsInntektIdent> inntektListeRespons =
             response.getArbeidsInntektIdentListe() == null ? Collections.emptyList() : response.getArbeidsInntektIdentListe();
-
         var inntektPerMånedForBruker = inntektListeRespons.stream()
             .filter(a -> a.getIdent().getIdentifikator().equals(aktørId.getAktørId()))
             .findFirst()
