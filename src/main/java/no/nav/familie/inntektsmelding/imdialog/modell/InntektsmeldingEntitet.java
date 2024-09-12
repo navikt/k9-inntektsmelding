@@ -22,6 +22,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -61,6 +62,13 @@ public class InntektsmeldingEntitet {
 
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
     private LocalDateTime opprettetTidspunkt = LocalDateTime.now();
+
+    @Column(name = "opprettet_av", updatable = false)
+    private String opprettetAv;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "kildesystem", nullable = false, updatable = false)
+    private Kildesystem kildesystem;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private List<RefusjonsendringEntitet> refusjonsendringer = new ArrayList<>();
@@ -118,6 +126,14 @@ public class InntektsmeldingEntitet {
 
     public List<RefusjonsendringEntitet> getRefusjonsendringer() {
         return refusjonsendringer;
+    }
+
+    public String getOpprettetAv() {
+        return opprettetAv;
+    }
+
+    public Kildesystem getKildesystem() {
+        return kildesystem;
     }
 
     private void leggTilRefusjonsendring(RefusjonsendringEntitet refusjonsendringEntitet) {
@@ -220,6 +236,16 @@ public class InntektsmeldingEntitet {
 
         public Builder medBortfaltNaturalytelser(List<BortaltNaturalytelseEntitet> naturalYtelse) {
             naturalYtelse.forEach(kladd::leggTilBortfalteNaturalytelse);
+            return this;
+        }
+
+        public Builder medOpprettetAv(String opprettetAv) {
+            kladd.opprettetAv = opprettetAv;
+            return this;
+        }
+
+        public Builder medKildesystem(Kildesystem kildesystem) {
+            kladd.kildesystem = kildesystem;
             return this;
         }
 
