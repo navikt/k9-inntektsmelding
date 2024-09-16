@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingDialogTjeneste;
-import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
+import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 
 @Path(InntektsmeldingFpsakRest.BASE_PATH)
 @ApplicationScoped
 @Transactional
-@AutentisertMedTokenX
+@AutentisertMedAzure
 public class InntektsmeldingFpsakRest {
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingFpsakRest.class);
 
@@ -43,7 +43,6 @@ public class InntektsmeldingFpsakRest {
     @Path(INNTEKTSMELDING)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sender inn inntektsmelding fra fpsak", tags = "imdialog")
-    // TODO autentiser at kallet er et systemkall
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
                                             SendOverstyrtInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         LOG.info("Mottok overstyrt inntektsmelding fra saksbehandler " + sendInntektsmeldingRequestDto.opprettetAv());
