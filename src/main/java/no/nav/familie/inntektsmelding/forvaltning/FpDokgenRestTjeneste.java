@@ -21,11 +21,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
-
-import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +29,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntite
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -41,11 +37,12 @@ import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 @Path(FpDokgenRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
-@UtenAutentisering
+@AutentisertMedAzure
 public class FpDokgenRestTjeneste {
     public static final String BASE_PATH = "/inntektsmelding-pdf";
     private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
