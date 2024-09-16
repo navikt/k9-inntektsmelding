@@ -6,6 +6,7 @@ import jakarta.xml.bind.JAXBElement;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
@@ -86,7 +87,11 @@ public class InntektsmeldingXMLMapper {
     // TODO Vi bør ta en diskusjon på hva denne skal være
     private static Avsendersystem lagAvsendersysem(InntektsmeldingEntitet inntektsmelding, ObjectFactory of) {
         var as = new Avsendersystem();
-        as.setSystemnavn("NAV_NO");
+        if (Kildesystem.FPSAK.equals(inntektsmelding.getKildesystem())) {
+            as.setSystemnavn("OVERSTYRING_FPSAK");
+        } else {
+            as.setSystemnavn("NAV_NO");
+        }
         as.setSystemversjon("1.0");
         as.setInnsendingstidspunkt(of.createAvsendersystemInnsendingstidspunkt(inntektsmelding.getOpprettetTidspunkt()));
         return as;

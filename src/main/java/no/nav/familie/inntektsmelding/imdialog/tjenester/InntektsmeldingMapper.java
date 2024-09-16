@@ -15,6 +15,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
+import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
@@ -30,6 +31,7 @@ public class InntektsmeldingMapper {
             .medAktørId(new AktørIdEntitet(dto.aktorId().id()))
             .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
             .medMånedInntekt(dto.inntekt())
+            .medKildesystem(Kildesystem.ARBEIDSGIVERPORTAL)
             .medMånedRefusjon(dto.refusjon())
             .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjonsendringer()).orElse(Tid.TIDENES_ENDE))
             .medStartDato(dto.startdato())

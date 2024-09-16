@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 
+import no.nav.familie.inntektsmelding.imdialog.rest.SendOverstyrtInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 
 import org.slf4j.Logger;
@@ -68,14 +69,23 @@ public class InntektsmeldingDialogTjeneste {
         var aktorId = new AktørIdEntitet(mottattInntektsmeldingDto.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto);
-        var imId = inntektsmeldingRepository.lagreInntektsmelding(entitet);
-
+        var imId = lagreOgLagJournalførTask(entitet);
         forespørselBehandlingTjeneste.ferdigstillForespørsel(mottattInntektsmeldingDto.foresporselUuid(), aktorId, orgnummer,
             mottattInntektsmeldingDto.startdato());
-        opprettTaskForSendTilJoark(imId);
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
         return InntektsmeldingMapper.mapFraEntitet(imEntitet, mottattInntektsmeldingDto.foresporselUuid());
+    }
+
+    public void mottaOverstyrtInntektsmelding(SendOverstyrtInntektsmeldingRequestDto mottattInntektsmeldingDto) {
+        var entitet = InntektsmeldingOverstyringMapper.mapTilEntitet(mottattInntektsmeldingDto);
+        lagreOgLagJournalførTask(entitet);
+    }
+
+    private Long lagreOgLagJournalførTask(InntektsmeldingEntitet entitet) {
+        var imId = inntektsmeldingRepository.lagreInntektsmelding(entitet);
+        opprettTaskForSendTilJoark(imId);
+        return imId;
     }
 
     private void opprettTaskForSendTilJoark(Long imId) {
@@ -145,5 +155,4 @@ public class InntektsmeldingDialogTjeneste {
         return new InntektsmeldingDialogDto.PersonInfoResponseDto(persondata.fornavn(), persondata.mellomnavn(), persondata.etternavn(),
             persondata.fødselsnummer().getIdent(), persondata.aktørId().getAktørId());
     }
-
 }
