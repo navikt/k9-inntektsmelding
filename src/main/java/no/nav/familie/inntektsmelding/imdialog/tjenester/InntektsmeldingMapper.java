@@ -78,8 +78,8 @@ public class InntektsmeldingMapper {
         return sisteEndring.filter(en -> en.beløp().compareTo(BigDecimal.ZERO) == 0).map(SendInntektsmeldingRequestDto.RefusjonendringRequestDto::fom);
     }
 
-    private static List<RefusjonsendringEntitet> mapRefusjonsendringer(List<SendInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDtos) {
-        return refusjonsendringRequestDtos.stream().map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp())).toList();
+    private static List<RefusjonsendringEntitet> mapRefusjonsendringer(List<SendInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDto) {
+        return refusjonsendringRequestDto.stream().map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp())).toList();
     }
 
     private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto> dto) {

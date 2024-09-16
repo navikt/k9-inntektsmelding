@@ -3,6 +3,8 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.konfig.Environment;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +16,8 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+
+import java.time.LocalDate;
 
 @ApplicationScoped
 public class FpDokgenTjeneste {
@@ -40,8 +44,13 @@ public class FpDokgenTjeneste {
         var arbeidsgvierIdent = inntektsmelding.getArbeidsgiverIdent();
         var inntektsmeldingsid = inntektsmelding.getId() != null ? inntektsmelding.getId().intValue() : 1;
 
-        personInfo = personTjeneste.hentPersonInfoFraAktørId(inntektsmelding.getAktørId(), inntektsmelding.getYtelsetype());
-        arbeidsgiverNavn = finnArbeidsgiverNavn(inntektsmelding, arbeidsgvierIdent);
+        if (Environment.current().isLocal()) {
+            personInfo = new PersonInfo("Test", "Tester", "Testesen", new PersonIdent("13418926699"), inntektsmelding.getAktørId(), LocalDate.now(), null);
+            arbeidsgiverNavn = "Arbeidsgvier 1";
+        } else {
+            personInfo = personTjeneste.hentPersonInfoFraAktørId(inntektsmelding.getAktørId(), inntektsmelding.getYtelsetype());
+            arbeidsgiverNavn = finnArbeidsgiverNavn(inntektsmelding, arbeidsgvierIdent);
+        }
 
         var imDokumentdata = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
 

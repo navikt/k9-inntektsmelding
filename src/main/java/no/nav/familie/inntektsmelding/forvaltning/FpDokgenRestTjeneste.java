@@ -23,6 +23,9 @@ import jakarta.ws.rs.core.Response;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 
+import no.nav.vedtak.konfig.Tid;
+import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +45,7 @@ import no.nav.vedtak.exception.ManglerTilgangException;
 @ApplicationScoped
 @Path(FpDokgenRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
-@AutentisertMedAzure
+@UtenAutentisering
 public class FpDokgenRestTjeneste {
     public static final String BASE_PATH = "/inntektsmelding-pdf";
     private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
@@ -70,7 +73,6 @@ public class FpDokgenRestTjeneste {
         }
         InntektsmeldingEntitet inntektsmeldingEntitet;
         if (inntektsmeldingRequest.inntektsmeldingId != null) {
-            //Genererer en pdf på eksisterende inntektsmelding
             inntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingRequest.inntektsmeldingId.intValue());
             LOG.info("Generer en pdf av en inntektsmelding med id: {}", inntektsmeldingRequest.inntektsmeldingId);
         } else {
@@ -81,10 +83,13 @@ public class FpDokgenRestTjeneste {
                 .medMånedInntekt(inntektsmeldingRequest.maanedInntekt())
                 .medYtelsetype(mapYtelseType(inntektsmeldingRequest.ytelsetype()))
                 .medOpprettetTidspunkt(LocalDateTime.now())
-                .medRefusjonOpphørsdato(inntektsmeldingRequest.opphoersdatoRefusjon())
                 .medMånedRefusjon(inntektsmeldingRequest.maanedRefusjon())
                 .medStartDato(inntektsmeldingRequest.startdatoPermisjon())
                 .medArbeidsgiverIdent(inntektsmeldingRequest.arbeidsgiverIdent());
+
+            if (inntektsmeldingRequest.opphoersdatoRefusjon() == null){
+                builder.medRefusjonOpphørsdato(Tid.TIDENES_ENDE);
+            }
 
             if (inntektsmeldingRequest.refusjonsendringer() != null) {
                 builder.medRefusjonsendringer(mapRefusjonsendringer(inntektsmeldingRequest.refusjonsendringer()));
@@ -107,11 +112,11 @@ public class FpDokgenRestTjeneste {
         return refusjonsendringer.stream().map(periode -> new RefusjonsendringEntitet(periode.fom(), periode.beloep())).toList();
     }
 
-    private List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<NaturalYtelseDto> naturalYtelser) {
+    private List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<BortfaltNaturalytelseDto> naturalYtelser) {
         return naturalYtelser.stream()
             .map(periode -> new BortaltNaturalytelseEntitet.Builder().medPeriode(periode.fom(), periode.tom())
                 .medType(periode.type())
-                .medMånedBeløp(periode.beloep())
+                .medMånedBeløp(periode.maanedBortfaltNaturalytelse())
                 .build())
             .toList();
     }
@@ -132,15 +137,14 @@ public class FpDokgenRestTjeneste {
                                          String kontaktpersonTlf, LocalDate startdatoPermisjon, LocalDate opphoersdatoRefusjon,
                                          @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedRefusjon,
                                          @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedInntekt,
-                                         List<EndringRefusjonDto> refusjonsendringer, List<NaturalYtelseDto> naturalytelser) {
+                                         List<EndringRefusjonDto> refusjonsendringer, List<BortfaltNaturalytelseDto> naturalytelser) {
     }
 
     public record EndringRefusjonDto(@NotNull LocalDate fom,
                                      @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloep) {
     }
 
-    public record NaturalYtelseDto(@NotNull LocalDate fom, @NotNull LocalDate tom, NaturalytelseType type,
-                                   @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloep,
-                                   Boolean erBortfalt) {
+    public record BortfaltNaturalytelseDto(@NotNull LocalDate fom, LocalDate tom, NaturalytelseType type,
+                                           @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedBortfaltNaturalytelse) {
     }
 }

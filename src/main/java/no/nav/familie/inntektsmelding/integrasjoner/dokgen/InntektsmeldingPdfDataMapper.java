@@ -31,14 +31,20 @@ public class InntektsmeldingPdfDataMapper {
             .medYtelseNavn(inntektsmelding.getYtelsetype())
             .medOpprettetTidspunkt(inntektsmelding.getOpprettetTidspunkt())
             .medStartDato(inntektsmelding.getStartDato())
-            .medRefusjonsbeløp(inntektsmelding.getMånedRefusjon())
-            .medRefusjonOpphørsdato(inntektsmelding.getOpphørsdatoRefusjon())
             .medMånedInntekt(inntektsmelding.getMånedInntekt())
             .medKontaktperson(mapKontaktperson(inntektsmelding.getKontaktperson()))
             .medNaturalytelser(mapNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
             .medIngenBortfaltNaturalytelse(erIngenBortalteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
             .medIngenGjenopptattNaturalytelse(erIngenGjenopptatteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
-            .medEndringIRefusjonsperioder(mapEndringIRefusjonsperioder(inntektsmelding.getRefusjonsendringer(), inntektsmelding.getOpphørsdatoRefusjon()));
+            .medRefusjonsendringer(mapRefusjonsendringPerioder(inntektsmelding.getRefusjonsendringer(), inntektsmelding.getOpphørsdatoRefusjon()));
+
+        if (inntektsmelding.getMånedRefusjon() != null) {
+            imDokumentdataBuilder.medRefusjonsbeløp(inntektsmelding.getMånedRefusjon());
+        }
+        if (inntektsmelding.getOpphørsdatoRefusjon().isBefore(Tid.TIDENES_ENDE)) {
+            imDokumentdataBuilder.medRefusjonOpphørsdato(inntektsmelding.getOpphørsdatoRefusjon());
+        }
+
         return imDokumentdataBuilder.build();
     }
 
@@ -56,16 +62,33 @@ public class InntektsmeldingPdfDataMapper {
 
     private static List<NaturalYtelse> mapNaturalYtelser(List<BortaltNaturalytelseEntitet> naturalytelser) {
         List<NaturalYtelse> naturalytelserTilBrev = new ArrayList<>();
-        naturalytelser.stream().filter(bn -> bn.getPeriode().getTom().isEqual(Tid.TIDENES_ENDE))
-            .map(bortfalt -> opprettNaturalYtelseTilBrev(bortfalt, true)).forEach(naturalytelserTilBrev::add);
+
+        naturalytelser.stream()
+            .map(bortfalt -> opprettNaturalYtelseTilBrev(bortfalt, true))
+            .forEach(naturalytelserTilBrev::add);
+
         naturalytelser.stream().filter(bn -> bn.getPeriode().getTom().isBefore(Tid.TIDENES_ENDE))
-            .map(tilkommet -> opprettNaturalYtelseTilBrev(tilkommet, false)).forEach(naturalytelserTilBrev::add);
+            .map(tilkommet -> opprettNaturalYtelseTilBrev(tilkommet, false))
+            .forEach(naturalytelserTilBrev::add);
+
         return naturalytelserTilBrev;
     }
 
     private static NaturalYtelse opprettNaturalYtelseTilBrev(BortaltNaturalytelseEntitet bn, boolean erBortfalt) {
-        return new NaturalYtelse(formaterDatoNorsk(bn.getPeriode().getFom()), mapTypeTekst(bn.getType()), bn.getMånedBeløp(), erBortfalt);
+        if (erBortfalt) {
+            return new NaturalYtelse(formaterDatoNorsk(bn.getPeriode().getFom()),
+                bn.getPeriode().getTom().equals(Tid.TIDENES_ENDE) ? null : formaterDatoNorsk(bn.getPeriode().getTom()),
+                mapTypeTekst(bn.getType()),
+                bn.getMånedBeløp(),
+                erBortfalt);
+        } else {
+            return new NaturalYtelse(formaterDatoNorsk(bn.getPeriode().getTom().plusDays(1)),
+                null,
+                mapTypeTekst(bn.getType()),
+                bn.getMånedBeløp(),
+                erBortfalt);
         }
+    }
 
     private static String mapTypeTekst(NaturalytelseType type) {
         return switch (type) {
@@ -91,9 +114,9 @@ public class InntektsmeldingPdfDataMapper {
         };
     }
 
-    private static List<RefusjonPeriode> mapEndringIRefusjonsperioder(List<RefusjonsendringEntitet> refusjonsendringer, LocalDate opphørsdatoRefusjon) {
+    private static List<RefusjonsendringPeriode> mapRefusjonsendringPerioder(List<RefusjonsendringEntitet> refusjonsendringer, LocalDate opphørsdatoRefusjon) {
         return refusjonsendringer.stream()
-            .map(rpe -> new RefusjonPeriode(formaterDatoNorsk(rpe.getFom()), formaterDatoNorsk(finnNesteFom(refusjonsendringer, rpe.getFom()).orElse(opphørsdatoRefusjon)),
+            .map(rpe -> new RefusjonsendringPeriode(formaterDatoNorsk(rpe.getFom()), formaterDatoNorsk(finnNesteFom(refusjonsendringer, rpe.getFom()).orElse(null)),
                 rpe.getRefusjonPrMnd()))
             .toList();
     }

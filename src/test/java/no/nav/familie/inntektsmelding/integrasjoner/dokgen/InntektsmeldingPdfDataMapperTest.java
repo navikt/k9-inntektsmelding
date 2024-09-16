@@ -60,6 +60,7 @@ class InntektsmeldingPdfDataMapperTest {
             .medMånedInntekt(inntekt)
             .medStartDato(startdato)
             .medMånedRefusjon(refusjonsbeløp)
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medOpprettetTidspunkt(opprettetTidspunkt)
             .medArbeidsgiverIdent(arbeidsgiverIdent)
             .medBortfaltNaturalytelser(List.of(naturalytelse))
@@ -86,7 +87,7 @@ class InntektsmeldingPdfDataMapperTest {
         assertThat(pdfData.getPersonnummer()).isEqualTo(formaterPersonnummer(personIdent.getIdent()));
         assertThat(pdfData.getRefusjonOpphørsdato()).isNull();
         assertThat(pdfData.getRefusjonsbeløp()).isEqualTo(refusjonsbeløp);
-        assertThat(pdfData.getEndringIrefusjonsperioder()).isEmpty();
+        assertThat(pdfData.getRefusjonsendringer()).isEmpty();
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isFalse();
         assertThat(pdfData.getNaturalytelser().getFirst().fom()).isEqualTo(formaterDatoNorsk(naturalytelseFraDato));

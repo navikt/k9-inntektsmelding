@@ -30,7 +30,7 @@ public class InntektsmeldingPdfData {
     private String opprettetTidspunkt;
     private BigDecimal refusjonsbeløp;
     private String refusjonOpphørsdato;
-    private List<RefusjonPeriode> endringIrefusjonsperioder = new ArrayList<>();
+    private List<RefusjonsendringPeriode> refusjonsendringer = new ArrayList<>();
     private List<NaturalYtelse> naturalytelser = new ArrayList<>();
     private boolean ingenBortfaltNaturalytelse;
     private boolean ingenGjenopptattNaturalytelse;
@@ -79,8 +79,8 @@ public class InntektsmeldingPdfData {
         return refusjonOpphørsdato;
     }
 
-    public List<RefusjonPeriode> getEndringIrefusjonsperioder() {
-        return endringIrefusjonsperioder;
+    public List<RefusjonsendringPeriode> getRefusjonsendringer() {
+        return refusjonsendringer;
     }
 
     public List<NaturalYtelse> getNaturalytelser() {
@@ -119,14 +119,14 @@ public class InntektsmeldingPdfData {
             that.arbeidsgiverIdent) && Objects.equals(arbeidsgiverNavn, that.arbeidsgiverNavn) && Objects.equals(kontaktperson, that.kontaktperson)
             && Objects.equals(startDato, that.startDato) && Objects.equals(månedInntekt, that.månedInntekt) && Objects.equals(opprettetTidspunkt,
             that.opprettetTidspunkt) && Objects.equals(refusjonsbeløp, that.refusjonsbeløp) && Objects.equals(refusjonOpphørsdato,
-            that.refusjonOpphørsdato) && Objects.equals(endringIrefusjonsperioder, that.endringIrefusjonsperioder) && Objects.equals(naturalytelser,
+            that.refusjonOpphørsdato) && Objects.equals(refusjonsendringer, that.refusjonsendringer) && Objects.equals(naturalytelser,
             that.naturalytelser);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(avsenderSystem, navnSøker, fornavnSøker, personnummer, ytelsetype, arbeidsgiverIdent, arbeidsgiverNavn, kontaktperson,
-            startDato, månedInntekt, opprettetTidspunkt, refusjonsbeløp, refusjonOpphørsdato, endringIrefusjonsperioder, naturalytelser,
+            startDato, månedInntekt, opprettetTidspunkt, refusjonsbeløp, refusjonOpphørsdato, refusjonsendringer, naturalytelser,
             ingenBortfaltNaturalytelse, ingenGjenopptattNaturalytelse);
     }
 
@@ -234,8 +234,8 @@ public class InntektsmeldingPdfData {
             return this;
         }
 
-        public Builder medEndringIRefusjonsperioder(List<RefusjonPeriode> refusjonsperioder) {
-            this.kladd.endringIrefusjonsperioder = refusjonsperioder;
+        public Builder medRefusjonsendringer(List<RefusjonsendringPeriode> refusjonsperioder) {
+            this.kladd.refusjonsendringer = refusjonsperioder;
             return this;
         }
 

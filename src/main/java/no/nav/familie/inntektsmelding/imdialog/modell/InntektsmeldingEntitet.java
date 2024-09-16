@@ -234,8 +234,8 @@ public class InntektsmeldingEntitet {
             return this;
         }
 
-        public Builder medBortfaltNaturalytelser(List<BortaltNaturalytelseEntitet> naturalYtelse) {
-            naturalYtelse.forEach(kladd::leggTilBortfalteNaturalytelse);
+        public Builder medBortfaltNaturalytelser(List<BortaltNaturalytelseEntitet> naturalYtelser) {
+            naturalYtelser.forEach(kladd::leggTilBortfalteNaturalytelse);
             return this;
         }
 
