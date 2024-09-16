@@ -87,7 +87,7 @@ public class InntektsmeldingXMLMapper {
     // TODO Vi bør ta en diskusjon på hva denne skal være
     private static Avsendersystem lagAvsendersysem(InntektsmeldingEntitet inntektsmelding, ObjectFactory of) {
         var as = new Avsendersystem();
-        if (inntektsmelding.getKildesystem().equals(Kildesystem.FPSAK)) {
+        if (Kildesystem.FPSAK.equals(inntektsmelding.getKildesystem())) {
             as.setSystemnavn("OVERSTYRING_FPSAK");
         } else {
             as.setSystemnavn("NAV_NO");
