@@ -21,6 +21,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +44,7 @@ import no.nav.vedtak.konfig.Tid;
 @ApplicationScoped
 @Path(FpDokgenRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
-@AutentisertMedAzure
+@UtenAutentisering
 public class FpDokgenRestTjeneste {
     public static final String BASE_PATH = "/inntektsmelding-pdf";
     private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
@@ -73,7 +75,7 @@ public class FpDokgenRestTjeneste {
             inntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingRequest.inntektsmeldingId.intValue());
             LOG.info("Generer en pdf av en inntektsmelding med id: {}", inntektsmeldingRequest.inntektsmeldingId);
         } else {
-            //TODO Vurdere å fjerne før release
+            //For testformål
             var builder = InntektsmeldingEntitet.builder()
                 .medAktørId(AktørIdEntitet.dummy())
                 .medKontaktperson(new KontaktpersonEntitet(inntektsmeldingRequest.kontaktpersonNavn, inntektsmeldingRequest.kontaktpersonTlf))

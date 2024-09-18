@@ -64,30 +64,43 @@ public class InntektsmeldingPdfDataMapper {
         List<NaturalYtelse> naturalytelserTilBrev = new ArrayList<>();
 
         naturalytelser.stream()
-            .map(bortfalt -> opprettNaturalYtelseTilBrev(bortfalt, true))
+            .map(InntektsmeldingPdfDataMapper::opprettBortfalteNaturalytelserTilBrev)
             .forEach(naturalytelserTilBrev::add);
 
         naturalytelser.stream().filter(bn -> bn.getPeriode().getTom().isBefore(Tid.TIDENES_ENDE))
-            .map(tilkommet -> opprettNaturalYtelseTilBrev(tilkommet, false))
+            .map(tilkommet -> opprettTilkomneNaturalytelserTilBrev(tilkommet, naturalytelser))
             .forEach(naturalytelserTilBrev::add);
 
         return naturalytelserTilBrev;
     }
 
-    private static NaturalYtelse opprettNaturalYtelseTilBrev(BortaltNaturalytelseEntitet bn, boolean erBortfalt) {
-        if (erBortfalt) {
-            return new NaturalYtelse(formaterDatoNorsk(bn.getPeriode().getFom()),
-                bn.getPeriode().getTom().equals(Tid.TIDENES_ENDE) ? null : formaterDatoNorsk(bn.getPeriode().getTom()),
-                mapTypeTekst(bn.getType()),
-                bn.getMånedBeløp(),
-                erBortfalt);
-        } else {
-            return new NaturalYtelse(formaterDatoNorsk(bn.getPeriode().getTom().plusDays(1)),
-                null,
-                mapTypeTekst(bn.getType()),
-                bn.getMånedBeløp(),
-                erBortfalt);
-        }
+    private static NaturalYtelse opprettBortfalteNaturalytelserTilBrev(BortaltNaturalytelseEntitet bn) {
+        return new NaturalYtelse(formaterDatoNorsk(bn.getPeriode().getFom()),
+            bn.getPeriode().getTom().equals(Tid.TIDENES_ENDE) ? null : formaterDatoNorsk(bn.getPeriode().getTom()),
+            mapTypeTekst(bn.getType()),
+            bn.getMånedBeløp(),
+            true);
+    }
+
+    private static NaturalYtelse opprettTilkomneNaturalytelserTilBrev(BortaltNaturalytelseEntitet tilkommet, List<BortaltNaturalytelseEntitet> alleNaturalytelser) {
+        var tomForTilkommet = finnNesteTomForTilkommet(tilkommet, alleNaturalytelser).orElse(null);
+
+        return new NaturalYtelse(formaterDatoNorsk(tilkommet.getPeriode().getTom().plusDays(1)),
+           tomForTilkommet != null ? formaterDatoNorsk(tomForTilkommet) : null,
+            mapTypeTekst(tilkommet.getType()),
+            tilkommet.getMånedBeløp(),
+            false);
+
+    }
+
+    private static Optional <LocalDate> finnNesteTomForTilkommet(BortaltNaturalytelseEntitet tilkommet, List<BortaltNaturalytelseEntitet> alleNAturalytelser) {
+       var nesteTom = alleNAturalytelser.stream()
+            .filter(alleNaturalytelser -> alleNaturalytelser.getType().equals(tilkommet.getType())
+                && alleNaturalytelser.getPeriode().getFom().isAfter(tilkommet.getPeriode().getTom()))
+            .map(nesteTilkommet -> nesteTilkommet.getPeriode().getFom())
+            .min(Comparator.naturalOrder());
+
+       return nesteTom.map(d -> d.minusDays(1));
     }
 
     private static String mapTypeTekst(NaturalytelseType type) {
