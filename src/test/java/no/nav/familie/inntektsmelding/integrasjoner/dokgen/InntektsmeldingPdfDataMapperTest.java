@@ -179,9 +179,7 @@ class InntektsmeldingPdfDataMapperTest {
         assertThat(bortfalteNaturalytelser.get(2).tom()).isNull();
 
         var forventetFørsteFraDato = naturalytelseTilDato.plusDays(1);
-        var forventetFørsteTilDato = naturalytelseAndreFraDato.minusDays(1);
         var forventetAndreFraDato = naturalytelseAndreTilDato.plusDays(1);
-        var forventetAndreTilDato = naturalytelseTredjeTilDato.minusDays(1);
 
         var tilkomneNaturalytelser = pdfData.getNaturalytelser().stream().filter(naturalytelse -> !naturalytelse.erBortfalt()).toList();
 
