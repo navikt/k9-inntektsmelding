@@ -123,6 +123,8 @@ class InntektsmeldingPdfDataMapperTest {
         assertThat(pdfData.getNaturalytelser()).hasSize(5);
 
         var bortfalteNaturalytelser = pdfData.getNaturalytelser().stream().filter(NaturalYtelse::erBortfalt).toList();
+
+        assertThat(bortfalteNaturalytelser).hasSize(3);
         assertThat(bortfalteNaturalytelser.get(2).tom()).isNull();
 
         var forventetFørsteFraDato = naturalytelseTilDato.plusDays(1);
@@ -131,12 +133,65 @@ class InntektsmeldingPdfDataMapperTest {
         var forventetAndreTilDato = naturalytelseTredjeTilDato.minusDays(1);
 
         var tilkomneNaturalytelser = pdfData.getNaturalytelser().stream().filter(naturalytelse -> !naturalytelse.erBortfalt()).toList();
-        assertThat(bortfalteNaturalytelser).hasSize(3);
+
         assertThat(tilkomneNaturalytelser).hasSize(2);
         assertThat(tilkomneNaturalytelser.getFirst().fom()).isEqualTo(formaterDatoNorsk(forventetFørsteFraDato));
         assertThat(tilkomneNaturalytelser.getFirst().tom()).isEqualTo(formaterDatoNorsk(forventetFørsteTilDato));
         assertThat(tilkomneNaturalytelser.get(1).fom()).isEqualTo(formaterDatoNorsk(forventetAndreFraDato));
         assertThat(tilkomneNaturalytelser.get(1).tom()).isEqualTo(formaterDatoNorsk(forventetAndreTilDato));
+    }
+
+    @Test
+    public void skal_mappe_naturalytelser_av_ulik_type_korrekt() {
+        var naturalytelseFraDato = LocalDate.of(2024, 6, 1);
+        var naturalytelseTilDato = LocalDate.of(2024, 7, 1);
+        var naturalytelseAndreFraDato = naturalytelseTilDato.plusWeeks(1);
+        var naturalytelseAndreTilDato = naturalytelseTilDato.plusWeeks(4);
+        var naturalytelseTredjeTilDato = naturalytelseTilDato.plusWeeks(6);
+        var naturalytelseBeløp = BigDecimal.valueOf(1000);
+
+        var naturalytelser = List.of(BortaltNaturalytelseEntitet.builder()
+            .medPeriode(naturalytelseFraDato, naturalytelseTilDato)
+            .medType(NaturalytelseType.BIL)
+            .medMånedBeløp(naturalytelseBeløp)
+            .build(), BortaltNaturalytelseEntitet.builder()
+            .medPeriode(naturalytelseAndreFraDato, naturalytelseAndreTilDato)
+            .medType(NaturalytelseType.BOLIG)
+            .medMånedBeløp(naturalytelseBeløp)
+            .build(), BortaltNaturalytelseEntitet.builder()
+            .medPeriode(naturalytelseTredjeTilDato, Tid.TIDENES_ENDE)
+            .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
+            .medMånedBeløp(naturalytelseBeløp)
+            .build());
+
+        var inntektsmeldingEntitet = lagStandardInntektsmeldingBuilder()
+            .medBortfaltNaturalytelser(naturalytelser)
+            .build();
+
+        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVERNAVN, personInfo, ARBEIDSGIVERIDENT);
+
+        assertThat(pdfData.ingenGjenopptattNaturalytelse()).isFalse();
+        assertThat(pdfData.ingenBortfaltNaturalytelse()).isFalse();
+        assertThat(pdfData.getNaturalytelser()).hasSize(5);
+
+        var bortfalteNaturalytelser = pdfData.getNaturalytelser().stream().filter(NaturalYtelse::erBortfalt).toList();
+        assertThat(bortfalteNaturalytelser).hasSize(3);
+        assertThat(bortfalteNaturalytelser.get(2).tom()).isNull();
+
+        var forventetFørsteFraDato = naturalytelseTilDato.plusDays(1);
+        var forventetFørsteTilDato = naturalytelseAndreFraDato.minusDays(1);
+        var forventetAndreFraDato = naturalytelseAndreTilDato.plusDays(1);
+        var forventetAndreTilDato = naturalytelseTredjeTilDato.minusDays(1);
+
+        var tilkomneNaturalytelser = pdfData.getNaturalytelser().stream().filter(naturalytelse -> !naturalytelse.erBortfalt()).toList();
+
+        assertThat(tilkomneNaturalytelser).hasSize(2);
+        assertThat(tilkomneNaturalytelser.getFirst().fom()).isEqualTo(formaterDatoNorsk(forventetFørsteFraDato));
+        assertThat(tilkomneNaturalytelser.getFirst().tom()).isNull();
+        assertThat(tilkomneNaturalytelser.getFirst().naturalytelseType()).isEqualTo("Bil");
+        assertThat(tilkomneNaturalytelser.get(1).fom()).isEqualTo(formaterDatoNorsk(forventetAndreFraDato));
+        assertThat(tilkomneNaturalytelser.get(1).tom()).isNull();
+        assertThat(tilkomneNaturalytelser.get(1).naturalytelseType()).isEqualTo("Bolig");
     }
 
     @Test
