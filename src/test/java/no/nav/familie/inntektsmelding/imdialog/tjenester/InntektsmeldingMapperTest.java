@@ -9,23 +9,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
+import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-
-import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-
-import org.junit.jupiter.api.Test;
-
-import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
 
 class InntektsmeldingMapperTest {
