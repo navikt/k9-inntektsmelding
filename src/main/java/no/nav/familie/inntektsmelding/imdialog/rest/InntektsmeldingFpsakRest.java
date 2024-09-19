@@ -19,10 +19,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingDialogTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 
-@Path(InntektsmeldingFpsakRest.BASE_PATH)
+@AutentisertMedAzure
 @ApplicationScoped
 @Transactional
-@AutentisertMedAzure
+@Path(InntektsmeldingFpsakRest.BASE_PATH)
 public class InntektsmeldingFpsakRest {
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingFpsakRest.class);
 
@@ -44,7 +44,7 @@ public class InntektsmeldingFpsakRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sender inn inntektsmelding fra fpsak", tags = "imdialog")
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
-                                            SendOverstyrtInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+                                        SendOverstyrtInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         LOG.info("Mottok overstyrt inntektsmelding fra saksbehandler " + sendInntektsmeldingRequestDto.opprettetAv());
         inntektsmeldingDialogTjeneste.mottaOverstyrtInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok().build();

@@ -34,7 +34,7 @@ class AltinnAutoriseringKlientTest {
 
     @Test
     void sjekkTilgang__har_tilgang_til_en_bedrift() {
-        AltinnAutoriseringKlient altinnAutoriseringKlient = new AltinnAutoriseringKlient(klient);
+        var altinnAutoriseringKlient = new AltinnAutoriseringKlient(klient);
 
         when(klient.sendReturnList(any(RestRequest.class), any())).thenReturn(List.of(lagAltinnReportee("Saltrød og høneby", "999999999")));
 
@@ -45,7 +45,7 @@ class AltinnAutoriseringKlientTest {
 
     @Test
     void sjekkTilgang__ikke_tilgang_til_en_bedrift() {
-        AltinnAutoriseringKlient altinnAutoriseringKlient = new AltinnAutoriseringKlient(klient);
+        var altinnAutoriseringKlient = new AltinnAutoriseringKlient(klient);
 
         when(klient.sendReturnList(any(RestRequest.class), any())).thenReturn(List.of(lagAltinnReportee("Saltrød og høneby", "999999999")));
 
@@ -55,22 +55,22 @@ class AltinnAutoriseringKlientTest {
 
     @Test
     void sjekkTilgang__har_tilgang_til_bedrift_ved_paginering() {
-        AltinnAutoriseringKlient altinnAutoriseringKlient = new AltinnAutoriseringKlient(klient);
+        var altinnAutoriseringKlient = new AltinnAutoriseringKlient(klient);
 
-        List<AltinnReportee> side1 = IntStream.rangeClosed(1, ALTINN_SIZE_LIMIT)
+        var side1 = IntStream.rangeClosed(1, ALTINN_SIZE_LIMIT)
             .boxed()
             .map(i -> lagAltinnReportee("Bedrift nr " + i, String.valueOf(999999000 + i)))
             .toList();
-        List<AltinnReportee> side2 = List.of(lagAltinnReportee("Bedrift på side 2 AS", "999999999"));
-        when(klient.sendReturnList(any(RestRequest.class), eq(AltinnReportee.class))).thenReturn(side1, side2);
+        var side2 = List.of(lagAltinnReportee("Bedrift på side 2 AS", "999999999"));
+        when(klient.sendReturnList(any(RestRequest.class), eq(AltinnAutoriseringKlient.AltinnReportee.class))).thenReturn(side1, side2);
 
         altinnAutoriseringKlient.harTilgangTilBedriften("999999999");
 
         verify(klient, times(2)).sendReturnList(any(RestRequest.class), any());
     }
 
-    private static AltinnReportee lagAltinnReportee(String name, String orgnr) {
-        return new AltinnReportee(name, "BEDR", orgnr, "900000000", "", "ACTIVE", "BEDR");
+    private static AltinnAutoriseringKlient.AltinnReportee lagAltinnReportee(String name, String orgnr) {
+        return new AltinnAutoriseringKlient.AltinnReportee(name, "BEDR", orgnr, "900000000", "", "ACTIVE", "BEDR");
     }
 
 
