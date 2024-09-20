@@ -5,6 +5,9 @@ import java.util.List;
 
 import jakarta.ws.rs.core.UriBuilder;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -55,7 +58,6 @@ public class AltinnAutoriseringKlient {
         return gjørKallMedPagineringOgRetry().stream().anyMatch(reportee -> orgnr.equals(reportee.organizationNumber()));
     }
 
-
     private List<AltinnReportee> gjørKallMedPagineringOgRetry() {
         List<AltinnReportee> altinnReportees = new ArrayList<>();
 
@@ -90,5 +92,15 @@ public class AltinnAutoriseringKlient {
             throw new IntegrasjonException("FP-965432",
                 "Feil ved kall til altinn-rettigheter-proxy. Meld til #team_fager hvis dette skjer over lengre tidsperiode.", e);
         }
+    }
+
+    @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
+    record AltinnReportee(String name,
+                          String organizationForm,
+                          String organizationNumber,
+                          String parentOrganizationNumber,
+                          String socialSecurityNumber,
+                          String status,
+                          String type) {
     }
 }

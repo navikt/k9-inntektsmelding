@@ -21,8 +21,8 @@ import jakarta.ws.rs.ext.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.pip.PipTjeneste;
-import no.nav.familie.inntektsmelding.pip.TilgangTjeneste;
 import no.nav.familie.inntektsmelding.server.authz.api.ActionType;
 import no.nav.familie.inntektsmelding.server.authz.api.PolicyType;
 import no.nav.familie.inntektsmelding.server.authz.api.Tilgangsstyring;
@@ -54,14 +54,14 @@ public class TilgangsstyringFilter implements ContainerRequestFilter, ContainerR
     private ResourceInfo resourceinfo;
 
     private PipTjeneste pipTjeneste;
-    private TilgangTjeneste tilgangTjeneste;
+    private AltinnTilgangTjeneste tilgangTjeneste;
 
     private String preAuthorized;
     private Cluster residentCluster;
     private String residentNamespace;
 
     @Inject
-    public TilgangsstyringFilter(PipTjeneste pipTjeneste, TilgangTjeneste tilgangTjeneste) {
+    public TilgangsstyringFilter(PipTjeneste pipTjeneste, AltinnTilgangTjeneste tilgangTjeneste) {
         this.pipTjeneste = pipTjeneste;
         this.tilgangTjeneste = tilgangTjeneste;
         this.preAuthorized = ENV.getProperty(AzureProperty.AZURE_APP_PRE_AUTHORIZED_APPS.name());
@@ -162,7 +162,7 @@ public class TilgangsstyringFilter implements ContainerRequestFilter, ContainerR
                 }
 
                 for (var orgNr : orgNrSet) {
-                    if (!tilgangTjeneste.harTilgangTilBedriften(orgNr)) {
+                    if (tilgangTjeneste.manglerTilgangTilBedriften(orgNr)) {
                         SECURE_LOG.warn("Bruker {} mangler tilgang til bedrift {}", kontekst.getUid(), orgNr);
                         return ikkeTilgang("Mangler tilgang til bedrift.");
                     }

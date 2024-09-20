@@ -5,15 +5,15 @@ import jakarta.enterprise.context.Dependent;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnAutoriseringKlient;
 
 @Dependent
-public class TilgangTjeneste {
+public class AltinnTilgangTjeneste {
 
-    private AltinnAutoriseringKlient altinnKlient;
+    private final AltinnAutoriseringKlient altinnKlient;
 
-    public TilgangTjeneste() {
+    public AltinnTilgangTjeneste() {
         this.altinnKlient = AltinnAutoriseringKlient.instance();
     }
 
-    public boolean harTilgangTilBedriften(String orgNr) {
-        return altinnKlient.harTilgangTilBedriften(orgNr);
+    public boolean manglerTilgangTilBedriften(String orgNr) {
+        return !altinnKlient.harTilgangTilBedriften(orgNr);
     }
 }

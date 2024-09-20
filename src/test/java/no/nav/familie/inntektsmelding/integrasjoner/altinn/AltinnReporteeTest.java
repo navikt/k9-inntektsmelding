@@ -26,7 +26,7 @@ class AltinnReporteeTest {
         // Bruker samme ObjectMapper som resten av applikasjonen.
         // Merk at getContext(Object.class) ikke bryr seg om hvilken klasse som oppgis som parameter.
         var objectMapper = new JacksonJsonConfig().getContext(Object.class);
-        AltinnReportee readValue = objectMapper.readValue(jsonAsString, AltinnReportee.class);
+        AltinnAutoriseringKlient.AltinnReportee readValue = objectMapper.readValue(jsonAsString, AltinnAutoriseringKlient.AltinnReportee.class);
 
         assertThat(readValue).hasNoNullFieldsOrProperties();
     }

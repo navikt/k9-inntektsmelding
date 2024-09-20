@@ -16,27 +16,27 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingDialogTjeneste;
+import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 
-@Path(InntektsmeldingFpsakRest.BASE_PATH)
+@AutentisertMedAzure
 @ApplicationScoped
 @Transactional
-@AutentisertMedAzure
+@Path(InntektsmeldingFpsakRest.BASE_PATH)
 public class InntektsmeldingFpsakRest {
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingFpsakRest.class);
 
     public static final String BASE_PATH = "/overstyring";
     private static final String INNTEKTSMELDING = "/inntektsmelding";
-    private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     InntektsmeldingFpsakRest() {
         // CDI
     }
 
     @Inject
-    public InntektsmeldingFpsakRest(InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste) {
-        this.inntektsmeldingDialogTjeneste = inntektsmeldingDialogTjeneste;
+    public InntektsmeldingFpsakRest(InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     @POST
@@ -44,9 +44,9 @@ public class InntektsmeldingFpsakRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sender inn inntektsmelding fra fpsak", tags = "imdialog")
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
-                                            SendOverstyrtInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+                                        SendOverstyrtInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         LOG.info("Mottok overstyrt inntektsmelding fra saksbehandler " + sendInntektsmeldingRequestDto.opprettetAv());
-        inntektsmeldingDialogTjeneste.mottaOverstyrtInntektsmelding(sendInntektsmeldingRequestDto);
+        inntektsmeldingTjeneste.mottaOverstyrtInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok().build();
     }
 }

@@ -31,11 +31,11 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
+@AutentisertMedAzure
 @ApplicationScoped
 @Transactional
 @Path(ForespørselRest.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
-@AutentisertMedAzure
 @Consumes(MediaType.APPLICATION_JSON)
 public class ForespørselRest {
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
