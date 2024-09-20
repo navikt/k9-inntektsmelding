@@ -35,14 +35,25 @@ public class InntektsmeldingOverstyringMapper {
 
     private static Optional<LocalDate> finnOpphørsdato(
         List<SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDtos) {
-        var sisteEndring = refusjonsendringRequestDtos.stream().max(Comparator.comparing(SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto::fom));
+        var sisteEndring = finnSisteRefusjonsendring(refusjonsendringRequestDtos);
         // Hvis siste endring setter refusjon til 0 er det å regne som opphørsdato
         return sisteEndring.filter(en -> en.beløp().compareTo(BigDecimal.ZERO) == 0).map(SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto::fom);
     }
 
     private static List<RefusjonsendringEntitet> mapRefusjonsendringer(
         List<SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDtos) {
-        return refusjonsendringRequestDtos.stream().map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp())).toList();
+        var sisteEndringSomOpphørerRef = finnSisteRefusjonsendring(refusjonsendringRequestDtos).filter(siste ->
+            siste.beløp().compareTo(BigDecimal.ZERO) == 0);
+        // Hvis siste periode med endring har refusjon == 0 trenger den ikke mappes som endring, legges på refusjonOpphører feltet
+        return sisteEndringSomOpphørerRef.map(refusjonendringRequestDto -> refusjonsendringRequestDtos.stream()
+            .filter(dto -> dto.fom().isBefore(refusjonendringRequestDto.fom()))
+            .map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp()))
+            .toList())
+            .orElseGet(() -> refusjonsendringRequestDtos.stream().map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp())).toList());
+    }
+
+    private static Optional<SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto> finnSisteRefusjonsendring(List<SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDtos) {
+        return refusjonsendringRequestDtos.stream().max(Comparator.comparing(SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto::fom));
     }
 
     private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(
