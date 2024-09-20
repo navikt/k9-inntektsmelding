@@ -162,7 +162,7 @@ public class TilgangsstyringFilter implements ContainerRequestFilter, ContainerR
                 }
 
                 for (var orgNr : orgNrSet) {
-                    if (!tilgangTjeneste.harTilgangTilBedriften(orgNr)) {
+                    if (tilgangTjeneste.manglerTilgangTilBedriften(orgNr)) {
                         SECURE_LOG.warn("Bruker {} mangler tilgang til bedrift {}", kontekst.getUid(), orgNr);
                         return ikkeTilgang("Mangler tilgang til bedrift.");
                     }

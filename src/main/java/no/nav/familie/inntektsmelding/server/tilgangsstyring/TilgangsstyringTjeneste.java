@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.server.tilgangsstyring;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -41,6 +42,7 @@ public class TilgangsstyringTjeneste implements Tilgang {
         var orgNrSet = Optional.of(forespørselUuid)
             .stream()
             .map(pipTjeneste::hentOrganisasjonsnummerFor)
+            .filter(Objects::nonNull)
             .map(OrganisasjonsnummerDto::orgnr)
             .collect(Collectors.toSet());
 
@@ -54,23 +56,11 @@ public class TilgangsstyringTjeneste implements Tilgang {
         var orgNrSet = Optional.of(inntektsmeldingId)
             .stream()
             .map(pipTjeneste::hentOrganisasjonsnummerFor)
+            .filter(Objects::nonNull)
             .map(OrganisasjonsnummerDto::orgnr)
             .collect(Collectors.toSet());
 
         sjekkBorgersAltinnTilgangTilOrganisasjon(orgNrSet);
-    }
-
-    private void sjekkBorgersAltinnTilgangTilOrganisasjon(Set<String> organisasjoner) {
-        if (organisasjoner.isEmpty()) {
-            ikkeTilgang("Mangler informasjon om bedrift.");
-        } else {
-            for (var orgNr : organisasjoner) {
-                if (!altinnTilgangTjeneste.harTilgangTilBedriften(orgNr)) {
-                    SECURE_LOG.warn("Bruker mangler tilgang til bedrift {}", orgNr);
-                    ikkeTilgang("Mangler tilgang til bedrift.");
-                }
-            }
-        }
     }
 
     private void sjekkErBorgerInisjertKall() {
@@ -79,12 +69,25 @@ public class TilgangsstyringTjeneste implements Tilgang {
                 return;
             }
         }
-        ikkeTilgang("Kun TokenX brukere støttes.");
+        ikkeTilgang("Kun borger kall støttes.");
+    }
+
+    private void sjekkBorgersAltinnTilgangTilOrganisasjon(Set<String> organisasjoner) {
+        if (organisasjoner.isEmpty()) {
+            ikkeTilgang("Mangler informasjon om bedrift.");
+        } else {
+            for (var orgNr : organisasjoner) {
+                if (altinnTilgangTjeneste.manglerTilgangTilBedriften(orgNr)) {
+                    SECURE_LOG.warn("Bruker mangler tilgang til bedrift {} i Altinn.", orgNr);
+                    ikkeTilgang("Bruker mangler tilgang til bedriften i Altinn.");
+                }
+            }
+        }
     }
 
     private static void ikkeTilgang(String begrunnelse) {
         LOG.info("Fikk ikke tilgang pga: {}", begrunnelse);
-        throw new ManglerTilgangException("IM-00403", "Mangler tilgang til tjenesten.");
+        throw new ManglerTilgangException("IM-00403", String.format("Mangler tilgang til tjenesten. %s", begrunnelse));
     }
 
 }

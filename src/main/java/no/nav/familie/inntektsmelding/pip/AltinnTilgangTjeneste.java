@@ -13,7 +13,7 @@ public class AltinnTilgangTjeneste {
         this.altinnKlient = AltinnAutoriseringKlient.instance();
     }
 
-    public boolean harTilgangTilBedriften(String orgNr) {
-        return altinnKlient.harTilgangTilBedriften(orgNr);
+    public boolean manglerTilgangTilBedriften(String orgNr) {
+        return !altinnKlient.harTilgangTilBedriften(orgNr);
     }
 }
