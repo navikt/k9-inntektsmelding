@@ -10,9 +10,9 @@ import java.util.Optional;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
+import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.vedtak.konfig.Tid;
 
@@ -32,7 +32,7 @@ public class InntektsmeldingPdfDataMapper {
             .medOpprettetTidspunkt(inntektsmelding.getOpprettetTidspunkt())
             .medStartDato(inntektsmelding.getStartDato())
             .medMånedInntekt(inntektsmelding.getMånedInntekt())
-            .medKontaktperson(mapKontaktperson(inntektsmelding.getKontaktperson()))
+            .medKontaktperson(mapKontaktperson(inntektsmelding))
             .medNaturalytelser(mapNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
             .medIngenBortfaltNaturalytelse(erIngenBortalteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
             .medIngenGjenopptattNaturalytelse(erIngenGjenopptatteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
@@ -48,8 +48,12 @@ public class InntektsmeldingPdfDataMapper {
         return imDokumentdataBuilder.build();
     }
 
-    private static Kontaktperson mapKontaktperson(KontaktpersonEntitet kontaktpersonEntitet) {
-        return new Kontaktperson(kontaktpersonEntitet.getNavn(), kontaktpersonEntitet.getTelefonnummer());
+    private static Kontaktperson mapKontaktperson(InntektsmeldingEntitet inntektsmelding) {
+        if (Kildesystem.FPSAK.equals(inntektsmelding.getKildesystem())) {
+            return new Kontaktperson(inntektsmelding.getOpprettetAv(), inntektsmelding.getOpprettetAv());
+        } else {
+            return new Kontaktperson(inntektsmelding.getKontaktperson().getNavn(), inntektsmelding.getKontaktperson().getTelefonnummer());
+        }
     }
 
     private static boolean erIngenGjenopptatteNaturalYtelser(List<BortaltNaturalytelseEntitet> naturalYtelser) {
