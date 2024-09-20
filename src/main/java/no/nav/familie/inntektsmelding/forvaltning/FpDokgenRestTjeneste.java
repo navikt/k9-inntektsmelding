@@ -34,6 +34,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
+import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.ManglerTilgangException;
@@ -48,6 +49,8 @@ public class FpDokgenRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
     private static final boolean IS_PROD = Environment.current().isProd();
     private FpDokgenTjeneste fpDokgenTjeneste;
+    private Tilgang tilgangsstyring;
+
     private InntektsmeldingRepository inntektsmeldingRepository;
 
     public FpDokgenRestTjeneste() {
@@ -55,8 +58,9 @@ public class FpDokgenRestTjeneste {
     }
 
     @Inject
-    public FpDokgenRestTjeneste(FpDokgenTjeneste fpDokgenTjeneste, InntektsmeldingRepository inntektsmeldingRepository) {
+    public FpDokgenRestTjeneste(FpDokgenTjeneste fpDokgenTjeneste, Tilgang tilgangsstyring, InntektsmeldingRepository inntektsmeldingRepository) {
         this.fpDokgenTjeneste = fpDokgenTjeneste;
+        this.tilgangsstyring = tilgangsstyring;
         this.inntektsmeldingRepository = inntektsmeldingRepository;
     }
 
@@ -68,6 +72,8 @@ public class FpDokgenRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
+        sjekkAtSaksbehandlerHarRollenDrift();
+
         InntektsmeldingEntitet inntektsmeldingEntitet;
         if (inntektsmeldingRequest.inntektsmeldingId != null) {
             inntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingRequest.inntektsmeldingId.intValue());
@@ -84,7 +90,7 @@ public class FpDokgenRestTjeneste {
                 .medStartDato(inntektsmeldingRequest.startdatoPermisjon())
                 .medArbeidsgiverIdent(inntektsmeldingRequest.arbeidsgiverIdent());
 
-            if (inntektsmeldingRequest.opphoersdatoRefusjon() == null){
+            if (inntektsmeldingRequest.opphoersdatoRefusjon() == null) {
                 builder.medRefusjonOpphørsdato(Tid.TIDENES_ENDE);
             }
 
@@ -143,5 +149,9 @@ public class FpDokgenRestTjeneste {
 
     public record BortfaltNaturalytelseDto(@NotNull LocalDate fom, LocalDate tom, NaturalytelseType type,
                                            @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedBortfaltNaturalytelse) {
+    }
+
+    private void sjekkAtSaksbehandlerHarRollenDrift() {
+        tilgangsstyring.sjekkAtSaksbehandlerHarRollenDrift();
     }
 }

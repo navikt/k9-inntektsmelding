@@ -27,6 +27,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Arb
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.SaksStatus;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
+import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
@@ -36,12 +37,12 @@ import no.nav.vedtak.exception.ManglerTilgangException;
  * @deprecated Disse endepunktene brukes til å utforske muligheter i arbeidsgiver portalen og vil feile i produksjon.
  * Fjernes til slutt fra applikasjonen.
  */
+@AutentisertMedAzure
 @Deprecated(forRemoval = true)
 @ApplicationScoped
 @Transactional
-@Path(FagerTestRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
-@AutentisertMedAzure
+@Path(FagerTestRestTjeneste.BASE_PATH)
 public class FagerTestRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FagerTestRestTjeneste.class);
     private static final boolean IS_PROD = Environment.current().isProd();
@@ -49,14 +50,20 @@ public class FagerTestRestTjeneste {
     static final String BASE_PATH = "/test/fager";
 
     private ArbeidsgiverNotifikasjon notifikasjon;
+    private Tilgang tilgangsstyring;
+
     private URI skjemaLenke;
 
     public FagerTestRestTjeneste() {
+        // CDI proxy
     }
 
     @Inject
-    public FagerTestRestTjeneste(ArbeidsgiverNotifikasjon notifikasjon, @KonfigVerdi(value = "inntektsmelding.skjema.lenke") URI skjemaLenke) {
+    public FagerTestRestTjeneste(ArbeidsgiverNotifikasjon notifikasjon,
+                                 Tilgang tilgangsstyring,
+                                 @KonfigVerdi(value = "inntektsmelding.skjema.lenke") URI skjemaLenke) {
         this.notifikasjon = notifikasjon;
+        this.tilgangsstyring = tilgangsstyring;
         this.skjemaLenke = UriBuilder.fromUri(skjemaLenke).path("ny").path("8068c43c-5ed7-4d0b-91c7-b8fa8c306bb3").build();
     }
 
@@ -68,6 +75,7 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
+        sjekkAtSaksbehandlerHarRollenDrift();
 
         var sakId = notifikasjon.opprettSak(request.saksnummer().saksnr(), finnMerkelapp(request.ytelsetype()), request.orgnummer().orgnr(),
             "Inntektsmelding for TEST TESTERSEN: f." + request.aktørId().id(), this.skjemaLenke);
@@ -84,6 +92,8 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
+        sjekkAtSaksbehandlerHarRollenDrift();
+
         var sak = notifikasjon.hentSakMedGrupperingsid(grupperingsid, merkelapp);
         return Response.ok(sak).build();
     }
@@ -96,6 +106,8 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
+        sjekkAtSaksbehandlerHarRollenDrift();
+
         var sak = notifikasjon.hentSak(sakId);
         return Response.ok(sak).build();
     }
@@ -108,6 +120,8 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
+        sjekkAtSaksbehandlerHarRollenDrift();
+
         var statusId = notifikasjon.oppdaterSakStatus(request.sakId(), request.status(), request.overstyrtStatusTekst());
         return Response.ok(statusId).build();
     }
@@ -123,6 +137,8 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
+        sjekkAtSaksbehandlerHarRollenDrift();
+
         var statusId = notifikasjon.oppdaterSakStatusMedGrupperingsId(request.grupperingsid(), request.merkelapp(), request.status(),
             request.overstyrtStatusTekst());
         return Response.ok(statusId).build();
@@ -140,6 +156,8 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
+        sjekkAtSaksbehandlerHarRollenDrift();
+
         var eksternId = String.join("-", request.saksnummer().saksnr(), request.orgnummer().orgnr()); // mulig man trenger arbforholdId også.
         LOG.info("FAGER: eksternId={}", eksternId);
         var oppgaveId = notifikasjon.opprettOppgave(request.saksnummer().saksnr(), finnMerkelapp(request.ytelsetype()), eksternId,
@@ -156,6 +174,8 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
+        sjekkAtSaksbehandlerHarRollenDrift();
+
         var oppgaveId = notifikasjon.lukkOppgave(request.oppgaveId(), OffsetDateTime.now());
 
         return Response.ok(oppgaveId).build();
@@ -172,6 +192,8 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
+        sjekkAtSaksbehandlerHarRollenDrift();
+
         var oppgaveId = notifikasjon.lukkOppgaveByEksternId(request.eksternId(), request.merkelapp(), OffsetDateTime.now());
 
         return Response.ok(oppgaveId).build();
@@ -189,6 +211,10 @@ public class FagerTestRestTjeneste {
             case PLEIEPENGER_NÆRSTÅENDE -> Merkelapp.INNTEKTSMELDING_PILS;
             case OPPLÆRINGSPENGER -> Merkelapp.INNTEKTSMELDING_OPP;
         };
+    }
+
+    private void sjekkAtSaksbehandlerHarRollenDrift() {
+        tilgangsstyring.sjekkAtSaksbehandlerHarRollenDrift();
     }
 
 }
