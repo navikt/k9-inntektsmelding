@@ -162,10 +162,16 @@ public class InntektsmeldingXMLMapper {
     }
 
     private static Kontaktinformasjon lagKontaktperson(InntektsmeldingEntitet inntektsmelding) {
-        var kontaktPerson = inntektsmelding.getKontaktperson();
         var ki = new Kontaktinformasjon();
-        ki.setTelefonnummer(kontaktPerson.getTelefonnummer());
-        ki.setKontaktinformasjonNavn(kontaktPerson.getNavn());
+        // Ved overstyring av inntektsmelding setter vi saksbehandlers informasjon her
+        if (Kildesystem.FPSAK.equals(inntektsmelding.getKildesystem())) {
+            ki.setTelefonnummer(inntektsmelding.getOpprettetAv());
+            ki.setKontaktinformasjonNavn(inntektsmelding.getOpprettetAv());
+        } else {
+            var kontaktPerson = inntektsmelding.getKontaktperson();
+            ki.setTelefonnummer(kontaktPerson.getTelefonnummer());
+            ki.setKontaktinformasjonNavn(kontaktPerson.getNavn());
+        }
         return ki;
     }
 
