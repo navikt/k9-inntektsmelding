@@ -16,9 +16,11 @@ import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.pip.PipTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.sikkerhet.kontekst.Groups;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.Kontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
-import no.nav.vedtak.sikkerhet.oidc.config.OpenIDProvider;
 
 @Dependent
 public class TilgangsstyringTjeneste implements Tilgang {
@@ -36,8 +38,8 @@ public class TilgangsstyringTjeneste implements Tilgang {
     }
 
     @Override
-    public void sjekkOmArbeidsgiverHarTilgangTilBedrift(UUID forespørselUuid) {
-        sjekkErBorgerInisjertKall();
+    public void sjekkAtArbeidsgiverHarTilgangTilBedrift(UUID forespørselUuid) {
+        sjekkErBorger();
 
         var orgNrSet = Optional.of(forespørselUuid)
             .stream()
@@ -50,8 +52,8 @@ public class TilgangsstyringTjeneste implements Tilgang {
     }
 
     @Override
-    public void sjekkOmArbeidsgiverHarTilgangTilBedrift(long inntektsmeldingId) {
-        sjekkErBorgerInisjertKall();
+    public void sjekkAtArbeidsgiverHarTilgangTilBedrift(long inntektsmeldingId) {
+        sjekkErBorger();
 
         var orgNrSet = Optional.of(inntektsmeldingId)
             .stream()
@@ -63,9 +65,26 @@ public class TilgangsstyringTjeneste implements Tilgang {
         sjekkBorgersAltinnTilgangTilOrganisasjon(orgNrSet);
     }
 
-    private void sjekkErBorgerInisjertKall() {
+    @Override
+    public void sjekkAtSaksbehandlerHarRollenDrift() {
+        var kontekst = KontekstHolder.getKontekst();
+        if (erSaksbehandler(kontekst) && saksbehandlerHarRollen(kontekst, Groups.DRIFT)) {
+            return;
+        }
+        ikkeTilgang("Saksbehandler mangler en rolle.");
+    }
+
+    private boolean erSaksbehandler(Kontekst kontekst) {
+        return IdentType.InternBruker.equals(kontekst.getIdentType());
+    }
+
+    private boolean saksbehandlerHarRollen(Kontekst kontekst, Groups rolle) {
+        return kontekst instanceof RequestKontekst requestKontekst && requestKontekst.harGruppe(rolle);
+    }
+
+    private void sjekkErBorger() {
         if (KontekstHolder.getKontekst() instanceof RequestKontekst rq) {
-            if (OpenIDProvider.TOKENX.equals(rq.getToken().provider())) {
+            if (IdentType.EksternBruker.equals(rq.getIdentType())) {
                 return;
             }
         }

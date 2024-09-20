@@ -58,7 +58,7 @@ public class InntektsmeldingDialogRest {
         @Parameter(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet basert på en forespørsel UUID") @NotNull
         @QueryParam("foresporselUuid") UUID forespørselUuid) {
 
-        tilgangskontroll.sjekkOmArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
+        tilgangskontroll.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
         LOG.info("Henter grunnlag for forespørsel {}", forespørselUuid);
         var dto = inntektsmeldingTjeneste.lagDialogDto(forespørselUuid);
@@ -74,7 +74,7 @@ public class InntektsmeldingDialogRest {
         @Parameter(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel") @NotNull @QueryParam("foresporselUuid")
         UUID forespørselUuid) {
 
-        tilgangskontroll.sjekkOmArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
+        tilgangskontroll.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
         LOG.info("Henter inntektsmeldinger for forespørsel {}", forespørselUuid);
         var dto = inntektsmeldingTjeneste.hentInntektsmeldinger(forespørselUuid);
@@ -88,7 +88,7 @@ public class InntektsmeldingDialogRest {
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
                                         SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
 
-        tilgangskontroll.sjekkOmArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
+        tilgangskontroll.sjekkAtArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
 
         LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequestDto.foresporselUuid());
         var imResponse = inntektsmeldingTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
@@ -101,7 +101,7 @@ public class InntektsmeldingDialogRest {
     @Operation(description = "Lager PDF av inntektsmelding", tags = "imdialog")
     public Response lastNedPDF(@Parameter(description = "ID for inntektsmelding å lage PDF av") @NotNull @QueryParam("id") long inntektsmeldingId) {
 
-        tilgangskontroll.sjekkOmArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId);
+        tilgangskontroll.sjekkAtArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId);
 
         LOG.info("Henter inntektsmelding for id {}", inntektsmeldingId);
         var pdf = inntektsmeldingTjeneste.hentPDF(inntektsmeldingId);

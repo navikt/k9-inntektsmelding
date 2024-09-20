@@ -10,7 +10,7 @@ public interface Tilgang {
      * @param forespørselUuid - IM forespørsel som ble generert når fagsystemet bestilte IM.
      * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
      */
-    void sjekkOmArbeidsgiverHarTilgangTilBedrift(UUID forespørselUuid);
+    void sjekkAtArbeidsgiverHarTilgangTilBedrift(UUID forespørselUuid);
 
     /**
      * Her hentes organisasjonsnummer knyttet til en tidligere innsendt inntektsmelding (fra PIP tjenesten),
@@ -19,6 +19,14 @@ public interface Tilgang {
      * @param inntektsmeldingId - IM id som ble tidligere innsendt.
      * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
      */
-    void sjekkOmArbeidsgiverHarTilgangTilBedrift(long inntektsmeldingId);
+    void sjekkAtArbeidsgiverHarTilgangTilBedrift(long inntektsmeldingId);
+
+    /**
+     * Sjekker om saksbehandleren som prøver å utføre operasjonen har en DRIFT rolle.
+     * Brukes kun i swagger sammenheng.
+     *
+     * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
+     */
+    void sjekkAtSaksbehandlerHarRollenDrift();
 
 }
