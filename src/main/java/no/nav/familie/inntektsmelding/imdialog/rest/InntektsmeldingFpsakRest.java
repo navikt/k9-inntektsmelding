@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingDialogTjeneste;
+import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 
 @AutentisertMedAzure
@@ -28,15 +28,15 @@ public class InntektsmeldingFpsakRest {
 
     public static final String BASE_PATH = "/overstyring";
     private static final String INNTEKTSMELDING = "/inntektsmelding";
-    private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     InntektsmeldingFpsakRest() {
         // CDI
     }
 
     @Inject
-    public InntektsmeldingFpsakRest(InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste) {
-        this.inntektsmeldingDialogTjeneste = inntektsmeldingDialogTjeneste;
+    public InntektsmeldingFpsakRest(InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     @POST
@@ -46,7 +46,7 @@ public class InntektsmeldingFpsakRest {
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
                                         SendOverstyrtInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         LOG.info("Mottok overstyrt inntektsmelding fra saksbehandler " + sendInntektsmeldingRequestDto.opprettetAv());
-        inntektsmeldingDialogTjeneste.mottaOverstyrtInntektsmelding(sendInntektsmeldingRequestDto);
+        inntektsmeldingTjeneste.mottaOverstyrtInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok().build();
     }
 }

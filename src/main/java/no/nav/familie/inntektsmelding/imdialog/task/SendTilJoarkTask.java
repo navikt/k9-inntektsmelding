@@ -6,7 +6,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingDialogTjeneste;
+import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.joark.JoarkTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -19,7 +19,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SendTilJoarkTask.class);
     public static final String KEY_INNTEKTSMELDING_ID = "inntektsmeldingId";
 
-    private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private InntektsmeldingXMLTjeneste inntektsmeldingXMLTjeneste;
     private FpDokgenTjeneste fpDokgenTjeneste;
     private JoarkTjeneste joarkTjeneste;
@@ -29,11 +29,11 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
     }
 
     @Inject
-    public SendTilJoarkTask(InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste,
+    public SendTilJoarkTask(InntektsmeldingTjeneste inntektsmeldingTjeneste,
                             InntektsmeldingXMLTjeneste inntektsmeldingXMLTjeneste,
                             FpDokgenTjeneste fpDokgenTjeneste,
                             JoarkTjeneste joarkTjeneste) {
-        this.inntektsmeldingDialogTjeneste = inntektsmeldingDialogTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.inntektsmeldingXMLTjeneste = inntektsmeldingXMLTjeneste;
         this.fpDokgenTjeneste = fpDokgenTjeneste;
         this.joarkTjeneste = joarkTjeneste;
@@ -43,7 +43,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         LOG.info("Opprettet task for oversending til joark");
         var inntektsmeldingId = Integer.parseInt(prosessTaskData.getPropertyValue(KEY_INNTEKTSMELDING_ID));
-        var inntektsmelding = inntektsmeldingDialogTjeneste.hentInntektsmelding(inntektsmeldingId);
+        var inntektsmelding = inntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingId);
         var xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
 
         var pdf = fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);

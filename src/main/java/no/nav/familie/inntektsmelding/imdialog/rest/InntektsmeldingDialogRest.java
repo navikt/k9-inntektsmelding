@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingDialogTjeneste;
+import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 
@@ -37,7 +37,7 @@ public class InntektsmeldingDialogRest {
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
     private static final String LAST_NED_PDF = "/last-ned-pdf";
 
-    private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private Tilgang tilgangskontroll;
 
     InntektsmeldingDialogRest() {
@@ -45,8 +45,8 @@ public class InntektsmeldingDialogRest {
     }
 
     @Inject
-    public InntektsmeldingDialogRest(InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste, Tilgang tilgangskontroll) {
-        this.inntektsmeldingDialogTjeneste = inntektsmeldingDialogTjeneste;
+    public InntektsmeldingDialogRest(InntektsmeldingTjeneste inntektsmeldingTjeneste, Tilgang tilgangskontroll) {
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.tilgangskontroll = tilgangskontroll;
     }
 
@@ -60,8 +60,8 @@ public class InntektsmeldingDialogRest {
 
         tilgangskontroll.sjekkOmArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
-        LOG.info("Henter grunnlag for forespørsel " + forespørselUuid);
-        var dto = inntektsmeldingDialogTjeneste.lagDialogDto(forespørselUuid);
+        LOG.info("Henter grunnlag for forespørsel {}", forespørselUuid);
+        var dto = inntektsmeldingTjeneste.lagDialogDto(forespørselUuid);
         return Response.ok(dto).build();
 
     }
@@ -76,8 +76,8 @@ public class InntektsmeldingDialogRest {
 
         tilgangskontroll.sjekkOmArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
-        LOG.info("Henter inntektsmeldinger for forespørsel " + forespørselUuid);
-        var dto = inntektsmeldingDialogTjeneste.hentInntektsmeldinger(forespørselUuid);
+        LOG.info("Henter inntektsmeldinger for forespørsel {}", forespørselUuid);
+        var dto = inntektsmeldingTjeneste.hentInntektsmeldinger(forespørselUuid);
         return Response.ok(dto).build();
     }
 
@@ -90,8 +90,8 @@ public class InntektsmeldingDialogRest {
 
         tilgangskontroll.sjekkOmArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
 
-        LOG.info("Mottok inntektsmelding for forespørsel " + sendInntektsmeldingRequestDto.foresporselUuid());
-        var imResponse = inntektsmeldingDialogTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
+        LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequestDto.foresporselUuid());
+        var imResponse = inntektsmeldingTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok(imResponse).build();
     }
 
@@ -99,12 +99,12 @@ public class InntektsmeldingDialogRest {
     @Path(LAST_NED_PDF)
     @Produces("application/pdf")
     @Operation(description = "Lager PDF av inntektsmelding", tags = "imdialog")
-    public Response lastNedPDF(@Parameter(description = "id for inntektsmelding å lage PDF av") @NotNull @QueryParam("id") long id) {
+    public Response lastNedPDF(@Parameter(description = "ID for inntektsmelding å lage PDF av") @NotNull @QueryParam("id") long inntektsmeldingId) {
 
-        //tilgangskontroll.sjekkOmArbeidsgiverHarTilgangTilBedrift(forespørselUuid); //TODO: forespørsel kommer fra frontend
+        tilgangskontroll.sjekkOmArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId);
 
-        LOG.info("Henter inntektsmelding for id " + id);
-        var pdf = inntektsmeldingDialogTjeneste.hentPDF(id);
+        LOG.info("Henter inntektsmelding for id {}", inntektsmeldingId);
+        var pdf = inntektsmeldingTjeneste.hentPDF(inntektsmeldingId);
 
         var responseBuilder = Response.ok(pdf);
         responseBuilder.type("application/pdf");

@@ -11,8 +11,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +23,7 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
+import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
@@ -43,7 +42,7 @@ import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 @ExtendWith(MockitoExtension.class)
-class InntektsmeldingDialogTjenesteTest {
+class InntektsmeldingTjenesteTest {
 
     private static final String INNMELDER_UID = "12324312345";
 
@@ -63,7 +62,7 @@ class InntektsmeldingDialogTjenesteTest {
     @Mock
     private ProsessTaskTjeneste prosessTaskTjeneste;
 
-    private InntektsmeldingDialogTjeneste inntektsmeldingDialogTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     @BeforeAll
     static void beforeAll() {
@@ -78,7 +77,7 @@ class InntektsmeldingDialogTjenesteTest {
 
     @BeforeEach
     void setUp() {
-        inntektsmeldingDialogTjeneste = new InntektsmeldingDialogTjeneste(forespørselBehandlingTjeneste, inntektsmeldingRepository, personTjeneste,
+        inntektsmeldingTjeneste = new InntektsmeldingTjeneste(forespørselBehandlingTjeneste, inntektsmeldingRepository, personTjeneste,
             organisasjonTjeneste, inntektTjeneste, fpDokgenTjeneste, prosessTaskTjeneste);
     }
 
@@ -104,7 +103,7 @@ class InntektsmeldingDialogTjenesteTest {
             forespørsel.getOrganisasjonsnummer())).thenReturn(List.of(inntekt1, inntekt2, inntekt3));
 
         // Act
-        var imDialogDto = inntektsmeldingDialogTjeneste.lagDialogDto(uuid);
+        var imDialogDto = inntektsmeldingTjeneste.lagDialogDto(uuid);
 
         // Assert
         assertThat(imDialogDto.startdatoPermisjon()).isEqualTo(forespørsel.getSkjæringstidspunkt());

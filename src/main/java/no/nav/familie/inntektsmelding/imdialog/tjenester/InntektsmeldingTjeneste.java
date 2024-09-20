@@ -6,11 +6,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
-
-import no.nav.familie.inntektsmelding.imdialog.rest.SendOverstyrtInntektsmeldingRequestDto;
-import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +14,11 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.SendOverstyrtInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
+import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -35,8 +33,8 @@ import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
-public class InntektsmeldingDialogTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingDialogTjeneste.class);
+public class InntektsmeldingTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingTjeneste.class);
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private InntektsmeldingRepository inntektsmeldingRepository;
     private PersonTjeneste personTjeneste;
@@ -45,17 +43,17 @@ public class InntektsmeldingDialogTjeneste {
     private FpDokgenTjeneste fpDokgenTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
 
-    InntektsmeldingDialogTjeneste() {
+    InntektsmeldingTjeneste() {
     }
 
     @Inject
-    public InntektsmeldingDialogTjeneste(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
-                                         InntektsmeldingRepository inntektsmeldingRepository,
-                                         PersonTjeneste personTjeneste,
-                                         OrganisasjonTjeneste organisasjonTjeneste,
-                                         InntektTjeneste inntektTjeneste,
-                                         FpDokgenTjeneste fpDokgenTjeneste,
-                                         ProsessTaskTjeneste prosessTaskTjeneste) {
+    public InntektsmeldingTjeneste(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
+                                   InntektsmeldingRepository inntektsmeldingRepository,
+                                   PersonTjeneste personTjeneste,
+                                   OrganisasjonTjeneste organisasjonTjeneste,
+                                   InntektTjeneste inntektTjeneste,
+                                   FpDokgenTjeneste fpDokgenTjeneste,
+                                   ProsessTaskTjeneste prosessTaskTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.inntektsmeldingRepository = inntektsmeldingRepository;
         this.personTjeneste = personTjeneste;
@@ -108,7 +106,7 @@ public class InntektsmeldingDialogTjeneste {
             KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), forespørsel.getUuid());
     }
 
-    public InntektsmeldingEntitet hentInntektsmelding(int inntektsmeldingId) {
+    public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {
         return inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
     }
 
@@ -117,7 +115,10 @@ public class InntektsmeldingDialogTjeneste {
             .orElseThrow(
                 () -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
 
-        var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldinger(forespørsel.getAktørId(), forespørsel.getOrganisasjonsnummer(), forespørsel.getSkjæringstidspunkt(), forespørsel.getYtelseType());
+        var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldinger(forespørsel.getAktørId(),
+            forespørsel.getOrganisasjonsnummer(),
+            forespørsel.getSkjæringstidspunkt(),
+            forespørsel.getYtelseType());
         return inntektsmeldinger.stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid())).toList();
     }
 
