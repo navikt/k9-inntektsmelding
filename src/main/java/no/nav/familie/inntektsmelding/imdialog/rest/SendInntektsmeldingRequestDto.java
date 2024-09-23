@@ -25,7 +25,7 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
                                             @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
                                             @NotNull @Valid KontaktpersonRequestDto kontaktperson,
                                             @NotNull LocalDate startdato,
-                                            @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
+                                            @NotNull @Min(1) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
                                             @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal refusjon,
                                             @NotNull List<@Valid RefusjonendringRequestDto> refusjonsendringer,
                                             @NotNull List<@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder) implements TilgangsstyringDto {
