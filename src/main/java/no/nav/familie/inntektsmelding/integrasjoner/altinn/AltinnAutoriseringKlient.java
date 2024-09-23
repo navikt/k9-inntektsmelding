@@ -8,13 +8,13 @@ import jakarta.ws.rs.core.UriBuilder;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "altinn.url", scopesProperty = "altinn.scopes")
 public class AltinnAutoriseringKlient {
@@ -78,12 +78,13 @@ public class AltinnAutoriseringKlient {
 
     private List<AltinnReportee> gjørKall(int skip) {
         var uri = UriBuilder.fromUri(restConfig.endpoint())
+            .queryParam("ForceEIAuthentication", "")
             .queryParam("serviceCode", SERVICE_CODE)
             .queryParam("serviceEdition", SERVICE_EDITION)
             .queryParam("$filter", FILTER_AKTIVE_BEDRIFTER)
             .queryParam("$top", ALTINN_SIZE_LIMIT)
             .queryParam("$skip", skip)
-            .queryParam("X-Consumer-ID", KontekstHolder.getKontekst().getKonsumentId())
+            .queryParam("X-Consumer-ID", Environment.current().getNaisAppName())
             .build();
         var request = RestRequest.newGET(uri, restConfig);
         try {
