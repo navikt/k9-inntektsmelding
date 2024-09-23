@@ -25,6 +25,7 @@ public record InntektsmeldingResponseDto(
     @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal refusjon,
     @NotNull LocalDateTime opprettetTidspunkt,
     @NotNull List<SendInntektsmeldingRequestDto.@Valid RefusjonendringRequestDto> refusjonsendringer,
-    @NotNull List<SendInntektsmeldingRequestDto.@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder
+    @NotNull List<SendInntektsmeldingRequestDto.@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder,
+    @NotNull List<SendInntektsmeldingRequestDto.@Valid EndringsårsakerRequestDto> endringsårsaker
 ) {
 }

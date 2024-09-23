@@ -11,11 +11,13 @@
     <sequence-generator name="SEQ_KONTAKTPERSON" allocation-size="50" sequence-name="SEQ_KONTAKTPERSON" />
     <sequence-generator name="SEQ_INNTEKTSMELDING" allocation-size="50" sequence-name="SEQ_INNTEKTSMELDING" />
     <sequence-generator name="SEQ_REFUSJON_ENDRING" allocation-size="50" sequence-name="SEQ_REFUSJON_ENDRING" />
+    <sequence-generator name="SEQ_ENDRINGSAARSAK" allocation-size="50" sequence-name="SEQ_ENDRINGSAARSAK" />
 
     <entity class="no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet"/>
     <entity class="no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet"/>
     <entity class="no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet"/>
     <entity class="no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet"/>
     <entity class="no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet"/>
+    <entity class="no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet"/>
 
 </entity-mappings>

@@ -9,6 +9,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
+
+import no.nav.familie.inntektsmelding.koder.Endringsårsak;
+
+import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
@@ -33,7 +39,7 @@ class InntektsmeldingMapperTest {
         // Arrange
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(), new AktørIdDto("9999999999999"), YtelseTypeDto.FORELDREPENGER,
             new ArbeidsgiverDto("999999999"), new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"), LocalDate.now(),
-            BigDecimal.valueOf(5000), null, Collections.emptyList(), Collections.emptyList());
+            BigDecimal.valueOf(5000), null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 
         // Act
         var entitet = InntektsmeldingMapper.mapTilEntitet(request);
@@ -53,7 +59,7 @@ class InntektsmeldingMapperTest {
     }
 
     @Test
-    void skal_teste_mapping_med_ref_og_naturalytelse() {
+    void skal_teste_mapping_med_ref_og_naturalytelse_og_endrihngsårsak() {
         // Arrange
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
@@ -68,7 +74,8 @@ class InntektsmeldingMapperTest {
                 new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(LocalDate.now(),
                     Tid.TIDENES_ENDE,
                     NaturalytelsetypeDto.ANNET,
-                    BigDecimal.valueOf(4000))));
+                    BigDecimal.valueOf(4000))),
+            Collections.singletonList(new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(EndringsårsakDto.TARIFFENDRING, null, null, LocalDate.now())));
 
         // Act
         var entitet = InntektsmeldingMapper.mapTilEntitet(request);
@@ -83,6 +90,10 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(LocalDate.now().plusDays(10));
         assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
+
+        assertThat(entitet.getEndringsårsaker()).hasSize(1);
+        assertThat(entitet.getEndringsårsaker().get(0).getÅrsak()).isEqualTo(Endringsårsak.TARIFFENDRING);
+        assertThat(entitet.getEndringsårsaker().get(0).getBleKjentFra().orElse(null)).isEqualTo(LocalDate.now());
 
         assertThat(entitet.getBorfalteNaturalYtelser()).hasSize(1);
         assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getMånedBeløp()).isEqualByComparingTo(
@@ -127,6 +138,17 @@ class InntektsmeldingMapperTest {
                 new RefusjonsendringEntitet(LocalDate.now(), new BigDecimal(500)),
                 new RefusjonsendringEntitet(LocalDate.now().plusDays(5), new BigDecimal(0))
             ))
+            .medEndringsårsaker(List.of(
+                EndringsårsakEntitet.builder()
+                    .medFom(LocalDate.now())
+                    .medTom(LocalDate.now().plusDays(10))
+                    .medÅrsak(Endringsårsak.FERIE)
+                    .build(),
+                EndringsårsakEntitet.builder()
+                    .medBleKjentFra(LocalDate.now())
+                    .medÅrsak(Endringsårsak.TARIFFENDRING)
+                    .build()
+            ))
             .build();
 
         var forespørselUuid = UUID.randomUUID();
@@ -150,6 +172,9 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.refusjonsendringer().get(0).fom()).isEqualTo(imEntitet.getRefusjonsendringer().get(0).getFom());
         assertThat(imDto.refusjonsendringer().get(0).beløp()).isEqualTo(imEntitet.getRefusjonsendringer().get(0).getRefusjonPrMnd());
         assertThat(imDto.opprettetTidspunkt()).isEqualTo(imEntitet.getOpprettetTidspunkt());
+        assertThat(imDto.endringsårsaker()).hasSize(2);
+        assertThat(imDto.endringsårsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
+        assertThat(imDto.endringsårsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
 
     }
 

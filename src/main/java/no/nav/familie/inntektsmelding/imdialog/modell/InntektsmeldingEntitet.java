@@ -76,6 +76,9 @@ public class InntektsmeldingEntitet {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private List<BortaltNaturalytelseEntitet> borfalteNaturalYtelser = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
+    private List<EndringsårsakEntitet> endringsårsaker = new ArrayList<>();
+
     public InntektsmeldingEntitet() {
         // Hibernate
     }
@@ -136,9 +139,18 @@ public class InntektsmeldingEntitet {
         return kildesystem;
     }
 
+    public List<EndringsårsakEntitet> getEndringsårsaker() {
+        return endringsårsaker;
+    }
+
     private void leggTilRefusjonsendring(RefusjonsendringEntitet refusjonsendringEntitet) {
         refusjonsendringEntitet.setInntektsmelding(this);
         refusjonsendringer.add(refusjonsendringEntitet);
+    }
+
+    private void leggTilEndringsårsak(EndringsårsakEntitet endringsårsakEntitet) {
+        endringsårsakEntitet.setInntektsmelding(this);
+        endringsårsaker.add(endringsårsakEntitet);
     }
 
     void leggTilBortfalteNaturalytelse(BortaltNaturalytelseEntitet bortfaltNaturalytelse) {
@@ -172,7 +184,7 @@ public class InntektsmeldingEntitet {
     public String toString() {
         return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + aktørId + ", ytelsetype=" + ytelsetype + ", arbeidsgiverIdent='"
             + arbeidsgiverIdent + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt + ", opprettetTidspunkt=" + opprettetTidspunkt
-            + ", refusjonendringer=" + refusjonsendringer + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser + '}';
+            + ", refusjonendringer=" + refusjonsendringer + ", endringsårsaker=" + endringsårsaker + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser + '}';
     }
 
     public static Builder builder() {
@@ -236,6 +248,11 @@ public class InntektsmeldingEntitet {
 
         public Builder medBortfaltNaturalytelser(List<BortaltNaturalytelseEntitet> naturalYtelser) {
             naturalYtelser.forEach(kladd::leggTilBortfalteNaturalytelse);
+            return this;
+        }
+
+        public Builder medEndringsårsaker(List<EndringsårsakEntitet> endringsårsaker) {
+            endringsårsaker.forEach(kladd::leggTilEndringsårsak);
             return this;
         }
 

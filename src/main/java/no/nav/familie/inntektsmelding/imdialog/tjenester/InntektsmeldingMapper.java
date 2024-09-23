@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
@@ -36,8 +37,22 @@ public class InntektsmeldingMapper {
             .medStartDato(dto.startdato())
             .medYtelsetype(KodeverkMapper.mapYtelsetype(dto.ytelse()))
             .medKontaktperson(mapKontaktPerson(dto))
+            .medEndringsårsaker(mapEndringsårsaker(dto.endringsårsaker()))
             .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(dto.bortfaltNaturalytelsePerioder()))
             .medRefusjonsendringer(mapRefusjonsendringer(dto.refusjonsendringer()))
+            .build();
+    }
+
+    private static List<EndringsårsakEntitet> mapEndringsårsaker(List<SendInntektsmeldingRequestDto.EndringsårsakerRequestDto> endringsårsaker) {
+        return endringsårsaker.stream().map(InntektsmeldingMapper::mapEndringsårsak).toList();
+    }
+
+    private static EndringsårsakEntitet mapEndringsårsak(SendInntektsmeldingRequestDto.EndringsårsakerRequestDto e) {
+        return EndringsårsakEntitet.builder()
+            .medÅrsak(KodeverkMapper.mapEndringsårsak(e.årsak()))
+            .medFom(e.fom())
+            .medTom(e.tom())
+            .medBleKjentFra(e.bleKjentFra())
             .build();
     }
 
@@ -54,6 +69,12 @@ public class InntektsmeldingMapper {
                 i.getMånedBeløp()
             )
         ).toList();
+        var endringsårsaker = entitet.getEndringsårsaker().stream().map(e ->
+            new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(KodeverkMapper.mapEndringsårsak(e.getÅrsak()),
+                e.getFom().orElse(null),
+                e.getTom().orElse(null),
+                e.getBleKjentFra().orElse(null)))
+            .toList();
 
         return new InntektsmeldingResponseDto(
             entitet.getId(),
@@ -67,7 +88,8 @@ public class InntektsmeldingMapper {
             entitet.getMånedRefusjon(),
             entitet.getOpprettetTidspunkt(),
             refusjonsendringer,
-            bortfalteNaturalytelser
+            bortfalteNaturalytelser,
+            endringsårsaker
             );
     }
 
