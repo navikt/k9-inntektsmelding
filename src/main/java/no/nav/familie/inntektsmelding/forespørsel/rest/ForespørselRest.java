@@ -63,13 +63,18 @@ public class ForespørselRest {
         return Response.ok().build();
     }
 
-    //TODO tjeneste som tar inn uttømmende liste med forespørsler, oppretter nye og sletter de som ikke trengs lengre
     @POST
     @Path("/oppdater-sak")
     @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER_PORTAL, action = ActionType.WRITE)
     public Response oppdaterForespørslerPåSak(OppdaterForespørslerISakRequest request) {
         LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på saksnummer " + request.saksnummer());
-        //TODO kall forespørselBehandlingTjeneste med ny metode
+        forespørselBehandlingTjeneste.oppdaterAlleForespørslerISaken(
+            KodeverkMapper.mapYtelsetype(request.ytelsetype()),
+            new AktørIdEntitet(request.aktørId().id()),
+            request.skjæringstidspunkterPerOrganisasjon(),
+            request.saksnummer()
+        );
+
         return Response.ok().build();
     }
 

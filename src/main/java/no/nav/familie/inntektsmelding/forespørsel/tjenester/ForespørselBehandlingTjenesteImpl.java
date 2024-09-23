@@ -103,13 +103,14 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         return forespørselTjeneste.finnForespørsel(forespørselUUID);
     }
 
+    @Override
     public void oppdaterAlleForespørslerISaken(Ytelsetype ytelsetype,
                                                AktørIdEntitet aktørId,
-                                               Map<OrganisasjonsnummerDto, List<LocalDate>> stpPerOrgnr,
+                                               Map<OrganisasjonsnummerDto, List<LocalDate>> skjæringstidspunkterPerOrganisasjon,
                                                SaksnummerDto fagsakSaksnummer) {
         var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer);
 
-        stpPerOrgnr.entrySet().forEach(entry -> {
+        skjæringstidspunkterPerOrganisasjon.entrySet().forEach(entry -> {
             OrganisasjonsnummerDto organisasjonsnummer = entry.getKey();
             List<LocalDate> skjæringstidspunkter = entry.getValue();
 
@@ -148,7 +149,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             if (eksisterende.getStatus() == ForespørselStatus.FERDIG) {
                 continue;
             }
-            List<LocalDate> stperFraRequest = stpPerOrgnr.get(new OrganisasjonsnummerDto(eksisterende.getOrganisasjonsnummer()));
+            List<LocalDate> stperFraRequest = skjæringstidspunkterPerOrganisasjon.get(new OrganisasjonsnummerDto(eksisterende.getOrganisasjonsnummer()));
             if (!stperFraRequest.contains(eksisterende.getSkjæringstidspunkt())) {
                 //TODO slette
             }
