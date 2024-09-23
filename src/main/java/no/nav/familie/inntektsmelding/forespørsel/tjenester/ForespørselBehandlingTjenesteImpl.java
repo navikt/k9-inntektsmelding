@@ -4,6 +4,8 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,6 +21,8 @@ import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Arb
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.SakStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -97,6 +101,58 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID) {
         return forespørselTjeneste.finnForespørsel(forespørselUUID);
+    }
+
+    public void oppdaterAlleForespørslerISaken(Ytelsetype ytelsetype,
+                                               AktørIdEntitet aktørId,
+                                               Map<OrganisasjonsnummerDto, List<LocalDate>> stpPerOrgnr,
+                                               SaksnummerDto fagsakSaksnummer) {
+        var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer);
+
+        stpPerOrgnr.entrySet().forEach(entry -> {
+            OrganisasjonsnummerDto organisasjonsnummer = entry.getKey();
+            List<LocalDate> skjæringstidspunkter = entry.getValue();
+
+            for (LocalDate skjæringstidspunkt : skjæringstidspunkter) {
+                var åpenForespørsel = eksisterendeForespørsler.stream()
+                    .filter(f -> f.getSkjæringstidspunkt().equals(skjæringstidspunkt))
+                    .filter(f -> f.getOrganisasjonsnummer().equals(organisasjonsnummer.orgnr()))
+                    .findFirst();
+                if (åpenForespørsel.isPresent()) {
+                    var msg = String.format("Finnes allerede forespørsel for aktør %s på startdato %s + på ytelse %s", aktørId, skjæringstidspunkt,
+                        ytelsetype);
+                    LOG.info(msg);
+                    return;
+                }
+                var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
+                var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
+                var merkelapp = finnMerkelapp(ytelsetype);
+                var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
+
+                var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
+                    merkelapp,
+                    organisasjonsnummer.orgnr(),
+                    lagSaksTittel(person),
+                    skjemaUri);
+
+                forespørselTjeneste.setSakId(uuid, sakId);
+
+                var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), merkelapp, uuid.toString(), organisasjonsnummer.orgnr(),
+                    "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", skjemaUri);
+
+                forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
+            }
+        });
+
+        for (ForespørselEntitet eksisterende : eksisterendeForespørsler) {
+            if (eksisterende.getStatus() == ForespørselStatus.FERDIG) {
+                continue;
+            }
+            List<LocalDate> stperFraRequest = stpPerOrgnr.get(new OrganisasjonsnummerDto(eksisterende.getOrganisasjonsnummer()));
+            if (!stperFraRequest.contains(eksisterende.getSkjæringstidspunkt())) {
+                //TODO slette
+            }
+        }
     }
 
     public void lukkForespørsel(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {

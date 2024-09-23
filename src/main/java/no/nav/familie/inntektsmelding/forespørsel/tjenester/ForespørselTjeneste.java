@@ -65,4 +65,9 @@ public class ForespørselTjeneste {
     public Optional<ForespørselEntitet> finnForespørsel(UUID forespørselUuid) {
         return forespørselRepository.hentForespørsel(forespørselUuid);
     }
+
+    public List<ForespørselEntitet> finnForespørslerForSak(SaksnummerDto saksnummer) {
+        return forespørselRepository.hentForespørsler(saksnummer);
+    }
+
 }
