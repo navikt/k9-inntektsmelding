@@ -67,7 +67,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             return;
         }
 
-        opprettOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
+        opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
     }
 
     @Override
@@ -114,28 +114,38 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                     return;
                 }
 
-                opprettOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
+                opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
 
             });
         });
 
         // Slett forespørsler som ikke lenger er aktuelle
-        for (ForespørselEntitet eksisterende : eksisterendeForespørsler) {
-            if (eksisterende.getStatus() == ForespørselStatus.FERDIG) {
-                continue;
+        eksisterendeForespørsler.forEach(eksisterendeForespørsel -> {
+            if (eksisterendeForespørsel.getStatus() == ForespørselStatus.FERDIG) {
+                return;
             }
-            List<LocalDate> stperFraRequest = skjæringstidspunkterPerOrganisasjon.get(new OrganisasjonsnummerDto(eksisterende.getOrganisasjonsnummer()));
-            if (!stperFraRequest.contains(eksisterende.getSkjæringstidspunkt())) {
-                //TODO slette
+
+            boolean trengerEksisterendeForespørsel = innholderRequestEksisterendeForespørsel(skjæringstidspunkterPerOrganisasjon, eksisterendeForespørsel);
+            if (!trengerEksisterendeForespørsel) {
+                //TODO slette forespørsel
             }
-        }
+        });
+
     }
 
-    private void opprettOppgave(Ytelsetype ytelsetype,
-                                AktørIdEntitet aktørId,
-                                SaksnummerDto fagsakSaksnummer,
-                                OrganisasjonsnummerDto organisasjonsnummer,
-                                LocalDate skjæringstidspunkt) {
+    private boolean innholderRequestEksisterendeForespørsel(Map<OrganisasjonsnummerDto, List<LocalDate>> skjæringstidspunkterPerOrganisasjon,
+                                                            ForespørselEntitet eksisterendeForespørsel) {
+        var organsisasjon = new OrganisasjonsnummerDto(eksisterendeForespørsel.getOrganisasjonsnummer());
+        var skjæringstidspunkterFraRequestForSammeOrg = skjæringstidspunkterPerOrganisasjon.get(organsisasjon);
+
+        return skjæringstidspunkterFraRequestForSammeOrg.contains(eksisterendeForespørsel.getSkjæringstidspunkt());
+    }
+
+    private void opprettForespørselOppgave(Ytelsetype ytelsetype,
+                                           AktørIdEntitet aktørId,
+                                           SaksnummerDto fagsakSaksnummer,
+                                           OrganisasjonsnummerDto organisasjonsnummer,
+                                           LocalDate skjæringstidspunkt) {
         var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
         var merkelapp = finnMerkelapp(ytelsetype);
