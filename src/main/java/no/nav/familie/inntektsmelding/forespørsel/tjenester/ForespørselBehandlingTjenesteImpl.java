@@ -97,40 +97,32 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                                AktørIdEntitet aktørId,
                                                Map<OrganisasjonsnummerDto, List<LocalDate>> skjæringstidspunkterPerOrganisasjon,
                                                SaksnummerDto fagsakSaksnummer) {
-        var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer);
+        List<ForespørselEntitet> eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer);
 
-        // Opprett forespørsler for alle skjæringstidspunkter som ikke allerede er opprettet
+        // Oppretter forespørsler for alle skjæringstidspunkter som ikke allerede er opprettet
         skjæringstidspunkterPerOrganisasjon.forEach((organisasjonsnummer, skjæringstidspunkterForOrganisasjon) -> {
             skjæringstidspunkterForOrganisasjon.forEach(skjæringstidspunkt -> {
-                var åpenForespørsel = eksisterendeForespørsler.stream()
+                Optional<ForespørselEntitet> åpenForespørsel = eksisterendeForespørsler.stream()
                     .filter(eksisterendeForespørsel -> eksisterendeForespørsel.getSkjæringstidspunkt().equals(skjæringstidspunkt))
                     .filter(eksisterendeForespørsel -> eksisterendeForespørsel.getOrganisasjonsnummer().equals(organisasjonsnummer.orgnr()))
                     .findFirst();
 
-                if (åpenForespørsel.isPresent()) {
-                    var msg = String.format("Finnes allerede forespørsel for aktør %s på startdato %s + på ytelse %s", aktørId, skjæringstidspunkt,
-                        ytelsetype);
-                    LOG.info(msg);
-                    return;
+                if (åpenForespørsel.isEmpty()) {
+                    opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
+                    LOG.info("Oppretter forespørsel, orgnr={}, stp={}, saksnr={}, ytelsetype={}", organisasjonsnummer, skjæringstidspunkt, fagsakSaksnummer.saksnr(), ytelsetype);
                 }
-
-                opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
-
             });
         });
 
-        // Slett forespørsler som ikke lenger er aktuelle
+        // Forespørsler som ikke lenger er aktuelle settes til utgått
         eksisterendeForespørsler.forEach(eksisterendeForespørsel -> {
-            if (eksisterendeForespørsel.getStatus() == ForespørselStatus.FERDIG) {
-                return;
-            }
-
             boolean trengerEksisterendeForespørsel = innholderRequestEksisterendeForespørsel(skjæringstidspunkterPerOrganisasjon, eksisterendeForespørsel);
-            if (!trengerEksisterendeForespørsel) {
-                //TODO slette forespørsel
+            if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
+                //TODO sett forespørsel til utgått
+                LOG.info("Setter forespørsel til utgått, orgnr={}, stp={}, saksnr={}, ytelsetype={}",
+                    eksisterendeForespørsel.getOrganisasjonsnummer(), eksisterendeForespørsel.getSkjæringstidspunkt(), eksisterendeForespørsel.getFagsystemSaksnummer(), eksisterendeForespørsel.getYtelseType());
             }
         });
-
     }
 
     private boolean innholderRequestEksisterendeForespørsel(Map<OrganisasjonsnummerDto, List<LocalDate>> skjæringstidspunkterPerOrganisasjon,
