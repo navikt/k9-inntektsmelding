@@ -143,4 +143,11 @@ public class ForespørselRepository {
             return Optional.of(resultList.getFirst());
         }
     }
+
+    public List<ForespørselEntitet> finnÅpenForespørsel(SaksnummerDto saksnummerDto) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet where fagsystemSaksnummer=:saksnummer",
+                ForespørselEntitet.class)
+            .setParameter("saksnummer", saksnummerDto.saksnr());
+        return query.getResultList();
+    }
 }

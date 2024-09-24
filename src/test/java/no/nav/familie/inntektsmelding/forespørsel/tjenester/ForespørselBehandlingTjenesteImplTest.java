@@ -105,4 +105,34 @@ public class ForespørselBehandlingTjenesteImplTest {
 
     }
 
+    @Test
+    public void skal_lukke_alle_forespørspørsler_for_sak() {
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        forespørselRepository.oppdaterSakId(forespørselUuid, SAK_ID);
+        var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2), YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        forespørselRepository.oppdaterSakId(forespørselUuid2, "2");
+
+        forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), null);
+
+        var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
+        assertThat(lagret.get().getSakStatus()).isEqualTo(SakStatus.FERDIG);
+        var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
+        assertThat(lagret2.get().getSakStatus()).isEqualTo(SakStatus.FERDIG);
+    }
+
+    @Test
+    public void skal_lukke_forespørsel_for_sak_med_gitt_stp() {
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        forespørselRepository.oppdaterSakId(forespørselUuid, SAK_ID);
+        var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2), YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        forespørselRepository.oppdaterSakId(forespørselUuid, "2");
+
+        forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), SKJÆRINGSTIDSPUNKT);
+
+        var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
+        assertThat(lagret.get().getSakStatus()).isEqualTo(SakStatus.FERDIG);
+        var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
+        assertThat(lagret2.get().getSakStatus()).isEqualTo(SakStatus.UNDER_BEHANDLING);
+    }
+
 }
