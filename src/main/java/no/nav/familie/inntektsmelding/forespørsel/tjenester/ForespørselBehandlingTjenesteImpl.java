@@ -109,7 +109,9 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
                 if (åpenForespørsel.isEmpty()) {
                     opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
-                    LOG.info("Oppretter forespørsel, orgnr={}, stp={}, saksnr={}, ytelsetype={}", organisasjonsnummer, skjæringstidspunkt, fagsakSaksnummer.saksnr(), ytelsetype);
+                    var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+                        organisasjonsnummer, skjæringstidspunkt, fagsakSaksnummer.saksnr(), ytelsetype);
+                    LOG.info(msg);
                 }
             });
         });
@@ -119,8 +121,9 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             boolean trengerEksisterendeForespørsel = innholderRequestEksisterendeForespørsel(skjæringstidspunkterPerOrganisasjon, eksisterendeForespørsel);
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
                 //TODO sett forespørsel til utgått
-                LOG.info("Setter forespørsel til utgått, orgnr={}, stp={}, saksnr={}, ytelsetype={}",
+                var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
                     eksisterendeForespørsel.getOrganisasjonsnummer(), eksisterendeForespørsel.getSkjæringstidspunkt(), eksisterendeForespørsel.getFagsystemSaksnummer(), eksisterendeForespørsel.getYtelseType());
+                LOG.info(msg);
             }
         });
     }
