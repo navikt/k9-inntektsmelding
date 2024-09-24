@@ -37,15 +37,14 @@ public class ForespørselRest {
     public static final String BASE_PATH = "/foresporsel";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private ForespørselTjeneste forespørselTjeneste;
 
     public ForespørselRest() {
     }
 
     @Inject
-    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, ForespørselTjeneste forespørselTjeneste) {
+    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
+                           ForespørselTjeneste forespørselTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
-        this.forespørselTjeneste = forespørselTjeneste;
     }
 
     @POST
