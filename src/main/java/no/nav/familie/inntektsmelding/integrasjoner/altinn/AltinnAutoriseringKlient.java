@@ -8,8 +8,8 @@ import jakarta.ws.rs.core.UriBuilder;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.felles.integrasjon.rest.NavHeaders;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
@@ -84,9 +84,9 @@ public class AltinnAutoriseringKlient {
             .queryParam("$filter", FILTER_AKTIVE_BEDRIFTER)
             .queryParam("$top", ALTINN_SIZE_LIMIT)
             .queryParam("$skip", skip)
-            .queryParam("X-Consumer-ID", Environment.current().getNaisAppName())
             .build();
         var request = RestRequest.newGET(uri, restConfig);
+        request.otherCallId(NavHeaders.HEADER_NAV_CORRELATION_ID);
         try {
             return restClient.sendReturnList(request, AltinnReportee.class);
         } catch (RuntimeException e) {
