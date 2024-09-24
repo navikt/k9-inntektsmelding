@@ -30,7 +30,7 @@ public class EndringsårsakEntitet {
     private InntektsmeldingEntitet inntektsmelding;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
+    @Column(name = "aarsak", nullable = false)
     private Endringsårsak årsak;
 
     @Column(name = "fom", nullable = false)

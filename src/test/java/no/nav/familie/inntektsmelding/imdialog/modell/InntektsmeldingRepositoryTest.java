@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
+import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.vedtak.konfig.Tid;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -91,6 +92,49 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         assertThat(etterLagring.get().getRefusjonsendringer().get(0).getFom()).isEqualTo(førLagring.getRefusjonsendringer().get(0).getFom());
         assertThat(etterLagring.get().getRefusjonsendringer().get(0).getRefusjonPrMnd()).isEqualByComparingTo(førLagring.getRefusjonsendringer().get(0).getRefusjonPrMnd());
     }
+
+    @Test
+    void skal_lagre_inntektsmelding_med_endringsårsaker() {
+        // Arrange
+        var endring = EndringsårsakEntitet.builder()
+            .medÅrsak(Endringsårsak.TARIFFENDRING)
+            .medFom(LocalDate.now())
+            .medBleKjentFra(LocalDate.now().plusDays(10))
+            .build();
+        var førLagring = InntektsmeldingEntitet.builder()
+            .medAktørId(new AktørIdEntitet("9999999999999"))
+            .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
+            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(LocalDate.now())
+            .medEndringsårsaker(Collections.singletonList(endring))
+            .medArbeidsgiverIdent("999999999")
+            .build();
+
+        // Act
+        inntektsmeldingRepository.lagreInntektsmelding(førLagring);
+        var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(førLagring.getAktørId(), førLagring.getArbeidsgiverIdent(),
+            førLagring.getStartDato(), førLagring.getYtelsetype());
+
+        // Assert
+        assertThat(etterLagring).isPresent();
+        assertThat(etterLagring.get().getKontaktperson().getTelefonnummer()).isEqualTo(førLagring.getKontaktperson().getTelefonnummer());
+        assertThat(etterLagring.get().getKontaktperson().getNavn()).isEqualTo(førLagring.getKontaktperson().getNavn());
+        assertThat(etterLagring.get().getMånedInntekt()).isEqualByComparingTo(førLagring.getMånedInntekt());
+        assertThat(etterLagring.get().getArbeidsgiverIdent()).isEqualTo(førLagring.getArbeidsgiverIdent());
+        assertThat(etterLagring.get().getAktørId()).isEqualTo(førLagring.getAktørId());
+        assertThat(etterLagring.get().getStartDato()).isEqualTo(førLagring.getStartDato());
+        assertThat(etterLagring.get().getYtelsetype()).isEqualTo(førLagring.getYtelsetype());
+        assertThat(etterLagring.get().getOpphørsdatoRefusjon()).isEqualTo(førLagring.getOpphørsdatoRefusjon());
+        assertThat(etterLagring.get().getMånedRefusjon()).isEqualByComparingTo(førLagring.getMånedRefusjon());
+        assertThat(etterLagring.get().getEndringsårsaker()).hasSize(1);
+        assertThat(etterLagring.get().getEndringsårsaker().get(0).getÅrsak()).isEqualTo(Endringsårsak.TARIFFENDRING);
+        assertThat(etterLagring.get().getEndringsårsaker().get(0).getFom().orElse(null)).isEqualTo(LocalDate.now());
+        assertThat(etterLagring.get().getEndringsårsaker().get(0).getBleKjentFra().orElse(null)).isEqualTo(LocalDate.now().plusDays(10));
+    }
+
 
     @Test
     void skal_hente_siste_inntektsmelding() {
