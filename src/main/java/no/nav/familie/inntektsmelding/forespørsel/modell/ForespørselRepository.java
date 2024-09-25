@@ -94,6 +94,19 @@ public class ForespørselRepository {
         entityManager.flush();
     }
 
+    public void settSakTilUtgått(String sakId) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet where sakId = :SAK_ID", ForespørselEntitet.class)
+            .setParameter("SAK_ID", sakId);
+        var resultList = query.getResultList();
+
+        resultList.forEach(f -> {
+            f.setStatus(ForespørselStatus.UTGÅTT);
+            entityManager.persist(f);
+        });
+
+        entityManager.flush();
+    }
+
 
     public List<ForespørselEntitet> hentForespørsler(SaksnummerDto saksnummer) {
         var query = entityManager.createQuery("FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)

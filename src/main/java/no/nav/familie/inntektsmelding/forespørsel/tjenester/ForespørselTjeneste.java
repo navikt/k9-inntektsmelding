@@ -51,6 +51,10 @@ public class ForespørselTjeneste {
         forespørselRepository.ferdigstillForespørsel(sakId);
     }
 
+    public void settSakTilUtgått(String sakId) {
+        forespørselRepository.settSakTilUtgått(sakId);
+    }
+
     public Optional<ForespørselEntitet> finnÅpenForespørsel(LocalDate skjæringstidspunkt,
                                                             Ytelsetype ytelseType,
                                                             AktørIdEntitet brukerAktørId,

@@ -119,8 +119,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         // Forespørsler som ikke lenger er aktuelle settes til utgått
         eksisterendeForespørsler.forEach(eksisterendeForespørsel -> {
             boolean trengerEksisterendeForespørsel = innholderRequestEksisterendeForespørsel(skjæringstidspunkterPerOrganisasjon, eksisterendeForespørsel);
+
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
-                //TODO sett forespørsel til utgått
+                //TODO: Trenger vi en ny status i arbeidsgiver-notifikasjon for utgått?
+                arbeidsgiverNotifikasjon.lukkOppgave(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
+                arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
+                forespørselTjeneste.settSakTilUtgått(eksisterendeForespørsel.getSakId());
+
                 var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
                     eksisterendeForespørsel.getOrganisasjonsnummer(), eksisterendeForespørsel.getSkjæringstidspunkt(), eksisterendeForespørsel.getFagsystemSaksnummer(), eksisterendeForespørsel.getYtelseType());
                 LOG.info(msg);
