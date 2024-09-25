@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.typer.dto;
 
+import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
@@ -51,4 +52,37 @@ public class KodeverkMapper {
         };
     }
 
+    public static Endringsårsak mapEndringsårsak(EndringsårsakDto årsak) {
+        return switch (årsak) {
+            case PERMITTERING -> Endringsårsak.PERMITTERING;
+            case NY_STILLING -> Endringsårsak.NY_STILLING;
+            case NY_STILLINGSPROSENT -> Endringsårsak.NY_STILLINGSPROSENT;
+            case SYKEFRAVÆR -> Endringsårsak.SYKEFRAVÆR;
+            case BONUS -> Endringsårsak.BONUS;
+            case FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER -> Endringsårsak.FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER;
+            case NYANSATT -> Endringsårsak.NYANSATT;
+            case MANGELFULL_RAPPORTERING_AORDNING -> Endringsårsak.MANGELFULL_RAPPORTERING_AORDNING;
+            case TARIFFENDRING -> Endringsårsak.TARIFFENDRING;
+            case FERIE -> Endringsårsak.FERIE;
+            case VARIG_LØNNSENDRING -> Endringsårsak.VARIG_LØNNSENDRING;
+            case PERMISJON -> Endringsårsak.PERMISJON;
+        };
+    }
+
+    public static EndringsårsakDto mapEndringsårsak(Endringsårsak årsak) {
+        return switch (årsak) {
+            case PERMITTERING -> EndringsårsakDto.PERMITTERING;
+            case NY_STILLING -> EndringsårsakDto.NY_STILLING;
+            case NY_STILLINGSPROSENT -> EndringsårsakDto.NY_STILLINGSPROSENT;
+            case SYKEFRAVÆR -> EndringsårsakDto.SYKEFRAVÆR;
+            case BONUS -> EndringsårsakDto.BONUS;
+            case FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER -> EndringsårsakDto.FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER;
+            case NYANSATT -> EndringsårsakDto.NYANSATT;
+            case MANGELFULL_RAPPORTERING_AORDNING -> EndringsårsakDto.MANGELFULL_RAPPORTERING_AORDNING;
+            case TARIFFENDRING -> EndringsårsakDto.TARIFFENDRING;
+            case FERIE -> EndringsårsakDto.FERIE;
+            case VARIG_LØNNSENDRING -> EndringsårsakDto.VARIG_LØNNSENDRING;
+            case PERMISJON -> EndringsårsakDto.PERMISJON;
+        };
+    }
 }

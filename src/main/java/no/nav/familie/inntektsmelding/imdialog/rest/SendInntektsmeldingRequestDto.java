@@ -16,6 +16,7 @@ import no.nav.familie.inntektsmelding.server.authz.api.TilgangsstyringDto;
 import no.nav.familie.inntektsmelding.server.authz.api.TilgangsstyringInput;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
@@ -28,7 +29,8 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
                                             @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal refusjon,
                                             @NotNull List<@Valid RefusjonendringRequestDto> refusjonsendringer,
-                                            @NotNull List<@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder) implements TilgangsstyringDto {
+                                            @NotNull List<@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder,
+                                            @NotNull List<@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker) implements TilgangsstyringDto {
 
     public record RefusjonendringRequestDto(@NotNull LocalDate fom,
                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
@@ -39,6 +41,12 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
                                           LocalDate tom,
                                           @NotNull NaturalytelsetypeDto naturalytelsetype,
                                                   @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
+    }
+
+    public record EndringsårsakerRequestDto(@NotNull @Valid EndringsårsakDto årsak,
+                                            LocalDate fom,
+                                            LocalDate tom,
+                                            LocalDate bleKjentFom) {
     }
 
     public record KontaktpersonRequestDto(@NotNull String navn, @NotNull String telefonnummer) {
