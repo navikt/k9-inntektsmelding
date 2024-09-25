@@ -59,7 +59,7 @@ class InntektsmeldingMapperTest {
     }
 
     @Test
-    void skal_teste_mapping_med_ref_og_naturalytelse_og_endrihngsårsak() {
+    void skal_teste_mapping_med_ref_og_naturalytelse_og_endringsårsak() {
         // Arrange
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
