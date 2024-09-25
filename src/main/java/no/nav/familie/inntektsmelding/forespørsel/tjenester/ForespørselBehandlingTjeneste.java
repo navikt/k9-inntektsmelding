@@ -26,7 +26,7 @@ public interface ForespørselBehandlingTjeneste {
 
     void oppdaterAlleForespørslerISaken(Ytelsetype ytelsetype,
                                         AktørIdEntitet aktørId,
-                                        Map<OrganisasjonsnummerDto, List<LocalDate>> skjæringstidspunkterPerOrganisasjon,
+                                        Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                                         SaksnummerDto fagsakSaksnummer);
 
     void lukkForespørsel(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);

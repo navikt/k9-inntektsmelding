@@ -95,22 +95,22 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public void oppdaterAlleForespørslerISaken(Ytelsetype ytelsetype,
                                                AktørIdEntitet aktørId,
-                                               Map<OrganisasjonsnummerDto, List<LocalDate>> skjæringstidspunkterPerOrganisasjon,
+                                               Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                                                SaksnummerDto fagsakSaksnummer) {
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer);
 
         // Oppretter forespørsler for alle skjæringstidspunkter som ikke allerede er opprettet
-        skjæringstidspunkterPerOrganisasjon.forEach((organisasjonsnummer, skjæringstidspunkterForOrganisasjon) -> {
-            skjæringstidspunkterForOrganisasjon.forEach(skjæringstidspunkt -> {
+        organisasjonerPerSkjæringstidspunkt.forEach((skjæringstidspunkt, organisasjoner) -> {
+            organisasjoner.forEach(organisasjon -> {
                 Optional<ForespørselEntitet> åpenForespørsel = eksisterendeForespørsler.stream()
                     .filter(eksisterendeForespørsel -> eksisterendeForespørsel.getSkjæringstidspunkt().equals(skjæringstidspunkt))
-                    .filter(eksisterendeForespørsel -> eksisterendeForespørsel.getOrganisasjonsnummer().equals(organisasjonsnummer.orgnr()))
+                    .filter(eksisterendeForespørsel -> eksisterendeForespørsel.getOrganisasjonsnummer().equals(organisasjon.orgnr()))
                     .findFirst();
 
                 if (åpenForespørsel.isEmpty()) {
-                    opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
+                    opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt);
                     var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
-                        organisasjonsnummer, skjæringstidspunkt, fagsakSaksnummer.saksnr(), ytelsetype);
+                        organisasjon.orgnr(), skjæringstidspunkt, fagsakSaksnummer.saksnr(), ytelsetype);
                     LOG.info(msg);
                 }
             });
@@ -118,7 +118,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
         // Forespørsler som ikke lenger er aktuelle settes til utgått
         eksisterendeForespørsler.forEach(eksisterendeForespørsel -> {
-            boolean trengerEksisterendeForespørsel = innholderRequestEksisterendeForespørsel(skjæringstidspunkterPerOrganisasjon, eksisterendeForespørsel);
+            boolean trengerEksisterendeForespørsel = innholderRequestEksisterendeForespørsel(organisasjonerPerSkjæringstidspunkt,
+                eksisterendeForespørsel);
 
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
                 //TODO: Trenger vi en ny status i arbeidsgiver-notifikasjon for utgått?
@@ -127,18 +128,21 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                 forespørselTjeneste.settSakTilUtgått(eksisterendeForespørsel.getSakId());
 
                 var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
-                    eksisterendeForespørsel.getOrganisasjonsnummer(), eksisterendeForespørsel.getSkjæringstidspunkt(), eksisterendeForespørsel.getFagsystemSaksnummer(), eksisterendeForespørsel.getYtelseType());
+                    eksisterendeForespørsel.getOrganisasjonsnummer(),
+                    eksisterendeForespørsel.getSkjæringstidspunkt(),
+                    eksisterendeForespørsel.getFagsystemSaksnummer(),
+                    eksisterendeForespørsel.getYtelseType());
                 LOG.info(msg);
             }
         });
     }
 
-    private boolean innholderRequestEksisterendeForespørsel(Map<OrganisasjonsnummerDto, List<LocalDate>> skjæringstidspunkterPerOrganisasjon,
+    private boolean innholderRequestEksisterendeForespørsel(Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                                                             ForespørselEntitet eksisterendeForespørsel) {
-        var organsisasjon = new OrganisasjonsnummerDto(eksisterendeForespørsel.getOrganisasjonsnummer());
-        var skjæringstidspunkterFraRequestForSammeOrg = skjæringstidspunkterPerOrganisasjon.get(organsisasjon);
+        LocalDate stp = eksisterendeForespørsel.getSkjæringstidspunkt();
+        List<String> orgnrFraRequestForStp = organisasjonerPerSkjæringstidspunkt.get(stp).stream().map(OrganisasjonsnummerDto::orgnr).toList();
 
-        return skjæringstidspunkterFraRequestForSammeOrg.contains(eksisterendeForespørsel.getSkjæringstidspunkt());
+        return orgnrFraRequestForStp.contains(eksisterendeForespørsel.getOrganisasjonsnummer());
     }
 
     private void opprettForespørselOppgave(Ytelsetype ytelsetype,
