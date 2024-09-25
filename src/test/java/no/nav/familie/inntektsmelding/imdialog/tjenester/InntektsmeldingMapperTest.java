@@ -93,7 +93,7 @@ class InntektsmeldingMapperTest {
 
         assertThat(entitet.getEndringsårsaker()).hasSize(1);
         assertThat(entitet.getEndringsårsaker().get(0).getÅrsak()).isEqualTo(Endringsårsak.TARIFFENDRING);
-        assertThat(entitet.getEndringsårsaker().get(0).getBleKjentFra().orElse(null)).isEqualTo(LocalDate.now());
+        assertThat(entitet.getEndringsårsaker().get(0).getBleKjentFom().orElse(null)).isEqualTo(LocalDate.now());
 
         assertThat(entitet.getBorfalteNaturalYtelser()).hasSize(1);
         assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getMånedBeløp()).isEqualByComparingTo(

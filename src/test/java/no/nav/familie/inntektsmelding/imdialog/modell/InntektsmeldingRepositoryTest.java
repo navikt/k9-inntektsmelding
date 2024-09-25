@@ -132,7 +132,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         assertThat(etterLagring.get().getEndringsårsaker()).hasSize(1);
         assertThat(etterLagring.get().getEndringsårsaker().get(0).getÅrsak()).isEqualTo(Endringsårsak.TARIFFENDRING);
         assertThat(etterLagring.get().getEndringsårsaker().get(0).getFom().orElse(null)).isEqualTo(LocalDate.now());
-        assertThat(etterLagring.get().getEndringsårsaker().get(0).getBleKjentFra().orElse(null)).isEqualTo(LocalDate.now().plusDays(10));
+        assertThat(etterLagring.get().getEndringsårsaker().get(0).getBleKjentFom().orElse(null)).isEqualTo(LocalDate.now().plusDays(10));
     }
 
 

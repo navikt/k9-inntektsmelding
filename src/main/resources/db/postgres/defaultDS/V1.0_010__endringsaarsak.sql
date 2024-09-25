@@ -7,7 +7,7 @@ CREATE TABLE ENDRINGSAARSAK
     AARSAK VARCHAR(100) NOT NULL,
     FOM DATE,
     TOM DATE,
-    BLE_KJENT_FRA DATE
+    BLE_KJENT_FOM DATE
 );
 
 create sequence if not exists SEQ_ENDRINGSAARSAK increment by 50 minvalue 1000000;
@@ -20,4 +20,4 @@ comment on column ENDRINGSAARSAK.INNTEKTSMELDING_ID is 'Inntektsmeldingen endrin
 comment on column ENDRINGSAARSAK.AARSAK is 'Endringsårsaken som er oppgitt';
 comment on column ENDRINGSAARSAK.FOM is 'Endringsårsaken gjelder fra og med denne datoen';
 comment on column ENDRINGSAARSAK.TOM is 'Endringsårsaken gjelder til og med denne datoen';
-comment on column ENDRINGSAARSAK.BLE_KJENT_FRA is 'Endringsårsaken ble kjent denne datoen';
+comment on column ENDRINGSAARSAK.BLE_KJENT_FOM is 'Endringsårsaken ble kjent denne datoen';

@@ -46,7 +46,7 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
     public record EndringsårsakerRequestDto(@NotNull @Valid EndringsårsakDto årsak,
                                             LocalDate fom,
                                             LocalDate tom,
-                                            LocalDate bleKjentFra) {
+                                            LocalDate bleKjentFom) {
     }
 
     public record KontaktpersonRequestDto(@NotNull String navn, @NotNull String telefonnummer) {

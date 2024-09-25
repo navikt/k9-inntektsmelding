@@ -39,8 +39,8 @@ public class EndringsårsakEntitet {
     @Column(name = "tom")
     private LocalDate tom;
 
-    @Column(name = "ble_kjent_fra")
-    private LocalDate bleKjentFra;
+    @Column(name = "ble_kjent_fom")
+    private LocalDate bleKjentFom;
 
     public EndringsårsakEntitet() {
         // Hibernate
@@ -58,8 +58,8 @@ public class EndringsårsakEntitet {
         return Optional.ofNullable(tom);
     }
 
-    public Optional<LocalDate> getBleKjentFra() {
-        return Optional.ofNullable(bleKjentFra);
+    public Optional<LocalDate> getBleKjentFom() {
+        return Optional.ofNullable(bleKjentFom);
     }
 
     void setInntektsmelding(InntektsmeldingEntitet inntektsmelding) {
@@ -72,7 +72,7 @@ public class EndringsårsakEntitet {
             "årsak=" + årsak +
             ", fom=" + fom +
             ", tom=" + tom +
-            ", bleKjentFra=" + bleKjentFra +
+            ", bleKjentFom=" + bleKjentFom +
             '}';
     }
 
@@ -99,7 +99,7 @@ public class EndringsårsakEntitet {
         }
 
         public Builder medBleKjentFra(LocalDate bleKjentFra) {
-            kladd.bleKjentFra = bleKjentFra;
+            kladd.bleKjentFom = bleKjentFra;
             return this;
         }
 

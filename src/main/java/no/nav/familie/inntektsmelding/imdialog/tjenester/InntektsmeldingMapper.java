@@ -52,7 +52,7 @@ public class InntektsmeldingMapper {
             .medÅrsak(KodeverkMapper.mapEndringsårsak(e.årsak()))
             .medFom(e.fom())
             .medTom(e.tom())
-            .medBleKjentFra(e.bleKjentFra())
+            .medBleKjentFra(e.bleKjentFom())
             .build();
     }
 
@@ -73,7 +73,7 @@ public class InntektsmeldingMapper {
             new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(KodeverkMapper.mapEndringsårsak(e.getÅrsak()),
                 e.getFom().orElse(null),
                 e.getTom().orElse(null),
-                e.getBleKjentFra().orElse(null)))
+                e.getBleKjentFom().orElse(null)))
             .toList();
 
         return new InntektsmeldingResponseDto(
