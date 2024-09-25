@@ -30,7 +30,7 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
                                             @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal refusjon,
                                             @NotNull List<@Valid RefusjonendringRequestDto> refusjonsendringer,
                                             @NotNull List<@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder,
-                                            @NotNull List<@Valid EndringsårsakerRequestDto> endringsårsaker) implements TilgangsstyringDto {
+                                            @NotNull List<@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker) implements TilgangsstyringDto {
 
     public record RefusjonendringRequestDto(@NotNull LocalDate fom,
                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {

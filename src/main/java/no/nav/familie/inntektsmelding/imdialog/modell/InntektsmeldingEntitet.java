@@ -184,7 +184,7 @@ public class InntektsmeldingEntitet {
     public String toString() {
         return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + aktørId + ", ytelsetype=" + ytelsetype + ", arbeidsgiverIdent='"
             + arbeidsgiverIdent + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt + ", opprettetTidspunkt=" + opprettetTidspunkt
-            + ", refusjonendringer=" + refusjonsendringer + ", endringsårsaker=" + endringsårsaker + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser + '}';
+            + ", refusjonendringer=" + refusjonsendringer + ", endringAvInntektÅrsaker=" + endringsårsaker + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser + '}';
     }
 
     public static Builder builder() {

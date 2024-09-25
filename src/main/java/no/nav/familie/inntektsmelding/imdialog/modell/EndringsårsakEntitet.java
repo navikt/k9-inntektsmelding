@@ -33,13 +33,13 @@ public class EndringsårsakEntitet {
     @Column(name = "aarsak", nullable = false)
     private Endringsårsak årsak;
 
-    @Column(name = "fom", nullable = false)
+    @Column(name = "fom")
     private LocalDate fom;
 
-    @Column(name = "tom", nullable = false)
+    @Column(name = "tom")
     private LocalDate tom;
 
-    @Column(name = "ble_kjent_fra", nullable = false)
+    @Column(name = "ble_kjent_fra")
     private LocalDate bleKjentFra;
 
     public EndringsårsakEntitet() {

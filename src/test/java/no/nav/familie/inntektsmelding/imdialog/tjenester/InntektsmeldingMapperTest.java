@@ -172,9 +172,9 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.refusjonsendringer().get(0).fom()).isEqualTo(imEntitet.getRefusjonsendringer().get(0).getFom());
         assertThat(imDto.refusjonsendringer().get(0).beløp()).isEqualTo(imEntitet.getRefusjonsendringer().get(0).getRefusjonPrMnd());
         assertThat(imDto.opprettetTidspunkt()).isEqualTo(imEntitet.getOpprettetTidspunkt());
-        assertThat(imDto.endringsårsaker()).hasSize(2);
-        assertThat(imDto.endringsårsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
-        assertThat(imDto.endringsårsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
+        assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
+        assertThat(imDto.endringAvInntektÅrsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
+        assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
 
     }
 

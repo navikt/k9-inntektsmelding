@@ -26,6 +26,6 @@ public record InntektsmeldingResponseDto(
     @NotNull LocalDateTime opprettetTidspunkt,
     @NotNull List<SendInntektsmeldingRequestDto.@Valid RefusjonendringRequestDto> refusjonsendringer,
     @NotNull List<SendInntektsmeldingRequestDto.@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder,
-    @NotNull List<SendInntektsmeldingRequestDto.@Valid EndringsårsakerRequestDto> endringsårsaker
+    @NotNull List<SendInntektsmeldingRequestDto.@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker
 ) {
 }
