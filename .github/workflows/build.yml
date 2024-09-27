@@ -62,6 +62,19 @@ jobs:
       namespace: teamforeldrepenger
     secrets: inherit
 
+  deploy-prod-teamforeldrepenger:
+    name: Deploy prod
+    permissions:
+      id-token: write
+    if: github.ref_name == 'master'
+    needs: [build-app, deploy-dev-teamforeldrepenger]
+    uses: navikt/ft-inntektsmelding/.github/workflows/deploy.yml@master
+    with:
+      image: ${{ needs.build-app.outputs.build-version }}
+      cluster: prod-gcp
+      namespace: teamforeldrepenger
+    secrets: inherit
+
   deploy-dev-k9saksbehandling:
     name: Deploy dev
     permissions:

@@ -10,11 +10,14 @@
     "cpu": "500m",
     "mem": "1024Mi"
   },
+  "ingresses": [
+    "https://fpinntektsmelding.intern.nav.no"
+  ],
   "groups": [
     "0d226374-4748-4367-a38a-062dcad70034"
   ],
   "db": {
-    "dbTier": "TODO",
+    "dbTier": "db-custom-1-3840",
     "dbDiskAutoresize": "true",
     "dbHighAvailability": "true",
     "dbPointInTimeRecovery": "true"
