@@ -39,11 +39,13 @@ class InntektsmeldingXMLMapperTest {
 
         var resultat = InntektsmeldingXMLMapper.map(inntektsmelding, aktøridFnrMap);
 
-        assertThat(resultat.getSkjemainnhold().getOpphoerAvNaturalytelseListe().getValue().getOpphoerAvNaturalytelse()).isEmpty();
+        var opphoerAvNaturalytelse = resultat.getSkjemainnhold().getOpphoerAvNaturalytelseListe().getValue().getOpphoerAvNaturalytelse();
+        assertThat(opphoerAvNaturalytelse).hasSize(1);
+        assertNaturalytelse(opphoerAvNaturalytelse.getFirst(), NOW, forventetNaturalytelseType, forventetBeløp);
 
         var gjennoptatteNaturalytelser = resultat.getSkjemainnhold().getGjenopptakelseNaturalytelseListe().getValue().getNaturalytelseDetaljer();
         assertThat(gjennoptatteNaturalytelser).hasSize(1);
-        assertNaturalytelse(gjennoptatteNaturalytelser.getFirst(), forventetFom, forventetNaturalytelseType, forventetBeløp);
+        assertNaturalytelse(gjennoptatteNaturalytelser.getFirst(), forventetFom.plusDays(1), forventetNaturalytelseType, forventetBeløp);
     }
 
     @Test

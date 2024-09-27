@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.imdialog.task;
 
+import java.util.List;
 import java.util.Map;
 
 import jakarta.xml.bind.JAXBElement;
@@ -11,7 +12,7 @@ import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.vedtak.konfig.Tid;
+import no.nav.familie.inntektsmelding.utils.mapper.NaturalYtelseMapper;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsgiver;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.ArbeidsgiverPrivat;
@@ -65,9 +66,9 @@ public class InntektsmeldingXMLMapper {
         mapYtelsespesifikkeFelter(skjemainnhold, inntektsmelding);
         skjemainnhold.setRefusjon(lagRefusjonXml(inntektsmelding));
 
-        skjemainnhold.setOpphoerAvNaturalytelseListe(lagBortfaltNaturalytelse(inntektsmelding));
-        skjemainnhold.setGjenopptakelseNaturalytelseListe(lagGjennopptattNaturalytelse(inntektsmelding));
-
+        var naturalYtelser = NaturalYtelseMapper.mapNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser());
+        skjemainnhold.setOpphoerAvNaturalytelseListe(lagBortfaltNaturalytelse(naturalYtelser));
+        skjemainnhold.setGjenopptakelseNaturalytelseListe(lagGjennopptattNaturalytelse(naturalYtelser));
 
         var imXml = new InntektsmeldingM();
         imXml.setSkjemainnhold(skjemainnhold);
@@ -103,35 +104,30 @@ public class InntektsmeldingXMLMapper {
         return as;
     }
 
-    private static JAXBElement<GjenopptakelseNaturalytelseListe> lagGjennopptattNaturalytelse(InntektsmeldingEntitet inntektsmeldingEntitet) {
+    private static JAXBElement<GjenopptakelseNaturalytelseListe> lagGjennopptattNaturalytelse(List<NaturalYtelseMapper.NaturalYtelse> ytelser) {
         var gjennoptakelseListeObjekt = new GjenopptakelseNaturalytelseListe();
         var gjennoptakelseListe = gjennoptakelseListeObjekt.getNaturalytelseDetaljer();
-        inntektsmeldingEntitet.getBorfalteNaturalYtelser()
-            .stream()
-            .filter(by -> by.getPeriode().getTom().isBefore(Tid.TIDENES_ENDE))
-            .forEach(tilkommetNat -> {
-                var nd = new NaturalytelseDetaljer();
-                nd.setFom(of.createNaturalytelseDetaljerFom(tilkommetNat.getPeriode().getTom()));
-                nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(tilkommetNat.getMånedBeløp()));
-                nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(tilkommetNat.getType())));
-                gjennoptakelseListe.add(nd);
-            });
+        ytelser.stream()
+            .filter(by -> !by.bortfallt())
+            .forEach(tilkommetNat -> gjennoptakelseListe.add(opprettNaturalYtelseDetaljer(tilkommetNat)));
         return of.createSkjemainnholdGjenopptakelseNaturalytelseListe(gjennoptakelseListeObjekt);
     }
 
-    private static JAXBElement<OpphoerAvNaturalytelseListe> lagBortfaltNaturalytelse(InntektsmeldingEntitet inntektsmeldingEntitet) {
+    private static JAXBElement<OpphoerAvNaturalytelseListe> lagBortfaltNaturalytelse(List<NaturalYtelseMapper.NaturalYtelse> ytelser) {
         var opphørListeObjekt = new OpphoerAvNaturalytelseListe();
         var opphørListe = opphørListeObjekt.getOpphoerAvNaturalytelse();
-        inntektsmeldingEntitet.getBorfalteNaturalYtelser().stream()
-            .filter(by -> by.getPeriode().getTom().isEqual(Tid.TIDENES_ENDE))
-            .forEach(nat -> {
-                var nd = new NaturalytelseDetaljer();
-                nd.setFom(of.createNaturalytelseDetaljerFom(nat.getPeriode().getFom()));
-                nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(nat.getMånedBeløp()));
-                nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(nat.getType())));
-                opphørListe.add(nd);
-            });
+        ytelser.stream()
+            .filter(NaturalYtelseMapper.NaturalYtelse::bortfallt)
+            .forEach(nat -> opphørListe.add(opprettNaturalYtelseDetaljer(nat)));
         return of.createSkjemainnholdOpphoerAvNaturalytelseListe(opphørListeObjekt);
+    }
+
+    private static NaturalytelseDetaljer opprettNaturalYtelseDetaljer(NaturalYtelseMapper.NaturalYtelse naturalYtelse) {
+        var nd = new NaturalytelseDetaljer();
+        nd.setFom(of.createNaturalytelseDetaljerFom(naturalYtelse.fom()));
+        nd.setBeloepPrMnd(of.createNaturalytelseDetaljerBeloepPrMnd(naturalYtelse.beløp()));
+        nd.setNaturalytelseType(of.createNaturalytelseDetaljerNaturalytelseType(mapTilNaturalytelsetype(naturalYtelse.type())));
+        return nd;
     }
 
     private static JAXBElement<Refusjon> lagRefusjonXml(InntektsmeldingEntitet inntektsmeldingEntitet) {
