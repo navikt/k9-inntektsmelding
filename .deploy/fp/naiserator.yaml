@@ -106,5 +106,5 @@ spec:
       {{#if devOnly}}
         - host: dokarkiv-q2.{{environment}}-fss-pub.nais.io
       {{else}}
-         - host: dokarkiv.{{environment}}-fss-pub.nais.io
+        - host: dokarkiv.{{environment}}-fss-pub.nais.io
       {{/if}}
