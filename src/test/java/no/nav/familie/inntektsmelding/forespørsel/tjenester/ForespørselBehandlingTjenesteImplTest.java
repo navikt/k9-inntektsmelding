@@ -21,7 +21,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Arb
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.koder.SakStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -101,7 +101,7 @@ public class ForespørselBehandlingTjenesteImplTest {
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER), SKJÆRINGSTIDSPUNKT);
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.get().getSakStatus()).isEqualTo(SakStatus.FERDIG);
+        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
 
     }
 
@@ -115,9 +115,9 @@ public class ForespørselBehandlingTjenesteImplTest {
         forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), null);
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.get().getSakStatus()).isEqualTo(SakStatus.FERDIG);
+        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
         var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
-        assertThat(lagret2.get().getSakStatus()).isEqualTo(SakStatus.FERDIG);
+        assertThat(lagret2.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
     }
 
     @Test
@@ -130,9 +130,9 @@ public class ForespørselBehandlingTjenesteImplTest {
         forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), SKJÆRINGSTIDSPUNKT);
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.get().getSakStatus()).isEqualTo(SakStatus.FERDIG);
+        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
         var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
-        assertThat(lagret2.get().getSakStatus()).isEqualTo(SakStatus.UNDER_BEHANDLING);
+        assertThat(lagret2.get().getStatus()).isEqualTo(ForespørselStatus.UNDER_BEHANDLING);
     }
 
 }

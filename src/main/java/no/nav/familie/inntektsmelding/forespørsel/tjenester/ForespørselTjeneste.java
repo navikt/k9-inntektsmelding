@@ -47,8 +47,8 @@ public class ForespørselTjeneste {
 
     }
 
-    public void ferdigstillSak(String sakId) {
-        forespørselRepository.ferdigstillSak(sakId);
+    public void ferdigstillForespørsel(String sakId) {
+        forespørselRepository.ferdigstillForespørsel(sakId);
     }
 
     public Optional<ForespørselEntitet> finnÅpenForespørsel(LocalDate skjæringstidspunkt,
@@ -58,8 +58,8 @@ public class ForespørselTjeneste {
         return forespørselRepository.finnÅpenForespørsel(brukerAktørId, ytelseType, orgnr.orgnr(), skjæringstidspunkt);
     }
 
-    public List<ForespørselEntitet> finnÅpneForespørslerForSak(SaksnummerDto saksnummerDto) {
-        return forespørselRepository.finnÅpenForespørsel(saksnummerDto);
+    public List<ForespørselEntitet> finnÅpneForespørslerForFagsak(SaksnummerDto fagsakSaksnummer) {
+        return forespørselRepository.finnÅpenForespørsel(fagsakSaksnummer);
     }
 
     public Optional<ForespørselEntitet> finnForespørsel(UUID forespørselUuid) {
