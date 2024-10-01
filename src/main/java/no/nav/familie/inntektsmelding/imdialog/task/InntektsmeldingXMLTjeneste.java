@@ -45,7 +45,7 @@ public class InntektsmeldingXMLTjeneste {
     }
 
     private String marshalXml(InntektsmeldingM imWrapper) throws JAXBException {
-        JAXBContext kontekst = JAXBContext.newInstance(ObjectFactory.class);
+        var kontekst = JAXBContext.newInstance(ObjectFactory.class);
         var writer = new StringWriter();
         kontekst.createMarshaller().marshal(new ObjectFactory().createMelding(imWrapper), writer);
         return writer.toString();
