@@ -43,6 +43,7 @@ jobs:
           IMAGE: ${{ steps.login.outputs.registry }}/${{ github.repository }}:${{ inputs.image }}
           RESOURCE: .deploy/fp/naiserator.yaml
           VARS: .deploy/fp/${{ inputs.cluster }}-${{ inputs.namespace }}.json
+          TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
 
       - name: Deploy ${{ inputs.cluster }}
         if: inputs.namespace == 'k9saksbehandling'
@@ -53,3 +54,4 @@ jobs:
           IMAGE: ${{ steps.login.outputs.registry }}/${{ github.repository }}:${{ inputs.image }}
           RESOURCE: .deploy/k9/naiserator.yaml
           VARS: .deploy/k9/${{ inputs.cluster }}-${{ inputs.namespace }}.json
+          TRIVY_JAVA_DB_REPOSITORY: "public.ecr.aws/aquasecurity/trivy-java-db:1"
