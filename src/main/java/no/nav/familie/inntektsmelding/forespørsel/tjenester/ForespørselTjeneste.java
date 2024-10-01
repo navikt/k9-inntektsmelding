@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -57,8 +58,11 @@ public class ForespørselTjeneste {
         return forespørselRepository.finnÅpenForespørsel(brukerAktørId, ytelseType, orgnr.orgnr(), skjæringstidspunkt);
     }
 
+    public List<ForespørselEntitet> finnÅpneForespørslerForSak(SaksnummerDto saksnummerDto) {
+        return forespørselRepository.finnÅpenForespørsel(saksnummerDto);
+    }
+
     public Optional<ForespørselEntitet> finnForespørsel(UUID forespørselUuid) {
         return forespørselRepository.hentForespørsel(forespørselUuid);
     }
-
 }

@@ -99,6 +99,15 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         return forespørselTjeneste.finnForespørsel(forespørselUUID);
     }
 
+    public void lukkForespørsel(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
+        var forespørsler = forespørselTjeneste.finnÅpneForespørslerForSak(saksnummerDto).stream()
+            .filter(f -> orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
+            .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
+            .toList();
+
+            forespørsler.forEach(f -> ferdigstillForespørsel(f.getUuid(), f.getAktørId(), new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()), f.getSkjæringstidspunkt()));
+    }
+
     private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {
         if (!forespørsel.getSkjæringstidspunkt().equals(startdato)) {
             throw new IllegalStateException("Startdato var ikke like");

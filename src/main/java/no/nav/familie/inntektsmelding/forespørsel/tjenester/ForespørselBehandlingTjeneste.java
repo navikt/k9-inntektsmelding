@@ -21,4 +21,6 @@ public interface ForespørselBehandlingTjeneste {
     void ferdigstillForespørsel(UUID foresporselUuid, AktørIdEntitet aktorId, OrganisasjonsnummerDto organisasjonsnummerDto, LocalDate startdato);
 
     Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID);
+
+    void lukkForespørsel(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
 }
