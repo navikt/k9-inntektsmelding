@@ -24,10 +24,10 @@ public interface ForespørselBehandlingTjeneste {
 
     Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID);
 
-    void oppdaterAlleForespørslerISaken(Ytelsetype ytelsetype,
-                                        AktørIdEntitet aktørId,
-                                        Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
-                                        SaksnummerDto fagsakSaksnummer);
+    void oppdaterForespørsler(Ytelsetype ytelsetype,
+                              AktørIdEntitet aktørId,
+                              Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
+                              SaksnummerDto fagsakSaksnummer);
 
     void lukkForespørsel(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
 }

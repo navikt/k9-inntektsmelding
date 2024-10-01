@@ -93,10 +93,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     @Override
-    public void oppdaterAlleForespørslerISaken(Ytelsetype ytelsetype,
-                                               AktørIdEntitet aktørId,
-                                               Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
-                                               SaksnummerDto fagsakSaksnummer) {
+    public void oppdaterForespørsler(Ytelsetype ytelsetype,
+                                     AktørIdEntitet aktørId,
+                                     Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
+                                     SaksnummerDto fagsakSaksnummer) {
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer);
 
         // Oppretter forespørsler for alle skjæringstidspunkter som ikke allerede er opprettet
@@ -125,7 +125,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                 //TODO: Trenger vi en ny status i arbeidsgiver-notifikasjon for utgått?
                 arbeidsgiverNotifikasjon.lukkOppgave(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
                 arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
-                forespørselTjeneste.settSakTilUtgått(eksisterendeForespørsel.getSakId());
+                forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getSakId());
 
                 var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
                     eksisterendeForespørsel.getOrganisasjonsnummer(),

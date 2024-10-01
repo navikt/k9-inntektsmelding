@@ -94,7 +94,7 @@ public class ForespørselRepository {
         entityManager.flush();
     }
 
-    public void settSakTilUtgått(String sakId) {
+    public void settForespørselTilUtgått(String sakId) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where sakId = :SAK_ID", ForespørselEntitet.class)
             .setParameter("SAK_ID", sakId);
         var resultList = query.getResultList();

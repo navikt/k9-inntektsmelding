@@ -64,11 +64,11 @@ public class ForespørselRest {
     }
 
     @POST
-    @Path("/oppdater-sak")
+    @Path("/oppdater-forespørsler")
     @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER_PORTAL, action = ActionType.WRITE)
-    public Response oppdaterForespørslerPåSak(OppdaterForespørslerISakRequest request) {
+    public Response oppdaterForespørsler(OppdaterForespørslerRequest request) {
         LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på saksnummer " + request.saksnummer());
-        forespørselBehandlingTjeneste.oppdaterAlleForespørslerISaken(
+        forespørselBehandlingTjeneste.oppdaterForespørsler(
             KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdEntitet(request.aktørId().id()),
             request.organisasjonerPerSkjæringstidspunkt(),
