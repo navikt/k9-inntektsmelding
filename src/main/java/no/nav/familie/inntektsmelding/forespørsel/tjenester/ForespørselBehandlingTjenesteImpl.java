@@ -91,7 +91,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
         arbeidsgiverNotifikasjon.lukkOppgave(foresporsel.getOppgaveId(), OffsetDateTime.now());
         arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
-        forespørselTjeneste.ferdigstillSak(foresporsel.getSakId()); // Oppdaterer status i forespørsel
+        forespørselTjeneste.ferdigstillForespørsel(foresporsel.getSakId()); // Oppdaterer status i forespørsel
     }
 
     @Override
@@ -100,7 +100,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     public void lukkForespørsel(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
-        var forespørsler = forespørselTjeneste.finnÅpneForespørslerForSak(saksnummerDto).stream()
+        var forespørsler = forespørselTjeneste.finnÅpneForespørslerForFagsak(saksnummerDto).stream()
             .filter(f -> orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
             .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
             .toList();

@@ -1,6 +1,6 @@
 package no.nav.familie.inntektsmelding.koder;
 
-public enum SakStatus {
+public enum ForespørselStatus {
     UNDER_BEHANDLING,
     FERDIG
 }

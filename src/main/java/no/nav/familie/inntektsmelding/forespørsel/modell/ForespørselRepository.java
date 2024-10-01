@@ -13,7 +13,7 @@ import jakarta.persistence.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.familie.inntektsmelding.koder.SakStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -81,13 +81,13 @@ public class ForespørselRepository {
         }
     }
 
-    public void ferdigstillSak(String sakId) {
+    public void ferdigstillForespørsel(String sakId) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where sakId = :SAK_ID", ForespørselEntitet.class)
             .setParameter("SAK_ID", sakId);
         var resultList = query.getResultList();
 
         resultList.forEach(f -> {
-            f.setSakStatus(SakStatus.FERDIG);
+            f.setStatus(ForespørselStatus.FERDIG);
             entityManager.persist(f);
         });
 
@@ -125,7 +125,7 @@ public class ForespørselRepository {
                                                             Ytelsetype ytelsetype,
                                                             String arbeidsgiverIdent,
                                                             LocalDate startdato) {
-        var query = entityManager.createQuery("FROM ForespørselEntitet where sakStatus='UNDER_BEHANDLING' " + "and aktørId = :brukerAktørId "
+        var query = entityManager.createQuery("FROM ForespørselEntitet where status='UNDER_BEHANDLING' " + "and aktørId = :brukerAktørId "
                     + "and organisasjonsnummer = :arbeidsgiverIdent " + "and skjæringstidspunkt = :skjæringstidspunkt " + "and ytelseType = :ytelsetype",
                 ForespørselEntitet.class)
             .setParameter("brukerAktørId", aktørId)
