@@ -82,7 +82,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         validerOrganisasjon(foresporsel, organisasjonsnummerDto);
         validerStartdato(foresporsel, startdato);
 
-        arbeidsgiverNotifikasjon.lukkOppgave(foresporsel.getOppgaveId(), OffsetDateTime.now());
+        arbeidsgiverNotifikasjon.oppgaveUtfoert(foresporsel.getOppgaveId(), OffsetDateTime.now());
         arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
         forespørselTjeneste.ferdigstillForespørsel(foresporsel.getSakId()); // Oppdaterer status i forespørsel
     }
@@ -122,8 +122,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                 eksisterendeForespørsel);
 
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
-                //TODO: Trenger vi en ny status i arbeidsgiver-notifikasjon for utgått?
-                arbeidsgiverNotifikasjon.lukkOppgave(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
+                arbeidsgiverNotifikasjon.oppgaveUtgaatt(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
                 arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
                 forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getSakId());
 

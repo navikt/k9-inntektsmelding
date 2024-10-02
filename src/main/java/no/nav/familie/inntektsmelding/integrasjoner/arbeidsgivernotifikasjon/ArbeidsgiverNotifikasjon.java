@@ -25,7 +25,10 @@ public interface ArbeidsgiverNotifikasjon {
 
     String ferdigstillSak(String id);
 
-    String lukkOppgave(String oppgaveId, OffsetDateTime utfoertTidspunkt);
+    String oppgaveUtfoert(String oppgaveId, OffsetDateTime utfoertTidspunkt);
 
-    String lukkOppgaveByEksternId(String eksternId, Merkelapp merkelapp, OffsetDateTime tidspunkt);
+    String oppgaveUtfoertByEksternId(String eksternId, Merkelapp merkelapp, OffsetDateTime tidspunkt);
+
+    String oppgaveUtgaatt(String oppgaveId, OffsetDateTime utgaattTidspunkt);
+
 }

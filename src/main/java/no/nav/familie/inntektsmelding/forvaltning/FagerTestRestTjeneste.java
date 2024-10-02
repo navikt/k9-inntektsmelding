@@ -176,7 +176,7 @@ public class FagerTestRestTjeneste {
         }
         sjekkAtSaksbehandlerHarRollenDrift();
 
-        var oppgaveId = notifikasjon.lukkOppgave(request.oppgaveId(), OffsetDateTime.now());
+        var oppgaveId = notifikasjon.oppgaveUtfoert(request.oppgaveId(), OffsetDateTime.now());
 
         return Response.ok(oppgaveId).build();
     }
@@ -194,7 +194,7 @@ public class FagerTestRestTjeneste {
         }
         sjekkAtSaksbehandlerHarRollenDrift();
 
-        var oppgaveId = notifikasjon.lukkOppgaveByEksternId(request.eksternId(), request.merkelapp(), OffsetDateTime.now());
+        var oppgaveId = notifikasjon.oppgaveUtfoertByEksternId(request.eksternId(), request.merkelapp(), OffsetDateTime.now());
 
         return Response.ok(oppgaveId).build();
     }
