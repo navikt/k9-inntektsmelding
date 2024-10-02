@@ -57,11 +57,11 @@ public class ForespørselRepository {
         }
     }
 
-    public void oppdaterSakId(UUID forespørselUUID, String sakId) {
+    public void oppdaterArbeidsgiverNotifikasjonSakId(UUID forespørselUUID, String arbeidsgiverNotifikasjonSakId) {
         var forespørselOpt = hentForespørsel(forespørselUUID);
         if (forespørselOpt.isPresent()) {
             var forespørsel = forespørselOpt.get();
-            forespørsel.setSakId(sakId);
+            forespørsel.setArbeidsgiverNotifikasjonSakId(arbeidsgiverNotifikasjonSakId);
             entityManager.persist(forespørsel);
             entityManager.flush();
         }
@@ -81,9 +81,9 @@ public class ForespørselRepository {
         }
     }
 
-    public void ferdigstillForespørsel(String sakId) {
+    public void ferdigstillForespørsel(String arbeidsgiverNotifikasjonSakId) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where sakId = :SAK_ID", ForespørselEntitet.class)
-            .setParameter("SAK_ID", sakId);
+            .setParameter("SAK_ID", arbeidsgiverNotifikasjonSakId);
         var resultList = query.getResultList();
 
         resultList.forEach(f -> {
@@ -94,9 +94,9 @@ public class ForespørselRepository {
         entityManager.flush();
     }
 
-    public void settForespørselTilUtgått(String sakId) {
+    public void settForespørselTilUtgått(String arbeidsgiverNotifikasjonSakId) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where sakId = :SAK_ID", ForespørselEntitet.class)
-            .setParameter("SAK_ID", sakId);
+            .setParameter("SAK_ID", arbeidsgiverNotifikasjonSakId);
         var resultList = query.getResultList();
 
         resultList.forEach(f -> {
@@ -108,9 +108,9 @@ public class ForespørselRepository {
     }
 
 
-    public List<ForespørselEntitet> hentForespørsler(SaksnummerDto saksnummer) {
+    public List<ForespørselEntitet> hentForespørsler(SaksnummerDto fagsakSaksnummer) {
         var query = entityManager.createQuery("FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)
-            .setParameter("saksnr", saksnummer.saksnr());
+            .setParameter("saksnr", fagsakSaksnummer.saksnr());
         return query.getResultList();
     }
 
@@ -157,10 +157,10 @@ public class ForespørselRepository {
         }
     }
 
-    public List<ForespørselEntitet> finnÅpenForespørsel(SaksnummerDto saksnummerDto) {
+    public List<ForespørselEntitet> finnÅpenForespørsel(SaksnummerDto fagsystemSaksnummer) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where fagsystemSaksnummer=:saksnummer",
                 ForespørselEntitet.class)
-            .setParameter("saksnummer", saksnummerDto.saksnr());
+            .setParameter("saksnummer", fagsystemSaksnummer.saksnr());
         return query.getResultList();
     }
 }

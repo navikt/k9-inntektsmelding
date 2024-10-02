@@ -96,12 +96,12 @@ public class ForespørselEntitet {
         return uuid;
     }
 
-    public String getSakId() {
+    public String getArbeidsgiverNotifikasjonSakId() {
         return sakId;
     }
 
-    void setSakId(String sakId) {
-        this.sakId = sakId;
+    void setArbeidsgiverNotifikasjonSakId(String arbeidsgiverNotifikasjonSakId) {
+        this.sakId = arbeidsgiverNotifikasjonSakId;
     }
 
     public ForespørselStatus getStatus() {

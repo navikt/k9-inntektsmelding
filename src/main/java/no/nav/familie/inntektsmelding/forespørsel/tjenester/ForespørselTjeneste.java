@@ -42,17 +42,17 @@ public class ForespørselTjeneste {
     }
 
 
-    public void setSakId(UUID forespørselUUID, String sakId) {
-        forespørselRepository.oppdaterSakId(forespørselUUID, sakId);
+    public void setArbeidsgiverNotifikasjonSakId(UUID forespørselUUID, String arbeidsgiverNotifikasjonSakId) {
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUUID, arbeidsgiverNotifikasjonSakId);
 
     }
 
-    public void ferdigstillForespørsel(String sakId) {
-        forespørselRepository.ferdigstillForespørsel(sakId);
+    public void ferdigstillForespørsel(String arbeidsgiverNotifikasjonSakId) {
+        forespørselRepository.ferdigstillForespørsel(arbeidsgiverNotifikasjonSakId);
     }
 
-    public void settForespørselTilUtgått(String sakId) {
-        forespørselRepository.settForespørselTilUtgått(sakId);
+    public void settForespørselTilUtgått(String arbeidsgiverNotifikasjonSakId) {
+        forespørselRepository.settForespørselTilUtgått(arbeidsgiverNotifikasjonSakId);
     }
 
     public Optional<ForespørselEntitet> finnÅpenForespørsel(LocalDate skjæringstidspunkt,

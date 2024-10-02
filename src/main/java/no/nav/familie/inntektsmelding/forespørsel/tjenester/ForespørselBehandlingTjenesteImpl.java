@@ -83,8 +83,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         validerStartdato(foresporsel, startdato);
 
         arbeidsgiverNotifikasjon.oppgaveUtfoert(foresporsel.getOppgaveId(), OffsetDateTime.now());
-        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
-        forespørselTjeneste.ferdigstillForespørsel(foresporsel.getSakId()); // Oppdaterer status i forespørsel
+        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
+        forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
     }
 
     @Override
@@ -123,8 +123,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
                 arbeidsgiverNotifikasjon.oppgaveUtgaatt(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
-                arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
-                forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getSakId());
+                arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
+                forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
                 var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
                     eksisterendeForespørsel.getOrganisasjonsnummer(),
@@ -153,9 +153,9 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
         var merkelapp = finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
-        var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), merkelapp, organisasjonsnummer.orgnr(), lagSaksTittel(person), skjemaUri);
+        var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), merkelapp, organisasjonsnummer.orgnr(), lagSaksTittel(person), skjemaUri);
 
-        forespørselTjeneste.setSakId(uuid, sakId);
+        forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
 
         var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), merkelapp, uuid.toString(), organisasjonsnummer.orgnr(),
             "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", skjemaUri);
