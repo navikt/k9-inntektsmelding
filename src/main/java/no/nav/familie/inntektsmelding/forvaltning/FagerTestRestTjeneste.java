@@ -77,7 +77,7 @@ public class FagerTestRestTjeneste {
         }
         sjekkAtSaksbehandlerHarRollenDrift();
 
-        var sakId = notifikasjon.opprettSak(request.saksnummer().saksnr(), finnMerkelapp(request.ytelsetype()), request.orgnummer().orgnr(),
+        var sakId = notifikasjon.opprettSak(request.fagsakSaksnummer().saksnr(), finnMerkelapp(request.ytelsetype()), request.orgnummer().orgnr(),
             "Inntektsmelding for TEST TESTERSEN: f." + request.aktørId().id(), this.skjemaLenke);
 
         return Response.ok(sakId).build();
@@ -158,9 +158,9 @@ public class FagerTestRestTjeneste {
         }
         sjekkAtSaksbehandlerHarRollenDrift();
 
-        var eksternId = String.join("-", request.saksnummer().saksnr(), request.orgnummer().orgnr()); // mulig man trenger arbforholdId også.
+        var eksternId = String.join("-", request.fagsakSaksnummer().saksnr(), request.orgnummer().orgnr()); // mulig man trenger arbforholdId også.
         LOG.info("FAGER: eksternId={}", eksternId);
-        var oppgaveId = notifikasjon.opprettOppgave(request.saksnummer().saksnr(), finnMerkelapp(request.ytelsetype()), eksternId,
+        var oppgaveId = notifikasjon.opprettOppgave(request.fagsakSaksnummer().saksnr(), finnMerkelapp(request.ytelsetype()), eksternId,
             request.orgnummer().orgnr(), "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", this.skjemaLenke);
 
         return Response.ok(oppgaveId).build();

@@ -15,5 +15,5 @@ import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 public record OppdaterForespørslerRequest(@NotNull @Valid AktørIdDto aktørId,
                                           @NotNull @Valid Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                                           @NotNull YtelseTypeDto ytelsetype,
-                                          @NotNull @Valid SaksnummerDto saksnummer) {
+                                          @NotNull @Valid SaksnummerDto fagsakSaksnummer) {
 }
