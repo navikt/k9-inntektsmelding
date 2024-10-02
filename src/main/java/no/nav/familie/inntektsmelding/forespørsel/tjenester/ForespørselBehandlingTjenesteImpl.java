@@ -102,12 +102,12 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         // Oppretter forespørsler for alle skjæringstidspunkter som ikke allerede er opprettet
         organisasjonerPerSkjæringstidspunkt.forEach((skjæringstidspunkt, organisasjoner) -> {
             organisasjoner.forEach(organisasjon -> {
-                Optional<ForespørselEntitet> åpenForespørsel = eksisterendeForespørsler.stream()
-                    .filter(eksisterendeForespørsel -> eksisterendeForespørsel.getSkjæringstidspunkt().equals(skjæringstidspunkt))
-                    .filter(eksisterendeForespørsel -> eksisterendeForespørsel.getOrganisasjonsnummer().equals(organisasjon.orgnr()))
+                Optional<ForespørselEntitet> eksisterendeForespørsel = eksisterendeForespørsler.stream()
+                    .filter(forespørsel -> forespørsel.getSkjæringstidspunkt().equals(skjæringstidspunkt))
+                    .filter(forespørsel -> forespørsel.getOrganisasjonsnummer().equals(organisasjon.orgnr()))
                     .findFirst();
 
-                if (åpenForespørsel.isEmpty()) {
+                if (eksisterendeForespørsel.isEmpty()) {
                     opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt);
                     var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
                         organisasjon.orgnr(), skjæringstidspunkt, fagsakSaksnummer.saksnr(), ytelsetype);
