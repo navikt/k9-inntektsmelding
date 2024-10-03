@@ -13,10 +13,10 @@ import java.util.Map;
 
 public class MetrikkerTjeneste {
     // Måler opprettelse av oppgaver per ytelse
-    private static final String COUNTER_FORESPØRRSEL = "ftinntektsmelding.oppgaver";
+    private static final String COUNTER_FORESPØRRSEL = "ftinntektsmelding.oppgaver.opprettet";
 
     // Måler mottak av inntektsmeldinger i ftinntektsmelding per ytelse
-    private static final String COUNTER_INNTEKTSMELDING = "ftinntektsmelding.inntektsmeldinger";
+    private static final String COUNTER_INNTEKTSMELDING = "ftinntektsmelding.inntektsmeldinger.mottatt";
 
     // Måler årsaker til endring av inntekt i inntektsmeldinger innsendt i ftinntektsmelding
     private static final Map<Ytelsetype, String> COUNTER_YTELLSE_METRIC_ÅRSAK_MAP = Map.of(Ytelsetype.FORELDREPENGER, "ftinntektsmelding.inntektsmeldinger.fp.endringsaarsak",
@@ -47,6 +47,7 @@ public class MetrikkerTjeneste {
         var harOppgittOpphørAvRefusjon = inntektsmelding.getOpphørsdatoRefusjon() != null && !inntektsmelding.getOpphørsdatoRefusjon().equals(Tid.TIDENES_ENDE);
         var harOppgittNaturalytelse = inntektsmelding.getBorfalteNaturalYtelser() != null && !inntektsmelding.getBorfalteNaturalYtelser().isEmpty();
 
+        tags.add(new ImmutableTag("ytelse", inntektsmelding.getYtelsetype().name()));
         tags.add(new ImmutableTag("har_oppgitt_refusjon", harOppgittRefusjon ? "Ja" : "Nei"));
         tags.add(new ImmutableTag("har_oppgitt_endring_i_refusjon", harOppgittEndringerIRefusjon ? "Ja" : "Nei"));
         tags.add(new ImmutableTag("har_oppgitt_opppphør_av_refusjon", harOppgittOpphørAvRefusjon ? "Ja" : "Nei"));
