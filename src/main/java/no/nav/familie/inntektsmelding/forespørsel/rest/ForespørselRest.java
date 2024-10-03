@@ -1,13 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.UUID;
-
-import io.micrometer.core.instrument.ImmutableTag;
-import io.micrometer.core.instrument.Metrics;
-
-import io.micrometer.core.instrument.Tag;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
+import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
@@ -41,7 +35,6 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 public class ForespørselRest {
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
     public static final String BASE_PATH = "/foresporsel";
-    private static final String COUNTER_FORESPØRRSEL = "ftinntektsmelding.oppgaver";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
@@ -49,8 +42,7 @@ public class ForespørselRest {
     }
 
     @Inject
-    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
-                           ForespørselTjeneste forespørselTjeneste) {
+    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
     }
 
@@ -60,9 +52,9 @@ public class ForespørselRest {
         LOG.info("Mottok forespørsel om inntektsmeldingoppgave på saksnummer " + request.saksnummer());
         forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdEntitet(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.saksnummer());
-        var tags = new ArrayList<Tag>();
-        tags.add(new ImmutableTag("ytelse", request.ytelsetype().name()));
-        Metrics.counter(COUNTER_FORESPØRRSEL, tags).increment();
+
+        MetrikkerTjeneste.loggForespørselOpprettet(KodeverkMapper.mapYtelsetype(request.ytelsetype()));
+
         return Response.ok().build();
     }
 

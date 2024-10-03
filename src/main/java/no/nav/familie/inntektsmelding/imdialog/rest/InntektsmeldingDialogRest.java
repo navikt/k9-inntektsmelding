@@ -1,11 +1,6 @@
 package no.nav.familie.inntektsmelding.imdialog.rest;
 
-import java.util.ArrayList;
 import java.util.UUID;
-
-import io.micrometer.core.instrument.ImmutableTag;
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.Tag;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -41,8 +36,6 @@ public class InntektsmeldingDialogRest {
     private static final String HENT_INNTEKTSMELDINGER_FOR_OPPGAVE = "/inntektsmeldinger";
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
     private static final String LAST_NED_PDF = "/last-ned-pdf";
-
-    private static final String COUNTER_INNTEKTSMELDING = "ftinntektsmelding.inntektsmeldinger";
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private Tilgang tilgangskontroll;
@@ -99,9 +92,6 @@ public class InntektsmeldingDialogRest {
 
         LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequestDto.foresporselUuid());
         var imResponse = inntektsmeldingTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
-        var tags = new ArrayList<Tag>();
-        tags.add(new ImmutableTag("ytelse", sendInntektsmeldingRequestDto.ytelse().name()));
-        Metrics.counter(COUNTER_INNTEKTSMELDING, tags).increment();
         return Response.ok(imResponse).build();
     }
 
