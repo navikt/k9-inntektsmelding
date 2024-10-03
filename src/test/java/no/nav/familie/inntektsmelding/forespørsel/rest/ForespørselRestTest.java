@@ -16,7 +16,6 @@ import org.mockito.Mockito;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
@@ -38,7 +37,7 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
     void setUp() {
         this.forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
         doNothing().when(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(any(), any(), any(), any(), any());
-        this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste, new ForespørselTjeneste());
+        this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste);
     }
 
     @Test
