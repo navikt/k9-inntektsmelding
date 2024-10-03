@@ -1,7 +1,13 @@
 package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.UUID;
+
+import io.micrometer.core.instrument.ImmutableTag;
+import io.micrometer.core.instrument.Metrics;
+
+import io.micrometer.core.instrument.Tag;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -35,6 +41,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 public class ForespørselRest {
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
     public static final String BASE_PATH = "/foresporsel";
+    private static final String COUNTER_FORESPØRRSEL = "ftinntektsmelding.opppgaver";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
@@ -53,6 +60,9 @@ public class ForespørselRest {
         LOG.info("Mottok forespørsel om inntektsmeldingoppgave på saksnummer " + request.saksnummer());
         forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdEntitet(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.saksnummer());
+        var tags = new ArrayList<Tag>();
+        tags.add(new ImmutableTag("ytelse", request.ytelsetype().name()));
+        Metrics.counter(COUNTER_FORESPØRRSEL, tags).increment();
         return Response.ok().build();
     }
 
