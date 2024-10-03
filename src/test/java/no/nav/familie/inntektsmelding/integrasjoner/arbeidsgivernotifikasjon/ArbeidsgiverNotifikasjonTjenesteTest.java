@@ -38,10 +38,11 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var expectedTittel = "Inntektsmelding for person";
         var expectedLenke = "https://inntektsmelding-innsendings-dialog.com";
         var expectedMerkelapp = Merkelapp.INNTEKTSMELDING_FP;
+        var expectedStatusTekst = "status tekst";
 
         var requestCaptor = ArgumentCaptor.forClass(NySakMutationRequest.class);
 
-        tjeneste.opprettSak(expectedGrupperingsid, expectedMerkelapp, expectedVirksomhetsnummer, expectedTittel, URI.create(expectedLenke));
+        tjeneste.opprettSak(expectedGrupperingsid, expectedMerkelapp, expectedVirksomhetsnummer, expectedTittel, URI.create(expectedLenke), expectedStatusTekst);
 
         Mockito.verify(klient).opprettSak(requestCaptor.capture(), any(NySakResultatResponseProjection.class));
 
@@ -56,7 +57,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         assertThat(input.get("tittel")).isEqualTo(expectedTittel);
         assertThat(input.get("virksomhetsnummer")).isEqualTo(expectedVirksomhetsnummer);
         assertThat(input.get("mottakere")).isNotNull();
-        assertThat(input.get("overstyrStatustekstMed")).isNotNull();
+        assertThat(input.get("overstyrStatustekstMed")).isEqualTo(expectedStatusTekst);
     }
 
     @Test
@@ -126,16 +127,18 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
     @Test
     void ferdigstill_sak() {
         var expectedId = "TestId";
+        var expectedStatusText = "Saksbehandler har gått videre uten din inntektsmelding";
 
         var requestCaptor = ArgumentCaptor.forClass(NyStatusSakMutationRequest.class);
 
-        tjeneste.ferdigstillSak(expectedId);
+        tjeneste.ferdigstillSak(expectedId,expectedStatusText);
 
         Mockito.verify(klient).oppdaterSakStatus(requestCaptor.capture(), any(NyStatusSakResultatResponseProjection.class));
 
         var request = requestCaptor.getValue();
 
-        assertThat(request.getInput()).isNotNull().hasSize(2);
+        assertThat(request.getInput()).isNotNull().hasSize(3);
         assertThat(request.getInput().get("id")).isNotNull().isEqualTo(expectedId);
+        assertThat(request.getInput().get("overstyrStatustekstMed")).isNotNull().isEqualTo(expectedStatusText);
     }
 }
