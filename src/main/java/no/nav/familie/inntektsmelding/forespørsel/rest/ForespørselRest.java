@@ -41,7 +41,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 public class ForespørselRest {
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
     public static final String BASE_PATH = "/foresporsel";
-    private static final String COUNTER_FORESPØRRSEL = "ftinntektsmelding.opppgaver";
+    private static final String COUNTER_FORESPØRRSEL = "ftinntektsmelding.oppgaver";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
