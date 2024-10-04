@@ -148,7 +148,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String oppgaveUtfoert(String oppgaveId, OffsetDateTime tidspunkt) {
+    public String oppgaveUtført(String oppgaveId, OffsetDateTime tidspunkt) {
 
         var request = new OppgaveUtfoertMutationRequest();
         request.setId(oppgaveId);
@@ -161,11 +161,11 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .onNotifikasjonFinnesIkke(new NotifikasjonFinnesIkkeResponseProjection().feilmelding())
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
 
-        return klient.oppgaveUtfoert(request, projection);
+        return klient.oppgaveUtført(request, projection);
     }
 
     @Override
-    public String oppgaveUtfoertByEksternId(String eksternId, Merkelapp merkelapp, OffsetDateTime tidspunkt) {
+    public String oppgaveUtførtByEksternId(String eksternId, Merkelapp merkelapp, OffsetDateTime tidspunkt) {
 
         var request = new OppgaveUtfoertByEksternId_V2MutationRequest();
         request.setEksternId(eksternId);
@@ -179,11 +179,11 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .onNotifikasjonFinnesIkke(new NotifikasjonFinnesIkkeResponseProjection().feilmelding())
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
 
-        return klient.oppgaveUtfoertByEksternId(request, projection);
+        return klient.oppgaveUtførtByEksternId(request, projection);
     }
 
     @Override
-    public String oppgaveUtgaatt(String oppgaveId, OffsetDateTime tidspunkt) {
+    public String oppgaveUtgått(String oppgaveId, OffsetDateTime tidspunkt) {
 
         var request = new OppgaveUtgaattMutationRequest();
         request.setId(oppgaveId);
@@ -195,7 +195,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .onNotifikasjonFinnesIkke(new NotifikasjonFinnesIkkeResponseProjection().feilmelding())
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
 
-        return klient.oppgaveUtgaatt(request, projection);
+        return klient.oppgaveUtgått(request, projection);
     }
 
     @Override

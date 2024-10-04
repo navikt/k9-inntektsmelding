@@ -25,10 +25,10 @@ public interface ArbeidsgiverNotifikasjon {
 
     String ferdigstillSak(String id);
 
-    String oppgaveUtfoert(String oppgaveId, OffsetDateTime utfoertTidspunkt);
+    String oppgaveUtført(String oppgaveId, OffsetDateTime utførtTidspunkt);
 
-    String oppgaveUtfoertByEksternId(String eksternId, Merkelapp merkelapp, OffsetDateTime tidspunkt);
+    String oppgaveUtførtByEksternId(String eksternId, Merkelapp merkelapp, OffsetDateTime tidspunkt);
 
-    String oppgaveUtgaatt(String oppgaveId, OffsetDateTime utgaattTidspunkt);
+    String oppgaveUtgått(String oppgaveId, OffsetDateTime utgåttTidspunkt);
 
 }

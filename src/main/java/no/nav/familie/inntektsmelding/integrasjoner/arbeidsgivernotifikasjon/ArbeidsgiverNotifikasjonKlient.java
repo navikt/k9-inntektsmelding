@@ -98,7 +98,7 @@ class ArbeidsgiverNotifikasjonKlient {
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
 
-    public String oppgaveUtfoert(OppgaveUtfoertMutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
+    public String oppgaveUtført(OppgaveUtfoertMutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
         LOG.info("FAGER: Oppgave utført");
         var resultat = query(new GraphQLRequest(request, projection), OppgaveUtfoertMutationResponse.class).oppgaveUtfoert();
         if (resultat instanceof OppgaveUtfoertVellykket vellykket) {
@@ -109,7 +109,7 @@ class ArbeidsgiverNotifikasjonKlient {
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
 
-    public String oppgaveUtfoertByEksternId(OppgaveUtfoertByEksternId_V2MutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
+    public String oppgaveUtførtByEksternId(OppgaveUtfoertByEksternId_V2MutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
         LOG.info("FAGER: Oppgave utført by ekstern id");
         var resultat = query(new GraphQLRequest(request, projection),
             OppgaveUtfoertByEksternId_V2MutationResponse.class).oppgaveUtfoertByEksternId_V2();
@@ -121,7 +121,7 @@ class ArbeidsgiverNotifikasjonKlient {
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
 
-    public String oppgaveUtgaatt(OppgaveUtgaattMutationRequest request, OppgaveUtgaattResultatResponseProjection projection) {
+    public String oppgaveUtgått(OppgaveUtgaattMutationRequest request, OppgaveUtgaattResultatResponseProjection projection) {
         LOG.info("FAGER: Oppgave utgått");
         var resultat = query(new GraphQLRequest(request, projection), OppgaveUtgaattMutationResponse.class).oppgaveUtgaatt();
         if (resultat instanceof OppgaveUtgaattVellykket vellykket) {

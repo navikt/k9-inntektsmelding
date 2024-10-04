@@ -111,9 +111,9 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         var requestCaptor = ArgumentCaptor.forClass(OppgaveUtfoertMutationRequest.class);
 
-        tjeneste.oppgaveUtfoert(expectedId, expectedTidspunkt);
+        tjeneste.oppgaveUtført(expectedId, expectedTidspunkt);
 
-        Mockito.verify(klient).oppgaveUtfoert(requestCaptor.capture(), any(OppgaveUtfoertResultatResponseProjection.class));
+        Mockito.verify(klient).oppgaveUtført(requestCaptor.capture(), any(OppgaveUtfoertResultatResponseProjection.class));
 
         var request = requestCaptor.getValue();
 
