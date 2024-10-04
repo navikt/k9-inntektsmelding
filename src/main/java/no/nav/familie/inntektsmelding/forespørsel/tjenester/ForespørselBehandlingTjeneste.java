@@ -1,6 +1,8 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,5 +24,10 @@ public interface ForespørselBehandlingTjeneste {
 
     Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID);
 
-    void lukkForespørsel(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
+    void oppdaterForespørsler(Ytelsetype ytelsetype,
+                              AktørIdEntitet aktørId,
+                              Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
+                              SaksnummerDto fagsakSaksnummer);
+
+    void lukkForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
 }

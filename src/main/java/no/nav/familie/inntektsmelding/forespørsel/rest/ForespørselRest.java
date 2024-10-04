@@ -7,8 +7,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -20,6 +22,9 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
+import no.nav.familie.inntektsmelding.server.authz.api.ActionType;
+import no.nav.familie.inntektsmelding.server.authz.api.PolicyType;
+import no.nav.familie.inntektsmelding.server.authz.api.Tilgangsstyring;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
@@ -49,9 +54,9 @@ public class ForespørselRest {
     @POST
     @Path("/opprett")
     public Response opprettForespørsel(OpprettForespørselRequest request) {
-        LOG.info("Mottok forespørsel om inntektsmeldingoppgave på saksnummer " + request.saksnummer());
+        LOG.info("Mottok forespørsel om inntektsmeldingoppgave på fagsakSaksnummer " + request.fagsakSaksnummer());
         forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), KodeverkMapper.mapYtelsetype(request.ytelsetype()),
-            new AktørIdEntitet(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.saksnummer());
+            new AktørIdEntitet(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.fagsakSaksnummer());
 
         MetrikkerTjeneste.loggForespørselOpprettet(KodeverkMapper.mapYtelsetype(request.ytelsetype()));
 
@@ -59,10 +64,25 @@ public class ForespørselRest {
     }
 
     @POST
+    @Path("/oppdater-forespørsler")
+    @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER_PORTAL, action = ActionType.WRITE)
+    public Response oppdaterForespørsler(OppdaterForespørslerRequest request) {
+        LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på fagsakSaksnummer " + request.fagsakSaksnummer());
+        forespørselBehandlingTjeneste.oppdaterForespørsler(
+            KodeverkMapper.mapYtelsetype(request.ytelsetype()),
+            new AktørIdEntitet(request.aktørId().id()),
+            request.organisasjonerPerSkjæringstidspunkt(),
+            request.fagsakSaksnummer()
+        );
+
+        return Response.ok().build();
+    }
+
+    @POST
     @Path("/lukk")
     public Response lukkForespørsel(LukkForespørselRequest request) {
-        LOG.info("Lukk forespørsel for saksnummer {} med orgnummer {} og skjæringstidspunkt {}", request.saksnummer(), request.orgnummer(), request.skjæringstidspunkt());
-        forespørselBehandlingTjeneste.lukkForespørsel(request.saksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        LOG.info("Lukk forespørsel for fagsakSaksnummer {} med orgnummer {} og skjæringstidspunkt {}", request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        forespørselBehandlingTjeneste.lukkForespørsel(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
         return Response.ok().build();
     }
 

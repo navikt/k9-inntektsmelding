@@ -98,31 +98,42 @@ class ArbeidsgiverNotifikasjonKlient {
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
 
-    public String lukkOppgave(OppgaveUtfoertMutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
-        LOG.info("FAGER: Lukk Oppgave");
+    public String oppgaveUtført(OppgaveUtfoertMutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
+        LOG.info("FAGER: Oppgave utført");
         var resultat = query(new GraphQLRequest(request, projection), OppgaveUtfoertMutationResponse.class).oppgaveUtfoert();
         if (resultat instanceof OppgaveUtfoertVellykket vellykket) {
             return vellykket.getId();
         } else {
-            loggFeilmelding((Error) resultat, "lukking av oppgave");
+            loggFeilmelding((Error) resultat, "sett oppgave utført");
         }
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
 
-    public String lukkOppgaveByEksternId(OppgaveUtfoertByEksternId_V2MutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
-        LOG.info("FAGER: Lukk Oppgave by ekstern id");
+    public String oppgaveUtførtByEksternId(OppgaveUtfoertByEksternId_V2MutationRequest request, OppgaveUtfoertResultatResponseProjection projection) {
+        LOG.info("FAGER: Oppgave utført by ekstern id");
         var resultat = query(new GraphQLRequest(request, projection),
             OppgaveUtfoertByEksternId_V2MutationResponse.class).oppgaveUtfoertByEksternId_V2();
         if (resultat instanceof OppgaveUtfoertVellykket vellykket) {
             return vellykket.getId();
         } else {
-            loggFeilmelding((Error) resultat, "lukking av oppgave by ekstern id");
+            loggFeilmelding((Error) resultat, "sett oppgave utført by ekstern id");
+        }
+        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
+    }
+
+    public String oppgaveUtgått(OppgaveUtgaattMutationRequest request, OppgaveUtgaattResultatResponseProjection projection) {
+        LOG.info("FAGER: Oppgave utgått");
+        var resultat = query(new GraphQLRequest(request, projection), OppgaveUtgaattMutationResponse.class).oppgaveUtgaatt();
+        if (resultat instanceof OppgaveUtgaattVellykket vellykket) {
+            return vellykket.getId();
+        } else {
+            loggFeilmelding((Error) resultat, "sett oppgave utgått");
         }
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
 
     public String oppdaterSakStatus(NyStatusSakMutationRequest request, NyStatusSakResultatResponseProjection projection) {
-        LOG.info("FAGER: Lukk Oppgave");
+        LOG.info("FAGER: Oppdater sak status");
         var resultat = query(new GraphQLRequest(request, projection), NyStatusSakMutationResponse.class).nyStatusSak();
         if (resultat instanceof NyStatusSakVellykket vellykket) {
             return vellykket.getId();

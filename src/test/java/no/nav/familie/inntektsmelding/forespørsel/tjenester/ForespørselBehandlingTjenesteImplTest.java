@@ -75,7 +75,7 @@ public class ForespørselBehandlingTjenesteImplTest {
         var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER));
 
         assertThat(lagret.size()).isEqualTo(1);
-        assertThat(lagret.getFirst().getSakId()).isEqualTo(SAK_ID);
+        assertThat(lagret.getFirst().getArbeidsgiverNotifikasjonSakId()).isEqualTo(SAK_ID);
         assertThat(lagret.getFirst().getOppgaveId()).isEqualTo(OPPGAVE_ID);
     }
 
@@ -95,7 +95,7 @@ public class ForespørselBehandlingTjenesteImplTest {
     @Test
     public void skal_ferdigstille_forespørsel() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
-        forespørselRepository.oppdaterSakId(forespørselUuid, SAK_ID);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER), SKJÆRINGSTIDSPUNKT);
@@ -108,9 +108,9 @@ public class ForespørselBehandlingTjenesteImplTest {
     @Test
     public void skal_lukke_alle_forespørspørsler_for_sak() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
-        forespørselRepository.oppdaterSakId(forespørselUuid, SAK_ID);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2), YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
-        forespørselRepository.oppdaterSakId(forespørselUuid2, "2");
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid2, "2");
 
         forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), null);
 
@@ -123,9 +123,9 @@ public class ForespørselBehandlingTjenesteImplTest {
     @Test
     public void skal_lukke_forespørsel_for_sak_med_gitt_stp() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
-        forespørselRepository.oppdaterSakId(forespørselUuid, SAK_ID);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2), YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
-        forespørselRepository.oppdaterSakId(forespørselUuid, "2");
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, "2");
 
         forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), SKJÆRINGSTIDSPUNKT);
 

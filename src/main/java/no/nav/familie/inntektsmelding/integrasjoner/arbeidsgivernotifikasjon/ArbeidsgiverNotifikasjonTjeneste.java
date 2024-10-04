@@ -148,7 +148,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String lukkOppgave(String oppgaveId, OffsetDateTime tidspunkt) {
+    public String oppgaveUtført(String oppgaveId, OffsetDateTime tidspunkt) {
 
         var request = new OppgaveUtfoertMutationRequest();
         request.setId(oppgaveId);
@@ -161,11 +161,11 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .onNotifikasjonFinnesIkke(new NotifikasjonFinnesIkkeResponseProjection().feilmelding())
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
 
-        return klient.lukkOppgave(request, projection);
+        return klient.oppgaveUtført(request, projection);
     }
 
     @Override
-    public String lukkOppgaveByEksternId(String eksternId, Merkelapp merkelapp, OffsetDateTime tidspunkt) {
+    public String oppgaveUtførtByEksternId(String eksternId, Merkelapp merkelapp, OffsetDateTime tidspunkt) {
 
         var request = new OppgaveUtfoertByEksternId_V2MutationRequest();
         request.setEksternId(eksternId);
@@ -179,7 +179,23 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .onNotifikasjonFinnesIkke(new NotifikasjonFinnesIkkeResponseProjection().feilmelding())
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
 
-        return klient.lukkOppgaveByEksternId(request, projection);
+        return klient.oppgaveUtførtByEksternId(request, projection);
+    }
+
+    @Override
+    public String oppgaveUtgått(String oppgaveId, OffsetDateTime tidspunkt) {
+
+        var request = new OppgaveUtgaattMutationRequest();
+        request.setId(oppgaveId);
+        request.setUtgaattTidspunkt(tidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
+
+        var projection = new OppgaveUtgaattResultatResponseProjection().typename()
+            .onOppgaveUtgaattVellykket(new OppgaveUtgaattVellykketResponseProjection().id())
+            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
+            .onNotifikasjonFinnesIkke(new NotifikasjonFinnesIkkeResponseProjection().feilmelding())
+            .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
+
+        return klient.oppgaveUtgått(request, projection);
     }
 
     @Override

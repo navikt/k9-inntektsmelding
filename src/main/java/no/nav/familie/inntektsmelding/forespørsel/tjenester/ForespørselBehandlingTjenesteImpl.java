@@ -4,6 +4,8 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,6 +21,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Arb
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
@@ -57,25 +60,15 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                               OrganisasjonsnummerDto organisasjonsnummer,
                                               SaksnummerDto fagsakSaksnummer) {
         var åpenForespørsel = forespørselTjeneste.finnÅpenForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer);
+
         if (åpenForespørsel.isPresent()) {
             var msg = String.format("Finnes allerede forespørsel for aktør %s på startdato %s + på ytelse %s", aktørId, skjæringstidspunkt,
                 ytelsetype);
             LOG.info(msg);
             return;
         }
-        var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
-        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
-        var merkelapp = finnMerkelapp(ytelsetype);
-        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
 
-        var sakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), merkelapp, organisasjonsnummer.orgnr(), lagSaksTittel(person), skjemaUri);
-
-        forespørselTjeneste.setSakId(uuid, sakId);
-
-        var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), merkelapp, uuid.toString(), organisasjonsnummer.orgnr(),
-            "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", skjemaUri);
-
-        forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
+        opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
     }
 
     @Override
@@ -90,9 +83,9 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         validerOrganisasjon(foresporsel, organisasjonsnummerDto);
         validerStartdato(foresporsel, startdato);
 
-        arbeidsgiverNotifikasjon.lukkOppgave(foresporsel.getOppgaveId(), OffsetDateTime.now());
-        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
-        forespørselTjeneste.ferdigstillForespørsel(foresporsel.getSakId()); // Oppdaterer status i forespørsel
+        arbeidsgiverNotifikasjon.oppgaveUtført(foresporsel.getOppgaveId(), OffsetDateTime.now());
+        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
+        forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
     }
 
     @Override
@@ -100,8 +93,79 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         return forespørselTjeneste.finnForespørsel(forespørselUUID);
     }
 
-    public void lukkForespørsel(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
-        var forespørsler = forespørselTjeneste.finnÅpneForespørslerForFagsak(saksnummerDto).stream()
+    @Override
+    public void oppdaterForespørsler(Ytelsetype ytelsetype,
+                                     AktørIdEntitet aktørId,
+                                     Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
+                                     SaksnummerDto fagsakSaksnummer) {
+        List<ForespørselEntitet> eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer);
+
+        // Oppretter forespørsler for alle skjæringstidspunkter som ikke allerede er opprettet
+        organisasjonerPerSkjæringstidspunkt.forEach((skjæringstidspunkt, organisasjoner) -> {
+            organisasjoner.forEach(organisasjon -> {
+                Optional<ForespørselEntitet> eksisterendeForespørsel = eksisterendeForespørsler.stream()
+                    .filter(forespørsel -> forespørsel.getSkjæringstidspunkt().equals(skjæringstidspunkt))
+                    .filter(forespørsel -> forespørsel.getOrganisasjonsnummer().equals(organisasjon.orgnr()))
+                    .findFirst();
+
+                if (eksisterendeForespørsel.isEmpty()) {
+                    opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt);
+                    var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+                        organisasjon.orgnr(), skjæringstidspunkt, fagsakSaksnummer.saksnr(), ytelsetype);
+                    LOG.info(msg);
+                }
+            });
+        });
+
+        // Forespørsler som ikke lenger er aktuelle settes til utgått
+        eksisterendeForespørsler.forEach(eksisterendeForespørsel -> {
+            boolean trengerEksisterendeForespørsel = innholderRequestEksisterendeForespørsel(organisasjonerPerSkjæringstidspunkt,
+                eksisterendeForespørsel);
+
+            if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
+                arbeidsgiverNotifikasjon.oppgaveUtgått(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
+                arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
+                forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
+
+                var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+                    eksisterendeForespørsel.getOrganisasjonsnummer(),
+                    eksisterendeForespørsel.getSkjæringstidspunkt(),
+                    eksisterendeForespørsel.getFagsystemSaksnummer(),
+                    eksisterendeForespørsel.getYtelseType());
+                LOG.info(msg);
+            }
+        });
+    }
+
+    private boolean innholderRequestEksisterendeForespørsel(Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
+                                                            ForespørselEntitet eksisterendeForespørsel) {
+        LocalDate stp = eksisterendeForespørsel.getSkjæringstidspunkt();
+        List<String> orgnrFraRequestForStp = organisasjonerPerSkjæringstidspunkt.get(stp).stream().map(OrganisasjonsnummerDto::orgnr).toList();
+
+        return orgnrFraRequestForStp.contains(eksisterendeForespørsel.getOrganisasjonsnummer());
+    }
+
+    private void opprettForespørselOppgave(Ytelsetype ytelsetype,
+                                           AktørIdEntitet aktørId,
+                                           SaksnummerDto fagsakSaksnummer,
+                                           OrganisasjonsnummerDto organisasjonsnummer,
+                                           LocalDate skjæringstidspunkt) {
+        var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
+        var merkelapp = finnMerkelapp(ytelsetype);
+        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
+        var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), merkelapp, organisasjonsnummer.orgnr(), lagSaksTittel(person), skjemaUri);
+
+        forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
+
+        var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), merkelapp, uuid.toString(), organisasjonsnummer.orgnr(),
+            "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", skjemaUri);
+
+        forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
+    }
+
+    public void lukkForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
+        var forespørsler = forespørselTjeneste.finnÅpneForespørslerForFagsak(fagsakSaksnummer).stream()
             .filter(f -> orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
             .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
             .toList();
