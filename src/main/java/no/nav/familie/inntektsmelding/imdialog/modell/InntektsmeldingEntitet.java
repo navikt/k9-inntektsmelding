@@ -144,6 +144,9 @@ public class InntektsmeldingEntitet {
     }
 
     private void leggTilRefusjonsendring(RefusjonsendringEntitet refusjonsendringEntitet) {
+        if (refusjonsendringer.stream().anyMatch(r -> r.getFom().equals(refusjonsendringEntitet.getFom()))) {
+            throw new IllegalStateException("Det finnes allerede en refusjonsendring for denne datoen: " + refusjonsendringEntitet.getFom());
+        }
         refusjonsendringEntitet.setInntektsmelding(this);
         refusjonsendringer.add(refusjonsendringEntitet);
     }

@@ -41,7 +41,7 @@ public class InntektsmeldingPdfDataMapper {
         if (inntektsmelding.getMånedRefusjon() != null) {
             imDokumentdataBuilder.medRefusjonsbeløp(inntektsmelding.getMånedRefusjon());
         }
-        if (inntektsmelding.getOpphørsdatoRefusjon().isBefore(Tid.TIDENES_ENDE)) {
+        if (inntektsmelding.getOpphørsdatoRefusjon() != null && inntektsmelding.getOpphørsdatoRefusjon().isBefore(Tid.TIDENES_ENDE)) {
             imDokumentdataBuilder.medRefusjonOpphørsdato(inntektsmelding.getOpphørsdatoRefusjon());
         }
 

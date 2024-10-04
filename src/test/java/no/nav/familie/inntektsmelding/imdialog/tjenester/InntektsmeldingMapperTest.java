@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.map;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
+
+import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 
 import org.junit.jupiter.api.Test;
 
@@ -53,8 +56,72 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
         assertThat(entitet.getBorfalteNaturalYtelser()).isEmpty();
         assertThat(entitet.getMånedRefusjon()).isNull();
-        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(Tid.TIDENES_ENDE);
+        assertThat(entitet.getOpphørsdatoRefusjon()).isNull();
+    }
 
+    @Test
+    void skal_teste_mapping_med_ref_opphør() {
+        // Arrange
+        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+            new AktørIdDto("9999999999999"),
+            YtelseTypeDto.FORELDREPENGER,
+            new ArbeidsgiverDto("999999999"),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            LocalDate.now(),
+            BigDecimal.valueOf(5000),
+            Arrays.asList(new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now(), BigDecimal.valueOf(5000)),
+                new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
+            Collections.emptyList(),
+            Collections.emptyList());
+
+        // Act
+        var entitet = InntektsmeldingMapper.mapTilEntitet(request);
+
+        // Assert
+        assertThat(entitet.getAktørId().getAktørId()).isEqualTo(request.aktorId().id());
+        assertThat(entitet.getArbeidsgiverIdent()).isEqualTo(request.arbeidsgiverIdent().ident());
+        assertThat(entitet.getMånedInntekt()).isEqualByComparingTo(request.inntekt());
+        assertThat(entitet.getStartDato()).isEqualTo(request.startdato());
+        assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetype(request.ytelse()));
+        assertThat(entitet.getMånedRefusjon()).isEqualByComparingTo(BigDecimal.valueOf(5000));
+        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(LocalDate.now().plusDays(10));
+        assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
+        assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
+        assertThat(entitet.getRefusjonsendringer()).isEmpty();
+    }
+
+    @Test
+    void skal_teste_mapping_med_ref_opphør_endring() {
+        // Arrange
+        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+            new AktørIdDto("9999999999999"),
+            YtelseTypeDto.FORELDREPENGER,
+            new ArbeidsgiverDto("999999999"),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            LocalDate.now(),
+            BigDecimal.valueOf(5000),
+            Arrays.asList(new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now(), BigDecimal.valueOf(5000)),
+                new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now().plusDays(5), BigDecimal.valueOf(4000)),
+                new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
+            Collections.emptyList(),
+            Collections.emptyList());
+
+        // Act
+        var entitet = InntektsmeldingMapper.mapTilEntitet(request);
+
+        // Assert
+        assertThat(entitet.getAktørId().getAktørId()).isEqualTo(request.aktorId().id());
+        assertThat(entitet.getArbeidsgiverIdent()).isEqualTo(request.arbeidsgiverIdent().ident());
+        assertThat(entitet.getMånedInntekt()).isEqualByComparingTo(request.inntekt());
+        assertThat(entitet.getStartDato()).isEqualTo(request.startdato());
+        assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetype(request.ytelse()));
+        assertThat(entitet.getMånedRefusjon()).isEqualByComparingTo(BigDecimal.valueOf(5000));
+        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(LocalDate.now().plusDays(10));
+        assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
+        assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
+        assertThat(entitet.getRefusjonsendringer()).hasSize(1);
+        assertThat(entitet.getRefusjonsendringer().getFirst().getFom()).isEqualTo(LocalDate.now().plusDays(5));
+        assertThat(entitet.getRefusjonsendringer().getFirst().getRefusjonPrMnd()).isEqualByComparingTo(BigDecimal.valueOf(4000));
     }
 
     @Test
