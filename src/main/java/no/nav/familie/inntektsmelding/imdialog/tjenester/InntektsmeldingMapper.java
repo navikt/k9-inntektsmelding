@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -32,15 +33,26 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
             .medMånedInntekt(dto.inntekt())
             .medKildesystem(Kildesystem.ARBEIDSGIVERPORTAL)
-            .medMånedRefusjon(dto.refusjon())
-            .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjonsendringer()).orElse(Tid.TIDENES_ENDE))
+            .medMånedRefusjon(finnFørsteRefusjon(dto.refusjon(), dto.startdato()).orElse(null))
+            .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjon(), dto.startdato()).orElse(Tid.TIDENES_ENDE))
             .medStartDato(dto.startdato())
             .medYtelsetype(KodeverkMapper.mapYtelsetype(dto.ytelse()))
             .medKontaktperson(mapKontaktPerson(dto))
             .medEndringsårsaker(mapEndringsårsaker(dto.endringAvInntektÅrsaker()))
             .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(dto.bortfaltNaturalytelsePerioder()))
-            .medRefusjonsendringer(mapRefusjonsendringer(dto.refusjonsendringer()))
+            .medRefusjonsendringer(mapRefusjonsendringer(dto.startdato(), dto.refusjon()))
             .build();
+    }
+
+    private static Optional<BigDecimal> finnFørsteRefusjon(List<SendInntektsmeldingRequestDto.Refusjon> refusjon, LocalDate startdato) {
+        if (refusjon.isEmpty()) {
+            return Optional.empty();
+        }
+        var refusjonPåStartdato = refusjon.stream().filter(r -> r.fom().equals(startdato)).toList();
+        if (refusjonPåStartdato.size() != 1) {
+            throw new IllegalStateException("Forventer kun 1 refusjon som starter på startdato, fant " + refusjonPåStartdato.size());
+        }
+        return Optional.of(refusjonPåStartdato.getFirst().beløp());
     }
 
     private static List<EndringsårsakEntitet> mapEndringsårsaker(List<SendInntektsmeldingRequestDto.EndringsårsakerRequestDto> endringsårsaker) {
@@ -57,9 +69,7 @@ public class InntektsmeldingMapper {
     }
 
     public static InntektsmeldingResponseDto mapFraEntitet(InntektsmeldingEntitet entitet, UUID forespørselUuid) {
-        var refusjonsendringer = entitet.getRefusjonsendringer().stream().map(i ->
-            new SendInntektsmeldingRequestDto.RefusjonendringRequestDto(i.getFom(), i.getRefusjonPrMnd())
-        ).toList();
+        var refusjoner = mapRefusjonerTilDto(entitet);
 
         var bortfalteNaturalytelser = entitet.getBorfalteNaturalYtelser().stream().map(i ->
             new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
@@ -85,22 +95,34 @@ public class InntektsmeldingMapper {
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(entitet.getKontaktperson().getNavn(), entitet.getKontaktperson().getTelefonnummer()),
             entitet.getStartDato(),
             entitet.getMånedInntekt(),
-            entitet.getMånedRefusjon(),
             entitet.getOpprettetTidspunkt(),
-            refusjonsendringer,
+            refusjoner,
             bortfalteNaturalytelser,
             endringsårsaker
             );
     }
 
-    private static Optional<LocalDate> finnOpphørsdato(List<SendInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDtos) {
-        var sisteEndring = refusjonsendringRequestDtos.stream().max(Comparator.comparing(SendInntektsmeldingRequestDto.RefusjonendringRequestDto::fom));
-        // Hvis siste endring setter refusjon til 0 er det å regne som opphørsdato
-        return sisteEndring.filter(en -> en.beløp().compareTo(BigDecimal.ZERO) == 0).map(SendInntektsmeldingRequestDto.RefusjonendringRequestDto::fom);
+    private static List<SendInntektsmeldingRequestDto.Refusjon> mapRefusjonerTilDto(InntektsmeldingEntitet entitet) {
+        List<SendInntektsmeldingRequestDto.Refusjon> refusjoner = new ArrayList<>();
+        if (entitet.getMånedRefusjon() != null) {
+            refusjoner.add(new SendInntektsmeldingRequestDto.Refusjon(entitet.getStartDato(), entitet.getMånedRefusjon()));
+        }
+        if (entitet.getOpphørsdatoRefusjon() != null) {
+            refusjoner.add(new SendInntektsmeldingRequestDto.Refusjon(entitet.getOpphørsdatoRefusjon(), BigDecimal.ZERO));
+        }
+        entitet.getRefusjonsendringer().stream().map(i -> new SendInntektsmeldingRequestDto.Refusjon(i.getFom(), i.getRefusjonPrMnd())).forEach(refusjoner::add);
+        return refusjoner.stream().sorted(Comparator.comparing(SendInntektsmeldingRequestDto.Refusjon::fom)).toList();
     }
 
-    private static List<RefusjonsendringEntitet> mapRefusjonsendringer(List<SendInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDto) {
-        return refusjonsendringRequestDto.stream().map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp())).toList();
+    private static Optional<LocalDate> finnOpphørsdato(List<SendInntektsmeldingRequestDto.Refusjon> refusjonsendringRequestDtos,
+                                                       LocalDate startdato) {
+        var sisteEndring = refusjonsendringRequestDtos.stream().filter(r-> !r.fom().equals(startdato)).max(Comparator.comparing(SendInntektsmeldingRequestDto.Refusjon::fom));
+        // Hvis siste endring setter refusjon til 0 er det å regne som opphørsdato
+        return sisteEndring.filter(en -> en.beløp().compareTo(BigDecimal.ZERO) == 0).map(SendInntektsmeldingRequestDto.Refusjon::fom);
+    }
+
+    private static List<RefusjonsendringEntitet> mapRefusjonsendringer(LocalDate startdato, List<SendInntektsmeldingRequestDto.Refusjon> refusjonsendringRequestDto) {
+        return refusjonsendringRequestDto.stream().filter(r -> !r.fom().equals(startdato)).map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp())).toList();
     }
 
     private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto> dto) {
