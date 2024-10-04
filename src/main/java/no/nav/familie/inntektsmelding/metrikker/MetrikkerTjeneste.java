@@ -50,7 +50,7 @@ public class MetrikkerTjeneste {
         tags.add(new ImmutableTag("ytelse", inntektsmelding.getYtelsetype().name()));
         tags.add(new ImmutableTag("har_oppgitt_refusjon", harOppgittRefusjon ? "Ja" : "Nei"));
         tags.add(new ImmutableTag("har_oppgitt_endring_i_refusjon", harOppgittEndringerIRefusjon ? "Ja" : "Nei"));
-        tags.add(new ImmutableTag("har_oppgitt_opppphør_av_refusjon", harOppgittOpphørAvRefusjon ? "Ja" : "Nei"));
+        tags.add(new ImmutableTag("har_oppgitt_opphoer_av_refusjon", harOppgittOpphørAvRefusjon ? "Ja" : "Nei"));
         tags.add(new ImmutableTag("har_oppgitt_naturalytelse", harOppgittNaturalytelse ? "Ja" : "Nei"));
         Metrics.counter(COUNTER_INNTEKTSMELDING, tags).increment();
 

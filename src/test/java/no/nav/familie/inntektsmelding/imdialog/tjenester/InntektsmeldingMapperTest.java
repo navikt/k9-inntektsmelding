@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
@@ -106,7 +108,7 @@ class InntektsmeldingMapperTest {
     }
 
     @Test
-    void skal_teste_mapping_tilbake_til_dto() {
+    void skal_teste_mapping_tilbake_til_dto_refusjon_og_opphør() {
         // Arrange
         var imEntitet = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("9999999999999"))
@@ -166,6 +168,76 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.refusjon().get(0).beløp()).isEqualByComparingTo(imEntitet.getMånedRefusjon());
         assertThat(imDto.refusjon().get(1).fom()).isEqualTo(LocalDate.now().plusDays(5));
         assertThat(imDto.refusjon().get(1).beløp()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(imDto.opprettetTidspunkt()).isEqualTo(imEntitet.getOpprettetTidspunkt());
+        assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
+        assertThat(imDto.endringAvInntektÅrsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
+        assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
+    }
+
+    @Test
+    void skal_teste_mapping_tilbake_til_dto_refusjon_opphhør_endring() {
+        // Arrange
+        var imEntitet = InntektsmeldingEntitet.builder()
+            .medAktørId(new AktørIdEntitet("9999999999999"))
+            .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
+            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(5000))
+            .medMånedRefusjon(BigDecimal.valueOf(5000))
+            .medRefusjonOpphørsdato(LocalDate.now().plusDays(10))
+            .medStartDato(LocalDate.now())
+            .medArbeidsgiverIdent("999999999")
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now().plusDays(5), BigDecimal.valueOf(4000))))
+            .medBortfaltNaturalytelser(List.of(
+                    BortaltNaturalytelseEntitet.builder()
+                        .medPeriode(LocalDate.now(), Tid.TIDENES_ENDE)
+                        .medType(NaturalytelseType.LOSJI)
+                        .medMånedBeløp(new BigDecimal(20))
+                        .build(),
+                    BortaltNaturalytelseEntitet.builder()
+                        .medPeriode(LocalDate.now(), LocalDate.now().plusMonths(1))
+                        .medType(NaturalytelseType.BIL)
+                        .medMånedBeløp(new BigDecimal(77))
+                        .build()
+                )
+            )
+            .medEndringsårsaker(List.of(
+                EndringsårsakEntitet.builder()
+                    .medFom(LocalDate.now())
+                    .medTom(LocalDate.now().plusDays(10))
+                    .medÅrsak(Endringsårsak.FERIE)
+                    .build(),
+                EndringsårsakEntitet.builder()
+                    .medBleKjentFra(LocalDate.now())
+                    .medÅrsak(Endringsårsak.TARIFFENDRING)
+                    .build()
+            ))
+            .build();
+
+        var forespørselUuid = UUID.randomUUID();
+
+        // Act
+        var imDto = InntektsmeldingMapper.mapFraEntitet(imEntitet, forespørselUuid);
+
+        // Assert
+        assertThat(imDto.aktorId().id()).isEqualTo(imEntitet.getAktørId().getAktørId());
+        assertThat(imDto.arbeidsgiverIdent().ident()).isEqualTo(imEntitet.getArbeidsgiverIdent());
+        assertThat(imDto.inntekt()).isEqualByComparingTo(imEntitet.getMånedInntekt());
+        assertThat(imDto.startdato()).isEqualTo(imEntitet.getStartDato());
+        assertThat(KodeverkMapper.mapYtelsetype(imDto.ytelse())).isEqualTo(imEntitet.getYtelsetype());
+        assertThat(BigDecimal.valueOf(5000)).isEqualByComparingTo(imEntitet.getMånedRefusjon());
+        assertThat(imDto.kontaktperson().navn()).isEqualTo(imEntitet.getKontaktperson().getNavn());
+        assertThat(imDto.kontaktperson().telefonnummer()).isEqualTo(imEntitet.getKontaktperson().getTelefonnummer());
+        assertThat(imDto.bortfaltNaturalytelsePerioder()).hasSize(2);
+        assertThat(imDto.bortfaltNaturalytelsePerioder().get(0).tom()).isNull();
+        assertThat(imDto.bortfaltNaturalytelsePerioder().get(0).fom()).isEqualTo(imEntitet.getBorfalteNaturalYtelser().get(0).getPeriode().getFom());
+        assertThat(imDto.refusjon()).hasSize(3);
+        assertThat(imDto.refusjon().get(0).fom()).isEqualTo(imEntitet.getStartDato());
+        assertThat(imDto.refusjon().get(0).beløp()).isEqualByComparingTo(imEntitet.getMånedRefusjon());
+        assertThat(imDto.refusjon().get(1).fom()).isEqualTo(LocalDate.now().plusDays(5));
+        assertThat(imDto.refusjon().get(1).beløp()).isEqualByComparingTo(BigDecimal.valueOf(4000));
+        assertThat(imDto.refusjon().get(2).fom()).isEqualTo(LocalDate.now().plusDays(10));
+        assertThat(imDto.refusjon().get(2).beløp()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(imDto.opprettetTidspunkt()).isEqualTo(imEntitet.getOpprettetTidspunkt());
         assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
         assertThat(imDto.endringAvInntektÅrsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
