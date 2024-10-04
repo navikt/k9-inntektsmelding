@@ -3,7 +3,6 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,14 +11,11 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -84,7 +80,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         validerStartdato(foresporsel, startdato);
 
         arbeidsgiverNotifikasjon.oppgaveUtført(foresporsel.getOppgaveId(), OffsetDateTime.now());
-        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
+        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(),
+            ForespørselTekster.STATUS_TEKST_DEFAULT); // Oppdaterer status i arbeidsgiver-notifikasjon
         forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
     }
 
@@ -124,7 +121,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
                 arbeidsgiverNotifikasjon.oppgaveUtgått(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
-                arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
+                arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
+                    ForespørselTekster.STATUS_TEKST_DEFAULT); // Oppdaterer status i arbeidsgiver-notifikasjon
                 forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
                 var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
@@ -152,14 +150,19 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                            LocalDate skjæringstidspunkt) {
         var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
-        var merkelapp = finnMerkelapp(ytelsetype);
+        var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
-        var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(), merkelapp, organisasjonsnummer.orgnr(), lagSaksTittel(person), skjemaUri);
+        var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
+            merkelapp,
+            organisasjonsnummer.orgnr(),
+            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato()),
+            skjemaUri,
+            ForespørselTekster.STATUS_TEKST_DEFAULT);
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
 
         var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), merkelapp, uuid.toString(), organisasjonsnummer.orgnr(),
-            "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", skjemaUri);
+            ForespørselTekster.lagOppgaveTekst(person.mapFulltNavn()), skjemaUri);
 
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
     }
@@ -169,12 +172,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             .filter(f -> orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
             .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
             .toList();
+
         // Alle inntektsmeldinger sendt inn via arbeidsgiverportal blir lukket umiddelbart etter innsending fra #InntektsmeldingTjeneste,
         // så forespørsler som enda er åpne her blir løst ved innsending fra andre systemer
-            forespørsler.forEach(f -> {
-                MetrikkerTjeneste.loggForespørselLukkEkstern(f.getYtelseType());
-                ferdigstillForespørsel(f.getUuid(), f.getAktørId(), new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()), f.getSkjæringstidspunkt());
-            });
+        forespørsler.forEach(f -> {
+            MetrikkerTjeneste.loggForespørselLukkEkstern(f.getYtelseType());
+            ferdigstillForespørsel(f.getUuid(), f.getAktørId(), new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()), f.getSkjæringstidspunkt());
+        });
     }
 
     private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {
@@ -193,21 +197,5 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         if (!forespørsel.getAktørId().equals(aktorId)) {
             throw new IllegalStateException("AktørId for bruker var ikke like");
         }
-    }
-
-    private Merkelapp finnMerkelapp(Ytelsetype ytelsetype) {
-        return switch (ytelsetype) {
-            case FORELDREPENGER -> Merkelapp.INNTEKTSMELDING_FP;
-            case PLEIEPENGER_SYKT_BARN -> Merkelapp.INNTEKTSMELDING_PSB;
-            case OMSORGSPENGER -> Merkelapp.INNTEKTSMELDING_OMP;
-            case SVANGERSKAPSPENGER -> Merkelapp.INNTEKTSMELDING_SVP;
-            case PLEIEPENGER_NÆRSTÅENDE -> Merkelapp.INNTEKTSMELDING_PILS;
-            case OPPLÆRINGSPENGER -> Merkelapp.INNTEKTSMELDING_OPP;
-        };
-    }
-
-    protected String lagSaksTittel(PersonInfo personInfo) {
-        return String.format("Inntektsmelding for %s: f. %s", StringUtils.capitalize(personInfo.mapNavn()),
-            personInfo.fødselsdato().format(DateTimeFormatter.ofPattern("ddMMyy")));
     }
 }

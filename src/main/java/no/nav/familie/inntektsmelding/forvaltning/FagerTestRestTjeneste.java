@@ -78,7 +78,7 @@ public class FagerTestRestTjeneste {
         sjekkAtSaksbehandlerHarRollenDrift();
 
         var sakId = notifikasjon.opprettSak(request.fagsakSaksnummer().saksnr(), finnMerkelapp(request.ytelsetype()), request.orgnummer().orgnr(),
-            "Inntektsmelding for TEST TESTERSEN: f." + request.aktørId().id(), this.skjemaLenke);
+            "Inntektsmelding for TEST TESTERSEN: f." + request.aktørId().id(), this.skjemaLenke, "");
 
         return Response.ok(sakId).build();
     }
@@ -216,6 +216,5 @@ public class FagerTestRestTjeneste {
     private void sjekkAtSaksbehandlerHarRollenDrift() {
         tilgangsstyring.sjekkAtSaksbehandlerHarRollenDrift();
     }
-
 }
 

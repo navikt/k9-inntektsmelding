@@ -20,7 +20,6 @@ import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
-import no.nav.familie.inntektsmelding.forvaltning.FagerTestRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.FpDokgenRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.ProsessTaskRestTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.AutentiseringFilter;
@@ -83,8 +82,7 @@ public class ForvaltningApiConfig extends ResourceConfig {
     }
 
     private Set<Class<?>> getApplicationClasses() {
-        return Set.of(FagerTestRestTjeneste.class,
-            ProsessTaskRestTjeneste.class,
+        return Set.of(ProsessTaskRestTjeneste.class,
             FpDokgenRestTjeneste.class);
     }
 
