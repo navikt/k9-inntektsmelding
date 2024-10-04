@@ -107,7 +107,7 @@ public class InntektsmeldingMapper {
         if (entitet.getMånedRefusjon() != null) {
             refusjoner.add(new SendInntektsmeldingRequestDto.Refusjon(entitet.getStartDato(), entitet.getMånedRefusjon()));
         }
-        if (entitet.getOpphørsdatoRefusjon() != null) {
+        if (entitet.getOpphørsdatoRefusjon() != null && !entitet.getOpphørsdatoRefusjon().equals(Tid.TIDENES_ENDE)) {
             refusjoner.add(new SendInntektsmeldingRequestDto.Refusjon(entitet.getOpphørsdatoRefusjon(), BigDecimal.ZERO));
         }
         entitet.getRefusjonsendringer().stream().map(i -> new SendInntektsmeldingRequestDto.Refusjon(i.getFom(), i.getRefusjonPrMnd())).forEach(refusjoner::add);
