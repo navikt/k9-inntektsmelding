@@ -175,7 +175,7 @@ class InntektsmeldingMapperTest {
     }
 
     @Test
-    void skal_teste_mapping_tilbake_til_dto_refusjon_opphhør_endring() {
+    void skal_teste_mapping_tilbake_til_dto_refusjon_opphør_endring() {
         // Arrange
         var imEntitet = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("9999999999999"))
@@ -244,5 +244,69 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
 
     }
+    @Test
+    void skal_teste_mapping_tilbake_til_dto_refusjon_ikke_opphør_eller_endring() {
+        // Arrange
+        var imEntitet = InntektsmeldingEntitet.builder()
+            .medAktørId(new AktørIdEntitet("9999999999999"))
+            .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
+            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(5000))
+            .medMånedRefusjon(BigDecimal.valueOf(5000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(LocalDate.now())
+            .medArbeidsgiverIdent("999999999")
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
+            .medBortfaltNaturalytelser(List.of(
+                    BortaltNaturalytelseEntitet.builder()
+                        .medPeriode(LocalDate.now(), Tid.TIDENES_ENDE)
+                        .medType(NaturalytelseType.LOSJI)
+                        .medMånedBeløp(new BigDecimal(20))
+                        .build(),
+                    BortaltNaturalytelseEntitet.builder()
+                        .medPeriode(LocalDate.now(), LocalDate.now().plusMonths(1))
+                        .medType(NaturalytelseType.BIL)
+                        .medMånedBeløp(new BigDecimal(77))
+                        .build()
+                )
+            )
+            .medEndringsårsaker(List.of(
+                EndringsårsakEntitet.builder()
+                    .medFom(LocalDate.now())
+                    .medTom(LocalDate.now().plusDays(10))
+                    .medÅrsak(Endringsårsak.FERIE)
+                    .build(),
+                EndringsårsakEntitet.builder()
+                    .medBleKjentFra(LocalDate.now())
+                    .medÅrsak(Endringsårsak.TARIFFENDRING)
+                    .build()
+            ))
+            .build();
 
+        var forespørselUuid = UUID.randomUUID();
+
+        // Act
+        var imDto = InntektsmeldingMapper.mapFraEntitet(imEntitet, forespørselUuid);
+
+        // Assert
+        assertThat(imDto.aktorId().id()).isEqualTo(imEntitet.getAktørId().getAktørId());
+        assertThat(imDto.arbeidsgiverIdent().ident()).isEqualTo(imEntitet.getArbeidsgiverIdent());
+        assertThat(imDto.inntekt()).isEqualByComparingTo(imEntitet.getMånedInntekt());
+        assertThat(imDto.startdato()).isEqualTo(imEntitet.getStartDato());
+        assertThat(KodeverkMapper.mapYtelsetype(imDto.ytelse())).isEqualTo(imEntitet.getYtelsetype());
+        assertThat(BigDecimal.valueOf(5000)).isEqualByComparingTo(imEntitet.getMånedRefusjon());
+        assertThat(imDto.kontaktperson().navn()).isEqualTo(imEntitet.getKontaktperson().getNavn());
+        assertThat(imDto.kontaktperson().telefonnummer()).isEqualTo(imEntitet.getKontaktperson().getTelefonnummer());
+        assertThat(imDto.bortfaltNaturalytelsePerioder()).hasSize(2);
+        assertThat(imDto.bortfaltNaturalytelsePerioder().get(0).tom()).isNull();
+        assertThat(imDto.bortfaltNaturalytelsePerioder().get(0).fom()).isEqualTo(imEntitet.getBorfalteNaturalYtelser().get(0).getPeriode().getFom());
+        assertThat(imDto.refusjon()).hasSize(1);
+        assertThat(imDto.refusjon().get(0).fom()).isEqualTo(imEntitet.getStartDato());
+        assertThat(imDto.refusjon().get(0).beløp()).isEqualByComparingTo(imEntitet.getMånedRefusjon());
+        assertThat(imDto.opprettetTidspunkt()).isEqualTo(imEntitet.getOpprettetTidspunkt());
+        assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
+        assertThat(imDto.endringAvInntektÅrsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
+        assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
+
+    }
 }
