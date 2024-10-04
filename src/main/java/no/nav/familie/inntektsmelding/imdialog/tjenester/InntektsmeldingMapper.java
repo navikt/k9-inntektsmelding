@@ -28,19 +28,22 @@ import no.nav.vedtak.konfig.Tid;
 public class InntektsmeldingMapper {
 
     public static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingRequestDto dto) {
+        // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne list
+        var refusjonPrMnd = finnFørsteRefusjon(dto.refusjon(), dto.startdato()).orElse(null);
+        var opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(dto.refusjon(), dto.startdato()).orElse(Tid.TIDENES_ENDE);
         return InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet(dto.aktorId().id()))
             .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
             .medMånedInntekt(dto.inntekt())
             .medKildesystem(Kildesystem.ARBEIDSGIVERPORTAL)
-            .medMånedRefusjon(finnFørsteRefusjon(dto.refusjon(), dto.startdato()).orElse(null))
-            .medRefusjonOpphørsdato(finnOpphørsdato(dto.refusjon(), dto.startdato()).orElse(Tid.TIDENES_ENDE))
+            .medMånedRefusjon(refusjonPrMnd)
+            .medRefusjonOpphørsdato(opphørsdato)
             .medStartDato(dto.startdato())
             .medYtelsetype(KodeverkMapper.mapYtelsetype(dto.ytelse()))
             .medKontaktperson(mapKontaktPerson(dto))
             .medEndringsårsaker(mapEndringsårsaker(dto.endringAvInntektÅrsaker()))
             .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(dto.bortfaltNaturalytelsePerioder()))
-            .medRefusjonsendringer(mapRefusjonsendringer(dto.startdato(), dto.refusjon()))
+            .medRefusjonsendringer(mapRefusjonsendringer(dto.startdato(), opphørsdato, dto.refusjon()))
             .build();
     }
 
@@ -121,8 +124,13 @@ public class InntektsmeldingMapper {
         return sisteEndring.filter(en -> en.beløp().compareTo(BigDecimal.ZERO) == 0).map(SendInntektsmeldingRequestDto.Refusjon::fom);
     }
 
-    private static List<RefusjonsendringEntitet> mapRefusjonsendringer(LocalDate startdato, List<SendInntektsmeldingRequestDto.Refusjon> refusjonsendringRequestDto) {
-        return refusjonsendringRequestDto.stream().filter(r -> !r.fom().equals(startdato)).map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp())).toList();
+    private static List<RefusjonsendringEntitet> mapRefusjonsendringer(LocalDate startdato, LocalDate opphørsdato, List<SendInntektsmeldingRequestDto.Refusjon> refusjonsendringRequestDto) {
+        // Opphør og start ligger på egne felter, så disse skal ikke mappes som endringer
+        return refusjonsendringRequestDto.stream()
+            .filter(r -> !r.fom().equals(startdato))
+            .filter(r -> !r.fom().equals(opphørsdato))
+            .map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp()))
+            .toList();
     }
 
     private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto> dto) {
