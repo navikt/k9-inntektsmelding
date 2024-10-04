@@ -42,7 +42,6 @@ public class ForespørselRest {
     public static final String BASE_PATH = "/foresporsel";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private ForespørselTjeneste forespørselTjeneste;
 
     public ForespørselRest() {
     }
@@ -50,7 +49,6 @@ public class ForespørselRest {
     @Inject
     public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
-        this.forespørselTjeneste = forespørselTjeneste;
     }
 
     @POST
@@ -78,18 +76,6 @@ public class ForespørselRest {
         );
 
         return Response.ok().build();
-    }
-
-    /**
-     * @param forespørselUUID
-     * @deprecated See på InntektsmeldingDialogRest.hentInnsendingsinfo()
-     */
-    @Deprecated(forRemoval = true, since = "18.06.2024")
-    @GET
-    @Path("/{uuid}")
-    @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER_PORTAL, action = ActionType.READ)
-    public Response readForespørsel(@PathParam("uuid") UUID forespørselUUID) {
-        return Response.ok(forespørselTjeneste.finnForespørsel(forespørselUUID).map(ForespørselRest::mapTilDto).orElseThrow()).build();
     }
 
     @POST
