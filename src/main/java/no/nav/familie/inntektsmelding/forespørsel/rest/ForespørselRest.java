@@ -64,7 +64,7 @@ public class ForespørselRest {
     }
 
     @POST
-    @Path("/oppdater-forespørsler")
+    @Path("/oppdater")
     @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER_PORTAL, action = ActionType.WRITE)
     public Response oppdaterForespørsler(OppdaterForespørslerRequest request) {
         LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på fagsakSaksnummer " + request.fagsakSaksnummer());
