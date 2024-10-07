@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.rest;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record InntektsmeldingResponseDto(
     @NotNull Long id,
     @NotNull @Valid UUID foresporselUuid, @NotNull @Valid AktørIdDto aktorId,
