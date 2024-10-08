@@ -181,6 +181,17 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         });
     }
 
+    public void lukkAlleForespørselerForFagsak(SaksnummerDto fagsakSaksnummer) {
+        var forespørsler = forespørselTjeneste.finnÅpneForespørslerForFagsak(fagsakSaksnummer).stream()
+            .filter(f -> f.getStatus() == ForespørselStatus.UNDER_BEHANDLING)
+            .toList();
+
+        forespørsler.forEach(f -> {
+            MetrikkerTjeneste.loggForespørselLukkEkstern(f.getYtelseType());
+            ferdigstillForespørsel(f.getUuid(), f.getAktørId(), new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()), f.getSkjæringstidspunkt());
+        });
+    }
+
     private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {
         if (!forespørsel.getSkjæringstidspunkt().equals(startdato)) {
             throw new IllegalStateException("Startdato var ikke like");

@@ -7,10 +7,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -83,6 +81,15 @@ public class ForespørselRest {
     public Response lukkForespørsel(LukkForespørselRequest request) {
         LOG.info("Lukk forespørsel for fagsakSaksnummer {} med orgnummer {} og skjæringstidspunkt {}", request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
         forespørselBehandlingTjeneste.lukkForespørsel(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/lukk-alle")
+    public Response lukkAlleForespørseler(LukkAlleForespørselerRequest request) {
+        LOG.info("Lukk alle forespørseler for fagsakSaksnummer {}", request.fagsakSaksnummer());
+
+        forespørselBehandlingTjeneste.lukkAlleForespørselerForFagsak(request.fagsakSaksnummer());
         return Response.ok().build();
     }
 

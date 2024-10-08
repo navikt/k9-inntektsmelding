@@ -30,4 +30,6 @@ public interface ForespørselBehandlingTjeneste {
                               SaksnummerDto fagsakSaksnummer);
 
     void lukkForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
+
+    void lukkAlleForespørselerForFagsak(SaksnummerDto fagsakSaksnummer);
 }
