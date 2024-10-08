@@ -85,11 +85,11 @@ public class ForespørselRest {
     }
 
     @POST
-    @Path("/lukk-alle")
-    public Response lukkAlleForespørseler(LukkAlleForespørselerRequest request) {
-        LOG.info("Lukk alle forespørseler for fagsakSaksnummer {}", request.fagsakSaksnummer());
+    @Path("/utgatt")
+    public Response settAlleForespørslerTilUtgått(SettAlleForespørslerTilUtgåttRequest request) {
+        LOG.info("Setter alle forespørsler for fagsakSaksnummer {} til UTGÅTT", request.fagsakSaksnummer());
 
-        forespørselBehandlingTjeneste.lukkAlleForespørselerForFagsak(request.fagsakSaksnummer());
+        forespørselBehandlingTjeneste.settAlleForespørslerTilUtgått(request.fagsakSaksnummer());
         return Response.ok().build();
     }
 

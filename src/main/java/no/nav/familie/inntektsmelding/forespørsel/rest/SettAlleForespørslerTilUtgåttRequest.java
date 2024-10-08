@@ -5,5 +5,5 @@ import jakarta.validation.constraints.NotNull;
 
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 
-public record LukkAlleForespørselerRequest(@NotNull @Valid SaksnummerDto fagsakSaksnummer) {
+public record SettAlleForespørslerTilUtgåttRequest(@NotNull @Valid SaksnummerDto fagsakSaksnummer) {
 }
