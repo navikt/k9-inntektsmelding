@@ -28,7 +28,7 @@ import no.nav.vedtak.konfig.Tid;
 public class InntektsmeldingMapper {
 
     public static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingRequestDto dto) {
-        // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne list
+        // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne lista.
         var refusjonPrMnd = finnFørsteRefusjon(dto.refusjon(), dto.startdato()).orElse(null);
         var opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(dto.refusjon(), dto.startdato()).orElse(Tid.TIDENES_ENDE);
         return InntektsmeldingEntitet.builder()
