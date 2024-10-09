@@ -31,5 +31,5 @@ public interface ForespørselBehandlingTjeneste {
 
     void lukkForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
 
-    void settAlleForespørslerTilUtgått(SaksnummerDto fagsakSaksnummer);
+    void lukkÅpneForespørsler(SaksnummerDto fagsakSaksnummer);
 }

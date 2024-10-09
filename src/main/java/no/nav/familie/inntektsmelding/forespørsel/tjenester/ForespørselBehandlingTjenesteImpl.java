@@ -185,7 +185,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         });
     }
 
-    public void settAlleForespørslerTilUtgått(SaksnummerDto fagsakSaksnummer) {
+    public void lukkÅpneForespørsler(SaksnummerDto fagsakSaksnummer) {
         var forespørsler = forespørselTjeneste.finnÅpneForespørslerForFagsak(fagsakSaksnummer).stream()
             .filter(f -> f.getStatus() == ForespørselStatus.UNDER_BEHANDLING)
             .toList();
