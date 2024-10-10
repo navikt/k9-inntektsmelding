@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,11 +70,15 @@ public class ForespørselBehandlingTjenesteImplTest {
         when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(BRREG_ORGNUMMER), eq(sakTittel), any(), eq(sakStatus))).thenReturn(SAK_ID);
         when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(BRREG_ORGNUMMER), any(), any())).thenReturn(OPPGAVE_ID);
 
-        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER), new SaksnummerDto(SAKSNUMMMER));
+        var resultat = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
+            YTELSETYPE,
+            new AktørIdEntitet(AKTØR_ID),
+            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
+            new SaksnummerDto(SAKSNUMMMER));
 
         var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER));
 
+        assertThat(resultat).isEqualTo(ForespørselResultat.FORESPØRSEL_OPPRETTET);
         assertThat(lagret.size()).isEqualTo(1);
         assertThat(lagret.getFirst().getArbeidsgiverNotifikasjonSakId()).isEqualTo(SAK_ID);
         assertThat(lagret.getFirst().getOppgaveId()).isEqualTo(OPPGAVE_ID);
@@ -83,11 +89,12 @@ public class ForespørselBehandlingTjenesteImplTest {
     public void eksisterende_åpen_forespørsel_skal_gi_noop() {
         forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
 
-        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, new AktørIdEntitet(AKTØR_ID),
+        var resultat = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER), new SaksnummerDto(SAKSNUMMMER));
 
 
         var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER));
+        assertThat(resultat).isEqualTo(ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE_ÅPEN);
         assertThat(lagret.size()).isEqualTo(1);
     }
 
