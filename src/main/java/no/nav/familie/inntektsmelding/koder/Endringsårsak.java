@@ -4,16 +4,27 @@ package no.nav.familie.inntektsmelding.koder;
  * Hvorfor inntekt i inntektsmeldingen er endret fra snittet de siste tre måneder
  */
 public enum Endringsårsak {
-    PERMITTERING,
-    NY_STILLING,
-    NY_STILLINGSPROSENT,
-    SYKEFRAVÆR,
-    BONUS,
-    FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER,
-    NYANSATT,
-    MANGELFULL_RAPPORTERING_AORDNING,
-    TARIFFENDRING,
-    FERIE,
-    VARIG_LØNNSENDRING,
-    PERMISJON
+    PERMITTERING( "Permittert"),
+    NY_STILLING("Ny stilling"),
+    NY_STILLINGSPROSENT("Ny stillingsprosent"),
+    SYKEFRAVÆR("Sykefravær"),
+    BONUS("Bonus"),
+    FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER("Ferietrekkel eller utbetaling av feriepenger"),
+    NYANSATT("Nyansatt"),
+    MANGELFULL_RAPPORTERING_AORDNING("Mangelfull rapportering i a-ordning"),
+    TARIFFENDRING("Tariffendring"),
+    FERIE("Ferie"),
+    VARIG_LØNNSENDRING("Varig lønnsendring"),
+    PERMISJON("Permisjon");
+
+    private final String beskrivelse;
+
+    Endringsårsak(String beskrivelse) {
+        this.beskrivelse = beskrivelse;
+    }
+
+    public String getBeskrivelse() {
+        return beskrivelse;
+    }
 }
+

@@ -30,7 +30,6 @@ class NaturalYtelseMapperTest {
 
         assertThat(resultat).isNotNull().isNotEmpty().hasSize(2).allSatisfy(ytelse -> {
             assertTrue(ytelse.bortfallt());
-            assertThat(ytelse.tom()).isNull();
             assertThat(ytelse.beløp()).isEqualTo(BELØP);
         });
     }
@@ -50,14 +49,12 @@ class NaturalYtelseMapperTest {
         // Bortfalt
         assertThat(resultat.stream().filter(NaturalYtelseMapper.NaturalYtelse::bortfallt)).hasSize(2).allSatisfy(ytelse -> {
             assertTrue(ytelse.bortfallt());
-            assertThat(ytelse.tom()).isNotNull();
             assertThat(ytelse.beløp()).isEqualTo(BELØP);
         });
 
         // Tilkommet
         assertThat(resultat.stream().filter(ytelse -> !ytelse.bortfallt())).hasSize(2).allSatisfy(ytelse -> {
             assertFalse(ytelse.bortfallt());
-            assertThat(ytelse.tom()).isNull();
             assertThat(ytelse.beløp()).isEqualTo(BELØP);
         });
     }
@@ -77,14 +74,12 @@ class NaturalYtelseMapperTest {
         // Bortfalt
         assertThat(resultat.stream().filter(NaturalYtelseMapper.NaturalYtelse::bortfallt)).hasSize(2).allSatisfy(ytelse -> {
             assertTrue(ytelse.bortfallt());
-            assertThat(ytelse.tom()).isNotNull();
             assertThat(ytelse.beløp()).isEqualTo(BELØP);
         });
 
         // Tilkommet
         assertThat(resultat.stream().filter(ytelse -> !ytelse.bortfallt())).hasSize(2).allSatisfy(ytelse -> {
             assertFalse(ytelse.bortfallt());
-            assertThat(ytelse.tom()).isNull();
             assertThat(ytelse.beløp()).isEqualTo(BELØP);
         });
     }

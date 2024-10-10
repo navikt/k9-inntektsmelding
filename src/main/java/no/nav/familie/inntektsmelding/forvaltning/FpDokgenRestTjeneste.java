@@ -1,11 +1,13 @@
 package no.nav.familie.inntektsmelding.forvaltning;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper.mapEndringsårsak;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,6 +22,11 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
+import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
+import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
+import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,9 +95,12 @@ public class FpDokgenRestTjeneste {
                 .medOpprettetTidspunkt(LocalDateTime.now())
                 .medMånedRefusjon(inntektsmeldingRequest.maanedRefusjon())
                 .medStartDato(inntektsmeldingRequest.startdatoPermisjon())
-                .medArbeidsgiverIdent(inntektsmeldingRequest.arbeidsgiverIdent());
+                .medArbeidsgiverIdent(inntektsmeldingRequest.arbeidsgiverIdent())
+                .medEndringsårsaker(mapEndringsårsker(inntektsmeldingRequest.endringsårsaker));
 
-            if (inntektsmeldingRequest.opphoersdatoRefusjon() == null) {
+            if (inntektsmeldingRequest.opphoersdatoRefusjon() != null) {
+                builder.medRefusjonOpphørsdato(inntektsmeldingRequest.opphoersdatoRefusjon());
+            } else {
                 builder.medRefusjonOpphørsdato(Tid.TIDENES_ENDE);
             }
 
@@ -111,9 +121,22 @@ public class FpDokgenRestTjeneste {
         return responseBuilder.build();
     }
 
-    private List<RefusjonsendringEntitet> mapRefusjonsendringer(List<EndringRefusjonDto> refusjonsendringer) {
-        return refusjonsendringer.stream().map(periode -> new RefusjonsendringEntitet(periode.fom(), periode.beloep())).toList();
+    private List<EndringsårsakEntitet> mapEndringsårsker(List<EndringsårsakerDto> endringsårsaker) {
+        return endringsårsaker.stream().map(endringsårsak -> new EndringsårsakEntitet.Builder().
+            medÅrsak(mapEndringsårsak(endringsårsak.aarsak()))
+            .medFom(endringsårsak.fom())
+            .medTom(endringsårsak.tom())
+            .medBleKjentFra(endringsårsak.bleKjentFom())
+            .build())
+            .toList();
     }
+
+    private List<RefusjonsendringEntitet> mapRefusjonsendringer(List<EndringRefusjonDto> refusjonsendringer) {
+        return refusjonsendringer.stream().
+            map(periode -> new RefusjonsendringEntitet(periode.fom(), periode.beloep()))
+            .toList();
+    }
+
 
     private List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<BortfaltNaturalytelseDto> naturalYtelser) {
         return naturalYtelser.stream()
@@ -140,7 +163,8 @@ public class FpDokgenRestTjeneste {
                                          String kontaktpersonTlf, LocalDate startdatoPermisjon, LocalDate opphoersdatoRefusjon,
                                          @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedRefusjon,
                                          @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedInntekt,
-                                         List<EndringRefusjonDto> refusjonsendringer, List<BortfaltNaturalytelseDto> naturalytelser) {
+                                         List<EndringRefusjonDto> refusjonsendringer, List<BortfaltNaturalytelseDto> naturalytelser,
+                                         List<EndringsårsakerDto> endringsårsaker) {
     }
 
     public record EndringRefusjonDto(@NotNull LocalDate fom,
@@ -149,6 +173,9 @@ public class FpDokgenRestTjeneste {
 
     public record BortfaltNaturalytelseDto(@NotNull LocalDate fom, LocalDate tom, NaturalytelseType type,
                                            @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedBortfaltNaturalytelse) {
+    }
+
+    public record EndringsårsakerDto(@NotNull EndringsårsakDto aarsak, LocalDate fom, LocalDate tom, LocalDate bleKjentFom) {
     }
 
     private void sjekkAtSaksbehandlerHarRollenDrift() {

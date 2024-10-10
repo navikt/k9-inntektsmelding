@@ -30,9 +30,9 @@ public class NaturalYtelseMapper {
         List<NaturalYtelse> resultat = new ArrayList<>(bortfalteNaturalYtelser);
         LOG.info("Fant {} bortfalte naturalytelser", resultat.size());
 
-        var tilkomneNaturalYtelser = bortfalteNaturalYtelser.stream()
-            .filter(bn -> bn.tom() != null)
-            .map(bortfalt -> mapTilkomneNaturalYtelser(bortfalt, bortfalteNaturalYtelser))
+        var tilkomneNaturalYtelser = naturalYtelseEntiteter.stream()
+            .filter(naturalytelseEntitet -> naturalytelseEntitet.getPeriode().getTom().isBefore(Tid.TIDENES_ENDE))
+            .map(NaturalYtelseMapper::mapTilkomneNaturalYtelser)
             .toList();
 
         LOG.info("Utledet {} tilkomne naturalytelser", tilkomneNaturalYtelser.size());
@@ -44,36 +44,20 @@ public class NaturalYtelseMapper {
     private static NaturalYtelse mapBortfalteNaturalYtelser(BortaltNaturalytelseEntitet bortfalt) {
         return new NaturalYtelse(
             bortfalt.getPeriode().getFom(),
-            bortfalt.getPeriode().getTom().equals(Tid.TIDENES_ENDE) ? null : bortfalt.getPeriode().getTom(),
             bortfalt.getType(),
             bortfalt.getMånedBeløp(),
             true);
     }
 
-    private static NaturalYtelse mapTilkomneNaturalYtelser(NaturalYtelse tilkommet,
-                                                           List<NaturalYtelse> alleBortfalteNarutalYtelser) {
-
-        var tomForTilkommet = finnNesteTomForTilkommet(tilkommet, alleBortfalteNarutalYtelser).orElse(null);
-
-        return new NaturalYtelse(tilkommet.tom().plusDays(1),
-            tomForTilkommet,
-            tilkommet.type(),
-            tilkommet.beløp(),
+    private static NaturalYtelse mapTilkomneNaturalYtelser(BortaltNaturalytelseEntitet tilkommet) {
+        return new NaturalYtelse(tilkommet.getPeriode().getTom().plusDays(1),
+            tilkommet.getType(),
+            tilkommet.getMånedBeløp(),
             false);
 
     }
 
-    private static Optional<LocalDate> finnNesteTomForTilkommet(NaturalYtelse tilkommet,
-                                                                List<NaturalYtelse> bortfalteNaturalYtelser) {
-        var nesteTom = bortfalteNaturalYtelser.stream()
-            .filter(bortfalteYtelser -> bortfalteYtelser.type().equals(tilkommet.type()) && bortfalteYtelser.fom().isAfter(tilkommet.tom()))
-            .map(NaturalYtelse::fom)
-            .min(Comparator.naturalOrder());
-
-        return nesteTom.map(d -> d.minusDays(1));
-    }
-
-    public record NaturalYtelse(LocalDate fom, LocalDate tom, NaturalytelseType type, BigDecimal beløp, boolean bortfallt) {
+    public record NaturalYtelse(LocalDate fom, NaturalytelseType type, BigDecimal beløp, boolean bortfallt) {
     }
 
 }
