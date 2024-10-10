@@ -7,13 +7,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +55,16 @@ public class ForespørselRest {
     @Path("/opprett")
     public Response opprettForespørsel(OpprettForespørselRequest request) {
         LOG.info("Mottok forespørsel om inntektsmeldingoppgave på fagsakSaksnummer " + request.fagsakSaksnummer());
-        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), KodeverkMapper.mapYtelsetype(request.ytelsetype()),
-            new AktørIdEntitet(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.fagsakSaksnummer());
+        var bleForespørselOpprettet = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(),
+            KodeverkMapper.mapYtelsetype(request.ytelsetype()),
+            new AktørIdEntitet(request.aktørId().id()),
+            new OrganisasjonsnummerDto(request.orgnummer().orgnr()),
+            request.fagsakSaksnummer());
 
-        MetrikkerTjeneste.loggForespørselOpprettet(KodeverkMapper.mapYtelsetype(request.ytelsetype()));
-
-        return Response.ok().build();
+        if (bleForespørselOpprettet.equals(ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
+            MetrikkerTjeneste.loggForespørselOpprettet(KodeverkMapper.mapYtelsetype(request.ytelsetype()));
+        }
+        return Response.ok(new OpprettForespørselResponse(bleForespørselOpprettet)).build();
     }
 
     @POST
