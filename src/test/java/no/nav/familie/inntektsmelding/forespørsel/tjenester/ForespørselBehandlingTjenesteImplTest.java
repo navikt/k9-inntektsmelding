@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import no.nav.familie.inntektsmelding.database.JpaExtension;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -36,6 +39,8 @@ public class ForespørselBehandlingTjenesteImplTest {
     private static final String AKTØR_ID = "1234567891234";
     private static final String SAK_ID = "1";
     private static final String OPPGAVE_ID = "2";
+    private static final String SAK_ID_2 = "3";
+    private static final String OPPGAVE_ID_2 = "4";
     private static final String SAKSNUMMMER = "FAGSAK_SAKEN";
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusYears(1);
     private static final Ytelsetype YTELSETYPE = Ytelsetype.PLEIEPENGER_SYKT_BARN;
@@ -59,14 +64,7 @@ public class ForespørselBehandlingTjenesteImplTest {
 
     @Test
     public void skal_opprette_forespørsel_og_sette_sak_og_oppgave() {
-        var personInfo = new PersonInfo("Navn", null, "Navnesen", new PersonIdent("01019100000"), new AktørIdEntitet(AKTØR_ID),
-            LocalDate.of(1991, 1, 1).minusYears(30), null);
-        var sakTittel = ForespørselTekster.lagSaksTittel(personInfo.mapFulltNavn(), personInfo.fødselsdato());
-        var sakStatus = ForespørselTekster.STATUS_TEKST_DEFAULT;
-
-        when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(AKTØR_ID), YTELSETYPE)).thenReturn(personInfo);
-        when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(BRREG_ORGNUMMER), eq(sakTittel), any(), eq(sakStatus))).thenReturn(SAK_ID);
-        when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(BRREG_ORGNUMMER), any(), any())).thenReturn(OPPGAVE_ID);
+        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
 
         forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER), new SaksnummerDto(SAKSNUMMMER));
@@ -108,7 +106,11 @@ public class ForespørselBehandlingTjenesteImplTest {
     public void skal_lukke_alle_forespørspørsler_for_sak() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
-        var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2), YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2),
+            YTELSETYPE,
+            AKTØR_ID,
+            BRREG_ORGNUMMER,
+            SAKSNUMMMER);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid2, "2");
 
         forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), null);
@@ -123,10 +125,16 @@ public class ForespørselBehandlingTjenesteImplTest {
     public void skal_lukke_forespørsel_for_sak_med_gitt_stp() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
-        var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2), YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2),
+            YTELSETYPE,
+            AKTØR_ID,
+            BRREG_ORGNUMMER,
+            SAKSNUMMMER);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, "2");
 
-        forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), SKJÆRINGSTIDSPUNKT);
+        forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER),
+            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
+            SKJÆRINGSTIDSPUNKT);
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
@@ -134,4 +142,87 @@ public class ForespørselBehandlingTjenesteImplTest {
         assertThat(lagret2.get().getStatus()).isEqualTo(ForespørselStatus.UNDER_BEHANDLING);
     }
 
+    @Test
+    public void skal_opprette_forespørsel_dersom_det_ikke_eksisterer_en_for_stp() {
+        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
+
+        var orgPerStp = new HashMap<LocalDate, List<OrganisasjonsnummerDto>>() {{
+            put(SKJÆRINGSTIDSPUNKT, List.of(new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
+        }};
+        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, new SaksnummerDto(SAKSNUMMMER));
+
+        List<ForespørselEntitet> forespørslerForFagsak = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER));
+        assertThat(forespørslerForFagsak.size()).isEqualTo(1);
+        assertThat(forespørslerForFagsak.getFirst().getStatus()).isEqualTo(ForespørselStatus.UNDER_BEHANDLING);
+    }
+
+    @Test
+    public void skal_ikke_opprette_ny_forespørsel_dersom_det_eksisterer_en_for_samme_stp() {
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+
+        var orgPerStp = new HashMap<LocalDate, List<OrganisasjonsnummerDto>>() {{
+            put(SKJÆRINGSTIDSPUNKT, List.of(new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
+        }};
+        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, new SaksnummerDto(SAKSNUMMMER));
+
+        List<ForespørselEntitet> forespørslerForFagsak = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER));
+        assertThat(forespørslerForFagsak.size()).isEqualTo(1);
+        assertThat(forespørslerForFagsak.getFirst().getStatus()).isEqualTo(ForespørselStatus.UNDER_BEHANDLING);
+    }
+
+    @Test
+    public void skal_opprette_ny_forespørsel_og_beholde_gammel_dersom_vi_ber_om_et_nytt_stp() {
+        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
+
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+
+        var orgPerStp = new HashMap<LocalDate, List<OrganisasjonsnummerDto>>() {{
+            put(SKJÆRINGSTIDSPUNKT, List.of(new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
+            put(SKJÆRINGSTIDSPUNKT.plusDays(10), List.of(new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
+        }};
+        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, new SaksnummerDto(SAKSNUMMMER));
+
+        List<ForespørselEntitet> forespørslerForFagsak = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER));
+        assertThat(forespørslerForFagsak.size()).isEqualTo(2);
+        assertThat(forespørslerForFagsak.get(0).getStatus()).isEqualTo(ForespørselStatus.UNDER_BEHANDLING);
+        assertThat(forespørslerForFagsak.get(1).getStatus()).isEqualTo(ForespørselStatus.UNDER_BEHANDLING);
+    }
+
+    @Test
+    public void skal_opprette_ny_forespørsel_og_markere_gammel_som_utgått_dersom_vi_erstatter_stp() {
+        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
+
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+
+        var orgPerStp = new HashMap<LocalDate, List<OrganisasjonsnummerDto>>() {{
+            put(SKJÆRINGSTIDSPUNKT.plusDays(10), List.of(new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
+        }};
+
+        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID_2, OPPGAVE_ID_2);
+        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, new SaksnummerDto(SAKSNUMMMER));
+
+
+        var forespørslerForFagsak = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER));
+        var utgåtteForespørsler = forespørslerForFagsak.stream().filter(f -> f.getStatus() == ForespørselStatus.UTGÅTT).toList();
+        var forespørslerUnderBehandling = forespørslerForFagsak.stream().filter(f -> f.getStatus() == ForespørselStatus.UNDER_BEHANDLING).toList();
+        assertThat(forespørslerForFagsak.size()).isEqualTo(2);
+        assertThat(forespørslerUnderBehandling.size()).isEqualTo(1);
+        assertThat(utgåtteForespørsler.size()).isEqualTo(1);
+    }
+
+
+
+    private void mockInfoForOpprettelse(String aktørId, Ytelsetype ytelsetype, String brregOrgnummer, String sakId, String oppgaveId) {
+        var personInfo = new PersonInfo("Navn", null, "Navnesen", new PersonIdent("01019100000"), new AktørIdEntitet(aktørId),
+            LocalDate.of(1991, 1, 1).minusYears(30), null);
+        var sakTittel = ForespørselTekster.lagSaksTittel(personInfo.mapFulltNavn(), personInfo.fødselsdato());
+        var sakStatus = ForespørselTekster.STATUS_TEKST_DEFAULT;
+
+        when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørId), ytelsetype)).thenReturn(personInfo);
+        when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(brregOrgnummer), eq(sakTittel), any(), eq(sakStatus))).thenReturn(sakId);
+        when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(brregOrgnummer), any(), any())).thenReturn(oppgaveId);
+    }
 }
