@@ -3,11 +3,13 @@ package no.nav.familie.inntektsmelding.forespørsel.rest;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.UUID;
+
+import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +38,7 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         this.forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
-        doNothing().when(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(any(), any(), any(), any(), any());
+        when(forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(any(), any(), any(), any(), any())).thenReturn(ForespørselResultat.FORESPØRSEL_OPPRETTET);
         this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste);
     }
 
@@ -50,6 +52,7 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
             new OpprettForespørselRequest(aktørId, orgnummer, LocalDate.now(), YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+        assertThat(response.getEntity()).isEqualTo(new OpprettForespørselResponse(ForespørselResultat.FORESPØRSEL_OPPRETTET));
         verify(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(eq(LocalDate.now()), eq(Ytelsetype.PLEIEPENGER_SYKT_BARN),
             eq(new AktørIdEntitet(aktørId.id())), eq(orgnummer), eq(fagsakSaksnummer));
     }

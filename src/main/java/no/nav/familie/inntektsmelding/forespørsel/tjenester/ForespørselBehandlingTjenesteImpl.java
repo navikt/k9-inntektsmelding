@@ -11,6 +11,8 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     @Override
-    public void håndterInnkommendeForespørsel(LocalDate skjæringstidspunkt,
+    public ForespørselResultat håndterInnkommendeForespørsel(LocalDate skjæringstidspunkt,
                                               Ytelsetype ytelsetype,
                                               AktørIdEntitet aktørId,
                                               OrganisasjonsnummerDto organisasjonsnummer,
@@ -61,10 +63,11 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             var msg = String.format("Finnes allerede forespørsel for aktør %s på startdato %s + på ytelse %s", aktørId, skjæringstidspunkt,
                 ytelsetype);
             LOG.info(msg);
-            return;
+            return ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE_ÅPEN;
         }
 
         opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
+        return ForespørselResultat.FORESPØRSEL_OPPRETTET;
     }
 
     @Override
