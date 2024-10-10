@@ -9,6 +9,6 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 
 public record LukkForespørselRequest(@NotNull @Valid OrganisasjonsnummerDto orgnummer,
-                                     @NotNull @Valid SaksnummerDto saksnummer,
+                                     @NotNull @Valid SaksnummerDto fagsakSaksnummer,
                                      LocalDate skjæringstidspunkt) {
 }

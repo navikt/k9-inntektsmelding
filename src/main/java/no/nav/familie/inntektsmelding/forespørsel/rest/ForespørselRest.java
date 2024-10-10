@@ -85,8 +85,8 @@ public class ForespørselRest {
     @POST
     @Path("/lukk")
     public Response lukkForespørsel(LukkForespørselRequest request) {
-        LOG.info("Lukk forespørsel for fagsakSaksnummer {} med orgnummer {} og skjæringstidspunkt {}", request.saksnummer(), request.orgnummer(), request.skjæringstidspunkt());
-        forespørselBehandlingTjeneste.lukkForespørsel(request.saksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        LOG.info("Lukk forespørsel for fagsakSaksnummer {} med orgnummer {} og skjæringstidspunkt {}", request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        forespørselBehandlingTjeneste.lukkForespørsel(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
         return Response.ok().build();
     }
 
