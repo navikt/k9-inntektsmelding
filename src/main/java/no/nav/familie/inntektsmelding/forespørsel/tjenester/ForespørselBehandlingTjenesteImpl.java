@@ -138,8 +138,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     private boolean innholderRequestEksisterendeForespørsel(Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                                                             ForespørselEntitet eksisterendeForespørsel) {
         LocalDate stp = eksisterendeForespørsel.getSkjæringstidspunkt();
-        List<String> orgnrFraRequestForStp = organisasjonerPerSkjæringstidspunkt.get(stp).stream().map(OrganisasjonsnummerDto::orgnr).toList();
+        List<OrganisasjonsnummerDto> orgnrList = organisasjonerPerSkjæringstidspunkt.get(stp);
 
+        if (orgnrList == null) {
+            return false;
+        }
+
+        List<String> orgnrFraRequestForStp = orgnrList.stream().map(OrganisasjonsnummerDto::orgnr).toList();
         return orgnrFraRequestForStp.contains(eksisterendeForespørsel.getOrganisasjonsnummer());
     }
 
