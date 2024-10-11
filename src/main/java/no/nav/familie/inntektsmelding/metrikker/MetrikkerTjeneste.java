@@ -46,8 +46,10 @@ public class MetrikkerTjeneste {
         var harOppgittEndringerIRefusjon = inntektsmelding.getRefusjonsendringer() != null && !inntektsmelding.getRefusjonsendringer().isEmpty();
         var harOppgittOpphørAvRefusjon = inntektsmelding.getOpphørsdatoRefusjon() != null && !inntektsmelding.getOpphørsdatoRefusjon().equals(Tid.TIDENES_ENDE);
         var harOppgittNaturalytelse = inntektsmelding.getBorfalteNaturalYtelser() != null && !inntektsmelding.getBorfalteNaturalYtelser().isEmpty();
+        var harEndretInntekt = !inntektsmelding.getEndringsårsaker().isEmpty();
 
         tags.add(new ImmutableTag("ytelse", inntektsmelding.getYtelsetype().name()));
+        tags.add(new ImmutableTag("har_endret_inntekt", harEndretInntekt ? "Ja" : "Nei"));
         tags.add(new ImmutableTag("har_oppgitt_refusjon", harOppgittRefusjon ? "Ja" : "Nei"));
         tags.add(new ImmutableTag("har_oppgitt_endring_i_refusjon", harOppgittEndringerIRefusjon ? "Ja" : "Nei"));
         tags.add(new ImmutableTag("har_oppgitt_opphoer_av_refusjon", harOppgittOpphørAvRefusjon ? "Ja" : "Nei"));
