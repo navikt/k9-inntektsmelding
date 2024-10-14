@@ -20,8 +20,7 @@ class ForespørselTekster {
 
 
     public static String lagOppgaveTekst(String navn, Ytelsetype ytelseType) {
-        var formatertNavn = StringUtils.capitalize(navn.toLowerCase());
-        return String.format(OPPGAVE_TEKST_NY, formatertNavn, mapYtelsestypeNavn(ytelseType));
+        return String.format(OPPGAVE_TEKST_NY, capitalizeFully(navn), mapYtelsestypeNavn(ytelseType));
     }
 
     public static String lagSaksTittel(String navn, LocalDate fødselsdato) {
