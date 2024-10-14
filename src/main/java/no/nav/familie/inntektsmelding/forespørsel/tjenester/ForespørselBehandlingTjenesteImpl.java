@@ -170,7 +170,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
 
         var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(), merkelapp, uuid.toString(), organisasjonsnummer.orgnr(),
-            ForespørselTekster.lagOppgaveTekst(person.mapFulltNavn()), skjemaUri);
+            ForespørselTekster.lagOppgaveTekst(person.mapFulltNavn(), ytelsetype), skjemaUri);
 
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
     }

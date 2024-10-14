@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 class ForespørselTekster {
-    private static final String OPPGAVE_TEKST_NY = "Send inntektsmelding for %s som har søkt om foreldrepenger";
+    private static final String OPPGAVE_TEKST_NY = "Send inntektsmelding for %s som har søkt om %s";
 
 
     public static final String STATUS_TEKST_DEFAULT = "";
@@ -19,9 +19,8 @@ class ForespørselTekster {
     public static final String STATUS_TEKST_UTGÅTT = "Saksbehandler har gått videre uten inntektsmelding";
 
 
-    public static String lagOppgaveTekst(String navn) {
-        var formatertNavn = StringUtils.capitalize(navn.toLowerCase());
-        return String.format(OPPGAVE_TEKST_NY, formatertNavn);
+    public static String lagOppgaveTekst(String navn, Ytelsetype ytelseType) {
+        return String.format(OPPGAVE_TEKST_NY, capitalizeFully(navn), mapYtelsestypeNavn(ytelseType));
     }
 
     public static String lagSaksTittel(String navn, LocalDate fødselsdato) {
@@ -43,6 +42,16 @@ class ForespørselTekster {
             case SVANGERSKAPSPENGER -> Merkelapp.INNTEKTSMELDING_SVP;
             case PLEIEPENGER_NÆRSTÅENDE -> Merkelapp.INNTEKTSMELDING_PILS;
             case OPPLÆRINGSPENGER -> Merkelapp.INNTEKTSMELDING_OPP;
+        };
+    }
+    public  static String mapYtelsestypeNavn(Ytelsetype ytelsetype) {
+        return switch (ytelsetype) {
+            case FORELDREPENGER -> "foreldrepenger";
+            case PLEIEPENGER_SYKT_BARN -> "pleiepenger for sykt barn" ;
+            case OMSORGSPENGER -> "omsorgspenger";
+            case SVANGERSKAPSPENGER -> "svangerskapspenger";
+            case PLEIEPENGER_NÆRSTÅENDE -> "pleiepenger for nærtstående";
+            case OPPLÆRINGSPENGER -> "opplæringspenger";
         };
     }
 }
