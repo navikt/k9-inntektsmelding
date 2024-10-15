@@ -4,12 +4,12 @@ package no.nav.familie.inntektsmelding.koder;
  * Hvorfor inntekt i inntektsmeldingen er endret fra snittet de siste tre måneder
  */
 public enum Endringsårsak {
-    PERMITTERING( "Permittert"),
+    PERMITTERING("Permittert"),
     NY_STILLING("Ny stilling"),
     NY_STILLINGSPROSENT("Ny stillingsprosent"),
     SYKEFRAVÆR("Sykefravær"),
     BONUS("Bonus"),
-    FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER("Ferietrekkel eller utbetaling av feriepenger"),
+    FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER("Ferietrekk eller utbetaling av feriepenger"),
     NYANSATT("Nyansatt"),
     MANGELFULL_RAPPORTERING_AORDNING("Mangelfull rapportering i a-ordning"),
     TARIFFENDRING("Tariffendring"),

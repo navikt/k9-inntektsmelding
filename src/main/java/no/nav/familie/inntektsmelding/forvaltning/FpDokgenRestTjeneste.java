@@ -51,6 +51,7 @@ import no.nav.vedtak.konfig.Tid;
 @Path(FpDokgenRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 @AutentisertMedAzure
+/*Denne tjenesten er ment brukt til testformål, og eventuelt for å gjenskape feilsituasjoner i produksjon*/
 public class FpDokgenRestTjeneste {
     public static final String BASE_PATH = "/inntektsmelding-pdf";
     private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
