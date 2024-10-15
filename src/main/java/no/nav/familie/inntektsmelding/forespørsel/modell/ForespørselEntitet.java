@@ -143,7 +143,7 @@ public class ForespørselEntitet {
     @Override
     public String toString() {
         return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + maskerId(organisasjonsnummer)
-            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + aktørId + ", ytelseType=" + ytelseType + ", fagsystemSaksnummer="
+            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelseType=" + ytelseType + ", fagsystemSaksnummer="
             + fagsystemSaksnummer + '}';
     }
 
