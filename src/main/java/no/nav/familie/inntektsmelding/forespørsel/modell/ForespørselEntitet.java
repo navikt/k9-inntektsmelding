@@ -142,8 +142,20 @@ public class ForespørselEntitet {
 
     @Override
     public String toString() {
-        return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + organisasjonsnummer
-            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + aktørId + ", ytelseType=" + ytelseType + ", fagsystemSaksnummer="
+        return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + maskerId(organisasjonsnummer)
+            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelseType=" + ytelseType + ", fagsystemSaksnummer="
             + fagsystemSaksnummer + '}';
     }
+
+    private String maskerId(String id) {
+        if (id == null) {
+            return "";
+        }
+        var length = id.length();
+        if (length <= 4) {
+            return "*".repeat(length);
+        }
+        return "*".repeat(length - 4) + id.substring(length - 4);
+    }
+
 }
