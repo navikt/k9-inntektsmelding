@@ -157,7 +157,7 @@ public class InntektsmeldingXMLMapper {
         var inntektBeløp = of.createInntektBeloep(inntektsmeldingEntitet.getMånedInntekt());
         var inntekt = new Inntekt();
         inntekt.setBeloep(inntektBeløp);
-        // TODO Endringsårsak kan være enten "Tariffendring" eller "FeilInntekt", skal vi bruke disse?
+        // TODO Endringsarsak kan være enten "Tariffendring" eller "FeilInntekt", skal vi bruke disse?
         var inntektSkjemaVerdi = of.createArbeidsforholdBeregnetInntekt(inntekt);
         arbeidsforhold.setBeregnetInntekt(inntektSkjemaVerdi);
 

@@ -2,12 +2,13 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoNorsk;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
@@ -36,16 +37,23 @@ public class InntektsmeldingPdfDataMapper {
             .medNaturalytelser(mapNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
             .medIngenBortfaltNaturalytelse(erIngenBortalteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
             .medIngenGjenopptattNaturalytelse(erIngenGjenopptatteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
-            .medRefusjonsendringer(mapRefusjonsendringPerioder(inntektsmelding.getRefusjonsendringer()));
+            .medEndringsårsaker(mapEndringsårsaker(inntektsmelding.getEndringsårsaker()));
 
         if (inntektsmelding.getMånedRefusjon() != null) {
             imDokumentdataBuilder.medRefusjonsbeløp(inntektsmelding.getMånedRefusjon());
         }
-        if (inntektsmelding.getOpphørsdatoRefusjon() != null && inntektsmelding.getOpphørsdatoRefusjon().isBefore(Tid.TIDENES_ENDE)) {
-            imDokumentdataBuilder.medRefusjonOpphørsdato(inntektsmelding.getOpphørsdatoRefusjon());
-        }
+
+        var opphørsdato = inntektsmelding.getOpphørsdatoRefusjon() != null ? inntektsmelding.getOpphørsdatoRefusjon() : null;
+        imDokumentdataBuilder.medRefusjonsendringer(mapRefusjonsendringPerioder(inntektsmelding.getRefusjonsendringer(), opphørsdato));
 
         return imDokumentdataBuilder.build();
+    }
+
+    private static List<Endringsarsak> mapEndringsårsaker(List<EndringsårsakEntitet> endringsårsaker) {
+        return endringsårsaker.stream()
+            .map( endringsårsakEntitet -> new Endringsarsak(endringsårsakEntitet.getÅrsak().getBeskrivelse(), formaterDatoNorsk(endringsårsakEntitet.getFom().orElse(null)), formaterDatoNorsk(endringsårsakEntitet.getTom().orElse(null)),
+                formaterDatoNorsk(endringsårsakEntitet.getBleKjentFom().orElse(null))))
+            .toList();
     }
 
     private static Kontaktperson mapKontaktperson(InntektsmeldingEntitet inntektsmelding) {
@@ -61,7 +69,7 @@ public class InntektsmeldingPdfDataMapper {
     }
 
     private static boolean erIngenBortalteNaturalYtelser(List<BortaltNaturalytelseEntitet> naturalYtelser) {
-        return naturalYtelser.isEmpty() || naturalYtelser.stream().filter(n -> n.getPeriode().getTom().isEqual(Tid.TIDENES_ENDE)).toList().isEmpty();
+        return naturalYtelser.isEmpty();
     }
 
     private static List<NaturalYtelse> mapNaturalYtelser(List<BortaltNaturalytelseEntitet> naturalytelser) {
@@ -72,7 +80,6 @@ public class InntektsmeldingPdfDataMapper {
 
     private static NaturalYtelse opprettNaturalytelserTilBrev(NaturalYtelseMapper.NaturalYtelse bn) {
         return new NaturalYtelse(formaterDatoNorsk(bn.fom()),
-            bn.tom() == null ? null : formaterDatoNorsk(bn.tom()),
             mapTypeTekst(bn.type()),
             bn.beløp(),
             bn.bortfallt());
@@ -102,19 +109,14 @@ public class InntektsmeldingPdfDataMapper {
         };
     }
 
-    private static List<RefusjonsendringPeriode> mapRefusjonsendringPerioder(List<RefusjonsendringEntitet> refusjonsendringer) {
-        return refusjonsendringer.stream()
+    private static List<RefusjonsendringPeriode> mapRefusjonsendringPerioder(List<RefusjonsendringEntitet> refusjonsendringer, LocalDate opphørsdato) {
+        var refusjonsendringerTilBrev = refusjonsendringer.stream()
             .map(rpe -> new RefusjonsendringPeriode(formaterDatoNorsk(rpe.getFom()),
-                formaterDatoNorsk(finnNesteFom(refusjonsendringer, rpe.getFom()).orElse(null)),
                 rpe.getRefusjonPrMnd()))
-            .toList();
-    }
-
-    private static Optional<LocalDate> finnNesteFom(List<RefusjonsendringEntitet> refusjonsendringer, LocalDate fom) {
-        var nesteFom = refusjonsendringer.stream()
-            .map(RefusjonsendringEntitet::getFom)
-            .filter(reFom -> reFom.isAfter(fom))
-            .min(Comparator.naturalOrder());
-        return nesteFom.map(date -> date.minusDays(1));
+            .collect(Collectors.toList());
+        if (opphørsdato != null && !opphørsdato.equals(Tid.TIDENES_ENDE)) {
+            refusjonsendringerTilBrev.add(new RefusjonsendringPeriode(formaterDatoNorsk(opphørsdato), BigDecimal.ZERO));
+        }
+        return refusjonsendringerTilBrev;
     }
 }

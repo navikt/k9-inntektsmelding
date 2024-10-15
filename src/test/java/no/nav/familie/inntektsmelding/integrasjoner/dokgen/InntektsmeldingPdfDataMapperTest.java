@@ -79,7 +79,6 @@ class InntektsmeldingPdfDataMapperTest {
         assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(formaterDatoOgTidNorsk(OPPRETTETTIDSPUNKT));
         assertThat(pdfData.getStartDato()).isEqualTo(formaterDatoMedNavnPåUkedag(START_DATO));
         assertThat(pdfData.getPersonnummer()).isEqualTo(formaterPersonnummer(personIdent.getIdent()));
-        assertThat(pdfData.getRefusjonOpphørsdato()).isNull();
         assertThat(pdfData.getRefusjonsbeløp()).isEqualTo(REFUSJONSBELØP);
         assertThat(pdfData.getRefusjonsendringer()).isEmpty();
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
@@ -125,7 +124,6 @@ class InntektsmeldingPdfDataMapperTest {
         var bortfalteNaturalytelser = pdfData.getNaturalytelser().stream().filter(NaturalYtelse::erBortfalt).toList();
 
         assertThat(bortfalteNaturalytelser).hasSize(3);
-        assertThat(bortfalteNaturalytelser.get(2).tom()).isNull();
 
         var forventetFørsteFraDato = naturalytelseTilDato.plusDays(1);
         var forventetFørsteTilDato = naturalytelseAndreFraDato.minusDays(1);
@@ -136,9 +134,7 @@ class InntektsmeldingPdfDataMapperTest {
 
         assertThat(tilkomneNaturalytelser).hasSize(2);
         assertThat(tilkomneNaturalytelser.getFirst().fom()).isEqualTo(formaterDatoNorsk(forventetFørsteFraDato));
-        assertThat(tilkomneNaturalytelser.getFirst().tom()).isEqualTo(formaterDatoNorsk(forventetFørsteTilDato));
         assertThat(tilkomneNaturalytelser.get(1).fom()).isEqualTo(formaterDatoNorsk(forventetAndreFraDato));
-        assertThat(tilkomneNaturalytelser.get(1).tom()).isEqualTo(formaterDatoNorsk(forventetAndreTilDato));
     }
 
     @Test
@@ -176,7 +172,6 @@ class InntektsmeldingPdfDataMapperTest {
 
         var bortfalteNaturalytelser = pdfData.getNaturalytelser().stream().filter(NaturalYtelse::erBortfalt).toList();
         assertThat(bortfalteNaturalytelser).hasSize(3);
-        assertThat(bortfalteNaturalytelser.get(2).tom()).isNull();
 
         var forventetFørsteFraDato = naturalytelseTilDato.plusDays(1);
         var forventetAndreFraDato = naturalytelseAndreTilDato.plusDays(1);
@@ -185,10 +180,8 @@ class InntektsmeldingPdfDataMapperTest {
 
         assertThat(tilkomneNaturalytelser).hasSize(2);
         assertThat(tilkomneNaturalytelser.getFirst().fom()).isEqualTo(formaterDatoNorsk(forventetFørsteFraDato));
-        assertThat(tilkomneNaturalytelser.getFirst().tom()).isNull();
         assertThat(tilkomneNaturalytelser.getFirst().naturalytelseType()).isEqualTo("Bil");
         assertThat(tilkomneNaturalytelser.get(1).fom()).isEqualTo(formaterDatoNorsk(forventetAndreFraDato));
-        assertThat(tilkomneNaturalytelser.get(1).tom()).isNull();
         assertThat(tilkomneNaturalytelser.get(1).naturalytelseType()).isEqualTo("Bolig");
     }
 
