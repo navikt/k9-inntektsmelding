@@ -21,6 +21,7 @@ public interface ArbeidsgiverNotifikasjon {
                           String eksternId,
                           String virksomhetsnummer,
                           String oppgaveTekst,
+                          String varseltekst,
                           URI lenke);
 
     String ferdigstillSak(String id, String statusTekst);

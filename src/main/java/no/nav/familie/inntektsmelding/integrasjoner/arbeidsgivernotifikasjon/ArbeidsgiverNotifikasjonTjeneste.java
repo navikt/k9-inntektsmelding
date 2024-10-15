@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -125,6 +126,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
                                  String eksternId,
                                  String virksomhetsnummer,
                                  String oppgaveTekst,
+                                 String varselTekst,
                                  URI oppgaveLenke) {
 
         var request = new NyOppgaveMutationRequest();
@@ -132,6 +134,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         input.setMottaker(new MottakerInput(new AltinnMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE), null));
         input.setNotifikasjon(new NotifikasjonInput(oppgaveLenke.toString(), oppgaveMerkelapp.getBeskrivelse(), oppgaveTekst));
         input.setMetadata(new MetadataInput(eksternId, grupperingsid, null, null, virksomhetsnummer));
+        input.setEksterneVarsler(lagEksternVarselAltinn(varselTekst));
         request.setNyOppgave(input);
 
 
@@ -145,6 +148,14 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .onUgyldigPaaminnelseTidspunkt(new UgyldigPaaminnelseTidspunktResponseProjection().feilmelding());
 
         return klient.opprettOppgave(request, projection);
+    }
+
+    private List<EksterntVarselInput> lagEksternVarselAltinn(String varselTekst) {
+        var mottaker = new AltinntjenesteMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE);
+        var sendetidspunkt = new SendetidspunktInput(Sendevindu.LOEPENDE, null);
+        var altinnVarsel = new EksterntVarselAltinntjenesteInput(varselTekst, mottaker, sendetidspunkt, "Du har fått en oppgave fra NAV");
+        var eksternVarsel = new EksterntVarselInput(altinnVarsel, null, null);
+        return Collections.singletonList(eksternVarsel);
     }
 
     @Override

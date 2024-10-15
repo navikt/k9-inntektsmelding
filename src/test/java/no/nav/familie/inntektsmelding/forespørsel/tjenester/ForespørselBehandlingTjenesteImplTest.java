@@ -220,6 +220,6 @@ public class ForespørselBehandlingTjenesteImplTest {
 
         when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørId), ytelsetype)).thenReturn(personInfo);
         when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(brregOrgnummer), eq(sakTittel), any(), eq(sakStatus))).thenReturn(sakId);
-        when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(brregOrgnummer), any(), any())).thenReturn(oppgaveId);
+        when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(brregOrgnummer), any(), any(), any())).thenReturn(oppgaveId);
     }
 }

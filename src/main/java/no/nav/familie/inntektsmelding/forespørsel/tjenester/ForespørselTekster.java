@@ -54,4 +54,8 @@ class ForespørselTekster {
             case OPPLÆRINGSPENGER -> "opplæringspenger";
         };
     }
+
+    public static String lagVarseltekst(Ytelsetype ytelsetype) {
+        return String.format("En av dine ansatte har sendt søknad om %s og vi trenger inntektsmelding for å behandle søknaden. Logg inn på Min side – arbeidsgiver på nav.no", mapYtelsestypeNavn(ytelsetype));
+    }
 }
