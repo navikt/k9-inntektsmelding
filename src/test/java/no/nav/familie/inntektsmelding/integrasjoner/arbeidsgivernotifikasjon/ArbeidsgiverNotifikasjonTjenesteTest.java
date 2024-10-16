@@ -67,13 +67,14 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var expectedGrupperingsid = "id-som-knytter-sak-til-notifikasjon";
         var expectedVirksomhetsnummer = "2342342334";
         var expectedNotifikasjonsTekst = "Du har en ny oppgave i AG-portalen";
+        var expectedEksternvarselTekst = "En ansatt har søkt foreldrepenger";
         var expectedNotifikasjonsLenke = "https://arbeidsgiver-portal.com";
         var expectedNotifikasjonsMerkelapp = Merkelapp.INNTEKTSMELDING_FP;
 
         var requestCaptor = ArgumentCaptor.forClass(NyOppgaveMutationRequest.class);
 
         tjeneste.opprettOppgave(expectedGrupperingsid, expectedNotifikasjonsMerkelapp, expectedEksternId, expectedVirksomhetsnummer,
-            expectedNotifikasjonsTekst, URI.create(expectedNotifikasjonsLenke));
+            expectedNotifikasjonsTekst, expectedEksternvarselTekst, URI.create(expectedNotifikasjonsLenke));
 
         Mockito.verify(klient).opprettOppgave(requestCaptor.capture(), any(NyOppgaveResultatResponseProjection.class));
 
@@ -99,6 +100,10 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         assertThat(nyOppgave.getNotifikasjon().getTekst()).isEqualTo(expectedNotifikasjonsTekst);
         assertThat(nyOppgave.getNotifikasjon().getLenke()).isEqualTo(expectedNotifikasjonsLenke);
         assertThat(nyOppgave.getNotifikasjon().getMerkelapp()).isEqualTo(expectedNotifikasjonsMerkelapp.getBeskrivelse());
+
+        assertThat(nyOppgave.getEksterneVarsler()).hasSize(1);
+        assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinntjeneste()).isNotNull();
+        assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinntjeneste().getInnhold()).isEqualTo(expectedEksternvarselTekst);
 
         assertThat(nyOppgave.getFrist()).isNull();
         assertThat(nyOppgave.getMottakere()).isEmpty();

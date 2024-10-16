@@ -161,7 +161,7 @@ public class FagerTestRestTjeneste {
         var eksternId = String.join("-", request.fagsakSaksnummer().saksnr(), request.orgnummer().orgnr()); // mulig man trenger arbforholdId også.
         LOG.info("FAGER: eksternId={}", eksternId);
         var oppgaveId = notifikasjon.opprettOppgave(request.fagsakSaksnummer().saksnr(), finnMerkelapp(request.ytelsetype()), eksternId,
-            request.orgnummer().orgnr(), "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", this.skjemaLenke);
+            request.orgnummer().orgnr(), "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", "Dette er et varsel", this.skjemaLenke);
 
         return Response.ok(oppgaveId).build();
     }

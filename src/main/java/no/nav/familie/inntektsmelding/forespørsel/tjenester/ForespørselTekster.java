@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 class ForespørselTekster {
     private static final String OPPGAVE_TEKST_NY = "Send inntektsmelding for %s som har søkt om %s";
+    private static final String VARSEL_TEKST = "En av dine ansatte har sendt søknad om %s og vi trenger inntektsmelding for å behandle søknaden. Logg inn på Min side – arbeidsgiver på nav.no";
 
 
     public static final String STATUS_TEKST_DEFAULT = "";
@@ -53,5 +54,9 @@ class ForespørselTekster {
             case PLEIEPENGER_NÆRSTÅENDE -> "pleiepenger for nærtstående";
             case OPPLÆRINGSPENGER -> "opplæringspenger";
         };
+    }
+
+    public static String lagVarseltekst(Ytelsetype ytelsetype) {
+        return String.format(VARSEL_TEKST, mapYtelsestypeNavn(ytelsetype));
     }
 }
