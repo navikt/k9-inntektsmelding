@@ -53,7 +53,7 @@ public class FpDokgenRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
     private static final boolean IS_PROD = Environment.current().isProd();
     private FpDokgenTjeneste fpDokgenTjeneste;
-    private Tilgang tilgangsstyring;
+    private Tilgang tilgang;
 
     private InntektsmeldingRepository inntektsmeldingRepository;
 
@@ -62,9 +62,9 @@ public class FpDokgenRestTjeneste {
     }
 
     @Inject
-    public FpDokgenRestTjeneste(FpDokgenTjeneste fpDokgenTjeneste, Tilgang tilgangsstyring, InntektsmeldingRepository inntektsmeldingRepository) {
+    public FpDokgenRestTjeneste(FpDokgenTjeneste fpDokgenTjeneste, Tilgang tilgang, InntektsmeldingRepository inntektsmeldingRepository) {
         this.fpDokgenTjeneste = fpDokgenTjeneste;
-        this.tilgangsstyring = tilgangsstyring;
+        this.tilgang = tilgang;
         this.inntektsmeldingRepository = inntektsmeldingRepository;
     }
 
@@ -176,6 +176,6 @@ public class FpDokgenRestTjeneste {
     }
 
     private void sjekkAtKallerHarRollenDrift() {
-        tilgangsstyring.sjekkAtAnsattHarRollenDrift();
+        tilgang.sjekkAtAnsattHarRollenDrift();
     }
 }

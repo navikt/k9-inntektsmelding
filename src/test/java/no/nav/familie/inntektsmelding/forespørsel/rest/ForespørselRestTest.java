@@ -9,41 +9,46 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
-
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
-public class ForespørselRestTest extends EntityManagerAwareTest {
+@ExtendWith(MockitoExtension.class)
+public class ForespørselRestTest {
 
     private static final String BRREG_ORGNUMMER = "974760673";
 
     private ForespørselRest forespørselRest;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-
+    @Mock
+    private Tilgang tilgang;
 
     @BeforeEach
     void setUp() {
         this.forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
-        when(forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(any(), any(), any(), any(), any())).thenReturn(ForespørselResultat.FORESPØRSEL_OPPRETTET);
-        this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste);
+        this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste, tilgang);
     }
 
     @Test
     void skal_opprette_forespørsel() {
+        mockForespørsel();
+
         var orgnummer = new OrganisasjonsnummerDto(BRREG_ORGNUMMER);
         var aktørId = new AktørIdDto("1234567890134");
 
@@ -58,7 +63,7 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void serdes_rerosepørsel_mapper() {
+    void serdes_forespørsel_mapper() {
         var expectedOrg = "123456789";
         var expectedBruker = "1233425324241";
         var expectedSkjæringstidspunkt = LocalDate.now();
@@ -89,5 +94,13 @@ public class ForespørselRestTest extends EntityManagerAwareTest {
 
         assertThat(ser).contains(expectedOrg.orgnr(), expectedBruker.id(), expectedSkjæringstidspunkt.toString());
         assertThat(des).isEqualTo(dto);
+    }
+
+    private void mockForespørsel() {
+        when(forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(any(),
+            any(),
+            any(),
+            any(),
+            any())).thenReturn(ForespørselResultat.FORESPØRSEL_OPPRETTET);
     }
 }

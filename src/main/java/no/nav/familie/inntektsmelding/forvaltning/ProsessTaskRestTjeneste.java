@@ -50,16 +50,16 @@ public class ProsessTaskRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(ProsessTaskRestTjeneste.class);
 
     private ProsessTaskApplikasjonTjeneste prosessTaskApplikasjonTjeneste;
-    private Tilgang tilgangsstyring;
+    private Tilgang tilgang;
 
     ProsessTaskRestTjeneste() {
         // REST CDI
     }
 
     @Inject
-    public ProsessTaskRestTjeneste(ProsessTaskApplikasjonTjeneste prosessTaskApplikasjonTjeneste, Tilgang tilgangsstyring) {
+    public ProsessTaskRestTjeneste(ProsessTaskApplikasjonTjeneste prosessTaskApplikasjonTjeneste, Tilgang tilgang) {
         this.prosessTaskApplikasjonTjeneste = prosessTaskApplikasjonTjeneste;
-        this.tilgangsstyring = tilgangsstyring;
+        this.tilgang = tilgang;
     }
 
     @POST
@@ -155,6 +155,6 @@ public class ProsessTaskRestTjeneste {
     }
 
     private void sjekkAtKallerHarRollenDrift() {
-        tilgangsstyring.sjekkAtAnsattHarRollenDrift();
+        tilgang.sjekkAtAnsattHarRollenDrift();
     }
 }

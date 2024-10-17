@@ -32,9 +32,9 @@ import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 @ExtendWith(MockitoExtension.class)
-class TilgangsstyringTjenesteTest {
+class TilgangTjenesteTest {
 
-    private Tilgang tilgangsstyringTjeneste;
+    private Tilgang tilgangTjeneste;
 
     @Mock
     private PipTjeneste pipTjeneste;
@@ -44,7 +44,7 @@ class TilgangsstyringTjenesteTest {
 
     @BeforeEach
     void setUp() {
-        tilgangsstyringTjeneste = new TilgangsstyringTjeneste(pipTjeneste, altinnTilgangTjeneste);
+        tilgangTjeneste = new TilgangTjeneste(pipTjeneste, altinnTilgangTjeneste);
     }
 
     @Test
@@ -53,7 +53,7 @@ class TilgangsstyringTjenesteTest {
             mockedKontekst.when(KontekstHolder::getKontekst).thenReturn(BasisKontekst.ikkeAutentisertRequest("testConsument"));
             var forespørselUuid = UUID.randomUUID();
             var ex = assertThrows(ManglerTilgangException.class,
-                () -> tilgangsstyringTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid));
+                () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid));
             assertThat(ex.getMessage()).contains("Kun borger kall støttes.");
         }
         verifyNoInteractions(pipTjeneste, altinnTilgangTjeneste);
@@ -65,7 +65,7 @@ class TilgangsstyringTjenesteTest {
             mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.InternBruker));
             var forespørselUuid = UUID.randomUUID();
             var ex = assertThrows(ManglerTilgangException.class,
-                () -> tilgangsstyringTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid));
+                () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid));
             assertThat(ex.getMessage()).contains("Kun borger kall støttes.");
         }
         verifyNoInteractions(pipTjeneste, altinnTilgangTjeneste);
@@ -78,7 +78,7 @@ class TilgangsstyringTjenesteTest {
             mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.EksternBruker));
             var ex = assertThrows(ManglerTilgangException.class,
                 () -> {
-                    tilgangsstyringTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
+                    tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
                 });
             assertThat(ex.getMessage()).contains("Mangler informasjon om bedrift.");
 
@@ -97,7 +97,7 @@ class TilgangsstyringTjenesteTest {
             when(altinnTilgangTjeneste.manglerTilgangTilBedriften(fakeOrgNr)).thenReturn(true);
 
             var ex = assertThrows(ManglerTilgangException.class,
-                () -> tilgangsstyringTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid));
+                () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid));
             assertThat(ex.getMessage()).contains("Bruker mangler tilgang til bedriften i Altinn.");
 
             verify(pipTjeneste).hentOrganisasjonsnummerFor(forespørselUuid);
@@ -114,7 +114,7 @@ class TilgangsstyringTjenesteTest {
             when(pipTjeneste.hentOrganisasjonsnummerFor(forespørselUuid)).thenReturn(new OrganisasjonsnummerDto(fakeOrgNr));
             when(altinnTilgangTjeneste.manglerTilgangTilBedriften(fakeOrgNr)).thenReturn(false);
 
-            assertDoesNotThrow(() -> tilgangsstyringTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid));
+            assertDoesNotThrow(() -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid));
 
             verify(pipTjeneste).hentOrganisasjonsnummerFor(forespørselUuid);
             verify(altinnTilgangTjeneste).manglerTilgangTilBedriften(fakeOrgNr);
@@ -128,7 +128,7 @@ class TilgangsstyringTjenesteTest {
             var inntektsmeldingId = 1L;
             mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.EksternBruker));
             var ex = assertThrows(ManglerTilgangException.class,
-                () -> tilgangsstyringTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId));
+                () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId));
             assertThat(ex.getMessage()).contains("Mangler informasjon om bedrift.");
 
             verify(pipTjeneste).hentOrganisasjonsnummerFor(inntektsmeldingId);
@@ -146,7 +146,7 @@ class TilgangsstyringTjenesteTest {
             when(altinnTilgangTjeneste.manglerTilgangTilBedriften(fakeOrgNr)).thenReturn(true);
 
             var ex = assertThrows(ManglerTilgangException.class,
-                () -> tilgangsstyringTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId));
+                () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId));
             assertThat(ex.getMessage()).contains("Bruker mangler tilgang til bedriften i Altinn.");
 
             verify(pipTjeneste).hentOrganisasjonsnummerFor(inntektsmeldingId);
@@ -163,60 +163,119 @@ class TilgangsstyringTjenesteTest {
             when(pipTjeneste.hentOrganisasjonsnummerFor(inntektsmeldingId)).thenReturn(new OrganisasjonsnummerDto(fakeOrgNr));
             when(altinnTilgangTjeneste.manglerTilgangTilBedriften(fakeOrgNr)).thenReturn(false);
 
-            assertDoesNotThrow(() -> tilgangsstyringTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId));
+            assertDoesNotThrow(() -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId));
 
             verify(pipTjeneste).hentOrganisasjonsnummerFor(inntektsmeldingId);
             verify(altinnTilgangTjeneste).manglerTilgangTilBedriften(fakeOrgNr);
         }
     }
 
+
     @Test
-    void test_sjekk_om_saksbehandler_har_rollen_nok() {
+    void test_sjekk_om_ansatt_har_rollen_drift_ikke_saksbehandler_nok() {
         try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
             mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.EksternBruker));
 
-            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangsstyringTjeneste.sjekkAtAnsattHarRollenDrift());
+            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtAnsattHarRollenDrift());
             assertThat(ex.getMessage()).contains("Ansatt mangler en rolle.");
         }
     }
 
     @Test
-    void test_sjekk_om_saksbehandler_har_rollen_ikke_saksbehandler_nok() {
-        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
-            mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.EksternBruker));
-
-            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangsstyringTjeneste.sjekkAtAnsattHarRollenDrift());
-            assertThat(ex.getMessage()).contains("Ansatt mangler en rolle.");
-        }
-    }
-
-    @Test
-    void test_sjekk_om_saksbehandler_har_rollen_mangler_rollen_nok() {
+    void test_sjekk_om_ansatt_har_rollen_drift_mangler_rollen_nok() {
         try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
             mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.InternBruker));
 
-            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangsstyringTjeneste.sjekkAtAnsattHarRollenDrift());
+            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtAnsattHarRollenDrift());
             assertThat(ex.getMessage()).contains("Ansatt mangler en rolle.");
         }
     }
 
     @Test
-    void test_sjekk_om_saksbehandler_har_rollen_feil_rolle_nok() {
+    void test_sjekk_om_ansatt_har_rollen_drift_feil_rolle_nok() {
         try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
             mockedKontekts.when(KontekstHolder::getKontekst)
                 .thenReturn(fakeRequestKontekts(IdentType.InternBruker, Set.of(Groups.SAKSBEHANDLER, Groups.VEILEDER)));
 
-            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangsstyringTjeneste.sjekkAtAnsattHarRollenDrift());
+            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtAnsattHarRollenDrift());
             assertThat(ex.getMessage()).contains("Ansatt mangler en rolle.");
         }
     }
 
     @Test
-    void test_sjekk_om_saksbehandler_har_rollen_ok() {
+    void test_sjekk_om_ansatt_har_rollen_drift_ok() {
         try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
             var forventetRolle = Groups.DRIFT;
             mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.InternBruker, Set.of(forventetRolle)));
-            assertDoesNotThrow(() -> tilgangsstyringTjeneste.sjekkAtAnsattHarRollenDrift());
+            assertDoesNotThrow(() -> tilgangTjeneste.sjekkAtAnsattHarRollenDrift());
+        }
+    }
+
+    @Test
+    void test_sjekk_om_ansatt_har_rollen_saksbehandler_ikke_saksbehandler_nok() {
+        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
+            mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.EksternBruker));
+
+            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtAnsattHarRollenSaksbehandler());
+            assertThat(ex.getMessage()).contains("Ansatt mangler en rolle.");
+        }
+    }
+
+    @Test
+    void test_sjekk_om_ansatt_har_rollen_saksbehandler_mangler_rollen_nok() {
+        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
+            mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.InternBruker));
+
+            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtAnsattHarRollenSaksbehandler());
+            assertThat(ex.getMessage()).contains("Ansatt mangler en rolle.");
+        }
+    }
+
+    @Test
+    void test_sjekk_om_ansatt_har_rollen_saksbehandler_feil_rolle_nok() {
+        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
+            mockedKontekts.when(KontekstHolder::getKontekst)
+                .thenReturn(fakeRequestKontekts(IdentType.InternBruker, Set.of(Groups.DRIFT, Groups.VEILEDER)));
+
+            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtAnsattHarRollenSaksbehandler());
+            assertThat(ex.getMessage()).contains("Ansatt mangler en rolle.");
+        }
+    }
+
+    @Test
+    void test_sjekk_om_ansatt_har_rollen_saksbehandler_ok() {
+        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
+            var forventetRolle = Groups.SAKSBEHANDLER;
+            mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.InternBruker, Set.of(forventetRolle)));
+            assertDoesNotThrow(() -> tilgangTjeneste.sjekkAtAnsattHarRollenSaksbehandler());
+        }
+    }
+
+    @Test
+    void test_sjekk_om_systembruker_kall_nok_pga_internbruker() {
+        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
+            mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.InternBruker));
+
+            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkErSystembruker());
+            assertThat(ex.getMessage()).contains("Kun systemkall støttes.");
+        }
+    }
+
+    @Test
+    void test_sjekk_om_systembruker_kall_nok_pga_eksternbruker() {
+        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
+            mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.EksternBruker));
+
+            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkErSystembruker());
+            assertThat(ex.getMessage()).contains("Kun systemkall støttes.");
+        }
+    }
+
+    @Test
+    void test_sjekk_om_systembruker_kall_ok() {
+        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
+            mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.Systemressurs));
+            assertDoesNotThrow(() -> tilgangTjeneste.sjekkErSystembruker());
         }
     }
 
