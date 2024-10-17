@@ -17,6 +17,9 @@ import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
@@ -124,9 +127,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                 eksisterendeForespørsel);
 
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
-                LOG.debug("Forsøker å sette eksisterende forespørsel til utgått",
-                    StructuredArguments.keyValue("eksisterendeForespørsel", eksisterendeForespørsel),
-                    StructuredArguments.keyValue("organisasjonerPerSkjæringstidspunkt", organisasjonerPerSkjæringstidspunkt));
+                try {
+                    LOG.debug(String.format("Forsøker å sette eksisterende forespørsel til utgått. Eksisterende forespørsel: %s, organisasjonerPerSkjæringstidspunkt: %s",
+                        new ObjectMapper().writeValueAsString(eksisterendeForespørsel),
+                        new ObjectMapper().writeValueAsString(organisasjonerPerSkjæringstidspunkt)));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
 
                 arbeidsgiverNotifikasjon.oppgaveUtgått(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
                 arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
