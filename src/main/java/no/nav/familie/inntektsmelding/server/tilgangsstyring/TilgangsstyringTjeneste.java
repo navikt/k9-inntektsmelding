@@ -66,27 +66,33 @@ public class TilgangsstyringTjeneste implements Tilgang {
     }
 
     @Override
-    public void sjekkAtSaksbehandlerHarRollenDrift() {
-        var kontekst = KontekstHolder.getKontekst();
-        if (erSaksbehandler(kontekst) && saksbehandlerHarRollen(kontekst, Groups.DRIFT)) {
-            return;
-        }
-        ikkeTilgang("Saksbehandler mangler en rolle.");
+    public void sjekkAtAnsattHarRollenDrift() {
+        sjekkAtAnsattHarRollen(KontekstHolder.getKontekst(), Groups.DRIFT);
     }
 
-    private boolean erSaksbehandler(Kontekst kontekst) {
+    @Override
+    public void sjekkAtAnsattHarRollenSaksbehandler() {
+        sjekkAtAnsattHarRollen(KontekstHolder.getKontekst(), Groups.SAKSBEHANDLER);
+    }
+
+    private void sjekkAtAnsattHarRollen(Kontekst kontekst, Groups group) {
+        if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, group)) {
+            return;
+        }
+        ikkeTilgang("Ansatt mangler en rolle.");
+    }
+
+    private boolean erNavAnsatt(Kontekst kontekst) {
         return IdentType.InternBruker.equals(kontekst.getIdentType());
     }
 
-    private boolean saksbehandlerHarRollen(Kontekst kontekst, Groups rolle) {
+    private boolean ansattHarRollen(Kontekst kontekst, Groups rolle) {
         return kontekst instanceof RequestKontekst requestKontekst && requestKontekst.harGruppe(rolle);
     }
 
     private void sjekkErBorger() {
-        if (KontekstHolder.getKontekst() instanceof RequestKontekst rq) {
-            if (IdentType.EksternBruker.equals(rq.getIdentType())) {
-                return;
-            }
+        if (KontekstHolder.getKontekst() instanceof RequestKontekst rq && IdentType.EksternBruker.equals(rq.getIdentType())) {
+            return;
         }
         ikkeTilgang("Kun borger kall støttes.");
     }

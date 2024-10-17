@@ -22,11 +22,18 @@ public interface Tilgang {
     void sjekkAtArbeidsgiverHarTilgangTilBedrift(long inntektsmeldingId);
 
     /**
-     * Sjekker om saksbehandleren som prøver å utføre operasjonen har en DRIFT rolle.
+     * Sjekker om den NAV ansatte som prøver å utføre operasjonen har en DRIFT rolle.
      * Brukes kun i swagger sammenheng.
      *
      * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
      */
-    void sjekkAtSaksbehandlerHarRollenDrift();
+    void sjekkAtAnsattHarRollenDrift();
+
+    /**
+     * Sjekker om den NAV ansatte som prøver å utføre operasjonen har en SAKSBEHANDLER rolle.
+     *
+     * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
+     */
+    void sjekkAtAnsattHarRollenSaksbehandler();
 
 }
