@@ -43,7 +43,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
             var expectedId = "12345";
             var response = new NySakMutationResponse();
             response.setData(Map.of("nySak", new NySakVellykket(expectedId)));
-            when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse(response));
+            when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse<>(response));
 
             var oppgave = agKlient.opprettSak(new NySakMutationRequest(), mock(NySakResultatResponseProjection.class));
 
@@ -85,7 +85,7 @@ class ArbeidsgiverNotifikasjonKlientTest {
         void opprettOppgave_ok() {
             var expectedId = "12345";
             var response = new NyOppgaveMutationResponse();
-            response.setData(Map.of("nyOppgave", new NyOppgaveVellykket(null, expectedId, null)));
+            response.setData(Map.of("nyOppgave", NyOppgaveVellykket.builder().setId(expectedId).build()));
             when(restClient.sendReturnUnhandled(any(RestRequest.class))).thenReturn(new MockGraphQLHttpResponse<>(response));
 
             var oppgave = agKlient.opprettOppgave(new NyOppgaveMutationRequest(), mock(NyOppgaveResultatResponseProjection.class));

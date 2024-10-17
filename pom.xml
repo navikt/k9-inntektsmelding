@@ -255,7 +255,7 @@
                             </customTypesMapping>
                             <generateClient>true</generateClient>
                             <generateApis>false</generateApis>
-                            <generateBuilder>false</generateBuilder>
+                            <generateBuilder>true</generateBuilder>
                             <generateToString>true</generateToString>
                             <generateParameterizedFieldsResolvers>false</generateParameterizedFieldsResolvers>
                             <addGeneratedAnnotation>true</addGeneratedAnnotation>

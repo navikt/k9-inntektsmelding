@@ -32,8 +32,12 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         request.setMerkelapp(merkelapp.getBeskrivelse());
 
         var projection = new HentSakResultatResponseProjection().typename()
-            .onHentetSak(new HentetSakResponseProjection().sak(
-                new SakResponseProjection().id().grupperingsid().merkelapp().lenke().tittel().virksomhetsnummer()))
+            .onHentetSak(new HentetSakResponseProjection().sak(new SakResponseProjection().id()
+                .grupperingsid()
+                .merkelapp()
+                .lenke()
+                .tittel()
+                .virksomhetsnummer()))
             .onSakFinnesIkke(new SakFinnesIkkeResponseProjection().feilmelding())
             .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
@@ -47,8 +51,12 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         request.setId(sakId);
 
         var projection = new HentSakResultatResponseProjection().typename()
-            .onHentetSak(new HentetSakResponseProjection().sak(
-                new SakResponseProjection().id().grupperingsid().merkelapp().lenke().tittel().virksomhetsnummer()))
+            .onHentetSak(new HentetSakResponseProjection().sak(new SakResponseProjection().id()
+                .grupperingsid()
+                .merkelapp()
+                .lenke()
+                .tittel()
+                .virksomhetsnummer()))
             .onSakFinnesIkke(new SakFinnesIkkeResponseProjection().feilmelding())
             .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding());
@@ -89,7 +97,6 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         request.setId(sakId);
         request.setNyStatus(status);
         request.setOverstyrStatustekstMed(overstyrtStatusText);
-        //request.setNyLenkeTilSak("lenke");
 
         var projection = new NyStatusSakResultatResponseProjection().typename()
             .onNyStatusSakVellykket(new NyStatusSakVellykketResponseProjection().id())
@@ -108,7 +115,6 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         request.setMerkelapp(merkelapp.getBeskrivelse());
         request.setNyStatus(status);
         request.setOverstyrStatustekstMed(overstyrtStatusText);
-        //request.setNyLenkeTilSak("lenke");
 
         var projection = new NyStatusSakResultatResponseProjection().typename()
             .onNyStatusSakVellykket(new NyStatusSakVellykketResponseProjection().id())
@@ -129,13 +135,24 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
                                  String varselTekst,
                                  URI oppgaveLenke) {
 
-        var request = new NyOppgaveMutationRequest();
-        var input = new NyOppgaveInput();
-        input.setMottaker(new MottakerInput(new AltinnMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE), null));
-        input.setNotifikasjon(new NotifikasjonInput(oppgaveLenke.toString(), oppgaveMerkelapp.getBeskrivelse(), oppgaveTekst));
-        input.setMetadata(new MetadataInput(eksternId, grupperingsid, null, null, virksomhetsnummer));
-        input.setEksterneVarsler(lagEksternVarselAltinn(varselTekst));
-        request.setNyOppgave(input);
+        var request = NyOppgaveMutationRequest.builder()
+            .setNyOppgave(NyOppgaveInput.builder()
+                .setMottaker(MottakerInput.builder()
+                    .setAltinn(AltinnMottakerInput.builder().setServiceCode(SERVICE_CODE).setServiceEdition(SERVICE_EDITION_CODE).build())
+                    .build())
+                .setNotifikasjon(NotifikasjonInput.builder()
+                    .setMerkelapp(oppgaveMerkelapp.getBeskrivelse())
+                    .setTekst(oppgaveTekst)
+                    .setLenke(oppgaveLenke.toString())
+                    .build())
+                .setMetadata(MetadataInput.builder()
+                    .setVirksomhetsnummer(virksomhetsnummer)
+                    .setEksternId(eksternId)
+                    .setGrupperingsid(grupperingsid)
+                    .build())
+                .setEksterneVarsler(lagEksternVarselAltinn(varselTekst))
+                .build())
+            .build();
 
 
         var projection = new NyOppgaveResultatResponseProjection().typename()
@@ -151,19 +168,23 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     private List<EksterntVarselInput> lagEksternVarselAltinn(String varselTekst) {
-        var mottaker = new AltinntjenesteMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE);
-        var sendetidspunkt = new SendetidspunktInput(Sendevindu.LOEPENDE, null);
-        var altinnVarsel = new EksterntVarselAltinntjenesteInput(varselTekst, mottaker, sendetidspunkt, "Du har fått en oppgave fra NAV");
-        var eksternVarsel = new EksterntVarselInput(altinnVarsel, null, null);
+        var altinnVarsel = EksterntVarselAltinntjenesteInput.builder()
+            .setTittel("Du har fått en oppgave fra NAV")
+            .setInnhold(varselTekst)
+            .setMottaker(AltinntjenesteMottakerInput.builder().setServiceCode(SERVICE_CODE).setServiceEdition(SERVICE_EDITION_CODE).build())
+            .setSendetidspunkt(SendetidspunktInput.builder().setSendevindu(Sendevindu.LOEPENDE).build())
+            .build();
+        var eksternVarsel = EksterntVarselInput.builder().setAltinntjeneste(altinnVarsel).build();
         return Collections.singletonList(eksternVarsel);
     }
 
     @Override
     public String oppgaveUtført(String oppgaveId, OffsetDateTime tidspunkt) {
 
-        var request = new OppgaveUtfoertMutationRequest();
-        request.setId(oppgaveId);
-        request.setUtfoertTidspunkt(tidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
+        var request = OppgaveUtfoertMutationRequest.builder()
+            .setId(oppgaveId)
+            .setUtfoertTidspunkt(tidspunkt.format(DateTimeFormatter.ISO_DATE_TIME))
+            .build();
 
         var projection = new OppgaveUtfoertResultatResponseProjection().typename()
             .onOppgaveUtfoertVellykket(new OppgaveUtfoertVellykketResponseProjection().id())
@@ -177,11 +198,11 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     @Override
     public String oppgaveUtførtByEksternId(String eksternId, Merkelapp merkelapp, OffsetDateTime tidspunkt) {
 
-        var request = new OppgaveUtfoertByEksternId_V2MutationRequest();
-        request.setEksternId(eksternId);
-        request.setMerkelapp(merkelapp.getBeskrivelse());
-        request.setUtfoertTidspunkt(tidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
-        //request.setNyLenke("lenkeKvittering");
+        var request = OppgaveUtfoertByEksternId_V2MutationRequest.builder()
+            .setEksternId(eksternId)
+            .setMerkelapp(merkelapp.getBeskrivelse())
+            .setUtfoertTidspunkt(tidspunkt.format(DateTimeFormatter.ISO_DATE_TIME))
+            .build();
 
         var projection = new OppgaveUtfoertResultatResponseProjection().typename()
             .onOppgaveUtfoertVellykket(new OppgaveUtfoertVellykketResponseProjection().id())
@@ -195,9 +216,10 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     @Override
     public String oppgaveUtgått(String oppgaveId, OffsetDateTime tidspunkt) {
 
-        var request = new OppgaveUtgaattMutationRequest();
-        request.setId(oppgaveId);
-        request.setUtgaattTidspunkt(tidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
+        var request = OppgaveUtgaattMutationRequest.builder()
+            .setId(oppgaveId)
+            .setUtgaattTidspunkt(tidspunkt.format(DateTimeFormatter.ISO_DATE_TIME))
+            .build();
 
         var projection = new OppgaveUtgaattResultatResponseProjection().typename()
             .onOppgaveUtgaattVellykket(new OppgaveUtgaattVellykketResponseProjection().id())
@@ -211,10 +233,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     @Override
     public String ferdigstillSak(String id, String statusTekst) {
 
-        var request = new NyStatusSakMutationRequest();
-        request.setId(id);
-        request.setNyStatus(SaksStatus.FERDIG);
-        request.setOverstyrStatustekstMed(statusTekst);
+        var request = NyStatusSakMutationRequest.builder().setId(id).setNyStatus(SaksStatus.FERDIG).setOverstyrStatustekstMed(statusTekst).build();
 
         var projection = new NyStatusSakResultatResponseProjection().typename()
             .onNyStatusSakVellykket(new NyStatusSakVellykketResponseProjection().id())
