@@ -11,6 +11,7 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import net.logstash.logback.argument.StructuredArguments;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 
 import org.slf4j.Logger;
@@ -123,6 +124,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                 eksisterendeForespørsel);
 
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
+                LOG.debug("Forsøker å sette eksisterende forespørsel til utgått",
+                    StructuredArguments.keyValue("eksisterendeForespørsel", eksisterendeForespørsel),
+                    StructuredArguments.keyValue("organisasjonerPerSkjæringstidspunkt", organisasjonerPerSkjæringstidspunkt));
+
                 arbeidsgiverNotifikasjon.oppgaveUtgått(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
                 arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
                     ForespørselTekster.STATUS_TEKST_DEFAULT); // Oppdaterer status i arbeidsgiver-notifikasjon
