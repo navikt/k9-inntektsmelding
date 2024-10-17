@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
@@ -128,9 +129,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
                 try {
+                    var mapper = new ObjectMapper().registerModule(new JavaTimeModule());
                     LOG.debug(String.format("Forsøker å sette eksisterende forespørsel til utgått. Eksisterende forespørsel: %s, organisasjonerPerSkjæringstidspunkt: %s",
-                        new ObjectMapper().writeValueAsString(eksisterendeForespørsel),
-                        new ObjectMapper().writeValueAsString(organisasjonerPerSkjæringstidspunkt)));
+                        mapper.writeValueAsString(eksisterendeForespørsel),
+                        mapper.writeValueAsString(organisasjonerPerSkjæringstidspunkt)));
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
