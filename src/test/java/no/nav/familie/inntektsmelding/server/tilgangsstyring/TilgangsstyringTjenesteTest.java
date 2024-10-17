@@ -224,7 +224,7 @@ class TilgangsstyringTjenesteTest {
     }
 
     private Kontekst fakeRequestKontekts(IdentType identType, Set<Groups> groups) {
-        return RequestKontekst.forRequest("brukerUid", "brukerUid", identType, fakeOidcToken(OpenIDProvider.TOKENX), groups);
+        return RequestKontekst.forRequest("brukerUid", "brukerUid", identType, fakeOidcToken(OpenIDProvider.TOKENX), UUID.randomUUID(), groups);
     }
 
     private OpenIDToken fakeOidcToken(OpenIDProvider provider) {

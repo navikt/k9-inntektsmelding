@@ -67,7 +67,7 @@ class InntektsmeldingTjenesteTest {
     @BeforeAll
     static void beforeAll() {
         KontekstHolder.setKontekst(RequestKontekst.forRequest(INNMELDER_UID, "kompakt", IdentType.EksternBruker,
-            new OpenIDToken(OpenIDProvider.TOKENX, new TokenString("token")), Set.of()));
+            new OpenIDToken(OpenIDProvider.TOKENX, new TokenString("token")), UUID.randomUUID(), Set.of()));
     }
 
     @AfterAll
