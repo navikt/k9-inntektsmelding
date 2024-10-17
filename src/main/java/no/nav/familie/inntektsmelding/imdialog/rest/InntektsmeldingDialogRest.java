@@ -38,16 +38,16 @@ public class InntektsmeldingDialogRest {
     private static final String LAST_NED_PDF = "/last-ned-pdf";
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
-    private Tilgang tilgangskontroll;
+    private Tilgang tilgang;
 
     InntektsmeldingDialogRest() {
         // CDI
     }
 
     @Inject
-    public InntektsmeldingDialogRest(InntektsmeldingTjeneste inntektsmeldingTjeneste, Tilgang tilgangskontroll) {
+    public InntektsmeldingDialogRest(InntektsmeldingTjeneste inntektsmeldingTjeneste, Tilgang tilgang) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
-        this.tilgangskontroll = tilgangskontroll;
+        this.tilgang = tilgang;
     }
 
     @GET
@@ -57,8 +57,7 @@ public class InntektsmeldingDialogRest {
     public Response hentInnsendingsinfo(
         @Parameter(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet basert på en forespørsel UUID") @NotNull
         @QueryParam("foresporselUuid") UUID forespørselUuid) {
-
-        tilgangskontroll.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
         LOG.info("Henter grunnlag for forespørsel {}", forespørselUuid);
         var dto = inntektsmeldingTjeneste.lagDialogDto(forespørselUuid);
@@ -73,8 +72,7 @@ public class InntektsmeldingDialogRest {
     public Response hentInntektsmeldingerForOppgave(
         @Parameter(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel") @NotNull @QueryParam("foresporselUuid")
         UUID forespørselUuid) {
-
-        tilgangskontroll.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
         LOG.info("Henter inntektsmeldinger for forespørsel {}", forespørselUuid);
         var dto = inntektsmeldingTjeneste.hentInntektsmeldinger(forespørselUuid);
@@ -87,8 +85,7 @@ public class InntektsmeldingDialogRest {
     @Operation(description = "Sender inn inntektsmelding", tags = "imdialog")
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
                                         SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
-
-        tilgangskontroll.sjekkAtArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
 
         LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequestDto.foresporselUuid());
         var imResponse = inntektsmeldingTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
@@ -100,8 +97,7 @@ public class InntektsmeldingDialogRest {
     @Produces("application/pdf")
     @Operation(description = "Lager PDF av inntektsmelding", tags = "imdialog")
     public Response lastNedPDF(@Parameter(description = "ID for inntektsmelding å lage PDF av") @NotNull @QueryParam("id") long inntektsmeldingId) {
-
-        tilgangskontroll.sjekkAtArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId);
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId);
 
         LOG.info("Henter inntektsmelding for id {}", inntektsmeldingId);
         var pdf = inntektsmeldingTjeneste.hentPDF(inntektsmeldingId);

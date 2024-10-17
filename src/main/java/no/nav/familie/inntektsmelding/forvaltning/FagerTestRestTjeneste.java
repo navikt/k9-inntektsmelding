@@ -50,7 +50,7 @@ public class FagerTestRestTjeneste {
     static final String BASE_PATH = "/test/fager";
 
     private ArbeidsgiverNotifikasjon notifikasjon;
-    private Tilgang tilgangsstyring;
+    private Tilgang tilgang;
 
     private URI skjemaLenke;
 
@@ -60,10 +60,10 @@ public class FagerTestRestTjeneste {
 
     @Inject
     public FagerTestRestTjeneste(ArbeidsgiverNotifikasjon notifikasjon,
-                                 Tilgang tilgangsstyring,
+                                 Tilgang tilgang,
                                  @KonfigVerdi(value = "inntektsmelding.skjema.lenke") URI skjemaLenke) {
         this.notifikasjon = notifikasjon;
-        this.tilgangsstyring = tilgangsstyring;
+        this.tilgang = tilgang;
         this.skjemaLenke = UriBuilder.fromUri(skjemaLenke).path("ny").path("8068c43c-5ed7-4d0b-91c7-b8fa8c306bb3").build();
     }
 
@@ -219,7 +219,7 @@ public class FagerTestRestTjeneste {
     }
 
     private void sjekkAtKallerHarRollenDrift() {
-        tilgangsstyring.sjekkAtAnsattHarRollenDrift();
+        tilgang.sjekkAtAnsattHarRollenDrift();
     }
 }
 

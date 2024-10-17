@@ -36,4 +36,10 @@ public interface Tilgang {
      */
     void sjekkAtAnsattHarRollenSaksbehandler();
 
+    /**
+     * Sjekker at det er et systembruker som står bak kallet.
+     *
+     * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
+     */
+    void sjekkErSystembruker();
 }
