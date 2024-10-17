@@ -76,7 +76,7 @@ public class FpDokgenRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
-        sjekkAtSaksbehandlerHarRollenDrift();
+        sjekkAtKallerHarRollenDrift();
 
         InntektsmeldingEntitet inntektsmeldingEntitet;
         if (inntektsmeldingRequest.inntektsmeldingId != null) {
@@ -120,11 +120,11 @@ public class FpDokgenRestTjeneste {
 
     private List<EndringsårsakEntitet> mapEndringsårsker(List<EndringsårsakerDto> endringsårsaker) {
         return endringsårsaker.stream().map(endringsårsak -> new EndringsårsakEntitet.Builder().
-            medÅrsak(mapEndringsårsak(endringsårsak.aarsak()))
-            .medFom(endringsårsak.fom())
-            .medTom(endringsårsak.tom())
-            .medBleKjentFra(endringsårsak.bleKjentFom())
-            .build())
+                medÅrsak(mapEndringsårsak(endringsårsak.aarsak()))
+                .medFom(endringsårsak.fom())
+                .medTom(endringsårsak.tom())
+                .medBleKjentFra(endringsårsak.bleKjentFom())
+                .build())
             .toList();
     }
 
@@ -175,7 +175,7 @@ public class FpDokgenRestTjeneste {
     public record EndringsårsakerDto(@NotNull EndringsårsakDto aarsak, LocalDate fom, LocalDate tom, LocalDate bleKjentFom) {
     }
 
-    private void sjekkAtSaksbehandlerHarRollenDrift() {
-        tilgangsstyring.sjekkAtSaksbehandlerHarRollenDrift();
+    private void sjekkAtKallerHarRollenDrift() {
+        tilgangsstyring.sjekkAtAnsattHarRollenDrift();
     }
 }

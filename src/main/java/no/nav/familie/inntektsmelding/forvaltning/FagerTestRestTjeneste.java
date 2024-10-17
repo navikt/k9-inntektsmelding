@@ -75,7 +75,7 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
-        sjekkAtSaksbehandlerHarRollenDrift();
+        sjekkAtKallerHarRollenDrift();
 
         var sakId = notifikasjon.opprettSak(request.fagsakSaksnummer().saksnr(), finnMerkelapp(request.ytelsetype()), request.orgnummer().orgnr(),
             "Inntektsmelding for TEST TESTERSEN: f." + request.aktørId().id(), this.skjemaLenke, "");
@@ -92,7 +92,7 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
-        sjekkAtSaksbehandlerHarRollenDrift();
+        sjekkAtKallerHarRollenDrift();
 
         var sak = notifikasjon.hentSakMedGrupperingsid(grupperingsid, merkelapp);
         return Response.ok(sak).build();
@@ -106,7 +106,7 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
-        sjekkAtSaksbehandlerHarRollenDrift();
+        sjekkAtKallerHarRollenDrift();
 
         var sak = notifikasjon.hentSak(sakId);
         return Response.ok(sak).build();
@@ -120,7 +120,7 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
-        sjekkAtSaksbehandlerHarRollenDrift();
+        sjekkAtKallerHarRollenDrift();
 
         var statusId = notifikasjon.oppdaterSakStatus(request.sakId(), request.status(), request.overstyrtStatusTekst());
         return Response.ok(statusId).build();
@@ -137,7 +137,7 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
-        sjekkAtSaksbehandlerHarRollenDrift();
+        sjekkAtKallerHarRollenDrift();
 
         var statusId = notifikasjon.oppdaterSakStatusMedGrupperingsId(request.grupperingsid(), request.merkelapp(), request.status(),
             request.overstyrtStatusTekst());
@@ -156,12 +156,17 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
-        sjekkAtSaksbehandlerHarRollenDrift();
+        sjekkAtKallerHarRollenDrift();
 
         var eksternId = String.join("-", request.fagsakSaksnummer().saksnr(), request.orgnummer().orgnr()); // mulig man trenger arbforholdId også.
         LOG.info("FAGER: eksternId={}", eksternId);
-        var oppgaveId = notifikasjon.opprettOppgave(request.fagsakSaksnummer().saksnr(), finnMerkelapp(request.ytelsetype()), eksternId,
-            request.orgnummer().orgnr(), "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt", "Dette er et varsel", this.skjemaLenke);
+        var oppgaveId = notifikasjon.opprettOppgave(request.fagsakSaksnummer().saksnr(),
+            finnMerkelapp(request.ytelsetype()),
+            eksternId,
+            request.orgnummer().orgnr(),
+            "NAV trenger inntektsmelding for å kunne behandle saken til din ansatt",
+            "Dette er et varsel",
+            this.skjemaLenke);
 
         return Response.ok(oppgaveId).build();
     }
@@ -174,7 +179,7 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
-        sjekkAtSaksbehandlerHarRollenDrift();
+        sjekkAtKallerHarRollenDrift();
 
         var oppgaveId = notifikasjon.oppgaveUtført(request.oppgaveId(), OffsetDateTime.now());
 
@@ -192,7 +197,7 @@ public class FagerTestRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
-        sjekkAtSaksbehandlerHarRollenDrift();
+        sjekkAtKallerHarRollenDrift();
 
         var oppgaveId = notifikasjon.oppgaveUtførtByEksternId(request.eksternId(), request.merkelapp(), OffsetDateTime.now());
 
@@ -213,8 +218,8 @@ public class FagerTestRestTjeneste {
         };
     }
 
-    private void sjekkAtSaksbehandlerHarRollenDrift() {
-        tilgangsstyring.sjekkAtSaksbehandlerHarRollenDrift();
+    private void sjekkAtKallerHarRollenDrift() {
+        tilgangsstyring.sjekkAtAnsattHarRollenDrift();
     }
 }
 

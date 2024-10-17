@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
+import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 
 @AutentisertMedAzure
 @ApplicationScoped
@@ -29,14 +30,16 @@ public class InntektsmeldingFpsakRest {
     public static final String BASE_PATH = "/overstyring";
     private static final String INNTEKTSMELDING = "/inntektsmelding";
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private Tilgang tilgangskontroll;
 
     InntektsmeldingFpsakRest() {
         // CDI
     }
 
     @Inject
-    public InntektsmeldingFpsakRest(InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+    public InntektsmeldingFpsakRest(InntektsmeldingTjeneste inntektsmeldingTjeneste, Tilgang tilgangskontroll) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.tilgangskontroll = tilgangskontroll;
     }
 
     @POST
@@ -45,7 +48,9 @@ public class InntektsmeldingFpsakRest {
     @Operation(description = "Sender inn inntektsmelding fra fpsak", tags = "imdialog")
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
                                         SendOverstyrtInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
-        LOG.info("Mottok overstyrt inntektsmelding fra saksbehandler " + sendInntektsmeldingRequestDto.opprettetAv());
+        LOG.info("Mottok overstyrt inntektsmelding fra saksbehandler {}", sendInntektsmeldingRequestDto.opprettetAv());
+        tilgangskontroll.sjekkAtAnsattHarRollenSaksbehandler();
+
         inntektsmeldingTjeneste.mottaOverstyrtInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok().build();
     }
