@@ -71,10 +71,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     @Override
-    public void ferdigstillForespørsel(UUID foresporselUuid,
-                                       AktørIdEntitet aktorId,
-                                       OrganisasjonsnummerDto organisasjonsnummerDto,
-                                       LocalDate startdato) {
+    public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
+                                                     AktørIdEntitet aktorId,
+                                                     OrganisasjonsnummerDto organisasjonsnummerDto,
+                                                     LocalDate startdato) {
         var foresporsel = forespørselTjeneste.finnForespørsel(foresporselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
 
@@ -86,6 +86,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(),
             ForespørselTekster.STATUS_TEKST_DEFAULT); // Oppdaterer status i arbeidsgiver-notifikasjon
         forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
+        return foresporsel;
     }
 
     @Override
@@ -184,8 +185,11 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         // Alle inntektsmeldinger sendt inn via arbeidsgiverportal blir lukket umiddelbart etter innsending fra #InntektsmeldingTjeneste,
         // så forespørsler som enda er åpne her blir løst ved innsending fra andre systemer
         forespørsler.forEach(f -> {
-            MetrikkerTjeneste.loggForespørselLukkEkstern(f.getYtelseType());
-            ferdigstillForespørsel(f.getUuid(), f.getAktørId(), new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()), f.getSkjæringstidspunkt());
+            var lukketForespørsel = ferdigstillForespørsel(f.getUuid(),
+                f.getAktørId(),
+                new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()),
+                f.getSkjæringstidspunkt());
+            MetrikkerTjeneste.loggForespørselLukkEkstern(lukketForespørsel);
         });
     }
 
