@@ -42,7 +42,12 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         var requestCaptor = ArgumentCaptor.forClass(NySakMutationRequest.class);
 
-        tjeneste.opprettSak(expectedGrupperingsid, expectedMerkelapp, expectedVirksomhetsnummer, expectedTittel, URI.create(expectedLenke), expectedStatusTekst);
+        tjeneste.opprettSak(expectedGrupperingsid,
+            expectedMerkelapp,
+            expectedVirksomhetsnummer,
+            expectedTittel,
+            URI.create(expectedLenke),
+            expectedStatusTekst);
 
         Mockito.verify(klient).opprettSak(requestCaptor.capture(), any(NySakResultatResponseProjection.class));
 
@@ -73,18 +78,23 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         var requestCaptor = ArgumentCaptor.forClass(NyOppgaveMutationRequest.class);
 
-        tjeneste.opprettOppgave(expectedGrupperingsid, expectedNotifikasjonsMerkelapp, expectedEksternId, expectedVirksomhetsnummer,
-            expectedNotifikasjonsTekst, expectedEksternvarselTekst, URI.create(expectedNotifikasjonsLenke));
+        tjeneste.opprettOppgave(expectedGrupperingsid,
+            expectedNotifikasjonsMerkelapp,
+            expectedEksternId,
+            expectedVirksomhetsnummer,
+            expectedNotifikasjonsTekst,
+            expectedEksternvarselTekst,
+            URI.create(expectedNotifikasjonsLenke));
 
         Mockito.verify(klient).opprettOppgave(requestCaptor.capture(), any(NyOppgaveResultatResponseProjection.class));
 
-        var request = requestCaptor.getValue();
+        var input = requestCaptor.getValue().getInput();
 
-        assertThat(request.getInput()).isNotNull().hasSize(1);
+        assertThat(input).isNotNull().hasSize(1);
         var inputKey = "nyOppgave";
-        assertThat(request.getInput()).containsKey(inputKey);
-        assertThat(request.getInput().get(inputKey)).isInstanceOf(NyOppgaveInput.class);
-        var nyOppgave = (NyOppgaveInput) request.getInput().get(inputKey);
+        assertThat(input).containsKey(inputKey);
+        assertThat(input.get(inputKey)).isInstanceOf(NyOppgaveInput.class);
+        var nyOppgave = (NyOppgaveInput) input.get(inputKey);
 
         assertThat(nyOppgave.getMottaker()).isNotNull();
         assertThat(nyOppgave.getMottaker().getAltinn().getServiceCode()).isEqualTo(SERVICE_CODE);
@@ -121,11 +131,14 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         Mockito.verify(klient).oppgaveUtført(requestCaptor.capture(), any(OppgaveUtfoertResultatResponseProjection.class));
 
-        var request = requestCaptor.getValue();
+        var input = requestCaptor.getValue().getInput();
 
-        assertThat(request.getInput()).isNotNull().hasSize(2);
-        assertThat(request.getInput().get("id")).isNotNull().isEqualTo(expectedId);
-        assertThat(request.getInput().get("utfoertTidspunkt")).isNotNull().isEqualTo(expectedTidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
+        assertThat(input).containsOnlyKeys("id", "utfoertTidspunkt", "hardDelete", "nyLenke");
+
+        assertThat(input.get("id")).isEqualTo(expectedId);
+        assertThat(input.get("utfoertTidspunkt")).isEqualTo(expectedTidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
+        assertThat(input.get("hardDelete")).isNull();
+        assertThat(input.get("nyLenke")).isNull();
     }
 
 
@@ -136,14 +149,23 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         var requestCaptor = ArgumentCaptor.forClass(NyStatusSakMutationRequest.class);
 
-        tjeneste.ferdigstillSak(expectedId,expectedStatusText);
+        tjeneste.ferdigstillSak(expectedId, expectedStatusText);
 
         Mockito.verify(klient).oppdaterSakStatus(requestCaptor.capture(), any(NyStatusSakResultatResponseProjection.class));
 
         var request = requestCaptor.getValue();
 
-        assertThat(request.getInput()).isNotNull().hasSize(3);
-        assertThat(request.getInput().get("id")).isNotNull().isEqualTo(expectedId);
-        assertThat(request.getInput().get("overstyrStatustekstMed")).isNotNull().isEqualTo(expectedStatusText);
+        var input = request.getInput();
+
+        assertThat(input).containsOnlyKeys("id", "overstyrStatustekstMed", "nyStatus", "idempotencyKey", "hardDelete", "tidspunkt", "nyLenkeTilSak");
+
+        assertThat(input.get("id")).isEqualTo(expectedId);
+        assertThat(input.get("overstyrStatustekstMed")).isEqualTo(expectedStatusText);
+        assertThat(input.get("nyStatus")).isEqualTo(SaksStatus.FERDIG);
+
+        assertThat(input.get("idempotencyKey")).isNull();
+        assertThat(input.get("hardDelete")).isNull();
+        assertThat(input.get("tidspunkt")).isNull();
+        assertThat(input.get("nyLenkeTilSak")).isNull();
     }
 }
