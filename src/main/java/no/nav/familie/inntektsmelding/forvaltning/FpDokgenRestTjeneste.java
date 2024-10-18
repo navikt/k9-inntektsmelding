@@ -78,7 +78,7 @@ public class FpDokgenRestTjeneste {
         if (IS_PROD) {
             throw new ManglerTilgangException("IKKE-TILGANG", "Ikke tilgjengelig i produksjon");
         }
-        sjekkAtSaksbehandlerHarRollenDrift();
+        sjekkAtKallerHarRollenDrift();
 
         InntektsmeldingEntitet inntektsmeldingEntitet;
         if (inntektsmeldingRequest.inntektsmeldingId != null) {
