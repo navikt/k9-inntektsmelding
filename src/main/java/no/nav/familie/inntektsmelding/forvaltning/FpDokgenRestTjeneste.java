@@ -48,7 +48,7 @@ import no.nav.vedtak.konfig.Tid;
 @ApplicationScoped
 @Path(FpDokgenRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
-@UtenAutentisering
+@AutentisertMedAzure
 /*Denne tjenesten er ment brukt til testformål, og eventuelt for å gjenskape feilsituasjoner i produksjon*/
 public class FpDokgenRestTjeneste {
     public static final String BASE_PATH = "/inntektsmelding-pdf";
