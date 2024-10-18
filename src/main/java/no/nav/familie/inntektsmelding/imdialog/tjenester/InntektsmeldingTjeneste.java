@@ -18,7 +18,6 @@ import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
-import no.nav.familie.inntektsmelding.imdialog.rest.SendOverstyrtInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
@@ -81,11 +80,6 @@ public class InntektsmeldingTjeneste {
         MetrikkerTjeneste.loggInnsendtInntektsmelding(imEntitet);
 
         return InntektsmeldingMapper.mapFraEntitet(imEntitet, mottattInntektsmeldingDto.foresporselUuid());
-    }
-
-    public void mottaOverstyrtInntektsmelding(SendOverstyrtInntektsmeldingRequestDto mottattInntektsmeldingDto) {
-        var entitet = InntektsmeldingOverstyringMapper.mapTilEntitet(mottattInntektsmeldingDto);
-        lagreOgLagJournalførTask(entitet);
     }
 
     private Long lagreOgLagJournalførTask(InntektsmeldingEntitet entitet) {

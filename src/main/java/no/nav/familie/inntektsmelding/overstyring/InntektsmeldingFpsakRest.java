@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.imdialog.rest;
+package no.nav.familie.inntektsmelding.overstyring;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 
@@ -29,7 +28,7 @@ public class InntektsmeldingFpsakRest {
 
     public static final String BASE_PATH = "/overstyring";
     private static final String INNTEKTSMELDING = "/inntektsmelding";
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private InntektsmeldingOverstyringTjeneste inntektsmeldingOverstyringTjeneste;
     private Tilgang tilgangskontroll;
 
     InntektsmeldingFpsakRest() {
@@ -37,8 +36,8 @@ public class InntektsmeldingFpsakRest {
     }
 
     @Inject
-    public InntektsmeldingFpsakRest(InntektsmeldingTjeneste inntektsmeldingTjeneste, Tilgang tilgangskontroll) {
-        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+    public InntektsmeldingFpsakRest(InntektsmeldingOverstyringTjeneste inntektsmeldingOverstyringTjeneste, Tilgang tilgangskontroll) {
+        this.inntektsmeldingOverstyringTjeneste = inntektsmeldingOverstyringTjeneste;
         this.tilgangskontroll = tilgangskontroll;
     }
 
@@ -51,7 +50,7 @@ public class InntektsmeldingFpsakRest {
         LOG.info("Mottok overstyrt inntektsmelding fra saksbehandler {}", sendInntektsmeldingRequestDto.opprettetAv());
         tilgangskontroll.sjekkErSystembruker();
 
-        inntektsmeldingTjeneste.mottaOverstyrtInntektsmelding(sendInntektsmeldingRequestDto);
+        inntektsmeldingOverstyringTjeneste.mottaOverstyrtInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok().build();
     }
 }

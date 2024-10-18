@@ -210,47 +210,7 @@ class TilgangTjenesteTest {
             assertDoesNotThrow(() -> tilgangTjeneste.sjekkAtAnsattHarRollenDrift());
         }
     }
-
-    @Test
-    void test_sjekk_om_ansatt_har_rollen_saksbehandler_ikke_saksbehandler_nok() {
-        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
-            mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.EksternBruker));
-
-            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtAnsattHarRollenSaksbehandler());
-            assertThat(ex.getMessage()).contains("Ansatt mangler en rolle.");
-        }
-    }
-
-    @Test
-    void test_sjekk_om_ansatt_har_rollen_saksbehandler_mangler_rollen_nok() {
-        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
-            mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.InternBruker));
-
-            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtAnsattHarRollenSaksbehandler());
-            assertThat(ex.getMessage()).contains("Ansatt mangler en rolle.");
-        }
-    }
-
-    @Test
-    void test_sjekk_om_ansatt_har_rollen_saksbehandler_feil_rolle_nok() {
-        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
-            mockedKontekts.when(KontekstHolder::getKontekst)
-                .thenReturn(fakeRequestKontekts(IdentType.InternBruker, Set.of(Groups.DRIFT, Groups.VEILEDER)));
-
-            var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtAnsattHarRollenSaksbehandler());
-            assertThat(ex.getMessage()).contains("Ansatt mangler en rolle.");
-        }
-    }
-
-    @Test
-    void test_sjekk_om_ansatt_har_rollen_saksbehandler_ok() {
-        try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
-            var forventetRolle = Groups.SAKSBEHANDLER;
-            mockedKontekts.when(KontekstHolder::getKontekst).thenReturn(fakeRequestKontekts(IdentType.InternBruker, Set.of(forventetRolle)));
-            assertDoesNotThrow(() -> tilgangTjeneste.sjekkAtAnsattHarRollenSaksbehandler());
-        }
-    }
-
+    
     @Test
     void test_sjekk_om_systembruker_kall_nok_pga_internbruker() {
         try (var mockedKontekts = Mockito.mockStatic(KontekstHolder.class)) {
