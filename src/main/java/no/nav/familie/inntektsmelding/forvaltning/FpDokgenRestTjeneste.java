@@ -22,6 +22,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
