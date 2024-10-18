@@ -22,7 +22,7 @@ class GeneralRestExceptionMapperTest {
     private final GeneralRestExceptionMapper exceptionMapper = new GeneralRestExceptionMapper();
 
     @BeforeEach
-    void beforeEach() {
+    void setUp() {
         logSniffer = MemoryAppender.sniff(GeneralRestExceptionMapper.class);
     }
 
