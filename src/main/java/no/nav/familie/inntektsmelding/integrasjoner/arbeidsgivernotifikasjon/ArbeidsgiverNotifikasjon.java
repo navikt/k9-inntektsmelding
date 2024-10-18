@@ -5,17 +5,11 @@ import java.time.OffsetDateTime;
 
 public interface ArbeidsgiverNotifikasjon {
 
-    String opprettSak(String grupperingsid, Merkelapp merkelapp, String virksomhetsnummer, String saksTittel, URI lenke, String statusTekst);
-
-    HentetSak hentSakMedGrupperingsid(String grupperingsid, Merkelapp merkelapp);
-
-    HentetSak hentSak(String sakId);
-
-    String oppdaterSakStatus(String sakId, SaksStatus status, String overstyrtStatusText);
-
-    String oppdaterSakStatusMedGrupperingsId(String grupperingsid, Merkelapp merkelapp, SaksStatus status, String overstyrtStatusText);
+    String opprettSak(String grupperingsid, Merkelapp merkelapp, String virksomhetsnummer, String saksTittel, URI lenke);
 
     String oppdaterSakTilleggsinformasjon(String id, String overstyrtTillagsinformasjon);
+
+    String ferdigstillSak(String id);
 
     String opprettOppgave(String grupperingsid,
                           Merkelapp merkelapp,
@@ -25,11 +19,7 @@ public interface ArbeidsgiverNotifikasjon {
                           String varseltekst,
                           URI lenke);
 
-    String ferdigstillSak(String id, String overstyrStatustekst);
-
     String oppgaveUtført(String oppgaveId, OffsetDateTime utførtTidspunkt);
-
-    String oppgaveUtførtByEksternId(String eksternId, Merkelapp merkelapp, OffsetDateTime tidspunkt);
 
     String oppgaveUtgått(String oppgaveId, OffsetDateTime utgåttTidspunkt);
 

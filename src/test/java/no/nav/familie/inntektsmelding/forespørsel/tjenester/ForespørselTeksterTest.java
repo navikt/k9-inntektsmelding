@@ -27,6 +27,7 @@ class ForespørselTeksterTest {
         String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.EKSTERN_INNSENDING);
         assertEquals("Utført i Altinn eller i bedriftens lønns- og personalsystem", statusTekst);
     }
+
     @Test
     void lagTilleggsInformasjon_OrdinærInnsending() {
         String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.ORDINÆR_INNSENDING);
