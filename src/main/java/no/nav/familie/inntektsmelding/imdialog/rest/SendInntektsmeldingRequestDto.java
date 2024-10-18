@@ -11,9 +11,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-import no.nav.familie.inntektsmelding.server.authz.TilgangsstyringInputTyper;
-import no.nav.familie.inntektsmelding.server.authz.api.TilgangsstyringDto;
-import no.nav.familie.inntektsmelding.server.authz.api.TilgangsstyringInput;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
@@ -29,7 +26,7 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
                                             @NotNull List<@Valid Refusjon> refusjon,
                                             @NotNull List<@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder,
-                                            @NotNull List<@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker) implements TilgangsstyringDto {
+                                            @NotNull List<@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker) {
 
     public record Refusjon(@NotNull LocalDate fom,
                            @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
@@ -37,8 +34,8 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
 
 
     public record BortfaltNaturalytelseRequestDto(@NotNull LocalDate fom,
-                                          LocalDate tom,
-                                          @NotNull NaturalytelsetypeDto naturalytelsetype,
+                                                  LocalDate tom,
+                                                  @NotNull NaturalytelsetypeDto naturalytelsetype,
                                                   @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
     }
 
@@ -51,9 +48,5 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
     public record KontaktpersonRequestDto(@NotNull String navn, @NotNull String telefonnummer) {
     }
 
-    @Override
-    public TilgangsstyringInput inputAttributer() {
-        return TilgangsstyringInput.opprett().leggTil(TilgangsstyringInputTyper.FORESPORSEL_ID, foresporselUuid());
-    }
 }
 
