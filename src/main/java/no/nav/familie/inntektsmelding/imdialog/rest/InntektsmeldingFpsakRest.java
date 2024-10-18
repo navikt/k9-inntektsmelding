@@ -49,7 +49,7 @@ public class InntektsmeldingFpsakRest {
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
                                         SendOverstyrtInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         LOG.info("Mottok overstyrt inntektsmelding fra saksbehandler {}", sendInntektsmeldingRequestDto.opprettetAv());
-        tilgangskontroll.sjekkAtAnsattHarRollenSaksbehandler();
+        tilgangskontroll.sjekkErSystembruker();
 
         inntektsmeldingTjeneste.mottaOverstyrtInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok().build();
