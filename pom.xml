@@ -276,6 +276,7 @@
                             junit.jupiter.execution.parallel.mode.default = concurrent
                         </configurationParameters>
                     </properties>
+                    <argLine>@{argLine} ${argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -291,6 +292,11 @@
                             <outputDirectory>${project.basedir}/target/lib/</outputDirectory>
                             <includeScope>runtime</includeScope>
                         </configuration>
+                    </execution>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

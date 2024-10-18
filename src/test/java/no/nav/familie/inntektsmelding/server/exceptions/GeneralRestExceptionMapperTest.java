@@ -7,8 +7,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -19,21 +17,17 @@ import no.nav.vedtak.log.util.MemoryAppender;
 @Execution(ExecutionMode.SAME_THREAD)
 class GeneralRestExceptionMapperTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GeneralRestExceptionMapperTest.class);
-
     private static MemoryAppender logSniffer;
 
     private final GeneralRestExceptionMapper exceptionMapper = new GeneralRestExceptionMapper();
 
     @BeforeAll
     static void beforeAll() {
-        System.setProperty("slf4j.detectLoggerNameMismatch", "true");
         logSniffer = MemoryAppender.sniff(GeneralRestExceptionMapper.class);
     }
 
     @AfterEach
     void afterEach() {
-        System.clearProperty("slf4j.detectLoggerNameMismatch");
         logSniffer.reset();
     }
 
