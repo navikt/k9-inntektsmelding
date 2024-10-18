@@ -2,13 +2,13 @@ package no.nav.familie.inntektsmelding.server.exceptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -19,6 +19,8 @@ import no.nav.vedtak.log.util.MemoryAppender;
 @Execution(ExecutionMode.SAME_THREAD)
 class GeneralRestExceptionMapperTest {
 
+    private static final Logger LOG = LoggerFactory.getLogger(GeneralRestExceptionMapperTest.class);
+
     private static MemoryAppender logSniffer;
 
     private final GeneralRestExceptionMapper exceptionMapper = new GeneralRestExceptionMapper();
@@ -26,20 +28,12 @@ class GeneralRestExceptionMapperTest {
     @BeforeAll
     static void beforeAll() {
         System.setProperty("slf4j.detectLoggerNameMismatch", "true");
-    }
-
-    @AfterAll
-    static void afterAll() {
-        System.clearProperty("slf4j.detectLoggerNameMismatch");
-    }
-
-    @BeforeEach
-    void setUp() {
         logSniffer = MemoryAppender.sniff(GeneralRestExceptionMapper.class);
     }
 
     @AfterEach
     void afterEach() {
+        System.clearProperty("slf4j.detectLoggerNameMismatch");
         logSniffer.reset();
     }
 
