@@ -60,7 +60,8 @@ public class ForespørselBehandlingTjenesteImplTest {
     public void setUp() {
         this.forespørselRepository = new ForespørselRepository(entityManager);
         this.forespørselBehandlingTjeneste = new ForespørselBehandlingTjenesteImpl(new ForespørselTjeneste(forespørselRepository),
-            arbeidsgiverNotifikasjon, personTjeneste);
+            arbeidsgiverNotifikasjon,
+            personTjeneste);
 
     }
 
@@ -87,8 +88,11 @@ public class ForespørselBehandlingTjenesteImplTest {
     public void eksisterende_åpen_forespørsel_skal_gi_noop() {
         forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
 
-        var resultat = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER), new SaksnummerDto(SAKSNUMMMER));
+        var resultat = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
+            YTELSETYPE,
+            new AktørIdEntitet(AKTØR_ID),
+            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
+            new SaksnummerDto(SAKSNUMMMER));
 
 
         var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER));
@@ -101,8 +105,11 @@ public class ForespørselBehandlingTjenesteImplTest {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER), SKJÆRINGSTIDSPUNKT, LukkeÅrsak.EKSTERN_INNSENDING);
+        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
+            new AktørIdEntitet(AKTØR_ID),
+            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
+            SKJÆRINGSTIDSPUNKT,
+            LukkeÅrsak.EKSTERN_INNSENDING);
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
@@ -113,7 +120,11 @@ public class ForespørselBehandlingTjenesteImplTest {
     public void skal_lukke_alle_forespørspørsler_for_sak() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
-        var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2), YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2),
+            YTELSETYPE,
+            AKTØR_ID,
+            BRREG_ORGNUMMER,
+            SAKSNUMMMER);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid2, "2");
 
         forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), null);
@@ -218,13 +229,17 @@ public class ForespørselBehandlingTjenesteImplTest {
 
 
     private void mockInfoForOpprettelse(String aktørId, Ytelsetype ytelsetype, String brregOrgnummer, String sakId, String oppgaveId) {
-        var personInfo = new PersonInfo("Navn", null, "Navnesen", new PersonIdent("01019100000"), new AktørIdEntitet(aktørId),
-            LocalDate.of(1991, 1, 1).minusYears(30), null);
+        var personInfo = new PersonInfo("Navn",
+            null,
+            "Navnesen",
+            new PersonIdent("01019100000"),
+            new AktørIdEntitet(aktørId),
+            LocalDate.of(1991, 1, 1).minusYears(30),
+            null);
         var sakTittel = ForespørselTekster.lagSaksTittel(personInfo.mapFulltNavn(), personInfo.fødselsdato());
-        var sakStatus = ForespørselTekster.STATUS_TEKST_DEFAULT;
 
         when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørId), ytelsetype)).thenReturn(personInfo);
-        when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(brregOrgnummer), eq(sakTittel), any(), eq(sakStatus))).thenReturn(sakId);
+        when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(brregOrgnummer), eq(sakTittel), any())).thenReturn(sakId);
         when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(brregOrgnummer), any(), any(), any())).thenReturn(oppgaveId);
     }
 }

@@ -92,7 +92,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         validerStartdato(foresporsel, startdato);
 
         arbeidsgiverNotifikasjon.oppgaveUtført(foresporsel.getOppgaveId(), OffsetDateTime.now());
-        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(), ForespørselTekster.STATUS_TEKST_DEFAULT); // Oppdaterer status i arbeidsgiver-notifikasjon
+        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
         if (tilleggsInformasjon != null) {
             arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
                 ForespørselTekster.lagTilleggsInformasjon(årsak));
@@ -141,7 +141,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
                 try {
                     var mapper = new ObjectMapper().registerModule(new JavaTimeModule());
-                    LOG.debug(String.format("Forsøker å sette eksisterende forespørsel til utgått. Eksisterende forespørsel: %s, organisasjonerPerSkjæringstidspunkt: %s",
+                    LOG.debug(String.format(
+                        "Forsøker å sette eksisterende forespørsel til utgått. Eksisterende forespørsel: %s, organisasjonerPerSkjæringstidspunkt: %s",
                         mapper.writeValueAsString(eksisterendeForespørsel),
                         mapper.writeValueAsString(organisasjonerPerSkjæringstidspunkt)));
                 } catch (JsonProcessingException e) {
@@ -149,7 +150,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                 }
 
                 arbeidsgiverNotifikasjon.oppgaveUtgått(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
-                arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), ForespørselTekster.STATUS_TEKST_DEFAULT); // Oppdaterer status i arbeidsgiver-notifikasjon
+                arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
                 arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
                     ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT));
                 forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
@@ -190,8 +191,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             merkelapp,
             organisasjonsnummer.orgnr(),
             ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato()),
-            skjemaUri,
-            ForespørselTekster.STATUS_TEKST_DEFAULT);
+            skjemaUri);
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
 
