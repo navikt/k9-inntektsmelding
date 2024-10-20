@@ -97,8 +97,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
                 ForespørselTekster.lagTilleggsInformasjon(årsak));
         }
-        forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
-        return foresporsel;
+        return forespørselTjeneste.ferdigstillForespørsel(foresporsel); // Oppdaterer status i forespørsel
     }
 
     @Override

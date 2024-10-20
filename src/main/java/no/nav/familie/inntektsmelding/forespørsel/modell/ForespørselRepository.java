@@ -81,6 +81,13 @@ public class ForespørselRepository {
         }
     }
 
+    public ForespørselEntitet ferdigstillForespørsel(ForespørselEntitet entitet) {
+        entitet.setStatus(ForespørselStatus.FERDIG);
+        entityManager.persist(entitet);
+        entityManager.flush();
+        return entitet;
+    }
+
     public void ferdigstillForespørsel(String arbeidsgiverNotifikasjonSakId) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where sakId = :SAK_ID", ForespørselEntitet.class)
             .setParameter("SAK_ID", arbeidsgiverNotifikasjonSakId);

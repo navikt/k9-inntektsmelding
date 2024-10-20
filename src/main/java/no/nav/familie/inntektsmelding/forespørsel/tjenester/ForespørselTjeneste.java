@@ -51,6 +51,10 @@ public class ForespørselTjeneste {
         forespørselRepository.ferdigstillForespørsel(arbeidsgiverNotifikasjonSakId);
     }
 
+    public ForespørselEntitet ferdigstillForespørsel(ForespørselEntitet entitet) {
+        return forespørselRepository.ferdigstillForespørsel(entitet);
+    }
+
     public void settForespørselTilUtgått(String arbeidsgiverNotifikasjonSakId) {
         forespørselRepository.settForespørselTilUtgått(arbeidsgiverNotifikasjonSakId);
     }
