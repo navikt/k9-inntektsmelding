@@ -105,6 +105,7 @@ public class ForespørselRest {
 
     @POST
     @Path("/sett-til-utgatt")
+    @Tilgangskontrollert
     public Response settForespørselTilUtgått(LukkForespørselRequest request) {
         LOG.info("Setter forespørsel for fagsakSaksnummer {} til utgått", request.fagsakSaksnummer());
         forespørselBehandlingTjeneste.settForespørselTilUtgått(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
