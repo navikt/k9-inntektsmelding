@@ -38,7 +38,7 @@ public class ForespørselEntitet {
     private String sakId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, updatable = false)
+    @Column(name = "status", nullable = false)
     private ForespørselStatus status = ForespørselStatus.UNDER_BEHANDLING;
 
     @Column(name = "oppgave_id")
@@ -147,7 +147,8 @@ public class ForespørselEntitet {
     @Override
     public String toString() {
         return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + maskerId(organisasjonsnummer)
-            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelseType=" + ytelseType + ", fagsystemSaksnummer="
+            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelseType=" + ytelseType
+            + ", fagsystemSaksnummer="
             + fagsystemSaksnummer + '}';
     }
 
