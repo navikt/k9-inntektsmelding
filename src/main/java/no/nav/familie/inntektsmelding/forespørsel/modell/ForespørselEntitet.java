@@ -38,7 +38,7 @@ public class ForespørselEntitet {
     private String sakId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, updatable = true )
+    @Column(name = "status", nullable = false)
     private ForespørselStatus status = ForespørselStatus.UNDER_BEHANDLING;
 
     @Column(name = "oppgave_id")
