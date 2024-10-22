@@ -39,7 +39,7 @@ public class JoarkTjeneste {
     private PersonTjeneste personTjeneste;
 
     JoarkTjeneste() {
-        // CDI
+        // CDI proxy
     }
 
     @Inject
@@ -55,8 +55,8 @@ public class JoarkTjeneste {
         try {
             var response = joarkKlient.opprettJournalpost(request, false);
             // Kan nok fjerne loggingen etter en periode i dev, mest for feilsøking i starten.
-            LOG.info("Journalført inntektsmelding fikk journalpostId " + response.journalpostId());
-            LOG.info("Ble journalført inntektsmelding ferdigstilt:  " + response.journalpostferdigstilt());
+            LOG.info("Journalført inntektsmelding fikk journalpostId {}", response.journalpostId());
+            LOG.info("Ble journalført inntektsmelding ferdigstilt: {}", response.journalpostferdigstilt());
             return response.journalpostId();
         } catch (Exception e) {
             throw new IllegalStateException("Klarte ikke journalføre innteketsmelding " + e);
@@ -64,9 +64,9 @@ public class JoarkTjeneste {
     }
 
     private OpprettJournalpostRequest opprettRequest(String xmlAvInntektsmelding, InntektsmeldingEntitet inntektsmeldingEntitet, byte[] pdf) {
-        boolean erBedrift = inntektsmeldingEntitet.getArbeidsgiverIdent().length() == 9;
-        AvsenderMottaker avsenderMottaker = erBedrift ? lagAvsenderBedrift(inntektsmeldingEntitet) : lagAvsenderPrivatperson(inntektsmeldingEntitet);
-        var request = OpprettJournalpostRequest.nyInngående()
+        var erBedrift = inntektsmeldingEntitet.getArbeidsgiverIdent().length() == 9;
+        var avsenderMottaker = erBedrift ? lagAvsenderBedrift(inntektsmeldingEntitet) : lagAvsenderPrivatperson(inntektsmeldingEntitet);
+        return OpprettJournalpostRequest.nyInngående()
             .medTittel(JOURNALFØRING_TITTEL)
             .medAvsenderMottaker(avsenderMottaker)
             .medBruker(lagBruker(inntektsmeldingEntitet.getAktørId()))
@@ -78,7 +78,6 @@ public class JoarkTjeneste {
             .medKanal(KANAL)
             .medDokumenter(lagDokumenter(xmlAvInntektsmelding, pdf))
             .build();
-        return request;
     }
 
     private List<DokumentInfoOpprett> lagDokumenter(String xmlAvInntektsmelding, byte[] pdf) {

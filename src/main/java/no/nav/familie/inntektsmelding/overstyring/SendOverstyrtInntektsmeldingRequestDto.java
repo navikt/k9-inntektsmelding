@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.imdialog.rest;
+package no.nav.familie.inntektsmelding.overstyring;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,9 +30,9 @@ public record SendOverstyrtInntektsmeldingRequestDto(@NotNull @Valid AktørIdDto
     }
 
     public record BortfaltNaturalytelseRequestDto(@NotNull LocalDate fom,
-                                          LocalDate tom,
-                                          @NotNull NaturalytelsetypeDto naturalytelsetype,
-                                          @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
+                                                  LocalDate tom,
+                                                  @NotNull NaturalytelsetypeDto naturalytelsetype,
+                                                  @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
     }
 }
 

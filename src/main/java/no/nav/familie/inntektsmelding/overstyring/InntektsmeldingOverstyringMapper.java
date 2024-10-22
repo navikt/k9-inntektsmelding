@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.imdialog.tjenester;
+package no.nav.familie.inntektsmelding.overstyring;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,13 +9,15 @@ import java.util.Optional;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
-import no.nav.familie.inntektsmelding.imdialog.rest.SendOverstyrtInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
 
-public class InntektsmeldingOverstyringMapper {
+class InntektsmeldingOverstyringMapper {
+
+    private InntektsmeldingOverstyringMapper() {
+    }
 
     public static InntektsmeldingEntitet mapTilEntitet(SendOverstyrtInntektsmeldingRequestDto dto) {
         return InntektsmeldingEntitet.builder()
@@ -37,7 +39,8 @@ public class InntektsmeldingOverstyringMapper {
         List<SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDtos) {
         var sisteEndring = finnSisteRefusjonsendring(refusjonsendringRequestDtos);
         // Hvis siste endring setter refusjon til 0 er det å regne som opphørsdato
-        return sisteEndring.filter(en -> en.beløp().compareTo(BigDecimal.ZERO) == 0).map(SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto::fom);
+        return sisteEndring.filter(en -> en.beløp().compareTo(BigDecimal.ZERO) == 0)
+            .map(SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto::fom);
     }
 
     private static List<RefusjonsendringEntitet> mapRefusjonsendringer(
@@ -46,9 +49,9 @@ public class InntektsmeldingOverstyringMapper {
             siste.beløp().compareTo(BigDecimal.ZERO) == 0);
         // Hvis siste periode med endring har refusjon == 0 trenger den ikke mappes som endring, legges på refusjonOpphører feltet
         return sisteEndringSomOpphørerRef.map(refusjonendringRequestDto -> refusjonsendringRequestDtos.stream()
-            .filter(dto -> dto.fom().isBefore(refusjonendringRequestDto.fom()))
-            .map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp()))
-            .toList())
+                .filter(dto -> dto.fom().isBefore(refusjonendringRequestDto.fom()))
+                .map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp()))
+                .toList())
             .orElseGet(() -> refusjonsendringRequestDtos.stream().map(dto -> new RefusjonsendringEntitet(dto.fom(), dto.beløp())).toList());
     }
 
@@ -59,7 +62,7 @@ public class InntektsmeldingOverstyringMapper {
     private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(
         List<SendOverstyrtInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto> dto) {
         return dto.stream()
-            .map(d -> new BortaltNaturalytelseEntitet.Builder().medPeriode(d.fom(), d.tom() != null ? d.tom() : Tid.TIDENES_ENDE )
+            .map(d -> new BortaltNaturalytelseEntitet.Builder().medPeriode(d.fom(), d.tom() != null ? d.tom() : Tid.TIDENES_ENDE)
                 .medMånedBeløp(d.beløp())
                 .medType(KodeverkMapper.mapNaturalytelseTilEntitet(d.naturalytelsetype()))
                 .build())

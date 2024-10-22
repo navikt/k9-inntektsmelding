@@ -7,8 +7,6 @@ import java.util.Set;
 
 import jakarta.ws.rs.ApplicationPath;
 
-import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingFpsakRest;
-
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
@@ -16,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselRest;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogRest;
+import no.nav.familie.inntektsmelding.overstyring.InntektsmeldingFpsakRest;
 import no.nav.familie.inntektsmelding.server.auth.AutentiseringFilter;
 import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapper;

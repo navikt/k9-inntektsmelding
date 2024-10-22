@@ -67,12 +67,11 @@ public class TilgangTjeneste implements Tilgang {
 
     @Override
     public void sjekkAtAnsattHarRollenDrift() {
-        sjekkAtAnsattHarRollen(KontekstHolder.getKontekst(), Groups.DRIFT);
-    }
-
-    @Override
-    public void sjekkAtAnsattHarRollenSaksbehandler() {
-        sjekkAtAnsattHarRollen(KontekstHolder.getKontekst(), Groups.SAKSBEHANDLER);
+        var kontekst = KontekstHolder.getKontekst();
+        if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, Groups.DRIFT)) {
+            return;
+        }
+        ikkeTilgang("Ansatt mangler en rolle.");
     }
 
     @Override
@@ -81,13 +80,6 @@ public class TilgangTjeneste implements Tilgang {
             return;
         }
         ikkeTilgang("Kun systemkall støttes.");
-    }
-
-    private void sjekkAtAnsattHarRollen(Kontekst kontekst, Groups group) {
-        if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, group)) {
-            return;
-        }
-        ikkeTilgang("Ansatt mangler en rolle.");
     }
 
     private boolean erNavAnsatt(Kontekst kontekst) {

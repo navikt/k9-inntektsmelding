@@ -38,23 +38,28 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var expectedTittel = "Inntektsmelding for person";
         var expectedLenke = "https://inntektsmelding-innsendings-dialog.com";
         var expectedMerkelapp = Merkelapp.INNTEKTSMELDING_FP;
-        var expectedStatusTekst = "status tekst";
 
         var requestCaptor = ArgumentCaptor.forClass(NySakMutationRequest.class);
 
-        tjeneste.opprettSak(expectedGrupperingsid,
-            expectedMerkelapp,
-            expectedVirksomhetsnummer,
-            expectedTittel,
-            URI.create(expectedLenke),
-            expectedStatusTekst);
+        tjeneste.opprettSak(expectedGrupperingsid, expectedMerkelapp, expectedVirksomhetsnummer, expectedTittel, URI.create(expectedLenke));
 
         Mockito.verify(klient).opprettSak(requestCaptor.capture(), any(NySakResultatResponseProjection.class));
 
         var request = requestCaptor.getValue();
 
         var input = request.getInput();
-        assertThat(input).isNotNull().hasSize(8);
+        assertThat(input).containsOnlyKeys("grupperingsid",
+            "initiellStatus",
+            "lenke",
+            "merkelapp",
+            "tittel",
+            "virksomhetsnummer",
+            "mottakere",
+            "overstyrStatustekstMed",
+            "nesteSteg",
+            "tidspunkt",
+            "tilleggsinformasjon",
+            "hardDelete");
         assertThat(input.get("grupperingsid")).isEqualTo(expectedGrupperingsid);
         assertThat(input.get("initiellStatus")).isEqualTo(SaksStatus.UNDER_BEHANDLING);
         assertThat(input.get("lenke")).isEqualTo(expectedLenke);
@@ -62,7 +67,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         assertThat(input.get("tittel")).isEqualTo(expectedTittel);
         assertThat(input.get("virksomhetsnummer")).isEqualTo(expectedVirksomhetsnummer);
         assertThat(input.get("mottakere")).isNotNull();
-        assertThat(input.get("overstyrStatustekstMed")).isEqualTo(expectedStatusTekst);
+        assertThat(input.get("overstyrStatustekstMed")).isEqualTo("");
     }
 
     @Test
@@ -145,11 +150,10 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
     @Test
     void ferdigstill_sak() {
         var expectedId = "TestId";
-        var expectedStatusText = "Saksbehandler har gått videre uten din inntektsmelding";
 
         var requestCaptor = ArgumentCaptor.forClass(NyStatusSakMutationRequest.class);
 
-        tjeneste.ferdigstillSak(expectedId, expectedStatusText);
+        tjeneste.ferdigstillSak(expectedId);
 
         Mockito.verify(klient).oppdaterSakStatus(requestCaptor.capture(), any(NyStatusSakResultatResponseProjection.class));
 
@@ -160,12 +164,34 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         assertThat(input).containsOnlyKeys("id", "overstyrStatustekstMed", "nyStatus", "idempotencyKey", "hardDelete", "tidspunkt", "nyLenkeTilSak");
 
         assertThat(input.get("id")).isEqualTo(expectedId);
-        assertThat(input.get("overstyrStatustekstMed")).isEqualTo(expectedStatusText);
         assertThat(input.get("nyStatus")).isEqualTo(SaksStatus.FERDIG);
+        assertThat(input.get("overstyrStatustekstMed")).isEqualTo("");
 
         assertThat(input.get("idempotencyKey")).isNull();
         assertThat(input.get("hardDelete")).isNull();
         assertThat(input.get("tidspunkt")).isNull();
         assertThat(input.get("nyLenkeTilSak")).isNull();
+    }
+
+    @Test
+    void oppdater_Tillegsinformasjon() {
+        var expectedId = "TestId";
+        var expectedTilleggsinformasjon = "Saksbehandler har gått videre uten din inntektsmelding";
+
+        var requestCaptor = ArgumentCaptor.forClass(TilleggsinformasjonSakMutationRequest.class);
+
+        tjeneste.oppdaterSakTilleggsinformasjon(expectedId, expectedTilleggsinformasjon);
+
+        Mockito.verify(klient).oppdaterSakTilleggsinformasjon(requestCaptor.capture(), any(TilleggsinformasjonSakResultatResponseProjection.class));
+
+        var request = requestCaptor.getValue();
+
+        var input = request.getInput();
+
+        assertThat(input).containsOnlyKeys("id", "idempotencyKey", "tilleggsinformasjon");
+
+        assertThat(input.get("id")).isEqualTo(expectedId);
+        assertThat(input.get("tilleggsinformasjon")).isEqualTo(expectedTilleggsinformasjon);
+        assertThat(input.get("idempotencyKey")).isNull();
     }
 }
