@@ -105,16 +105,6 @@ public class ForespørselRest {
     }
 
     @POST
-    @Path("/lukk-aapne")
-    @Tilgangskontrollert
-    public Response lukkÅpneForespørsler(SaksnummerDto fagsakSaksnummer) {
-        LOG.info("Setter alle åpne forespørsler for fagsakSaksnummer {} til UTGÅTT", fagsakSaksnummer.saksnr());
-
-        forespørselBehandlingTjeneste.lukkÅpneForespørsler(fagsakSaksnummer);
-        return Response.ok().build();
-    }
-
-    @POST
     @Path("/sett-til-utgatt")
     @Tilgangskontrollert
     public Response settForespørselTilUtgått(LukkForespørselRequest request) {
@@ -123,6 +113,18 @@ public class ForespørselRest {
         sjekkErSystemkall();
 
         forespørselBehandlingTjeneste.settForespørselTilUtgått(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/sett-til-utgatt/alle")
+    @Tilgangskontrollert
+    public Response settAlleTilUtgått(SaksnummerDto fagsakSaksnummer) {
+        LOG.info("Setter alle åpne forespørsler for fagsakSaksnummer {} til utgått", fagsakSaksnummer.saksnr());
+
+        sjekkErSystemkall();
+
+        forespørselBehandlingTjeneste.settAlleÅpneTilUtgått(fagsakSaksnummer);
         return Response.ok().build();
     }
 
