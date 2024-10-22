@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import no.nav.familie.inntektsmelding.koder.Kildesystem;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
@@ -34,7 +36,7 @@ class InntektsmeldingXMLMapperTest {
         var aktøridFnrMap = Map.of(DUMMY_AKTØRID, PersonIdent.fra(DUMMY_FNR));
 
         var inntektsmelding = lagInntektsmeldingEntitet(DUMMY_AKTØRID,
-            List.of(lagBortfaltNaturalytelseEntitet(NOW, forventetFom, forventetNaturalytelseType, forventetBeløp))
+            List.of(lagBortfaltNaturalytelseEntitet(NOW, forventetFom, forventetNaturalytelseType, forventetBeløp)), Kildesystem.ARBEIDSGIVERPORTAL);
         );
 
         var resultat = InntektsmeldingXMLMapper.map(inntektsmelding, aktøridFnrMap);
@@ -57,7 +59,7 @@ class InntektsmeldingXMLMapperTest {
         var aktøridFnrMap = Map.of(DUMMY_AKTØRID, PersonIdent.fra(DUMMY_FNR));
 
         var inntektsmelding = lagInntektsmeldingEntitet(DUMMY_AKTØRID,
-            List.of(lagBortfaltNaturalytelseEntitet(forventetFom, Tid.TIDENES_ENDE, forventetNaturalytelseType, forventetBeløp))
+            List.of(lagBortfaltNaturalytelseEntitet(forventetFom, Tid.TIDENES_ENDE, forventetNaturalytelseType, forventetBeløp)), Kildesystem.ARBEIDSGIVERPORTAL
         );
 
         var resultat = InntektsmeldingXMLMapper.map(inntektsmelding, aktøridFnrMap);
@@ -69,6 +71,18 @@ class InntektsmeldingXMLMapperTest {
         assertThat(resultat.getSkjemainnhold().getGjenopptakelseNaturalytelseListe().getValue().getNaturalytelseDetaljer()).isEmpty();
     }
 
+    @Test
+    void test_overstyrt_inntektsmelding() {
+        var aktøridFnrMap = Map.of(DUMMY_AKTØRID, PersonIdent.fra(DUMMY_FNR));
+
+        var inntektsmelding = lagInntektsmeldingEntitet(DUMMY_AKTØRID, List.of(), Kildesystem.FPSAK);
+
+        var resultat = InntektsmeldingXMLMapper.map(inntektsmelding, aktøridFnrMap);
+
+        assertThat(resultat.getSkjemainnhold().getAvsendersystem().getSystemnavn()).isEqualTo("OVERSTYRING_FPSAK");
+    }
+
+
     private static void assertNaturalytelse(NaturalytelseDetaljer naturalytelseDetaljer,
                                             LocalDate forventetFom,
                                             NaturalytelseType forventetNaturalytelseType,
@@ -79,11 +93,12 @@ class InntektsmeldingXMLMapperTest {
     }
 
     private static InntektsmeldingEntitet lagInntektsmeldingEntitet(AktørIdEntitet aktørId,
-                                                                    List<BortaltNaturalytelseEntitet> bortfaltNaturalytelseEntitet) {
+                                                                    List<BortaltNaturalytelseEntitet> bortfaltNaturalytelseEntitet, Kildesystem kildesystem) {
         return InntektsmeldingEntitet.builder()
             .medBortfaltNaturalytelser(bortfaltNaturalytelseEntitet)
             .medArbeidsgiverIdent(DUMMY_ARBEIDSGIVER_IDENT)
             .medAktørId(aktørId)
+            .medKildesystem(kildesystem)
             .medYtelsetype(Ytelsetype.FORELDREPENGER)
             .build();
     }
