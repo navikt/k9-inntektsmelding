@@ -106,6 +106,7 @@ public class ForespørselRest {
 
     @POST
     @Path("/lukk-aapne")
+    @Tilgangskontrollert
     public Response lukkÅpneForespørsler(SaksnummerDto fagsakSaksnummer) {
         LOG.info("Setter alle åpne forespørsler for fagsakSaksnummer {} til UTGÅTT", fagsakSaksnummer.saksnr());
 
