@@ -20,10 +20,10 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
-import no.nav.familie.inntektsmelding.server.authz.api.ActionType;
-import no.nav.familie.inntektsmelding.server.authz.api.PolicyType;
-import no.nav.familie.inntektsmelding.server.authz.api.Tilgangsstyring;
+import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
+import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -41,32 +41,44 @@ public class ForespørselRest {
     public static final String BASE_PATH = "/foresporsel";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
+    private Tilgang tilgang;
 
-    public ForespørselRest() {
+    ForespørselRest() {
+        // Kun for CDI-proxy
     }
 
     @Inject
-    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
+    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, Tilgang tilgang) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
+        this.tilgang = tilgang;
     }
 
     @POST
     @Path("/opprett")
+    @Tilgangskontrollert
     public Response opprettForespørsel(OpprettForespørselRequest request) {
-        LOG.info("Mottok forespørsel om inntektsmeldingoppgave på fagsakSaksnummer " + request.fagsakSaksnummer());
-        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(), KodeverkMapper.mapYtelsetype(request.ytelsetype()),
-            new AktørIdEntitet(request.aktørId().id()), new OrganisasjonsnummerDto(request.orgnummer().orgnr()), request.fagsakSaksnummer());
+        LOG.info("Mottok forespørsel om inntektsmeldingoppgave på fagsakSaksnummer {}", request.fagsakSaksnummer());
+        sjekkErSystemkall();
 
-        MetrikkerTjeneste.loggForespørselOpprettet(KodeverkMapper.mapYtelsetype(request.ytelsetype()));
+        var bleForespørselOpprettet = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(),
+            KodeverkMapper.mapYtelsetype(request.ytelsetype()),
+            new AktørIdEntitet(request.aktørId().id()),
+            new OrganisasjonsnummerDto(request.orgnummer().orgnr()),
+            request.fagsakSaksnummer());
 
-        return Response.ok().build();
+        if (bleForespørselOpprettet.equals(ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
+            MetrikkerTjeneste.loggForespørselOpprettet(KodeverkMapper.mapYtelsetype(request.ytelsetype()));
+        }
+        return Response.ok(new OpprettForespørselResponse(bleForespørselOpprettet)).build();
     }
 
     @POST
     @Path("/oppdater")
-    @Tilgangsstyring(policy = PolicyType.ARBEIDSGIVER_PORTAL, action = ActionType.WRITE)
+    @Tilgangskontrollert
     public Response oppdaterForespørsler(OppdaterForespørslerRequest request) {
-        LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på fagsakSaksnummer " + request.fagsakSaksnummer());
+        LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på fagsakSaksnummer {}", request.fagsakSaksnummer());
+        sjekkErSystemkall();
+
         forespørselBehandlingTjeneste.oppdaterForespørsler(
             KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdEntitet(request.aktørId().id()),
@@ -79,8 +91,15 @@ public class ForespørselRest {
 
     @POST
     @Path("/lukk")
+    @Tilgangskontrollert
     public Response lukkForespørsel(LukkForespørselRequest request) {
-        LOG.info("Lukk forespørsel for fagsakSaksnummer {} med orgnummer {} og skjæringstidspunkt {}", request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        LOG.info("Lukk forespørsel for fagsakSaksnummer {} med orgnummer {} og skjæringstidspunkt {}",
+            request.fagsakSaksnummer(),
+            request.orgnummer(),
+            request.skjæringstidspunkt());
+
+        sjekkErSystemkall();
+
         forespørselBehandlingTjeneste.lukkForespørsel(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
         return Response.ok().build();
     }
@@ -94,6 +113,18 @@ public class ForespørselRest {
         return Response.ok().build();
     }
 
+    @POST
+    @Path("/sett-til-utgatt")
+    @Tilgangskontrollert
+    public Response settForespørselTilUtgått(LukkForespørselRequest request) {
+        LOG.info("Setter forespørsel for fagsakSaksnummer {} til utgått", request.fagsakSaksnummer());
+
+        sjekkErSystemkall();
+
+        forespørselBehandlingTjeneste.settForespørselTilUtgått(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        return Response.ok().build();
+    }
+
     record ForespørselDto(UUID uuid, OrganisasjonsnummerDto organisasjonsnummer, LocalDate skjæringstidspunkt, AktørIdDto brukerAktørId,
                           YtelseTypeDto ytelseType) {
     }
@@ -101,6 +132,10 @@ public class ForespørselRest {
     static ForespørselDto mapTilDto(ForespørselEntitet entitet) {
         return new ForespørselDto(entitet.getUuid(), new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()), entitet.getSkjæringstidspunkt(),
             new AktørIdDto(entitet.getAktørId().getAktørId()), KodeverkMapper.mapYtelsetype(entitet.getYtelseType()));
+    }
+
+    private void sjekkErSystemkall() {
+        tilgang.sjekkErSystembruker();
     }
 }
 

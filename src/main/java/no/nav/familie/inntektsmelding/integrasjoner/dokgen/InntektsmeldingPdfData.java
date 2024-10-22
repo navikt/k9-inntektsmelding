@@ -19,7 +19,6 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 public class InntektsmeldingPdfData {
     private String avsenderSystem;
     private String navnSøker;
-    private String fornavnSøker;
     private String personnummer;
     private Ytelsetype ytelsetype;
     private String arbeidsgiverIdent;
@@ -29,11 +28,11 @@ public class InntektsmeldingPdfData {
     private BigDecimal månedInntekt;
     private String opprettetTidspunkt;
     private BigDecimal refusjonsbeløp;
-    private String refusjonOpphørsdato;
     private List<RefusjonsendringPeriode> refusjonsendringer = new ArrayList<>();
     private List<NaturalYtelse> naturalytelser = new ArrayList<>();
     private boolean ingenBortfaltNaturalytelse;
     private boolean ingenGjenopptattNaturalytelse;
+    private List<Endringsarsak> endringsarsaker = new ArrayList<>();
 
     public String getAvsenderSystem() {
         return avsenderSystem;
@@ -75,10 +74,6 @@ public class InntektsmeldingPdfData {
         return opprettetTidspunkt;
     }
 
-    public String getRefusjonOpphørsdato() {
-        return refusjonOpphørsdato;
-    }
-
     public List<RefusjonsendringPeriode> getRefusjonsendringer() {
         return refusjonsendringer;
     }
@@ -99,8 +94,8 @@ public class InntektsmeldingPdfData {
         return ingenBortfaltNaturalytelse;
     }
 
-    public String getFornavnSøker() {
-        return fornavnSøker;
+    public List<Endringsarsak> getEndringsarsaker() {
+        return endringsarsaker;
     }
 
     @Override
@@ -113,21 +108,19 @@ public class InntektsmeldingPdfData {
         }
         InntektsmeldingPdfData that = (InntektsmeldingPdfData) o;
         return ingenBortfaltNaturalytelse == that.ingenBortfaltNaturalytelse && ingenGjenopptattNaturalytelse == that.ingenGjenopptattNaturalytelse
-            && Objects.equals(avsenderSystem, that.avsenderSystem) && Objects.equals(navnSøker, that.navnSøker) && Objects.equals(fornavnSøker,
-            that.fornavnSøker) && Objects.equals(personnummer, that.personnummer) && ytelsetype == that.ytelsetype
+            && Objects.equals(avsenderSystem, that.avsenderSystem) && Objects.equals(navnSøker, that.navnSøker) && Objects.equals(personnummer, that.personnummer) && ytelsetype == that.ytelsetype
             && Objects.equals(arbeidsgiverIdent,
             that.arbeidsgiverIdent) && Objects.equals(arbeidsgiverNavn, that.arbeidsgiverNavn) && Objects.equals(kontaktperson, that.kontaktperson)
             && Objects.equals(startDato, that.startDato) && Objects.equals(månedInntekt, that.månedInntekt) && Objects.equals(opprettetTidspunkt,
-            that.opprettetTidspunkt) && Objects.equals(refusjonsbeløp, that.refusjonsbeløp) && Objects.equals(refusjonOpphørsdato,
-            that.refusjonOpphørsdato) && Objects.equals(refusjonsendringer, that.refusjonsendringer) && Objects.equals(naturalytelser,
-            that.naturalytelser);
+            that.opprettetTidspunkt) && Objects.equals(refusjonsbeløp, that.refusjonsbeløp) && Objects.equals(refusjonsendringer, that.refusjonsendringer) && Objects.equals(naturalytelser,
+            that.naturalytelser) && Objects.equals(endringsarsaker, that.endringsarsaker);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(avsenderSystem, navnSøker, fornavnSøker, personnummer, ytelsetype, arbeidsgiverIdent, arbeidsgiverNavn, kontaktperson,
-            startDato, månedInntekt, opprettetTidspunkt, refusjonsbeløp, refusjonOpphørsdato, refusjonsendringer, naturalytelser,
-            ingenBortfaltNaturalytelse, ingenGjenopptattNaturalytelse);
+        return Objects.hash(avsenderSystem, navnSøker, personnummer, ytelsetype, arbeidsgiverIdent, arbeidsgiverNavn, kontaktperson,
+            startDato, månedInntekt, opprettetTidspunkt, refusjonsbeløp, refusjonsendringer, naturalytelser,
+            ingenBortfaltNaturalytelse, ingenGjenopptattNaturalytelse, endringsarsaker);
     }
 
     public static String formaterPersonnummer(String personnummer) {
@@ -144,6 +137,13 @@ public class InntektsmeldingPdfData {
             return null;
         }
         return dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO")));
+    }
+
+    public static String formaterDatoForLister(LocalDate dato) {
+        if (dato == null) {
+            return null;
+        }
+        return dato.format(ofPattern("dd.MM.yyyy", Locale.forLanguageTag("NO")));
     }
 
     public static String formaterDatoMedNavnPåUkedag(LocalDate dato) {
@@ -181,11 +181,6 @@ public class InntektsmeldingPdfData {
 
         public Builder medNavn(String navn) {
             this.kladd.navnSøker = navn;
-            return this;
-        }
-
-        public Builder medForNavnSøker(String fornavn) {
-            this.kladd.fornavnSøker = fornavn;
             return this;
         }
 
@@ -229,11 +224,6 @@ public class InntektsmeldingPdfData {
             return this;
         }
 
-        public Builder medRefusjonOpphørsdato(LocalDate refusjonOpphørsdato) {
-            this.kladd.refusjonOpphørsdato = formaterDatoNorsk(refusjonOpphørsdato);
-            return this;
-        }
-
         public Builder medRefusjonsendringer(List<RefusjonsendringPeriode> refusjonsperioder) {
             this.kladd.refusjonsendringer = refusjonsperioder;
             return this;
@@ -256,6 +246,12 @@ public class InntektsmeldingPdfData {
 
         public Builder medKontaktperson(Kontaktperson kontaktperson) {
             this.kladd.kontaktperson = kontaktperson;
+            return this;
+        }
+
+
+        public Builder medEndringsårsaker(List<Endringsarsak> endringsårsaker) {
+            this.kladd.endringsarsaker = endringsårsaker;
             return this;
         }
 

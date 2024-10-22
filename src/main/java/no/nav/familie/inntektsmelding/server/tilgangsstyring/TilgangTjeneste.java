@@ -23,16 +23,16 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 
 @Dependent
-public class TilgangsstyringTjeneste implements Tilgang {
+public class TilgangTjeneste implements Tilgang {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TilgangsstyringTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TilgangTjeneste.class);
     private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     private final AltinnTilgangTjeneste altinnTilgangTjeneste;
     private final PipTjeneste pipTjeneste;
 
     @Inject
-    public TilgangsstyringTjeneste(PipTjeneste pipTjeneste, AltinnTilgangTjeneste altinnTilgangTjeneste) {
+    public TilgangTjeneste(PipTjeneste pipTjeneste, AltinnTilgangTjeneste altinnTilgangTjeneste) {
         this.pipTjeneste = pipTjeneste;
         this.altinnTilgangTjeneste = altinnTilgangTjeneste;
     }
@@ -66,27 +66,33 @@ public class TilgangsstyringTjeneste implements Tilgang {
     }
 
     @Override
-    public void sjekkAtSaksbehandlerHarRollenDrift() {
+    public void sjekkAtAnsattHarRollenDrift() {
         var kontekst = KontekstHolder.getKontekst();
-        if (erSaksbehandler(kontekst) && saksbehandlerHarRollen(kontekst, Groups.DRIFT)) {
+        if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, Groups.DRIFT)) {
             return;
         }
-        ikkeTilgang("Saksbehandler mangler en rolle.");
+        ikkeTilgang("Ansatt mangler en rolle.");
     }
 
-    private boolean erSaksbehandler(Kontekst kontekst) {
+    @Override
+    public void sjekkErSystembruker() {
+        if (KontekstHolder.getKontekst() instanceof RequestKontekst rq && rq.getIdentType().erSystem()) {
+            return;
+        }
+        ikkeTilgang("Kun systemkall støttes.");
+    }
+
+    private boolean erNavAnsatt(Kontekst kontekst) {
         return IdentType.InternBruker.equals(kontekst.getIdentType());
     }
 
-    private boolean saksbehandlerHarRollen(Kontekst kontekst, Groups rolle) {
+    private boolean ansattHarRollen(Kontekst kontekst, Groups rolle) {
         return kontekst instanceof RequestKontekst requestKontekst && requestKontekst.harGruppe(rolle);
     }
 
     private void sjekkErBorger() {
-        if (KontekstHolder.getKontekst() instanceof RequestKontekst rq) {
-            if (IdentType.EksternBruker.equals(rq.getIdentType())) {
-                return;
-            }
+        if (KontekstHolder.getKontekst() instanceof RequestKontekst rq && IdentType.EksternBruker.equals(rq.getIdentType())) {
+            return;
         }
         ikkeTilgang("Kun borger kall støttes.");
     }

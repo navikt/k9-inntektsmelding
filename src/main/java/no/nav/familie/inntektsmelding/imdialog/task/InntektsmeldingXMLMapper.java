@@ -95,7 +95,7 @@ public class InntektsmeldingXMLMapper {
     private static Avsendersystem lagAvsendersysem(InntektsmeldingEntitet inntektsmelding) {
         var as = new Avsendersystem();
         if (Kildesystem.FPSAK.equals(inntektsmelding.getKildesystem())) {
-            as.setSystemnavn(Systemnavn.FPSAK_OVERSTYRING.name());
+            as.setSystemnavn(Systemnavn.OVERSTYRING_FPSAK.name());
         } else {
             as.setSystemnavn(Systemnavn.NAV_NO.name());
         }
@@ -157,7 +157,7 @@ public class InntektsmeldingXMLMapper {
         var inntektBeløp = of.createInntektBeloep(inntektsmeldingEntitet.getMånedInntekt());
         var inntekt = new Inntekt();
         inntekt.setBeloep(inntektBeløp);
-        // TODO Endringsårsak kan være enten "Tariffendring" eller "FeilInntekt", skal vi bruke disse?
+        // TODO Endringsarsak kan være enten "Tariffendring" eller "FeilInntekt", skal vi bruke disse?
         var inntektSkjemaVerdi = of.createArbeidsforholdBeregnetInntekt(inntekt);
         arbeidsforhold.setBeregnetInntekt(inntektSkjemaVerdi);
 
@@ -215,8 +215,9 @@ public class InntektsmeldingXMLMapper {
         };
     }
 
+    // OBS OBS: Disse sendes inn i XML og skal ikke omdøpes!
     enum Systemnavn {
-        FPSAK_OVERSTYRING,
+        OVERSTYRING_FPSAK,
         NAV_NO
     }
 }

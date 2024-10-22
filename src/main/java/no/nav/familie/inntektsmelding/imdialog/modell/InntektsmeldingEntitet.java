@@ -185,9 +185,20 @@ public class InntektsmeldingEntitet {
 
     @Override
     public String toString() {
-        return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + aktørId + ", ytelsetype=" + ytelsetype + ", arbeidsgiverIdent='"
-            + arbeidsgiverIdent + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt + ", opprettetTidspunkt=" + opprettetTidspunkt
+        return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelsetype=" + ytelsetype + ", arbeidsgiverIdent='"
+            + maskerId(arbeidsgiverIdent) + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt + ", opprettetTidspunkt=" + opprettetTidspunkt
             + ", refusjonendringer=" + refusjonsendringer + ", endringAvInntektÅrsaker=" + endringsårsaker + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser + '}';
+    }
+
+    private String maskerId(String id) {
+        if (id == null) {
+            return "";
+        }
+        var length = id.length();
+        if (length <= 4) {
+            return "*".repeat(length);
+        }
+        return "*".repeat(length - 4) + id.substring(length - 4);
     }
 
     public static Builder builder() {

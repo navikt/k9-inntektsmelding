@@ -38,7 +38,7 @@ public class ForespørselEntitet {
     private String sakId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, updatable = false)
+    @Column(name = "status", nullable = false)
     private ForespørselStatus status = ForespørselStatus.UNDER_BEHANDLING;
 
     @Column(name = "oppgave_id")
@@ -140,10 +140,27 @@ public class ForespørselEntitet {
         return fagsystemSaksnummer;
     }
 
+    public LocalDateTime getOpprettetTidspunkt() {
+        return opprettetTidspunkt;
+    }
+
     @Override
     public String toString() {
-        return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + organisasjonsnummer
-            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + aktørId + ", ytelseType=" + ytelseType + ", fagsystemSaksnummer="
+        return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + maskerId(organisasjonsnummer)
+            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelseType=" + ytelseType
+            + ", fagsystemSaksnummer="
             + fagsystemSaksnummer + '}';
     }
+
+    private String maskerId(String id) {
+        if (id == null) {
+            return "";
+        }
+        var length = id.length();
+        if (length <= 4) {
+            return "*".repeat(length);
+        }
+        return "*".repeat(length - 4) + id.substring(length - 4);
+    }
+
 }

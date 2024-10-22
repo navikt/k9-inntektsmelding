@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.imdialog.rest;
+package no.nav.familie.inntektsmelding.overstyring;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -16,8 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
+import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
+import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 
 @AutentisertMedAzure
 @ApplicationScoped
@@ -28,25 +29,30 @@ public class InntektsmeldingFpsakRest {
 
     public static final String BASE_PATH = "/overstyring";
     private static final String INNTEKTSMELDING = "/inntektsmelding";
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private InntektsmeldingOverstyringTjeneste inntektsmeldingOverstyringTjeneste;
+    private Tilgang tilgangskontroll;
 
     InntektsmeldingFpsakRest() {
         // CDI
     }
 
     @Inject
-    public InntektsmeldingFpsakRest(InntektsmeldingTjeneste inntektsmeldingTjeneste) {
-        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+    public InntektsmeldingFpsakRest(InntektsmeldingOverstyringTjeneste inntektsmeldingOverstyringTjeneste, Tilgang tilgangskontroll) {
+        this.inntektsmeldingOverstyringTjeneste = inntektsmeldingOverstyringTjeneste;
+        this.tilgangskontroll = tilgangskontroll;
     }
 
     @POST
     @Path(INNTEKTSMELDING)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Sender inn inntektsmelding fra fpsak", tags = "imdialog")
+    @Tilgangskontrollert
     public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
                                         SendOverstyrtInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
-        LOG.info("Mottok overstyrt inntektsmelding fra saksbehandler " + sendInntektsmeldingRequestDto.opprettetAv());
-        inntektsmeldingTjeneste.mottaOverstyrtInntektsmelding(sendInntektsmeldingRequestDto);
+        LOG.info("Mottok overstyrt inntektsmelding fra saksbehandler {}", sendInntektsmeldingRequestDto.opprettetAv());
+        tilgangskontroll.sjekkErSystembruker();
+
+        inntektsmeldingOverstyringTjeneste.mottaOverstyrtInntektsmelding(sendInntektsmeldingRequestDto);
         return Response.ok().build();
     }
 }

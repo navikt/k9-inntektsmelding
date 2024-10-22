@@ -8,19 +8,24 @@ import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 public interface ForespørselBehandlingTjeneste {
 
-    void håndterInnkommendeForespørsel(LocalDate skjæringstidspunkt,
-                                       Ytelsetype ytelsetype,
-                                       AktørIdEntitet aktørId,
-                                       OrganisasjonsnummerDto organisasjonsnummer,
-                                       SaksnummerDto fagsakSaksnummer);
+    ForespørselResultat håndterInnkommendeForespørsel(LocalDate skjæringstidspunkt,
+                                                      Ytelsetype ytelsetype,
+                                                      AktørIdEntitet aktørId,
+                                                      OrganisasjonsnummerDto organisasjonsnummer,
+                                                      SaksnummerDto fagsakSaksnummer);
 
-    void ferdigstillForespørsel(UUID foresporselUuid, AktørIdEntitet aktorId, OrganisasjonsnummerDto organisasjonsnummerDto, LocalDate startdato);
+    ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
+                                AktørIdEntitet aktorId,
+                                OrganisasjonsnummerDto organisasjonsnummerDto,
+                                LocalDate startdato,
+                                LukkeÅrsak årsak);
 
     Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID);
 
@@ -30,6 +35,8 @@ public interface ForespørselBehandlingTjeneste {
                               SaksnummerDto fagsakSaksnummer);
 
     void lukkForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
+
+    void settForespørselTilUtgått(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummer, LocalDate skjæringstidspunkt);
 
     void lukkÅpneForespørsler(SaksnummerDto fagsakSaksnummer);
 }
