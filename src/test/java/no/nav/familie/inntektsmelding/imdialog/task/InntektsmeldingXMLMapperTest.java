@@ -37,7 +37,6 @@ class InntektsmeldingXMLMapperTest {
 
         var inntektsmelding = lagInntektsmeldingEntitet(DUMMY_AKTØRID,
             List.of(lagBortfaltNaturalytelseEntitet(NOW, forventetFom, forventetNaturalytelseType, forventetBeløp)), Kildesystem.ARBEIDSGIVERPORTAL);
-        );
 
         var resultat = InntektsmeldingXMLMapper.map(inntektsmelding, aktøridFnrMap);
 
