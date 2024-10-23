@@ -172,4 +172,15 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         return klient.oppdaterSakTilleggsinformasjon(request, projection);
     }
 
+    @Override
+    public String slettSak(String id) {
+        var request = HardDeleteSakMutationRequest.builder().setId(id).build();
+        var projection = new HardDeleteSakResultatResponseProjection().typename()
+            .onHardDeleteSakVellykket(new HardDeleteSakVellykketResponseProjection().id())
+            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
+            .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding())
+            .onSakFinnesIkke(new SakFinnesIkkeResponseProjection().feilmelding());
+        return klient.slettSak(request, projection);
+    }
+
 }
