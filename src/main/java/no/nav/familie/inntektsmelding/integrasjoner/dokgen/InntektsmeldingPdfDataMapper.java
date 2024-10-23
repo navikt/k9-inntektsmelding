@@ -89,7 +89,7 @@ public class InntektsmeldingPdfDataMapper {
             case ELEKTRISK_KOMMUNIKASJON -> "Elektrisk kommunikasjon";
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> "Aksjer grunnfondsbevis til underkurs";
             case LOSJI -> "Losji";
-            case KOST_DØGN -> "Kostpenger døgnsats";
+            case KOST_DOEGN -> "Kostpenger døgnsats";
             case BESØKSREISER_HJEMMET_ANNET -> "Besøksreiser hjemmet annet";
             case KOSTBESPARELSE_I_HJEMMET -> "Kostbesparelser i hjemmet";
             case RENTEFORDEL_LÅN -> "Rentefordel lån";
