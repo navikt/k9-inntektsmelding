@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -258,7 +259,33 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         // På denne måten evaluerer vi faktisk tilstanden som blir til slutt lagret i databasen.
         getEntityManager().clear();
     }
+    @Test
+    public void skal_slette_oppgave_gitt_saksnummer_og_orgnr() {
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
+        when(arbeidsgiverNotifikasjon.slettSak(SAK_ID)).thenReturn(SAK_ID);
+
+        forespørselBehandlingTjeneste.slettForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), null);
+
+        var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
+        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
+        verify(arbeidsgiverNotifikasjon, Mockito.times(1)).slettSak(SAK_ID);
+    }
+
+    @Test
+    public void skal_slette_oppgave_gitt_saksnummer() {
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+
+        when(arbeidsgiverNotifikasjon.slettSak(SAK_ID)).thenReturn(SAK_ID);
+
+        forespørselBehandlingTjeneste.slettForespørsel(new SaksnummerDto(SAKSNUMMMER), null, null);
+
+        var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
+        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
+        verify(arbeidsgiverNotifikasjon, Mockito.times(1)).slettSak(SAK_ID);
+    }
 
     private void mockInfoForOpprettelse(String aktørId, Ytelsetype ytelsetype, String brregOrgnummer, String sakId, String oppgaveId) {
         var personInfo = new PersonInfo("Navn",

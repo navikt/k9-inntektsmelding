@@ -223,6 +223,23 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             .toList();
     }
 
+    @Override
+    public void slettForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
+        var sakerSomSkalSlettes = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer).stream()
+            .filter(f -> skjæringstidspunkt == null || f.getSkjæringstidspunkt().equals(skjæringstidspunkt))
+            .filter(f -> orgnummerDto == null || f.getOrganisasjonsnummer().equals(orgnummerDto.orgnr()))
+            .filter(f -> f.getStatus().equals(ForespørselStatus.UNDER_BEHANDLING))
+            .toList();
+
+        if (sakerSomSkalSlettes.size() != 1) {
+            var msg = String.format("Fant ikke akkurat 1 sak som skulle slettes. Fant istedet {} saker ", sakerSomSkalSlettes.size());
+            throw new IllegalStateException(msg);
+        }
+        var agPortalSakId = sakerSomSkalSlettes.getFirst().getArbeidsgiverNotifikasjonSakId();
+        arbeidsgiverNotifikasjon.slettSak(agPortalSakId);
+        forespørselTjeneste.settForespørselTilUtgått(agPortalSakId);
+    }
+
     private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {
         if (!forespørsel.getSkjæringstidspunkt().equals(startdato)) {
             throw new IllegalStateException("Startdato var ikke like");

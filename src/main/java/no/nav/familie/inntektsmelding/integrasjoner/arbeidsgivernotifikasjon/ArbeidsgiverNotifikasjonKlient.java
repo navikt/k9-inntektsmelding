@@ -155,6 +155,16 @@ class ArbeidsgiverNotifikasjonKlient {
         throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
     }
 
+    public String slettSak(HardDeleteSakMutationRequest request, HardDeleteSakResultatResponseProjection projection) {
+        LOG.info("FAGER: Utfører hard delete");
+        var resultat = query(new GraphQLRequest(request, projection), HardDeleteSakMutationResponse.class).hardDeleteSak();
+        if (resultat instanceof HardDeleteSakVellykket vellykket) {
+            return vellykket.getId();
+        } else {
+            loggFeilmelding((Error) resultat, "hard delete sak");
+        }
+        throw new IllegalStateException("Utviklerfeil: Ulovlig tilstand.");
+    }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));

@@ -23,4 +23,5 @@ public interface ArbeidsgiverNotifikasjon {
 
     String oppgaveUtgått(String oppgaveId, OffsetDateTime utgåttTidspunkt);
 
+    String slettSak(String id);
 }
