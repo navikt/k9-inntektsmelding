@@ -88,10 +88,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
         arbeidsgiverNotifikasjon.oppgaveUtført(foresporsel.getOppgaveId(), OffsetDateTime.now());
         arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
-        if (tilleggsInformasjon != null) {
-            arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
-                ForespørselTekster.lagTilleggsInformasjon(årsak));
-        }
+        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
+            ForespørselTekster.lagTilleggsInformasjon(årsak));
         forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
         return foresporsel;
     }
@@ -216,7 +214,9 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         forespørsler.forEach(this::setterForespørselTilUtgått);
     }
 
-    private List<ForespørselEntitet> hentÅpneForespørslerForFagsak(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
+    private List<ForespørselEntitet> hentÅpneForespørslerForFagsak(SaksnummerDto fagsakSaksnummer,
+                                                                   OrganisasjonsnummerDto orgnummerDto,
+                                                                   LocalDate skjæringstidspunkt) {
         return forespørselTjeneste.finnÅpneForespørslerForFagsak(fagsakSaksnummer).stream()
             .filter(f -> orgnummerDto == null || orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
             .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
