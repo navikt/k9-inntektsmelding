@@ -37,6 +37,4 @@ public interface ForespørselBehandlingTjeneste {
     void lukkForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
 
     void settForespørselTilUtgått(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummer, LocalDate skjæringstidspunkt);
-
-    void settAlleÅpneTilUtgått(SaksnummerDto fagsakSaksnummer);
 }
