@@ -152,8 +152,6 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             eksisterendeForespørsel.getFagsystemSaksnummer(),
             eksisterendeForespørsel.getYtelseType());
         LOG.info(msg);
-
-        //TODO Ønsker vi å legge til en metrikk her slik som for opprett og lukk?
     }
 
     private boolean innholderRequestEksisterendeForespørsel(Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
@@ -223,11 +221,6 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             .filter(f -> orgnummerDto == null || orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
             .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
             .toList();
-    }
-
-    public void settAlleÅpneTilUtgått(SaksnummerDto fagsakSaksnummer) {
-        var forespørsler = forespørselTjeneste.finnÅpneForespørslerForFagsak(fagsakSaksnummer);
-        forespørsler.forEach(this::setterForespørselTilUtgått);
     }
 
     private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {

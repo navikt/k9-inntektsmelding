@@ -26,7 +26,6 @@ import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -111,20 +110,8 @@ public class ForespørselRest {
         LOG.info("Setter forespørsel for fagsakSaksnummer {} til utgått", request.fagsakSaksnummer());
 
         sjekkErSystemkall();
-
+        
         forespørselBehandlingTjeneste.settForespørselTilUtgått(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/sett-til-utgatt/alle")
-    @Tilgangskontrollert
-    public Response settAlleTilUtgått(SaksnummerDto fagsakSaksnummer) {
-        LOG.info("Setter alle åpne forespørsler for fagsakSaksnummer {} til utgått", fagsakSaksnummer.saksnr());
-
-        sjekkErSystemkall();
-
-        forespørselBehandlingTjeneste.settAlleÅpneTilUtgått(fagsakSaksnummer);
         return Response.ok().build();
     }
 
