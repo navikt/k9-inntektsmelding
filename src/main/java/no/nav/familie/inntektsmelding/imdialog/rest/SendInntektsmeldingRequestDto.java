@@ -11,6 +11,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+import jakarta.validation.constraints.Size;
+
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
@@ -45,7 +47,7 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
                                             LocalDate bleKjentFom) {
     }
 
-    public record KontaktpersonRequestDto(@NotNull String navn, @NotNull String telefonnummer) {
+    public record KontaktpersonRequestDto(@Size(max = 100) @NotNull String navn, @NotNull @Size(max = 100) String telefonnummer) {
     }
 
 }
