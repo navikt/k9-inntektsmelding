@@ -232,7 +232,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             .toList();
 
         if (sakerSomSkalSlettes.size() != 1) {
-            var msg = String.format("Fant ikke akkurat 1 sak som skulle slettes. Fant istedet {} saker ", sakerSomSkalSlettes.size());
+            var msg = String.format("Fant ikke akkurat 1 sak som skulle slettes. Fant istedet %s saker ", sakerSomSkalSlettes.size());
             throw new IllegalStateException(msg);
         }
         var agPortalSakId = sakerSomSkalSlettes.getFirst().getArbeidsgiverNotifikasjonSakId();
