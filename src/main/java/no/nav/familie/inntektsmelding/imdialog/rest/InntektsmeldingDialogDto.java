@@ -8,12 +8,13 @@ import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
 public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto person, @Valid @NotNull OrganisasjonInfoResponseDto arbeidsgiver,
                                        @Valid @NotNull InnsenderDto innsender, @Valid @NotNull List<MånedsinntektResponsDto> inntekter,
                                        @NotNull LocalDate startdatoPermisjon, @Valid @NotNull YtelseTypeDto ytelse,
-                                       @Valid @NotNull UUID forespørselUuid) {
+                                       @Valid @NotNull UUID forespørselUuid, @Valid @NotNull ForespørselStatus forespørselStatus) {
 
     public record PersonInfoResponseDto(@NotNull String fornavn, @NotNull String mellomnavn, @NotNull String etternavn, @NotNull String fødselsnummer,
                                         @NotNull String aktørId) {
