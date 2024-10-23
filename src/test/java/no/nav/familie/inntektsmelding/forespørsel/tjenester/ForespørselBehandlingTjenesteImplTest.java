@@ -253,12 +253,6 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         assertThat(utgåtteForespørsler.size()).isEqualTo(1);
     }
 
-    private void clearHibernateCache() {
-        // Fjerne hibernate cachen før assertions skal evalueres - hibernate ignorerer alle updates som er markert med updatable = false ved skriving mot databasen
-        // men objektene i cachen blir oppdatert helt greit likevel.
-        // På denne måten evaluerer vi faktisk tilstanden som blir til slutt lagret i databasen.
-        getEntityManager().clear();
-    }
     @Test
     public void skal_slette_oppgave_gitt_saksnummer_og_orgnr() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
@@ -267,6 +261,8 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         when(arbeidsgiverNotifikasjon.slettSak(SAK_ID)).thenReturn(SAK_ID);
 
         forespørselBehandlingTjeneste.slettForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), null);
+
+        clearHibernateCache();
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
@@ -282,9 +278,18 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
 
         forespørselBehandlingTjeneste.slettForespørsel(new SaksnummerDto(SAKSNUMMMER), null, null);
 
+        clearHibernateCache();
+
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
         verify(arbeidsgiverNotifikasjon, Mockito.times(1)).slettSak(SAK_ID);
+    }
+
+    private void clearHibernateCache() {
+        // Fjerne hibernate cachen før assertions skal evalueres - hibernate ignorerer alle updates som er markert med updatable = false ved skriving mot databasen
+        // men objektene i cachen blir oppdatert helt greit likevel.
+        // På denne måten evaluerer vi faktisk tilstanden som blir til slutt lagret i databasen.
+        getEntityManager().clear();
     }
 
     private void mockInfoForOpprettelse(String aktørId, Ytelsetype ytelsetype, String brregOrgnummer, String sakId, String oppgaveId) {
