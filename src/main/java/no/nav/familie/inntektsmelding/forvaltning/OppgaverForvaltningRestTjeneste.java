@@ -12,6 +12,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +59,7 @@ public class OppgaverForvaltningRestTjeneste {
         @ApiResponse(responseCode = "202", description = "Oppgaven er slettet", content = @Content(mediaType = "application/json")),
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
+    @Tilgangskontrollert
     public Response slettOppgave(
         @Parameter(description = "Informasjon for restart en eksisterende prosesstask") @Valid SlettOppgaveRequest inputDto) {
         sjekkAtKallerHarRollenDrift();
