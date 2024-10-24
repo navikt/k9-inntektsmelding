@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.typer.dto;
 
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
@@ -11,7 +12,7 @@ public class KodeverkMapper {
             case ELEKTRISK_KOMMUNIKASJON -> NaturalytelseType.ELEKTRISK_KOMMUNIKASJON;
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS;
             case LOSJI -> NaturalytelseType.LOSJI;
-            case KOST_DØGN -> NaturalytelseType.KOST_DØGN;
+            case KOST_DOEGN -> NaturalytelseType.KOST_DOEGN;
             case BESØKSREISER_HJEMMET_ANNET -> NaturalytelseType.BESØKSREISER_HJEMMET_ANNET;
             case KOSTBESPARELSE_I_HJEMMET -> NaturalytelseType.KOSTBESPARELSE_I_HJEMMET;
             case RENTEFORDEL_LÅN -> NaturalytelseType.RENTEFORDEL_LÅN;
@@ -85,4 +86,13 @@ public class KodeverkMapper {
             case PERMISJON -> EndringsårsakDto.PERMISJON;
         };
     }
+
+    public static ForespørselStatusDto mapForespørselStatus(ForespørselStatus forespørselStatus) {
+        return switch (forespørselStatus) {
+            case UNDER_BEHANDLING -> ForespørselStatusDto.UNDER_BEHANDLING;
+            case FERDIG -> ForespørselStatusDto.FERDIG;
+            case UTGÅTT -> ForespørselStatusDto.UTGÅTT;
+        };
+    }
+
 }

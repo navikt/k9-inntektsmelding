@@ -196,7 +196,7 @@ public class InntektsmeldingXMLMapper {
             case ELEKTRISK_KOMMUNIKASJON -> "elektroniskKommunikasjon";
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> "aksjerGrunnfondsbevisTilUnderkurs";
             case LOSJI -> "losji";
-            case KOST_DØGN -> "kostDoegn";
+            case KOST_DOEGN -> "kostDoegn";
             case BESØKSREISER_HJEMMET_ANNET -> "besoeksreiserHjemmetAnnet";
             case KOSTBESPARELSE_I_HJEMMET -> "kostbesparelseIHjemmet";
             case RENTEFORDEL_LÅN -> "rentefordelLaan";

@@ -8,6 +8,8 @@ import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +72,11 @@ public class InntektsmeldingTjeneste {
         var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto);
         var imId = lagreOgLagJournalførTask(entitet);
+        var forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(mottattInntektsmeldingDto.foresporselUuid());
+        var erTilhørendeForespørselUtgått = forespørselEntitet.map(f -> ForespørselStatus.UTGÅTT.equals(f.getStatus())).orElse(false);
+        if (erTilhørendeForespørselUtgått) {
+            throw new IllegalStateException("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
+        }
         var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(mottattInntektsmeldingDto.foresporselUuid(), aktorId, orgnummer,
             mottattInntektsmeldingDto.startdato(), LukkeÅrsak.ORDINÆR_INNSENDING);
 
@@ -105,7 +112,7 @@ public class InntektsmeldingTjeneste {
         var innmelderDto = lagInnmelderDto(forespørsel.getYtelseType());
         var inntektDtoer = lagInntekterDto(forespørsel);
         return new InntektsmeldingDialogDto(personDto, organisasjonDto, innmelderDto, inntektDtoer, forespørsel.getSkjæringstidspunkt(),
-            KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), forespørsel.getUuid());
+            KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), forespørsel.getUuid(), KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()));
     }
 
     public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {

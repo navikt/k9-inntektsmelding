@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -10,6 +11,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
+import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
+
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+
+import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -132,6 +140,32 @@ class InntektsmeldingTjenesteTest {
         assertThat(imDialogDto.inntekter()).contains(
             new InntektsmeldingDialogDto.MånedsinntektResponsDto(LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 31), BigDecimal.valueOf(52000),
                 forespørsel.getOrganisasjonsnummer()));
+    }
+
+    @Test
+    void skal_ikke_godta_im_på_utgått_forespørrsel() {
+        // Arrange
+        var uuid = UUID.randomUUID();
+        var forespørsel = new ForespørselEntitet("999999999", LocalDate.now(), new AktørIdEntitet("9999999999999"), Ytelsetype.FORELDREPENGER, "123");
+        forespørsel.setStatus(ForespørselStatus.UTGÅTT);
+        when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
+        var innsendingDto = new SendInntektsmeldingRequestDto(uuid,
+            new AktørIdDto("9999999999999"),
+            YtelseTypeDto.FORELDREPENGER,
+            new ArbeidsgiverDto("999999999"),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Navn", "123"),
+            LocalDate.now(),
+            BigDecimal.valueOf(10000),
+            List.of(),
+            List.of(),
+            List.of());
+
+        // Act
+        var ex = assertThrows(IllegalStateException.class, () -> inntektsmeldingTjeneste.mottaInntektsmelding(innsendingDto));
+
+        // Assert
+        assertThat(ex.getMessage()).contains("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
+
     }
 
     @Test
