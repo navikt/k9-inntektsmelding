@@ -82,7 +82,7 @@ public class InntektsmeldingDialogRest {
         @QueryParam("foresporselUuid") UUID forespørselUuid) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
-        LOG.info("Henter grunnlag for forespørsel {}", forespørselUuid);
+        LOG.info("Henter forespørsel med uuid {}", forespørselUuid);
         var dto = inntektsmeldingTjeneste.lagDialogDto(forespørselUuid);
         return Response.ok(dto).build();
 
