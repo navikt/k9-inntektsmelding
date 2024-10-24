@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.typer.dto;
 
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
@@ -85,4 +86,13 @@ public class KodeverkMapper {
             case PERMISJON -> EndringsårsakDto.PERMISJON;
         };
     }
+
+    public static ForespørselStatusDto mapForespørselStatus(ForespørselStatus forespørselStatus) {
+        return switch (forespørselStatus) {
+            case UNDER_BEHANDLING -> ForespørselStatusDto.UNDER_BEHANDLING;
+            case FERDIG -> ForespørselStatusDto.FERDIG;
+            case UTGÅTT -> ForespørselStatusDto.UTGÅTT;
+        };
+    }
+
 }

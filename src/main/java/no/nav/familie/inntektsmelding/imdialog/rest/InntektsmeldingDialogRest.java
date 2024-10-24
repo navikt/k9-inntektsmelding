@@ -34,6 +34,7 @@ public class InntektsmeldingDialogRest {
 
     public static final String BASE_PATH = "/imdialog";
     private static final String HENT_GRUNNLAG = "/grunnlag";
+    private static final String HENT_OPPLYSNINGER = "/opplysninger";
     private static final String HENT_INNTEKTSMELDINGER_FOR_OPPGAVE = "/inntektsmeldinger";
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
     private static final String LAST_NED_PDF = "/last-ned-pdf";
@@ -51,6 +52,10 @@ public class InntektsmeldingDialogRest {
         this.tilgang = tilgang;
     }
 
+    /**
+     * @deprecated Ikke bruk, går over til å bruke hentOpplysninger for å bruke samme begrep som frontend. Kan slettes når frontend er over
+     */
+    @Deprecated
     @GET
     @Path(HENT_GRUNNLAG)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -62,6 +67,22 @@ public class InntektsmeldingDialogRest {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
         LOG.info("Henter grunnlag for forespørsel {}", forespørselUuid);
+        var dto = inntektsmeldingTjeneste.lagDialogDto(forespørselUuid);
+        return Response.ok(dto).build();
+
+    }
+
+    @GET
+    @Path(HENT_OPPLYSNINGER)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Henter alle opplysninger vi har om søker, inntekt og arbeidsforholdet.", tags = "imdialog")
+    @Tilgangskontrollert
+    public Response hentOpplysninger(
+        @Parameter(description = "Henter alle opplysninger vi har om søker, inntekt og arbeidsforholdet basert på en forespørsel UUID") @NotNull
+        @QueryParam("foresporselUuid") UUID forespørselUuid) {
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
+
+        LOG.info("Henter forespørsel med uuid {}", forespørselUuid);
         var dto = inntektsmeldingTjeneste.lagDialogDto(forespørselUuid);
         return Response.ok(dto).build();
 
