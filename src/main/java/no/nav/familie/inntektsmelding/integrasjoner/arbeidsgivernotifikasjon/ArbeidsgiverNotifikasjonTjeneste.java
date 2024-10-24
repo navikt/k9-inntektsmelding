@@ -9,6 +9,8 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.konfig.Environment;
+
 @ApplicationScoped
 class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
 
@@ -16,7 +18,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     static final String SERVICE_EDITION_CODE = "1";
     static final String SAK_STATUS_TEKST = "";
     static final Sendevindu VARSEL_SENDEVINDU = Sendevindu.LOEPENDE;
-    static final int PÅMINNELSE_ETTER_DAGER = 14;
+    static final int PÅMINNELSE_ETTER_DAGER = Environment.current().getProperty("paaminnelse.etter.dager", int.class, 14);
 
     private ArbeidsgiverNotifikasjonKlient klient;
 
