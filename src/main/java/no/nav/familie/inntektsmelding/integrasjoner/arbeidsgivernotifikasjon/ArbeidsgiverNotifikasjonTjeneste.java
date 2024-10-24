@@ -15,7 +15,6 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     static final String SERVICE_CODE = "4936";
     static final String SERVICE_EDITION_CODE = "1";
     static final String SAK_STATUS_TEKST = "";
-    static final String VARSEL_TITTEL = "Du har fått en oppgave fra NAV";
     static final Sendevindu VARSEL_SENDEVINDU = Sendevindu.LOEPENDE;
     static final int PÅMINNELSE_ETTER_DAGER = 14;
 
@@ -105,7 +104,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     private static EksterntVarselInput lagEksternVarselAltinn(String varselTekst) {
         return EksterntVarselInput.builder()
             .setAltinntjeneste(EksterntVarselAltinntjenesteInput.builder()
-                .setTittel(VARSEL_TITTEL)
+                .setTittel("Du har fått en oppgave fra NAV")
                 .setInnhold(varselTekst)
                 .setMottaker(lagAltinnTjenesteMottakerInput())
                 .setSendetidspunkt(SendetidspunktInput.builder().setSendevindu(VARSEL_SENDEVINDU).build())
@@ -116,7 +115,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     private static PaaminnelseEksterntVarselInput lagPåminnelseVarselAltinn(String påminnelseTekst) {
         return PaaminnelseEksterntVarselInput.builder()
             .setAltinntjeneste(PaaminnelseEksterntVarselAltinntjenesteInput.builder()
-                .setTittel(VARSEL_TITTEL)
+                .setTittel("Påminnelse: Du har en oppgave fra NAV")
                 .setInnhold(påminnelseTekst)
                 .setMottaker(lagAltinnTjenesteMottakerInput())
                 .setSendevindu(VARSEL_SENDEVINDU)
