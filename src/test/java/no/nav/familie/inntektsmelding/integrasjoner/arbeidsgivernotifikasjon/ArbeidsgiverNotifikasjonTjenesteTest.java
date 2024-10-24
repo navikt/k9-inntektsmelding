@@ -78,6 +78,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var expectedVirksomhetsnummer = "2342342334";
         var expectedNotifikasjonsTekst = "Du har en ny oppgave i AG-portalen";
         var expectedEksternvarselTekst = "En ansatt har søkt foreldrepenger";
+        var expectedPåminnelseTekst = "Påmminnelse: En ansatt har søkt foreldrepenger";
         var expectedNotifikasjonsLenke = "https://arbeidsgiver-portal.com";
         var expectedNotifikasjonsMerkelapp = Merkelapp.INNTEKTSMELDING_FP;
 
@@ -89,6 +90,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
             expectedVirksomhetsnummer,
             expectedNotifikasjonsTekst,
             expectedEksternvarselTekst,
+            expectedPåminnelseTekst,
             URI.create(expectedNotifikasjonsLenke));
 
         Mockito.verify(klient).opprettOppgave(requestCaptor.capture(), any(NyOppgaveResultatResponseProjection.class));
@@ -120,9 +122,13 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinntjeneste()).isNotNull();
         assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinntjeneste().getInnhold()).isEqualTo(expectedEksternvarselTekst);
 
+        assertThat(nyOppgave.getPaaminnelse()).isNotNull();
+        assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler()).isNotNull().hasSize(1);
+        assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler().getFirst().getAltinntjeneste()).isNotNull();
+        assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler().getFirst().getAltinntjeneste().getInnhold()).isEqualTo(expectedPåminnelseTekst);
+
         assertThat(nyOppgave.getFrist()).isNull();
         assertThat(nyOppgave.getMottakere()).isEmpty();
-        assertThat(nyOppgave.getPaaminnelse()).isNull();
     }
 
     @Test
@@ -188,10 +194,9 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         var input = request.getInput();
 
-        assertThat(input).containsOnlyKeys("id", "idempotencyKey", "tilleggsinformasjon");
-
-        assertThat(input.get("id")).isEqualTo(expectedId);
-        assertThat(input.get("tilleggsinformasjon")).isEqualTo(expectedTilleggsinformasjon);
-        assertThat(input.get("idempotencyKey")).isNull();
+        assertThat(input).containsOnlyKeys("id", "idempotencyKey", "tilleggsinformasjon")
+            .containsEntry("id", expectedId)
+            .containsEntry("tilleggsinformasjon", expectedTilleggsinformasjon)
+            .containsEntry("idempotencyKey", null);
     }
 }

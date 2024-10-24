@@ -16,7 +16,8 @@ public interface ArbeidsgiverNotifikasjon {
                           String eksternId,
                           String virksomhetsnummer,
                           String oppgaveTekst,
-                          String varseltekst,
+                          String varselTekst,
+                          String påminnelseTekst,
                           URI lenke);
 
     String oppgaveUtført(String oppgaveId, OffsetDateTime utførtTidspunkt);

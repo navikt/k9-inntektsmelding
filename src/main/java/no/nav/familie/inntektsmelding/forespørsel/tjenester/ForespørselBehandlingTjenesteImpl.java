@@ -11,8 +11,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +20,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
+import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -37,9 +36,6 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     private ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
     private PersonTjeneste personTjeneste;
     private String inntektsmeldingSkjemaLenke;
-
-    public ForespørselBehandlingTjenesteImpl() {
-    }
 
     @Inject
     public ForespørselBehandlingTjenesteImpl(ForespørselTjeneste forespørselTjeneste,
@@ -60,11 +56,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         var åpenForespørsel = forespørselTjeneste.finnÅpenForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer);
 
         if (åpenForespørsel.isPresent()) {
-            var msg = String.format("Finnes allerede forespørsel for aktør %s på startdato %s + på ytelse %s",
-                aktørId,
-                skjæringstidspunkt,
-                ytelsetype);
-            LOG.info(msg);
+            LOG.info("Finnes allerede forespørsel for aktør {} på startdato {} + på ytelse {}", aktørId, skjæringstidspunkt, ytelsetype);
             return ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE_ÅPEN;
         }
 
@@ -104,7 +96,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                      AktørIdEntitet aktørId,
                                      Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                                      SaksnummerDto fagsakSaksnummer) {
-        List<ForespørselEntitet> eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer);
+        var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer);
 
         // Oppretter forespørsler for alle skjæringstidspunkter som ikke allerede er opprettet
         organisasjonerPerSkjæringstidspunkt.forEach((skjæringstidspunkt, organisasjoner) -> {
@@ -154,14 +146,14 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
     private boolean innholderRequestEksisterendeForespørsel(Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                                                             ForespørselEntitet eksisterendeForespørsel) {
-        LocalDate stp = eksisterendeForespørsel.getSkjæringstidspunkt();
-        List<OrganisasjonsnummerDto> orgnrList = organisasjonerPerSkjæringstidspunkt.get(stp);
+        var stp = eksisterendeForespørsel.getSkjæringstidspunkt();
+        var orgnrList = organisasjonerPerSkjæringstidspunkt.get(stp);
 
         if (orgnrList == null) {
             return false;
         }
 
-        List<String> orgnrFraRequestForStp = orgnrList.stream().map(OrganisasjonsnummerDto::orgnr).toList();
+        var orgnrFraRequestForStp = orgnrList.stream().map(OrganisasjonsnummerDto::orgnr).toList();
         return orgnrFraRequestForStp.contains(eksisterendeForespørsel.getOrganisasjonsnummer());
     }
 
@@ -187,7 +179,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             uuid.toString(),
             organisasjonsnummer.orgnr(),
             ForespørselTekster.lagOppgaveTekst(ytelsetype),
-            ForespørselTekster.lagVarseltekst(ytelsetype),
+            ForespørselTekster.lagVarselTekst(ytelsetype),
+            ForespørselTekster.lagPåminnelseTekst(ytelsetype),
             skjemaUri);
 
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);

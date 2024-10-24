@@ -1,14 +1,14 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
+import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
 class ForespørselTekster {
     private static final String OPPGAVE_TEKST_NY = "Innsending av inntektsmelding for %s";
@@ -33,7 +33,11 @@ class ForespørselTekster {
         return String.format("Inntektsmelding for %s (%s)", capitalizeFully(navn), fødselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
     }
 
-    public static String lagVarseltekst(Ytelsetype ytelsetype) {
+    public static String lagVarselTekst(Ytelsetype ytelsetype) {
+        return String.format(VARSEL_TEKST, mapYtelsestypeNavn(ytelsetype));
+    }
+
+    public static String lagPåminnelseTekst(Ytelsetype ytelsetype) {
         return String.format(VARSEL_TEKST, mapYtelsestypeNavn(ytelsetype));
     }
 
