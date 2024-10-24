@@ -20,7 +20,7 @@ import com.zaxxer.hikari.HikariDataSource;
 public final class Databaseskjemainitialisering {
     private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
 
-    static final String USER = "inntektsmelding_unit";
+    static final String USER = "fpinntektsmelding_unit";
 
     private static final DataSource DS = settJdniOppslag(USER);
 

@@ -1,9 +1,9 @@
 package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,11 +15,11 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     static final String SERVICE_CODE = "4936";
     static final String SERVICE_EDITION_CODE = "1";
     static final String SAK_STATUS_TEKST = "";
+    static final String VARSEL_TITTEL = "Du har fått en oppgave fra NAV";
+    static final Sendevindu VARSEL_SENDEVINDU = Sendevindu.LOEPENDE;
+    static final int PÅMINNELSE_ETTER_DAGER = 14;
 
     private ArbeidsgiverNotifikasjonKlient klient;
-
-    public ArbeidsgiverNotifikasjonTjeneste() {
-    }
 
     @Inject
     public ArbeidsgiverNotifikasjonTjeneste(ArbeidsgiverNotifikasjonKlient klient) {
@@ -37,7 +37,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .setLenke(lenke.toString())
             .setInitiellStatus(SaksStatus.UNDER_BEHANDLING)
             .setOverstyrStatustekstMed(SAK_STATUS_TEKST)
-            .setMottakere(List.of(new MottakerInput(new AltinnMottakerInput(SERVICE_CODE, SERVICE_EDITION_CODE), null)))
+            .setMottakere(List.of(lagAltinnMottakerInput()))
             .build();
 
         var projection = new NySakResultatResponseProjection().typename()
@@ -59,13 +59,12 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
                                  String virksomhetsnummer,
                                  String oppgaveTekst,
                                  String varselTekst,
+                                 String påminnelseTekst,
                                  URI oppgaveLenke) {
 
         var request = NyOppgaveMutationRequest.builder()
             .setNyOppgave(NyOppgaveInput.builder()
-                .setMottaker(MottakerInput.builder()
-                    .setAltinn(AltinnMottakerInput.builder().setServiceCode(SERVICE_CODE).setServiceEdition(SERVICE_EDITION_CODE).build())
-                    .build())
+                .setMottaker(lagAltinnMottakerInput())
                 .setNotifikasjon(NotifikasjonInput.builder()
                     .setMerkelapp(oppgaveMerkelapp.getBeskrivelse())
                     .setTekst(oppgaveTekst)
@@ -76,7 +75,11 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
                     .setEksternId(eksternId)
                     .setGrupperingsid(grupperingsid)
                     .build())
-                .setEksterneVarsler(lagEksternVarselAltinn(varselTekst))
+                .setEksterneVarsler(List.of(lagEksternVarselAltinn(varselTekst)))
+                .setPaaminnelse(PaaminnelseInput.builder()
+                    .setTidspunkt(PaaminnelseTidspunktInput.builder().setEtterOpprettelse(Duration.ofDays(PÅMINNELSE_ETTER_DAGER).toString()).build())
+                    .setEksterneVarsler(List.of(lagPåminnelseVarselAltinn(påminnelseTekst)))
+                    .build())
                 .build())
             .build();
 
@@ -93,15 +96,36 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         return klient.opprettOppgave(request, projection);
     }
 
-    private List<EksterntVarselInput> lagEksternVarselAltinn(String varselTekst) {
-        var altinnVarsel = EksterntVarselAltinntjenesteInput.builder()
-            .setTittel("Du har fått en oppgave fra NAV")
-            .setInnhold(varselTekst)
-            .setMottaker(AltinntjenesteMottakerInput.builder().setServiceCode(SERVICE_CODE).setServiceEdition(SERVICE_EDITION_CODE).build())
-            .setSendetidspunkt(SendetidspunktInput.builder().setSendevindu(Sendevindu.LOEPENDE).build())
+    private static MottakerInput lagAltinnMottakerInput() {
+        return MottakerInput.builder()
+            .setAltinn(AltinnMottakerInput.builder().setServiceCode(SERVICE_CODE).setServiceEdition(SERVICE_EDITION_CODE).build())
             .build();
-        var eksternVarsel = EksterntVarselInput.builder().setAltinntjeneste(altinnVarsel).build();
-        return Collections.singletonList(eksternVarsel);
+    }
+
+    private static EksterntVarselInput lagEksternVarselAltinn(String varselTekst) {
+        return EksterntVarselInput.builder()
+            .setAltinntjeneste(EksterntVarselAltinntjenesteInput.builder()
+                .setTittel(VARSEL_TITTEL)
+                .setInnhold(varselTekst)
+                .setMottaker(lagAltinnTjenesteMottakerInput())
+                .setSendetidspunkt(SendetidspunktInput.builder().setSendevindu(VARSEL_SENDEVINDU).build())
+                .build())
+            .build();
+    }
+
+    private static PaaminnelseEksterntVarselInput lagPåminnelseVarselAltinn(String påminnelseTekst) {
+        return PaaminnelseEksterntVarselInput.builder()
+            .setAltinntjeneste(PaaminnelseEksterntVarselAltinntjenesteInput.builder()
+                .setTittel(VARSEL_TITTEL)
+                .setInnhold(påminnelseTekst)
+                .setMottaker(lagAltinnTjenesteMottakerInput())
+                .setSendevindu(VARSEL_SENDEVINDU)
+                .build())
+            .build();
+    }
+
+    private static AltinntjenesteMottakerInput lagAltinnTjenesteMottakerInput() {
+        return AltinntjenesteMottakerInput.builder().setServiceCode(SERVICE_CODE).setServiceEdition(SERVICE_EDITION_CODE).build();
     }
 
     @Override

@@ -45,7 +45,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     private final ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon = Mockito.mock(ArbeidsgiverNotifikasjon.class);
     private final PersonTjeneste personTjeneste = Mockito.mock(PersonTjeneste.class);
     private ForespørselRepository forespørselRepository;
-    private ForespørselBehandlingTjenesteImpl forespørselBehandlingTjeneste;
+    private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
     @BeforeEach
     public void setUp() {
@@ -79,6 +79,8 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     @Test
     public void eksisterende_åpen_forespørsel_skal_gi_noop() {
         forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
+
+        getEntityManager().clear();
 
         var resultat = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
             YTELSETYPE,
@@ -156,6 +158,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     public void skal_lukke_forespørsel_for_sak_med_gitt_stp() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+
         var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2),
             YTELSETYPE,
             AKTØR_ID,
@@ -304,6 +307,6 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
 
         when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørId), ytelsetype)).thenReturn(personInfo);
         when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(brregOrgnummer), eq(sakTittel), any())).thenReturn(sakId);
-        when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(brregOrgnummer), any(), any(), any())).thenReturn(oppgaveId);
+        when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(brregOrgnummer), any(), any(), any(), any())).thenReturn(oppgaveId);
     }
 }
