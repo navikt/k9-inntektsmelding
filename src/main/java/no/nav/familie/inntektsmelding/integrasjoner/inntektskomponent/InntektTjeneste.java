@@ -47,11 +47,12 @@ public class InntektTjeneste {
         var alleMåneder = inntekter.size() == antallMånederTilbakeViBerOm
                           ? inntekter
                           : fyllInnManglendeMåneder(fomDato, antallMånederTilbakeViBerOm, organisasjonsnummer, inntekter);
-        if (alleMåneder.stream().anyMatch(m -> m.beløp == null)) {
-            return alleMåneder;
-        }
+        return justerListeOm4MånederMedInntekt(alleMåneder);
+    }
+
+    private static List<Månedsinntekt> justerListeOm4MånederMedInntekt(List<Månedsinntekt> alleMåneder) {
         // Vi fant inntekt på alle måneder vi spurte om, fjerner den eldste
-        if (alleMåneder.size() == 4) {
+        if (alleMåneder.size() == 4 && alleMåneder.stream().noneMatch(m -> m.beløp == null)) {
             alleMåneder.sort(Comparator.comparing(m -> m.måned));
             return alleMåneder.subList(1, alleMåneder.size());
         }
