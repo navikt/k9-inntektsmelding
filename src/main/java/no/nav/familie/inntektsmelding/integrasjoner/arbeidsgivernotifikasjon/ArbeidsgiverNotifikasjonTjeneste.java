@@ -106,7 +106,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     private static EksterntVarselInput lagEksternVarselAltinn(String varselTekst) {
         return EksterntVarselInput.builder()
             .setAltinntjeneste(EksterntVarselAltinntjenesteInput.builder()
-                .setTittel("Du har fått en oppgave fra NAV")
+                .setTittel("Du har fått en oppgave fra Nav")
                 .setInnhold(varselTekst)
                 .setMottaker(lagAltinnTjenesteMottakerInput())
                 .setSendetidspunkt(SendetidspunktInput.builder().setSendevindu(VARSEL_SENDEVINDU).build())
@@ -117,7 +117,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     private static PaaminnelseEksterntVarselInput lagPåminnelseVarselAltinn(String påminnelseTekst) {
         return PaaminnelseEksterntVarselInput.builder()
             .setAltinntjeneste(PaaminnelseEksterntVarselAltinntjenesteInput.builder()
-                .setTittel("Påminnelse: Du har en oppgave fra NAV")
+                .setTittel("Påminnelse: Du har en oppgave fra Nav")
                 .setInnhold(påminnelseTekst)
                 .setMottaker(lagAltinnTjenesteMottakerInput())
                 .setSendevindu(VARSEL_SENDEVINDU)
