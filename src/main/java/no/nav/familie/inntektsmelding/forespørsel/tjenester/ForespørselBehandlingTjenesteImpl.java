@@ -79,8 +79,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
         arbeidsgiverNotifikasjon.oppgaveUtført(foresporsel.getOppgaveId(), OffsetDateTime.now());
         arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
-        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
-            ForespørselTekster.lagTilleggsInformasjon(årsak));
+        if (!ENV.isLocal()) { // pga mangel i fager-api-mock
+            arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
+                ForespørselTekster.lagTilleggsInformasjon(årsak));
+        }
         forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
         return foresporsel;
     }
