@@ -36,25 +36,40 @@ public class InntektTjeneste {
 
     // Tar inn dagens dato som parameter for å gjøre det enklere å skrive tester
     public List<Månedsinntekt> hentInntekt(AktørIdEntitet aktørId, LocalDate startdato, LocalDate dagensDato, String organisasjonsnummer) {
-        var rapporteringsfrist = startdato.withDayOfMonth(DAG_I_MÅNED_RAPPORTERINGSFRIST);
-        var erFristPassert = dagensDato.isAfter(rapporteringsfrist);
-        var antallMånederTilbakeViBerOm = erFristPassert ? 3 : 4;
-        var fomDato = startdato.minusMonths(antallMånederTilbakeViBerOm);
-        var tomDato = startdato.minusMonths(1);
+        var antallMånederViBerOm = finnAntallMånederViMåBeOm(startdato, dagensDato);
+        var fomDato = startdato.minusMonths(antallMånederViBerOm);
+            var tomDato = startdato.minusMonths(1);
         var request = lagRequest(aktørId, fomDato, tomDato);
         var respons = inntektskomponentKlient.finnInntekt(request);
         var inntekter = oversettRespons(respons, aktørId, organisasjonsnummer);
-        var alleMåneder = inntekter.size() == antallMånederTilbakeViBerOm
+        var alleMåneder = inntekter.size() == antallMånederViBerOm
                           ? inntekter
-                          : fyllInnManglendeMåneder(fomDato, antallMånederTilbakeViBerOm, organisasjonsnummer, inntekter);
-        return justerListeOm4MånederMedInntekt(alleMåneder);
+                          : fyllInnManglendeMåneder(fomDato, antallMånederViBerOm, organisasjonsnummer, inntekter);
+        return fjernOverflødigeMånederOmNødvendig(alleMåneder);
     }
 
-    private static List<Månedsinntekt> justerListeOm4MånederMedInntekt(List<Månedsinntekt> alleMåneder) {
-        // Vi fant inntekt på alle måneder vi spurte om, fjerner den eldste
-        if (alleMåneder.size() == 4 && alleMåneder.stream().noneMatch(m -> m.beløp == null)) {
+    private int finnAntallMånederViMåBeOm(LocalDate startdato, LocalDate dagensDato) {
+        var beregningsperiodeAntallMnd = 3;
+        if (!rapporteringsfristErPassert(startdato.minusMonths(1), dagensDato)) {
+            beregningsperiodeAntallMnd++;
+        }
+        if (!rapporteringsfristErPassert(startdato.minusMonths(2), dagensDato)) {
+            beregningsperiodeAntallMnd++;
+        }
+        return beregningsperiodeAntallMnd;
+    }
+
+    private boolean rapporteringsfristErPassert(LocalDate dato, LocalDate dagensDato) {
+        return dagensDato.isAfter(dato.plusMonths(1).withDayOfMonth(DAG_I_MÅNED_RAPPORTERINGSFRIST));
+    }
+
+    private static List<Månedsinntekt> fjernOverflødigeMånederOmNødvendig(List<Månedsinntekt> alleMåneder) {
+        var antallMndMedSattInntekt = alleMåneder.stream().filter(m -> m.beløp != null).toList().size();
+        int overflødigeMåneder = antallMndMedSattInntekt > 3 ? antallMndMedSattInntekt-3 : 0;
+        // Vi fant inntekt på flere måneder enn vi trenger, fjerner de eldste som er overflødige
+        if (overflødigeMåneder > 0) {
             alleMåneder.sort(Comparator.comparing(m -> m.måned));
-            return alleMåneder.subList(1, alleMåneder.size());
+            return alleMåneder.subList(overflødigeMåneder, alleMåneder.size());
         }
         return alleMåneder;
     }
