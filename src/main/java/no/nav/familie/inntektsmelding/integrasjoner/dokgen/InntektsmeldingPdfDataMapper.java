@@ -4,6 +4,8 @@ import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.Inntektsmeldin
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +24,7 @@ public class InntektsmeldingPdfDataMapper {
                                                                 String arbeidsgiverNavn,
                                                                 PersonInfo personInfo,
                                                                 String arbeidsgvierIdent) {
+        var startdato = inntektsmelding.getStartDato();
         var imDokumentdataBuilder = new InntektsmeldingPdfData.Builder()
             .medNavn(personInfo.mapNavn())
             .medPersonnummer(personInfo.fødselsnummer().getIdent())
@@ -30,7 +33,7 @@ public class InntektsmeldingPdfDataMapper {
             .medAvsenderSystem("NAV_NO")
             .medYtelseNavn(inntektsmelding.getYtelsetype())
             .medOpprettetTidspunkt(inntektsmelding.getOpprettetTidspunkt())
-            .medStartDato(inntektsmelding.getStartDato())
+            .medStartDato(startdato)
             .medMånedInntekt(inntektsmelding.getMånedInntekt())
             .medKontaktperson(mapKontaktperson(inntektsmelding))
             .medNaturalytelser(mapNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
@@ -39,11 +42,13 @@ public class InntektsmeldingPdfDataMapper {
             .medEndringsårsaker(mapEndringsårsaker(inntektsmelding.getEndringsårsaker()));
 
         if (inntektsmelding.getMånedRefusjon() != null) {
-            imDokumentdataBuilder.medRefusjonsbeløp(inntektsmelding.getMånedRefusjon());
+            var opphørsdato = inntektsmelding.getOpphørsdatoRefusjon() != null ? inntektsmelding.getOpphørsdatoRefusjon() : null;
+            var refusjonsendringerTilPdf = mapRefusjonsendringPerioder(inntektsmelding.getRefusjonsendringer(), opphørsdato, inntektsmelding.getMånedRefusjon(), startdato);
+            imDokumentdataBuilder.medRefusjonsendringer(refusjonsendringerTilPdf);
+            imDokumentdataBuilder.medAntallRefusjonsperioder(refusjonsendringerTilPdf.size());
+        } else {
+            imDokumentdataBuilder.medAntallRefusjonsperioder(0);
         }
-
-        var opphørsdato = inntektsmelding.getOpphørsdatoRefusjon() != null ? inntektsmelding.getOpphørsdatoRefusjon() : null;
-        imDokumentdataBuilder.medRefusjonsendringer(mapRefusjonsendringPerioder(inntektsmelding.getRefusjonsendringer(), opphørsdato));
 
         return imDokumentdataBuilder.build();
     }
@@ -108,14 +113,25 @@ public class InntektsmeldingPdfDataMapper {
         };
     }
 
-    private static List<RefusjonsendringPeriode> mapRefusjonsendringPerioder(List<RefusjonsendringEntitet> refusjonsendringer, LocalDate opphørsdato) {
-        var refusjonsendringerTilBrev = refusjonsendringer.stream()
-            .map(rpe -> new RefusjonsendringPeriode(formaterDatoForLister(rpe.getFom()),
-                rpe.getRefusjonPrMnd()))
-            .collect(Collectors.toList());
+    private static List<RefusjonsendringPeriode> mapRefusjonsendringPerioder(List<RefusjonsendringEntitet> refusjonsendringer,
+                                                                             LocalDate opphørsdato,
+                                                                             BigDecimal refusjonsbeløp,
+                                                                             LocalDate startdato) {
+        List<RefusjonsendringPeriode> refusjonsendringerTilBrev = new ArrayList<>();
+
+        //første perioden
+        refusjonsendringerTilBrev.add(new RefusjonsendringPeriode(formaterDatoForLister(startdato), startdato, refusjonsbeløp));
+
+        refusjonsendringerTilBrev.addAll(
+            refusjonsendringer.stream().map(rpe -> new RefusjonsendringPeriode(formaterDatoForLister(rpe.getFom()), rpe.getFom(), rpe.getRefusjonPrMnd()))
+            .toList());
+
         if (opphørsdato != null && !opphørsdato.equals(Tid.TIDENES_ENDE)) {
-            refusjonsendringerTilBrev.add(new RefusjonsendringPeriode(formaterDatoForLister(opphørsdato), BigDecimal.ZERO));
+            refusjonsendringerTilBrev.add(new RefusjonsendringPeriode(formaterDatoForLister(opphørsdato), opphørsdato, BigDecimal.ZERO));
         }
-        return refusjonsendringerTilBrev;
+
+        return refusjonsendringerTilBrev.stream()
+            .sorted(Comparator.comparing(RefusjonsendringPeriode::fraDato))
+            .collect(Collectors.toList());
     }
 }

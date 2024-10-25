@@ -2,7 +2,6 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoForLister;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoMedNavnPåUkedag;
-import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoNorsk;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoOgTidNorsk;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterPersonnummer;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,6 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,13 +80,45 @@ class InntektsmeldingPdfDataMapperTest {
         assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(formaterDatoOgTidNorsk(OPPRETTETTIDSPUNKT));
         assertThat(pdfData.getStartDato()).isEqualTo(formaterDatoMedNavnPåUkedag(START_DATO));
         assertThat(pdfData.getPersonnummer()).isEqualTo(formaterPersonnummer(personIdent.getIdent()));
-        assertThat(pdfData.getRefusjonsbeløp()).isEqualTo(REFUSJONSBELØP);
-        assertThat(pdfData.getRefusjonsendringer()).isEmpty();
+        assertThat(pdfData.getRefusjonsendringer()).hasSize(1);
+        assertThat(pdfData.getAntallRefusjonsperiode()).isEqualTo(1);
+        assertThat(pdfData.getRefusjonsendringer().getFirst().beloep()).isEqualTo(REFUSJONSBELØP);
+        assertThat(pdfData.getRefusjonsendringer().getFirst().fom()).isEqualTo(formaterDatoForLister(START_DATO));
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isFalse();
         assertThat(pdfData.getNaturalytelser().getFirst().fom()).isEqualTo(formaterDatoForLister(naturalytelseFraDato));
         assertThat(pdfData.getNaturalytelser().getFirst().beloep()).isEqualTo(naturalytelseBeløp);
         assertThat(pdfData.getNaturalytelser().getFirst().naturalytelseType()).isEqualTo("Aksjer grunnfondsbevis til underkurs");
+    }
+
+    @Test
+    public void skal_mappe_flere_refusjonsendringer_korrekt() {
+
+        var refusjonsstartdato2 = LocalDate.now().plusWeeks(1);
+        var refusjonsstartdato3 = refusjonsstartdato2.plusWeeks(2).plusDays(1);
+
+        var refusjonsbeløp2 = BigDecimal.valueOf(34000);
+        var refusjonsbeløp3 = BigDecimal.valueOf(32000);
+        var refusjonsendringer = List.of(new RefusjonsendringEntitet(refusjonsstartdato2, refusjonsbeløp2), new RefusjonsendringEntitet(refusjonsstartdato3, refusjonsbeløp3));
+        var inntektsmeldingEntitet = lagStandardInntektsmeldingBuilder()
+            .medMånedRefusjon(REFUSJONSBELØP)
+            .medRefusjonsendringer(refusjonsendringer)
+            .build();
+
+        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVERNAVN, personInfo, ARBEIDSGIVERIDENT);
+
+        assertThat(pdfData.getRefusjonsendringer()).hasSize(3);
+        assertThat(pdfData.getRefusjonsendringer().getFirst().beloep()).isEqualTo(REFUSJONSBELØP);
+        assertThat(pdfData.getRefusjonsendringer().getFirst().fom()).isEqualTo(formaterDatoForLister(START_DATO));
+        assertThat(pdfData.getRefusjonsendringer().get(1).beloep()).isEqualTo(refusjonsbeløp2);
+        assertThat(pdfData.getRefusjonsendringer().get(1).fom()).isEqualTo(formaterDatoForLister(refusjonsstartdato2));
+        assertThat(pdfData.getRefusjonsendringer().get(2).beloep()).isEqualTo(refusjonsbeløp3);
+        assertThat(pdfData.getRefusjonsendringer().get(2).fom()).isEqualTo(formaterDatoForLister(refusjonsstartdato3));
+        assertThat(pdfData.getAntallRefusjonsperiode()).isEqualTo(3);
+
+        assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
+        assertThat(pdfData.ingenBortfaltNaturalytelse()).isTrue();
+        assertThat(pdfData.getNaturalytelser()).hasSize(0);
     }
 
     @Test
