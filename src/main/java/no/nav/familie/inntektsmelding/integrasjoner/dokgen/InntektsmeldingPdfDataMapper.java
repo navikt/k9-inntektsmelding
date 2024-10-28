@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
@@ -20,6 +19,10 @@ import no.nav.familie.inntektsmelding.utils.mapper.NaturalYtelseMapper;
 import no.nav.vedtak.konfig.Tid;
 
 public class InntektsmeldingPdfDataMapper {
+
+    private InntektsmeldingPdfDataMapper() {
+        throw new IllegalStateException("InntektsmeldingPdfDataMapper: Utility class");
+    }
     public static InntektsmeldingPdfData mapInntektsmeldingData(InntektsmeldingEntitet inntektsmelding,
                                                                 String arbeidsgiverNavn,
                                                                 PersonInfo personInfo,
@@ -132,6 +135,6 @@ public class InntektsmeldingPdfDataMapper {
 
         return refusjonsendringerTilBrev.stream()
             .sorted(Comparator.comparing(RefusjonsendringPeriode::fraDato))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

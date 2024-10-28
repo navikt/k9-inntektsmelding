@@ -94,9 +94,6 @@ public class InntektsmeldingPdfData {
         return endringsarsaker;
     }
 
-    public int getAntallRefusjonsperiode()
-    {return antallRefusjonsperioder;}
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -131,13 +128,6 @@ public class InntektsmeldingPdfData {
         return personnummer;
     }
 
-    public static String formaterDatoNorsk(LocalDate dato) {
-        if (dato == null) {
-            return null;
-        }
-        return dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO")));
-    }
-
     public static String formaterDatoForLister(LocalDate dato) {
         if (dato == null) {
             return null;
@@ -151,7 +141,7 @@ public class InntektsmeldingPdfData {
         }
         var navnPåUkedag = dato.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("NO"));
         navnPåUkedag = navnPåUkedag.substring(0,1).toUpperCase() + navnPåUkedag.substring(1);
-        return String.format(navnPåUkedag + " " + dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO"))));
+        return navnPåUkedag + " " + dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO")));
     }
 
     public static String formaterDatoOgTidNorsk(LocalDateTime opprettetTidspunkt) {
