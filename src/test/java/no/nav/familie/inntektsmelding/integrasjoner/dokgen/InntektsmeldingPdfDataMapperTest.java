@@ -2,7 +2,6 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoForLister;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoMedNavnPåUkedag;
-import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoNorsk;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoOgTidNorsk;
 import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterPersonnummer;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,6 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,14 +34,14 @@ class InntektsmeldingPdfDataMapperTest {
     private final String FORNAVN = "Test";
     private final String MELLOMNAVN = "Tester";
     private final String ETTERNAVN = "Testesen";
-    private final String ARBEIDSGIVERIDENT = "999999999";
-    private final String ARBEIDSGIVERNAVN = "Arbeidsgvier 1";
+    private final String ARBEIDSGIVER_IDENT = "999999999";
+    private final String ARBEIDSGIVER_NAVN = "Arbeidsgvier 1";
     private final String NAVN = "Kontaktperson navn";
-    private final String ORGNUMMER = "999999999";
-    private final BigDecimal REFUSJONSBELØP = BigDecimal.valueOf(35000);
+    private final String ORG_NUMMER = "999999999";
+    private final BigDecimal REFUSJON_BELØP = BigDecimal.valueOf(35000);
     private final AktørIdEntitet AKTØRID_SØKER = new AktørIdEntitet("1234567891234");
     private final BigDecimal INNTEKT = BigDecimal.valueOf(40000);
-    private final LocalDateTime OPPRETTETTIDSPUNKT = LocalDateTime.now();
+    private final LocalDateTime OPPRETTETT_TIDSPUNKT = LocalDateTime.now();
     private final LocalDate START_DATO = LocalDate.now();
     private PersonInfo personInfo;
     private PersonIdent personIdent;
@@ -52,7 +53,7 @@ class InntektsmeldingPdfDataMapperTest {
     }
 
     @Test
-    public void skal_opprette_pdfData() {
+    void skal_opprette_pdfData() {
 
         var naturalytelseFraDato = LocalDate.of(2024, 6, 10);
         var naturalytelseBeløp = BigDecimal.valueOf(2000);
@@ -66,21 +67,23 @@ class InntektsmeldingPdfDataMapperTest {
             .medBortfaltNaturalytelser(List.of(naturalytelse))
             .build();
 
-        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVERNAVN, personInfo, ARBEIDSGIVERIDENT);
+        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
-        assertThat(pdfData.getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVERIDENT);
+        assertThat(pdfData.getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
         assertThat(pdfData.getAvsenderSystem()).isEqualTo("NAV_NO");
-        assertThat(pdfData.getArbeidsgiverNavn()).isEqualTo(ARBEIDSGIVERNAVN);
+        assertThat(pdfData.getArbeidsgiverNavn()).isEqualTo(ARBEIDSGIVER_NAVN);
         assertThat(pdfData.getKontaktperson().navn()).isEqualTo(NAVN);
-        assertThat(pdfData.getKontaktperson().telefonnummer()).isEqualTo(ORGNUMMER);
+        assertThat(pdfData.getKontaktperson().telefonnummer()).isEqualTo(ORG_NUMMER);
         assertThat(pdfData.getMånedInntekt()).isEqualTo(INNTEKT);
-        assertThat(pdfData.getNavnSøker()).isEqualTo(ETTERNAVN + " " + FORNAVN + " " + MELLOMNAVN);
+        assertThat(pdfData.getNavnSøker()).isEqualTo(FORNAVN + " " + MELLOMNAVN + " " + ETTERNAVN);
         assertThat(pdfData.getYtelsetype()).isEqualTo(Ytelsetype.FORELDREPENGER);
-        assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(formaterDatoOgTidNorsk(OPPRETTETTIDSPUNKT));
+        assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(formaterDatoOgTidNorsk(OPPRETTETT_TIDSPUNKT));
         assertThat(pdfData.getStartDato()).isEqualTo(formaterDatoMedNavnPåUkedag(START_DATO));
         assertThat(pdfData.getPersonnummer()).isEqualTo(formaterPersonnummer(personIdent.getIdent()));
-        assertThat(pdfData.getRefusjonsbeløp()).isEqualTo(REFUSJONSBELØP);
-        assertThat(pdfData.getRefusjonsendringer()).isEmpty();
+        assertThat(pdfData.getRefusjonsendringer()).hasSize(1);
+        assertThat(pdfData.getAntallRefusjonsperioder()).isEqualTo(1);
+        assertThat(pdfData.getRefusjonsendringer().getFirst().beloep()).isEqualTo(REFUSJON_BELØP);
+        assertThat(pdfData.getRefusjonsendringer().getFirst().fom()).isEqualTo(formaterDatoForLister(START_DATO));
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isFalse();
         assertThat(pdfData.getNaturalytelser().getFirst().fom()).isEqualTo(formaterDatoForLister(naturalytelseFraDato));
@@ -89,7 +92,37 @@ class InntektsmeldingPdfDataMapperTest {
     }
 
     @Test
-    public void skal_mappe_flere_tilkommet_naturalytelser_av_samme_type_korrekt() {
+    void skal_mappe_flere_refusjonsendringer_korrekt() {
+
+        var refusjonsstartdato2 = LocalDate.now().plusWeeks(1);
+        var refusjonsstartdato3 = refusjonsstartdato2.plusWeeks(2).plusDays(1);
+
+        var refusjonsbeløp2 = BigDecimal.valueOf(34000);
+        var refusjonsbeløp3 = BigDecimal.valueOf(32000);
+        var refusjonsendringer = List.of(new RefusjonsendringEntitet(refusjonsstartdato2, refusjonsbeløp2), new RefusjonsendringEntitet(refusjonsstartdato3, refusjonsbeløp3));
+        var inntektsmeldingEntitet = lagStandardInntektsmeldingBuilder()
+            .medMånedRefusjon(REFUSJON_BELØP)
+            .medRefusjonsendringer(refusjonsendringer)
+            .build();
+
+        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+
+        assertThat(pdfData.getRefusjonsendringer()).hasSize(3);
+        assertThat(pdfData.getRefusjonsendringer().getFirst().beloep()).isEqualTo(REFUSJON_BELØP);
+        assertThat(pdfData.getRefusjonsendringer().getFirst().fom()).isEqualTo(formaterDatoForLister(START_DATO));
+        assertThat(pdfData.getRefusjonsendringer().get(1).beloep()).isEqualTo(refusjonsbeløp2);
+        assertThat(pdfData.getRefusjonsendringer().get(1).fom()).isEqualTo(formaterDatoForLister(refusjonsstartdato2));
+        assertThat(pdfData.getRefusjonsendringer().get(2).beloep()).isEqualTo(refusjonsbeløp3);
+        assertThat(pdfData.getRefusjonsendringer().get(2).fom()).isEqualTo(formaterDatoForLister(refusjonsstartdato3));
+        assertThat(pdfData.getAntallRefusjonsperioder()).isEqualTo(3);
+
+        assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
+        assertThat(pdfData.ingenBortfaltNaturalytelse()).isTrue();
+        assertThat(pdfData.getNaturalytelser()).isEmpty();
+    }
+
+    @Test
+    void skal_mappe_flere_tilkommet_naturalytelser_av_samme_type_korrekt() {
         var naturalytelseFraDato = LocalDate.of(2024, 6, 1);
         var naturalytelseTilDato = LocalDate.of(2024, 7, 1);
         var naturalytelseAndreFraDato = naturalytelseTilDato.plusWeeks(1);
@@ -115,7 +148,7 @@ class InntektsmeldingPdfDataMapperTest {
             .medBortfaltNaturalytelser(naturalytelser)
             .build();
 
-        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVERNAVN, personInfo, ARBEIDSGIVERIDENT);
+        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isFalse();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isFalse();
@@ -137,7 +170,7 @@ class InntektsmeldingPdfDataMapperTest {
     }
 
     @Test
-    public void skal_mappe_naturalytelser_av_ulik_type_korrekt() {
+    void skal_mappe_naturalytelser_av_ulik_type_korrekt() {
         var naturalytelseFraDato = LocalDate.of(2024, 6, 1);
         var naturalytelseTilDato = LocalDate.of(2024, 7, 1);
         var naturalytelseAndreFraDato = naturalytelseTilDato.plusWeeks(1);
@@ -163,7 +196,7 @@ class InntektsmeldingPdfDataMapperTest {
             .medBortfaltNaturalytelser(naturalytelser)
             .build();
 
-        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVERNAVN, personInfo, ARBEIDSGIVERIDENT);
+        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isFalse();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isFalse();
@@ -185,13 +218,12 @@ class InntektsmeldingPdfDataMapperTest {
     }
 
     @Test
-    public void skal_mappe_pdfData_uten_naturalytser() {
-
+    void skal_mappe_pdfData_uten_naturalytser() {
         var inntektsmeldingEntitet = lagStandardInntektsmeldingBuilder()
             .medBortfaltNaturalytelser(Collections.emptyList())
             .build();
 
-        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVERNAVN, personInfo, ARBEIDSGIVERIDENT);
+        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isTrue();
@@ -201,13 +233,13 @@ class InntektsmeldingPdfDataMapperTest {
     private InntektsmeldingEntitet.Builder lagStandardInntektsmeldingBuilder() {
         return InntektsmeldingEntitet.builder()
             .medAktørId(AKTØRID_SØKER)
-            .medKontaktperson(new KontaktpersonEntitet(NAVN, ORGNUMMER))
+            .medKontaktperson(new KontaktpersonEntitet(NAVN, ORG_NUMMER))
             .medYtelsetype(Ytelsetype.FORELDREPENGER)
             .medMånedInntekt(INNTEKT)
             .medStartDato(START_DATO)
-            .medMånedRefusjon(REFUSJONSBELØP)
+            .medMånedRefusjon(REFUSJON_BELØP)
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
-            .medOpprettetTidspunkt(OPPRETTETTIDSPUNKT)
-            .medArbeidsgiverIdent(ARBEIDSGIVERIDENT);
+            .medOpprettetTidspunkt(OPPRETTETT_TIDSPUNKT)
+            .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT);
     }
 }

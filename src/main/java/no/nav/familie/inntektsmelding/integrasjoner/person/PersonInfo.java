@@ -11,7 +11,7 @@ public record PersonInfo(String fornavn, String mellomnavn, String etternavn, Pe
         if (etternavn == null || fornavn == null) {
             return "";
         }
-        return etternavn + " " + fornavn + (mellomnavn == null ? "" : " " + mellomnavn);
+        return fornavn + (mellomnavn == null ? "" : " " + mellomnavn) + " " + etternavn;
     }
 
     public String mapFulltNavn() {

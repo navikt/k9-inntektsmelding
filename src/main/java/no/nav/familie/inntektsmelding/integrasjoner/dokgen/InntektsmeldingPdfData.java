@@ -27,12 +27,12 @@ public class InntektsmeldingPdfData {
     private String startDato;
     private BigDecimal månedInntekt;
     private String opprettetTidspunkt;
-    private BigDecimal refusjonsbeløp;
     private List<RefusjonsendringPeriode> refusjonsendringer = new ArrayList<>();
     private List<NaturalYtelse> naturalytelser = new ArrayList<>();
     private boolean ingenBortfaltNaturalytelse;
     private boolean ingenGjenopptattNaturalytelse;
     private List<Endringsarsak> endringsarsaker = new ArrayList<>();
+    private int antallRefusjonsperioder;
 
     public String getAvsenderSystem() {
         return avsenderSystem;
@@ -82,10 +82,6 @@ public class InntektsmeldingPdfData {
         return naturalytelser;
     }
 
-    public BigDecimal getRefusjonsbeløp() {
-        return refusjonsbeløp;
-    }
-
     public boolean ingenGjenopptattNaturalytelse() {
         return ingenGjenopptattNaturalytelse;
     }
@@ -112,15 +108,15 @@ public class InntektsmeldingPdfData {
             && Objects.equals(arbeidsgiverIdent,
             that.arbeidsgiverIdent) && Objects.equals(arbeidsgiverNavn, that.arbeidsgiverNavn) && Objects.equals(kontaktperson, that.kontaktperson)
             && Objects.equals(startDato, that.startDato) && Objects.equals(månedInntekt, that.månedInntekt) && Objects.equals(opprettetTidspunkt,
-            that.opprettetTidspunkt) && Objects.equals(refusjonsbeløp, that.refusjonsbeløp) && Objects.equals(refusjonsendringer, that.refusjonsendringer) && Objects.equals(naturalytelser,
-            that.naturalytelser) && Objects.equals(endringsarsaker, that.endringsarsaker);
+            that.opprettetTidspunkt) && Objects.equals(refusjonsendringer, that.refusjonsendringer) && Objects.equals(naturalytelser,
+            that.naturalytelser) && Objects.equals(endringsarsaker, that.endringsarsaker) && Objects.equals(antallRefusjonsperioder, that.antallRefusjonsperioder);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(avsenderSystem, navnSøker, personnummer, ytelsetype, arbeidsgiverIdent, arbeidsgiverNavn, kontaktperson,
-            startDato, månedInntekt, opprettetTidspunkt, refusjonsbeløp, refusjonsendringer, naturalytelser,
-            ingenBortfaltNaturalytelse, ingenGjenopptattNaturalytelse, endringsarsaker);
+            startDato, månedInntekt, opprettetTidspunkt, refusjonsendringer, naturalytelser,
+            ingenBortfaltNaturalytelse, ingenGjenopptattNaturalytelse, endringsarsaker, antallRefusjonsperioder);
     }
 
     public static String formaterPersonnummer(String personnummer) {
@@ -130,13 +126,6 @@ public class InntektsmeldingPdfData {
             return formatertPersonnummer.toString();
         }
         return personnummer;
-    }
-
-    public static String formaterDatoNorsk(LocalDate dato) {
-        if (dato == null) {
-            return null;
-        }
-        return dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO")));
     }
 
     public static String formaterDatoForLister(LocalDate dato) {
@@ -152,7 +141,7 @@ public class InntektsmeldingPdfData {
         }
         var navnPåUkedag = dato.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("NO"));
         navnPåUkedag = navnPåUkedag.substring(0,1).toUpperCase() + navnPåUkedag.substring(1);
-        return String.format(navnPåUkedag + " " + dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO"))));
+        return navnPåUkedag + " " + dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO")));
     }
 
     public static String formaterDatoOgTidNorsk(LocalDateTime opprettetTidspunkt) {
@@ -165,6 +154,10 @@ public class InntektsmeldingPdfData {
     public void anonymiser() {
         this.personnummer = personnummer.substring(0, 4) + "** *****";
         this.arbeidsgiverIdent = arbeidsgiverIdent.substring(0, 4) + "** *****";
+    }
+
+    public int getAntallRefusjonsperioder() {
+        return antallRefusjonsperioder;
     }
 
     public static class Builder {
@@ -219,11 +212,6 @@ public class InntektsmeldingPdfData {
             return this;
         }
 
-        public Builder medRefusjonsbeløp(BigDecimal refusjonsbeløp) {
-            this.kladd.refusjonsbeløp = refusjonsbeløp;
-            return this;
-        }
-
         public Builder medRefusjonsendringer(List<RefusjonsendringPeriode> refusjonsperioder) {
             this.kladd.refusjonsendringer = refusjonsperioder;
             return this;
@@ -249,9 +237,13 @@ public class InntektsmeldingPdfData {
             return this;
         }
 
-
         public Builder medEndringsårsaker(List<Endringsarsak> endringsårsaker) {
             this.kladd.endringsarsaker = endringsårsaker;
+            return this;
+        }
+
+        public Builder medAntallRefusjonsperioder(int antallRefusjonsperioder) {
+            this.kladd.antallRefusjonsperioder = antallRefusjonsperioder;
             return this;
         }
 

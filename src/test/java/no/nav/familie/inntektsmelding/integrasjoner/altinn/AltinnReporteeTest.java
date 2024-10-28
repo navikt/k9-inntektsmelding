@@ -10,7 +10,7 @@ import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 
 class AltinnReporteeTest {
     @Test
-    public void mapping_til_AltinnReportee() throws JsonProcessingException {
+    void mapping_til_AltinnReportee() throws JsonProcessingException {
         String jsonAsString = """
             {
             "Name":"something",
