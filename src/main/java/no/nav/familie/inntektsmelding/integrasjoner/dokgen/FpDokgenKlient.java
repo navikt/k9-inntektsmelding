@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.UriBuilder;
+
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -33,7 +34,7 @@ public class FpDokgenKlient {
         var pdf = restClient.sendReturnByteArray(request);
 
         if (pdf == null || pdf.length == 0) {
-            throw new TekniskException("Ftinntektsmelding", "Fikk tomt svar ved kall til dokgen for generering av pdf for inntektsmelding");
+            throw new TekniskException("FPIM", "Fikk tomt svar ved kall til dokgen for generering av pdf for inntektsmelding");
         }
         return pdf;
     }
