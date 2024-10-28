@@ -72,7 +72,6 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                                      LukkeÅrsak årsak) {
         var foresporsel = forespørselTjeneste.finnForespørsel(foresporselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
-        var tilleggsInformasjon = ForespørselTekster.lagTilleggsInformasjon(årsak);
 
         validerAktør(foresporsel, aktorId);
         validerOrganisasjon(foresporsel, organisasjonsnummerDto);
@@ -101,7 +100,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         // Oppretter forespørsler for alle skjæringstidspunkter som ikke allerede er opprettet
         organisasjonerPerSkjæringstidspunkt.forEach((skjæringstidspunkt, organisasjoner) -> {
             organisasjoner.forEach(organisasjon -> {
-                Optional<ForespørselEntitet> eksisterendeForespørsel = eksisterendeForespørsler.stream()
+                var eksisterendeForespørsel = eksisterendeForespørsler.stream()
                     .filter(forespørsel -> forespørsel.getSkjæringstidspunkt().equals(skjæringstidspunkt))
                     .filter(forespørsel -> forespørsel.getOrganisasjonsnummer().equals(organisasjon.orgnr()))
                     .findFirst();
