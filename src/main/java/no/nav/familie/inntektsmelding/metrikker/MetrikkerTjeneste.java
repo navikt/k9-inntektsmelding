@@ -56,8 +56,7 @@ public class MetrikkerTjeneste {
         var tags = new ArrayList<Tag>();
         tags.add(new ImmutableTag(TAG_YTELSE, forespørsel.getYtelseType().name()));
         Metrics.counter(COUNTER_LUKK_EKSTERN, tags).increment();
-        var dagerSidenOpprettelse = finnAntallDagerÅpen(forespørsel);
-        OPPGAVE_VARIGHET_EKSTERN_TELLER.record(dagerSidenOpprettelse);
+        OPPGAVE_VARIGHET_EKSTERN_TELLER.record(finnAntallDagerÅpen(forespørsel));
     }
 
     private static long finnAntallDagerÅpen(ForespørselEntitet forespørsel) {
