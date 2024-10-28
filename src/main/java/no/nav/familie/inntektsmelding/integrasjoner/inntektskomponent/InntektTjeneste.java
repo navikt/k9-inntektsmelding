@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,6 +22,7 @@ import no.nav.vedtak.exception.IntegrasjonException;
 
 @ApplicationScoped
 public class InntektTjeneste {
+    private static final int DAG_I_MÅNED_RAPPORTERINGSFRIST = 6;
     private InntektskomponentKlient inntektskomponentKlient;
 
     InntektTjeneste() {
@@ -32,19 +34,63 @@ public class InntektTjeneste {
         this.inntektskomponentKlient = inntektskomponentKlient;
     }
 
-    public List<Månedsinntekt> hentInntekt(AktørIdEntitet aktørId, LocalDate startdato, String organisasjonsnummer) {
-        var request = lagRequest(aktørId, startdato);
+    // Tar inn dagens dato som parameter for å gjøre det enklere å skrive tester
+    public List<Månedsinntekt> hentInntekt(AktørIdEntitet aktørId, LocalDate startdato, LocalDate dagensDato, String organisasjonsnummer) {
+        var antallMånederViBerOm = finnAntallMånederViMåBeOm(startdato, dagensDato);
+        var fomDato = startdato.minusMonths(antallMånederViBerOm);
+            var tomDato = startdato.minusMonths(1);
+        var request = lagRequest(aktørId, fomDato, tomDato);
         var respons = inntektskomponentKlient.finnInntekt(request);
         var inntekter = oversettRespons(respons, aktørId, organisasjonsnummer);
-        return inntekter.isEmpty() ? fyllInnTommeInntekter(startdato, organisasjonsnummer) : inntekter;
+        var alleMåneder = inntekter.size() == antallMånederViBerOm
+                          ? inntekter
+                          : fyllInnManglendeMåneder(fomDato, antallMånederViBerOm, organisasjonsnummer, inntekter);
+        return fjernOverflødigeMånederOmNødvendig(alleMåneder);
     }
 
-    public static List<Månedsinntekt> fyllInnTommeInntekter(LocalDate startdato, String organisasjonsnummer) {
-        return Stream.iterate(startdato.minusMonths(3).withDayOfMonth(1),
+    private int finnAntallMånederViMåBeOm(LocalDate startdato, LocalDate dagensDato) {
+        var beregningsperiodeAntallMnd = 3;
+        if (!rapporteringsfristErPassert(startdato.minusMonths(1), dagensDato)) {
+            beregningsperiodeAntallMnd++;
+        }
+        if (!rapporteringsfristErPassert(startdato.minusMonths(2), dagensDato)) {
+            beregningsperiodeAntallMnd++;
+        }
+        return beregningsperiodeAntallMnd;
+    }
+
+    private boolean rapporteringsfristErPassert(LocalDate dato, LocalDate dagensDato) {
+        return dagensDato.isAfter(dato.plusMonths(1).withDayOfMonth(DAG_I_MÅNED_RAPPORTERINGSFRIST));
+    }
+
+    private static List<Månedsinntekt> fjernOverflødigeMånederOmNødvendig(List<Månedsinntekt> alleMåneder) {
+        var antallMndMedSattInntekt = alleMåneder.stream().filter(m -> m.beløp != null).toList().size();
+        int overflødigeMåneder = antallMndMedSattInntekt > 3 ? antallMndMedSattInntekt-3 : 0;
+        // Vi fant inntekt på flere måneder enn vi trenger, fjerner de eldste som er overflødige
+        if (overflødigeMåneder > 0) {
+            alleMåneder.sort(Comparator.comparing(m -> m.måned));
+            return alleMåneder.subList(overflødigeMåneder, alleMåneder.size());
+        }
+        return alleMåneder;
+    }
+
+    public static List<Månedsinntekt> fyllInnManglendeMåneder(LocalDate fomDato,
+                                                              long månederViBerOm,
+                                                              String organisasjonsnummer,
+                                                              List<Månedsinntekt> inntekter) {
+        List<Månedsinntekt> liste = new ArrayList<>(inntekter);
+        lagTommeInntekter(fomDato, månederViBerOm, organisasjonsnummer).stream()
+            .filter(tomInntekt -> inntekter.stream().noneMatch(i -> i.måned.equals(tomInntekt.måned)))
+            .forEach(liste::add);
+        return liste;
+    }
+
+    public static List<Månedsinntekt> lagTommeInntekter(LocalDate fomDato, long månederViBerOm, String organisasjonsnummer) {
+        return Stream.iterate(fomDato.withDayOfMonth(1),
                 date -> date.plusMonths(1))
-            .limit(3)
-            .map(fomDato -> new Månedsinntekt(
-                YearMonth.of(fomDato.getYear(), fomDato.getMonth()),
+            .limit(månederViBerOm)
+            .map(fom -> new Månedsinntekt(
+                YearMonth.of(fom.getYear(), fom.getMonth()),
                 null,
                 organisasjonsnummer))
             .collect(Collectors.toList());
@@ -85,10 +131,7 @@ public class InntektTjeneste {
     public record Månedsinntekt(YearMonth måned, BigDecimal beløp, String organisasjonsnummer) {
     }
 
-    private FinnInntektRequest lagRequest(AktørIdEntitet aktørId, LocalDate startdato) {
-        var fomDato = startdato.minusMonths(3);
-        var tomDato = startdato.minusMonths(1);
-
+    private FinnInntektRequest lagRequest(AktørIdEntitet aktørId, LocalDate fomDato, LocalDate tomDato) {
         var fomÅrMåned = YearMonth.of(fomDato.getYear(), fomDato.getMonth());
         var tomÅrMåned = YearMonth.of(tomDato.getYear(), tomDato.getMonth());
 
