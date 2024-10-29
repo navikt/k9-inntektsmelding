@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     environment:
       POSTGRES_PASSWORD: admin
       POSTGRES_USER: admin
@@ -9,9 +9,8 @@ services:
       - "5999:5432"
     volumes:
       - ./postgres-init:/docker-entrypoint-initdb.d/
-    container_name: postgres-db
 
-  vtp-inntektsmelding:
+  vtp:
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamforeldrepenger/navikt/vtp:latest
     environment:
       TZ: Europe/Oslo
@@ -28,11 +27,11 @@ services:
       - "9093:9093"
       - "9092:9092"
       - "8389:8389"
-    container_name: vtp-dd
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8060/rest/isReady" ]
-      interval: 30s
+      test: ["CMD", "wget", "--no-verbose","--tries=1", "--spider", "http://localhost:8060/rest/isReady"]
+      interval: 5s
       timeout: 5s
+      retries: 10
 
   arbeidsgiver-notifikasjon-fake-producer-api:
     image: ghcr.io/navikt/arbeidsgiver-notifikasjon-produsent-api/fake-produsent-api:latest
@@ -40,7 +39,3 @@ services:
       - "8072:8080"
     environment:
       ALWAYS_SUCCESSFUL_RESPONSE: true
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8072/rest/isReady" ]
-      interval: 30s
-      timeout: 5s
