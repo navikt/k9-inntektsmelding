@@ -26,7 +26,7 @@ public class MetrikkerTjeneste {
         // Skjull konstruktor
     }
 
-    private static final String APP_NAME = Environment.current().getNaisAppName();
+    private static final String APP_NAME = Environment.current().getNaisAppName().replace("-", "_");
 
     // Hvor mange dager er det mellom opprettelse og løsning av oppgaven når inntektsmelding sendes inn via eksternt system
     private static final DistributionSummary OPPGAVE_VARIGHET_EKSTERN_TELLER = Metrics.summary(APP_NAME + ".oppgaver.varighet.ekstern");

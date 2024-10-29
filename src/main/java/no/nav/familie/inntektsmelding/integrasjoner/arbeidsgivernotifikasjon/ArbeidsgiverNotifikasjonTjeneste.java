@@ -171,8 +171,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .setNyStatus(SaksStatus.FERDIG)
             .setOverstyrStatustekstMed(SAK_STATUS_TEKST)
             .build();
-
-
+        
         var projection = new NyStatusSakResultatResponseProjection().typename()
             .onNyStatusSakVellykket(new NyStatusSakVellykketResponseProjection().id())
             .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
