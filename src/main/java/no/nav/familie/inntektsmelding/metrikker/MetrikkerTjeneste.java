@@ -4,12 +4,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.ImmutableTag;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tag;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -84,7 +86,11 @@ public class MetrikkerTjeneste {
         if (!inntektsmelding.getEndringsårsaker().isEmpty()) {
             var endringsårsakerTags = new ArrayList<Tag>();
             endringsårsakerTags.add(new ImmutableTag(TAG_YTELSE, inntektsmelding.getYtelsetype().name()));
-            inntektsmelding.getEndringsårsaker().forEach(endring -> endringsårsakerTags.add(new ImmutableTag(TAG_AARSAK, endring.getÅrsak().name())));
+            endringsårsakerTags.add(new ImmutableTag(TAG_AARSAK, inntektsmelding.getEndringsårsaker().stream()
+                .sorted()
+                .map(EndringsårsakEntitet::getÅrsak)
+                .map(Enum::name)
+                .collect(Collectors.joining("-"))));
             Metrics.counter(COUNTER_ENDRINGSÅRSAKER, endringsårsakerTags).increment();
         }
     }
