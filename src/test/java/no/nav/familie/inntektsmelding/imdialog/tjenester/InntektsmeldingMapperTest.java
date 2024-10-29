@@ -84,7 +84,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getStartDato()).isEqualTo(request.startdato());
         assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetype(request.ytelse()));
         assertThat(entitet.getMånedRefusjon()).isEqualByComparingTo(BigDecimal.valueOf(5000));
-        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(LocalDate.now().plusDays(10));
+        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(LocalDate.now().plusDays(9));
         assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
         assertThat(entitet.getRefusjonsendringer()).isEmpty();
@@ -116,7 +116,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getStartDato()).isEqualTo(request.startdato());
         assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetype(request.ytelse()));
         assertThat(entitet.getMånedRefusjon()).isEqualByComparingTo(BigDecimal.valueOf(5000));
-        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(LocalDate.now().plusDays(10));
+        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(LocalDate.now().plusDays(9));
         assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
         assertThat(entitet.getRefusjonsendringer()).hasSize(1);
@@ -153,7 +153,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getStartDato()).isEqualTo(request.startdato());
         assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetype(request.ytelse()));
         assertThat(entitet.getMånedRefusjon()).isEqualByComparingTo(BigDecimal.valueOf(5000));
-        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(LocalDate.now().plusDays(10));
+        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(LocalDate.now().plusDays(9));
         assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
 
@@ -233,7 +233,7 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.refusjon()).hasSize(2);
         assertThat(imDto.refusjon().get(0).fom()).isEqualTo(imEntitet.getStartDato());
         assertThat(imDto.refusjon().get(0).beløp()).isEqualByComparingTo(imEntitet.getMånedRefusjon());
-        assertThat(imDto.refusjon().get(1).fom()).isEqualTo(LocalDate.now().plusDays(5));
+        assertThat(imDto.refusjon().get(1).fom()).isEqualTo(LocalDate.now().plusDays(6));
         assertThat(imDto.refusjon().get(1).beløp()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(imDto.opprettetTidspunkt()).isEqualTo(imEntitet.getOpprettetTidspunkt());
         assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
@@ -303,7 +303,7 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.refusjon().get(0).beløp()).isEqualByComparingTo(imEntitet.getMånedRefusjon());
         assertThat(imDto.refusjon().get(1).fom()).isEqualTo(LocalDate.now().plusDays(5));
         assertThat(imDto.refusjon().get(1).beløp()).isEqualByComparingTo(BigDecimal.valueOf(4000));
-        assertThat(imDto.refusjon().get(2).fom()).isEqualTo(LocalDate.now().plusDays(10));
+        assertThat(imDto.refusjon().get(2).fom()).isEqualTo(LocalDate.now().plusDays(11));
         assertThat(imDto.refusjon().get(2).beløp()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(imDto.opprettetTidspunkt()).isEqualTo(imEntitet.getOpprettetTidspunkt());
         assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);

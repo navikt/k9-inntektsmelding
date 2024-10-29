@@ -40,7 +40,8 @@ class InntektsmeldingOverstyringMapperTest {
         assertThat(entitet.getRefusjonsendringer()).hasSize(1);
         assertThat(entitet.getRefusjonsendringer().getFirst().getFom()).isEqualTo(stp.plusDays(10));
         assertThat(entitet.getRefusjonsendringer().getFirst().getRefusjonPrMnd()).isEqualByComparingTo(BigDecimal.valueOf(4000));
-        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(stp.plusDays(15));
+        // Opphørsdato skal være siste dag med refusjon, ikke første dag uten
+        assertThat(entitet.getOpphørsdatoRefusjon()).isEqualTo(stp.plusDays(14));
         assertThat(entitet.getMånedRefusjon()).isEqualByComparingTo(BigDecimal.valueOf(5000));
     }
 
