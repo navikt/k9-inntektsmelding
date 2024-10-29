@@ -59,6 +59,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_lagre_inntektsmelding_med_refusjon() {
         // Arrange
+        var startdato = LocalDate.now();
         var førLagring = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
@@ -66,8 +67,8 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
-            .medStartDato(LocalDate.now())
-            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medStartDato(startdato)
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(startdato.plusDays(3), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent("999999999")
             .build();
 
@@ -152,7 +153,6 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medStartDato(startDato)
-            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(arbeidsgiverIdent)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
             .build();
@@ -165,7 +165,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medStartDato(startDato)
-            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(startDato.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(arbeidsgiverIdent)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(2))
             .build();
@@ -196,7 +196,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medStartDato(startDato)
-            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(startDato.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(arbeidsgiverIdent)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
             .build();
@@ -209,7 +209,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medStartDato(startDato)
-            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(startDato.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(arbeidsgiverIdent)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(2))
             .build();
@@ -222,7 +222,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medStartDato(startDato)
-            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(startDato.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(arbeidsgiverIdent)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(3))
             .build();
@@ -235,7 +235,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medStartDato(startDato)
-            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now(), BigDecimal.valueOf(2000))))
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(startDato.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(arbeidsgiverIdent)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(4))
             .build();
