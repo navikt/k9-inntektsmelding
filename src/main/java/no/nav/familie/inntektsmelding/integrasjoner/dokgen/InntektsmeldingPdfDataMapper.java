@@ -130,7 +130,8 @@ public class InntektsmeldingPdfDataMapper {
             .toList());
 
         if (opphørsdato != null && !opphørsdato.equals(Tid.TIDENES_ENDE)) {
-            refusjonsendringerTilBrev.add(new RefusjonsendringPeriode(formaterDatoForLister(opphørsdato), opphørsdato, BigDecimal.ZERO));
+            // Da opphørsdato er siste dag med refusjon må vi legge til denne mappingen for å få det rett ut i PDF, da vi ønsker å vise når første dag uten refusjon er
+            refusjonsendringerTilBrev.add(new RefusjonsendringPeriode(formaterDatoForLister(opphørsdato.plusDays(1)), opphørsdato.plusDays(1), BigDecimal.ZERO));
         }
 
         return refusjonsendringerTilBrev.stream()
