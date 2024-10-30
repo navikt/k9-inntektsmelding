@@ -149,9 +149,9 @@ public class InntektsmeldingTjeneste {
 
     private List<InntektsmeldingDialogDto.MånedsinntektResponsDto> lagInntekterDto(ForespørselEntitet forespørsel) {
         var inntekter = inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
-            forespørsel.getOrganisasjonsnummer());
+            forespørsel.getOrganisasjonsnummer()).måneder();
         return inntekter.stream()
-            .map(i -> new InntektsmeldingDialogDto.MånedsinntektResponsDto(i.måned().atDay(1), i.måned().atEndOfMonth(), i.beløp(),
+            .map(i -> new InntektsmeldingDialogDto.MånedsinntektResponsDto(i.månedÅr().atDay(1), i.månedÅr().atEndOfMonth(), i.beløp(),
                 forespørsel.getOrganisasjonsnummer()))
             .toList();
     }
