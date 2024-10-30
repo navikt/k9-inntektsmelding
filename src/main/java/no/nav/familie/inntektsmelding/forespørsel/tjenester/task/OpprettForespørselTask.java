@@ -27,10 +27,10 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
     private static final Logger log = LoggerFactory.getLogger(OpprettForespørselTask.class);
 
     public static final String YTELSETYPE = "ytelsetype";
-    public static final String AKTØR_ID = "aktørId";
+    public static final String AKTØR_ID = "aktoerId";
     public static final String FAGSAK_SAKSNUMMER = "fagsakSaksnummer";
     public static final String ORGNR = "orgnr";
-    public static final String STP = "skjæringstidspunkt";
+    public static final String STP = "skjaeringstidspunkt";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 

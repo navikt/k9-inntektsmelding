@@ -22,7 +22,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class SettForespørselTilUtgåttTask implements ProsessTaskHandler {
     private static final Logger log = LoggerFactory.getLogger(SettForespørselTilUtgåttTask.class);
 
-    public static final String FORESPØRSEL_UUID = "forespørselUuid";
+    public static final String FORESPØRSEL_UUID = "forespoerselUuid";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
