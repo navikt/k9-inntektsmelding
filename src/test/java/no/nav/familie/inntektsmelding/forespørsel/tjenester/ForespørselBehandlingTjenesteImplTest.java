@@ -27,6 +27,7 @@ import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 @ExtendWith(JpaTestcontainerExtension.class)
@@ -46,13 +47,15 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     private final PersonTjeneste personTjeneste = Mockito.mock(PersonTjeneste.class);
     private ForespørselRepository forespørselRepository;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
+    private final ProsessTaskTjeneste prosessTaskTjeneste = Mockito.mock(ProsessTaskTjeneste.class);
 
     @BeforeEach
     public void setUp() {
         this.forespørselRepository = new ForespørselRepository(getEntityManager());
         this.forespørselBehandlingTjeneste = new ForespørselBehandlingTjenesteImpl(new ForespørselTjeneste(forespørselRepository),
             arbeidsgiverNotifikasjon,
-            personTjeneste);
+            personTjeneste,
+            prosessTaskTjeneste);
     }
 
     @Test
