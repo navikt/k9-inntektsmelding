@@ -22,8 +22,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = "forespørsel.opprett")
+@ProsessTask(value = OpprettForespørselTask.TASKTYPE)
 public class OpprettForespørselTask implements ProsessTaskHandler {
+    public static final String TASKTYPE = "forespørsel.opprett";
     private static final Logger log = LoggerFactory.getLogger(OpprettForespørselTask.class);
 
     public static final String YTELSETYPE = "ytelsetype";

@@ -18,8 +18,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = "forespørsel.utgått")
+@ProsessTask(value = SettForespørselTilUtgåttTask.TASKTYPE)
 public class SettForespørselTilUtgåttTask implements ProsessTaskHandler {
+    public static final String TASKTYPE = "forespørsel.utgått";
     private static final Logger log = LoggerFactory.getLogger(SettForespørselTilUtgåttTask.class);
 
     public static final String FORESPØRSEL_UUID = "forespoerselUuid";
