@@ -38,9 +38,10 @@ class InntektsmeldingOverstyringMapper {
     private static Optional<LocalDate> finnOpphørsdato(
         List<SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto> refusjonsendringRequestDtos) {
         var sisteEndring = finnSisteRefusjonsendring(refusjonsendringRequestDtos);
-        // Hvis siste endring setter refusjon til 0 er det å regne som opphørsdato
+        // Hvis siste endring setter refusjon til 0 er det å regne som opphør av refusjon,
+        // setter dagen før denne endringen som opphørsdato
         return sisteEndring.filter(en -> en.beløp().compareTo(BigDecimal.ZERO) == 0)
-            .map(SendOverstyrtInntektsmeldingRequestDto.RefusjonendringRequestDto::fom);
+            .map(sr -> sr.fom().minusDays(1));
     }
 
     private static List<RefusjonsendringEntitet> mapRefusjonsendringer(
