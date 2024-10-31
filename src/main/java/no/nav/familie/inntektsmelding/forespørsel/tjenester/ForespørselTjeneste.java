@@ -70,7 +70,7 @@ public class ForespørselTjeneste {
         return forespørselRepository.hentForespørsel(forespørselUuid);
     }
 
-    public List<ForespørselEntitet> finnForespørslerForSak(SaksnummerDto fagsakSaksnummer) {
+    public List<ForespørselEntitet> finnForespørslerForFagsak(SaksnummerDto fagsakSaksnummer) {
         return forespørselRepository.hentForespørsler(fagsakSaksnummer);
     }
 
