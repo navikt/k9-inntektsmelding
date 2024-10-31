@@ -116,7 +116,11 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                     .findFirst();
 
                 if (eksisterendeForespørsel.isEmpty()) {
-                    var opprettForespørselTask = OpprettForespørselTask.lagTaskData(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt);
+                    var opprettForespørselTask = OpprettForespørselTask.lagTaskData(ytelsetype,
+                        aktørId,
+                        fagsakSaksnummer,
+                        organisasjon,
+                        skjæringstidspunkt);
                     taskGruppe.addNesteParallell(opprettForespørselTask);
                 }
             });
@@ -178,7 +182,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                    OrganisasjonsnummerDto organisasjonsnummer,
                                    LocalDate skjæringstidspunkt) {
         var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
-            organisasjonsnummer.orgnr(),
+            organisasjonsnummer,
             skjæringstidspunkt,
             fagsakSaksnummer.saksnr(),
             ytelsetype);
