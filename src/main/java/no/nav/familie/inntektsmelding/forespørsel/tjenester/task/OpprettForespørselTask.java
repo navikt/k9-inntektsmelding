@@ -61,4 +61,18 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
 
         forespørselBehandlingTjeneste.opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
     }
+
+    public static ProsessTaskData lagTaskData(Ytelsetype ytelsetype,
+                                              AktørIdEntitet aktørId,
+                                              SaksnummerDto fagsakSaksnummer,
+                                              OrganisasjonsnummerDto organisasjon,
+                                              LocalDate skjæringstidspunkt) {
+        var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
+        taskdata.setProperty(YTELSETYPE, ytelsetype.name());
+        taskdata.setProperty(AKTØR_ID, aktørId.getAktørId());
+        taskdata.setProperty(FAGSAK_SAKSNUMMER, fagsakSaksnummer.saksnr());
+        taskdata.setProperty(ORGNR, organisasjon.orgnr());
+        taskdata.setProperty(STP, skjæringstidspunkt.toString());
+        return taskdata;
+    }
 }

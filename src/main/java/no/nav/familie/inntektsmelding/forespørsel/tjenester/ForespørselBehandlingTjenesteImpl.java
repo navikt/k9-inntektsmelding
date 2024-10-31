@@ -116,12 +116,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                     .findFirst();
 
                 if (eksisterendeForespørsel.isEmpty()) {
-                    var opprettForespørselTask = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
-                    opprettForespørselTask.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
-                    opprettForespørselTask.setProperty(OpprettForespørselTask.AKTØR_ID, aktørId.getAktørId());
-                    opprettForespørselTask.setProperty(OpprettForespørselTask.FAGSAK_SAKSNUMMER, fagsakSaksnummer.saksnr());
-                    opprettForespørselTask.setProperty(OpprettForespørselTask.ORGNR, organisasjon.orgnr());
-                    opprettForespørselTask.setProperty(OpprettForespørselTask.STP, skjæringstidspunkt.toString());
+                    var opprettForespørselTask = OpprettForespørselTask.lagTaskData(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt);
                     taskGruppe.addNesteParallell(opprettForespørselTask);
                 }
             });
