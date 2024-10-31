@@ -29,10 +29,20 @@ public interface ForespørselBehandlingTjeneste {
 
     Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID);
 
+    List<ForespørselEntitet> hentForespørslerForFagsak(SaksnummerDto fagsakSaksnummer,
+                                                       OrganisasjonsnummerDto orgnummerDto,
+                                                       LocalDate skjæringstidspunkt);
+
     void oppdaterForespørsler(Ytelsetype ytelsetype,
                               AktørIdEntitet aktørId,
                               Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                               SaksnummerDto fagsakSaksnummer);
+
+    void opprettForespørsel(Ytelsetype ytelsetype,
+                            AktørIdEntitet aktørId,
+                            SaksnummerDto fagsakSaksnummer,
+                            OrganisasjonsnummerDto organisasjonsnummer,
+                            LocalDate skjæringstidspunkt);
 
     void lukkForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
 
@@ -40,4 +50,6 @@ public interface ForespørselBehandlingTjeneste {
 
 
     void settForespørselTilUtgått(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummer, LocalDate skjæringstidspunkt);
+
+    void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel);
 }

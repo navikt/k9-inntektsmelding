@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -25,6 +27,9 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjeneste {
@@ -35,15 +40,18 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     private ForespørselTjeneste forespørselTjeneste;
     private ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
     private PersonTjeneste personTjeneste;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
     private String inntektsmeldingSkjemaLenke;
 
     @Inject
     public ForespørselBehandlingTjenesteImpl(ForespørselTjeneste forespørselTjeneste,
                                              ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon,
-                                             PersonTjeneste personTjeneste) {
+                                             PersonTjeneste personTjeneste,
+                                             ProsessTaskTjeneste prosessTaskTjeneste) {
         this.forespørselTjeneste = forespørselTjeneste;
         this.arbeidsgiverNotifikasjon = arbeidsgiverNotifikasjon;
         this.personTjeneste = personTjeneste;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://arbeidsgiver.intern.dev.nav.no/fp-im-dialog");
     }
 
@@ -60,7 +68,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             return ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE_ÅPEN;
         }
 
-        opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
+        opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
         return ForespørselResultat.FORESPØRSEL_OPPRETTET;
     }
 
@@ -95,7 +103,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                      AktørIdEntitet aktørId,
                                      Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                                      SaksnummerDto fagsakSaksnummer) {
-        var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer);
+        final var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer);
+        final var taskGruppe = new ProsessTaskGruppe();
 
         // Oppretter forespørsler for alle skjæringstidspunkter som ikke allerede er opprettet
         organisasjonerPerSkjæringstidspunkt.forEach((skjæringstidspunkt, organisasjoner) -> {
@@ -103,16 +112,12 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                 var eksisterendeForespørsel = eksisterendeForespørsler.stream()
                     .filter(forespørsel -> forespørsel.getSkjæringstidspunkt().equals(skjæringstidspunkt))
                     .filter(forespørsel -> forespørsel.getOrganisasjonsnummer().equals(organisasjon.orgnr()))
+                    .filter(forespørsel -> !forespørsel.getStatus().equals(ForespørselStatus.UTGÅTT))
                     .findFirst();
 
                 if (eksisterendeForespørsel.isEmpty()) {
-                    opprettForespørselOppgave(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt);
-                    var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
-                        organisasjon.orgnr(),
-                        skjæringstidspunkt,
-                        fagsakSaksnummer.saksnr(),
-                        ytelsetype);
-                    LOG.info(msg);
+                    var opprettForespørselTask = OpprettForespørselTask.lagTaskData(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt);
+                    taskGruppe.addNesteParallell(opprettForespørselTask);
                 }
             });
         });
@@ -123,12 +128,22 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                 eksisterendeForespørsel);
 
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
-                setterForespørselTilUtgått(eksisterendeForespørsel);
+                var settForespørselTilUtgåttTask = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
+                settForespørselTilUtgåttTask.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, eksisterendeForespørsel.getUuid().toString());
+                taskGruppe.addNesteParallell(settForespørselTilUtgåttTask);
             }
         });
+
+        if (!taskGruppe.getTasks().isEmpty()) {
+            taskGruppe.setCallIdFraEksisterende();
+            prosessTaskTjeneste.lagre(taskGruppe);
+        } else {
+            LOG.info("Ingen oppdatering er nødvendig for saksnr: {}", fagsakSaksnummer);
+        }
     }
 
-    private void setterForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel) {
+    @Override
+    public void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel) {
         arbeidsgiverNotifikasjon.oppgaveUtgått(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
         arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
@@ -156,11 +171,19 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         return orgnrFraRequestForStp.contains(eksisterendeForespørsel.getOrganisasjonsnummer());
     }
 
-    private void opprettForespørselOppgave(Ytelsetype ytelsetype,
-                                           AktørIdEntitet aktørId,
-                                           SaksnummerDto fagsakSaksnummer,
-                                           OrganisasjonsnummerDto organisasjonsnummer,
-                                           LocalDate skjæringstidspunkt) {
+    @Override
+    public void opprettForespørsel(Ytelsetype ytelsetype,
+                                   AktørIdEntitet aktørId,
+                                   SaksnummerDto fagsakSaksnummer,
+                                   OrganisasjonsnummerDto organisasjonsnummer,
+                                   LocalDate skjæringstidspunkt) {
+        var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+            organisasjonsnummer.orgnr(),
+            skjæringstidspunkt,
+            fagsakSaksnummer.saksnr(),
+            ytelsetype);
+        LOG.info(msg);
+
         var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
@@ -185,6 +208,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
     }
 
+    @Override
     public void lukkForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
         var forespørsler = hentÅpneForespørslerForFagsak(fagsakSaksnummer, orgnummerDto, skjæringstidspunkt);
 
@@ -200,10 +224,11 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         });
     }
 
+    @Override
     public void settForespørselTilUtgått(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
         var forespørsler = hentÅpneForespørslerForFagsak(fagsakSaksnummer, orgnummerDto, skjæringstidspunkt);
 
-        forespørsler.forEach(this::setterForespørselTilUtgått);
+        forespørsler.forEach(this::settForespørselTilUtgått);
     }
 
     private List<ForespørselEntitet> hentÅpneForespørslerForFagsak(SaksnummerDto fagsakSaksnummer,
@@ -216,8 +241,18 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     @Override
+    public List<ForespørselEntitet> hentForespørslerForFagsak(SaksnummerDto fagsakSaksnummer,
+                                                              OrganisasjonsnummerDto orgnummerDto,
+                                                              LocalDate skjæringstidspunkt) {
+        return forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer).stream()
+            .filter(f -> orgnummerDto == null || orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
+            .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
+            .toList();
+    }
+
+    @Override
     public void slettForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
-        var sakerSomSkalSlettes = forespørselTjeneste.finnForespørslerForSak(fagsakSaksnummer).stream()
+        var sakerSomSkalSlettes = forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer).stream()
             .filter(f -> skjæringstidspunkt == null || f.getSkjæringstidspunkt().equals(skjæringstidspunkt))
             .filter(f -> orgnummerDto == null || f.getOrganisasjonsnummer().equals(orgnummerDto.orgnr()))
             .filter(f -> f.getStatus().equals(ForespørselStatus.UNDER_BEHANDLING))
