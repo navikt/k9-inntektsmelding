@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -13,16 +14,18 @@ import java.util.stream.Stream;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.tjenester.aordningen.inntektsinformasjon.ArbeidsInntektIdent;
 import no.nav.tjenester.aordningen.inntektsinformasjon.inntekt.Inntekt;
 import no.nav.tjenester.aordningen.inntektsinformasjon.inntekt.InntektType;
 import no.nav.tjenester.aordningen.inntektsinformasjon.response.HentInntektListeBolkResponse;
 import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class InntektTjeneste {
-    private static final int DAG_I_MÅNED_RAPPORTERINGSFRIST = 6;
+    private static final int DAG_I_MÅNED_RAPPORTERINGSFRIST = 5;
     private InntektskomponentKlient inntektskomponentKlient;
 
     InntektTjeneste() {
@@ -35,17 +38,45 @@ public class InntektTjeneste {
     }
 
     // Tar inn dagens dato som parameter for å gjøre det enklere å skrive tester
-    public List<Månedsinntekt> hentInntekt(AktørIdEntitet aktørId, LocalDate startdato, LocalDate dagensDato, String organisasjonsnummer) {
+    public Inntektsopplysninger hentInntekt(AktørIdEntitet aktørId, LocalDate startdato, LocalDate dagensDato, String organisasjonsnummer) {
         var antallMånederViBerOm = finnAntallMånederViMåBeOm(startdato, dagensDato);
         var fomDato = startdato.minusMonths(antallMånederViBerOm);
-            var tomDato = startdato.minusMonths(1);
+        var tomDato = startdato.minusMonths(1);
         var request = lagRequest(aktørId, fomDato, tomDato);
         var respons = inntektskomponentKlient.finnInntekt(request);
         var inntekter = oversettRespons(respons, aktørId, organisasjonsnummer);
         var alleMåneder = inntekter.size() == antallMånederViBerOm
                           ? inntekter
                           : fyllInnManglendeMåneder(fomDato, antallMånederViBerOm, organisasjonsnummer, inntekter);
-        return fjernOverflødigeMånederOmNødvendig(alleMåneder);
+        var kuttetNedTilTreMndInntekt = fjernOverflødigeMånederOmNødvendig(alleMåneder);
+        return beregnSnittOgLeggPåStatus(kuttetNedTilTreMndInntekt, dagensDato, organisasjonsnummer);
+    }
+
+    private Inntektsopplysninger beregnSnittOgLeggPåStatus(List<Månedsinntekt> inntekter, LocalDate dagensDato, String organisasjonsnummer) {
+        var månedsinntekter = inntekter.stream().map(i -> mapInntektMedStatus(i, dagensDato)).toList();
+        var antallMndMedRapportertInntekt = månedsinntekter.stream().filter(m -> m.beløp() != null).count();
+        if (antallMndMedRapportertInntekt > 3) {
+            throw new TekniskException("FPINNTEKTSMELDING_INNTEKTKSKOMPONENT_1",
+                String.format("Har mappet flere enn 3 måneder med inntekt, ugyldig tilstand. Mappede månedsinntekter var %s", månedsinntekter));
+        }
+        var totalLønn = månedsinntekter.stream()
+            .filter(m -> m.beløp() != null)
+            .map(Inntektsopplysninger.InntektMåned::beløp)
+            .reduce(BigDecimal::add)
+            .orElse(BigDecimal.ZERO);
+        var snittlønn = totalLønn.divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_EVEN);
+        return new Inntektsopplysninger(snittlønn, organisasjonsnummer, månedsinntekter);
+    }
+
+    private Inntektsopplysninger.InntektMåned mapInntektMedStatus(Månedsinntekt i, LocalDate dagensDato) {
+        var skalInntektVæreRapportert = rapporteringsfristErPassert(i.måned.atDay(1), dagensDato);
+        var erInntektRapportert = i.beløp != null;
+        if (erInntektRapportert) {
+            return new Inntektsopplysninger.InntektMåned(i.beløp, i.måned, MånedslønnStatus.BRUKT_I_GJENNOMSNITT);
+        }
+        return skalInntektVæreRapportert
+               ? new Inntektsopplysninger.InntektMåned(i.beløp, i.måned, MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT)
+               : new Inntektsopplysninger.InntektMåned(i.beløp, i.måned, MånedslønnStatus.IKKE_RAPPORTERT_RAPPORTERINGSFRIST_IKKE_PASSERT);
     }
 
     private int finnAntallMånederViMåBeOm(LocalDate startdato, LocalDate dagensDato) {

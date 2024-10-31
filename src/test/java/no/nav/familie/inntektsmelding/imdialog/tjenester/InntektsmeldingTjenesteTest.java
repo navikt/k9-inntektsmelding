@@ -14,10 +14,13 @@ import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 
+import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+
+import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -104,11 +107,11 @@ class InntektsmeldingTjenesteTest {
         var innsenderTelefonnummer = "+4711111111";
         when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID), forespørsel.getYtelseType())).thenReturn(
             new PersonInfo(innsenderNavn, null, innsenderEtternavn, new PersonIdent(INNMELDER_UID), null, LocalDate.now(), innsenderTelefonnummer));
-        var inntekt1 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 3), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
-        var inntekt2 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 4), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
-        var inntekt3 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 5), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
+        var inntekt1 = new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(52000), YearMonth.of(2024, 3), MånedslønnStatus.BRUKT_I_GJENNOMSNITT);
+        var inntekt2 = new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(52000), YearMonth.of(2024, 4), MånedslønnStatus.BRUKT_I_GJENNOMSNITT);
+        var inntekt3 = new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(52000), YearMonth.of(2024, 5), MånedslønnStatus.BRUKT_I_GJENNOMSNITT);
         when(inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
-            forespørsel.getOrganisasjonsnummer())).thenReturn(List.of(inntekt1, inntekt2, inntekt3));
+            forespørsel.getOrganisasjonsnummer())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer(), List.of(inntekt1, inntekt2, inntekt3)));
 
         // Act
         var imDialogDto = inntektsmeldingTjeneste.lagDialogDto(uuid);
@@ -129,17 +132,17 @@ class InntektsmeldingTjenesteTest {
         assertThat(imDialogDto.innsender().mellomnavn()).isNull();
         assertThat(imDialogDto.innsender().telefon()).isEqualTo(innsenderTelefonnummer);
 
-        assertThat(imDialogDto.inntekter()).hasSize(3);
-
-        assertThat(imDialogDto.inntekter()).contains(
-            new InntektsmeldingDialogDto.MånedsinntektResponsDto(LocalDate.of(2024, 3, 1), LocalDate.of(2024, 3, 31), BigDecimal.valueOf(52000),
-                forespørsel.getOrganisasjonsnummer()));
-        assertThat(imDialogDto.inntekter()).contains(
-            new InntektsmeldingDialogDto.MånedsinntektResponsDto(LocalDate.of(2024, 4, 1), LocalDate.of(2024, 4, 30), BigDecimal.valueOf(52000),
-                forespørsel.getOrganisasjonsnummer()));
-        assertThat(imDialogDto.inntekter()).contains(
-            new InntektsmeldingDialogDto.MånedsinntektResponsDto(LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 31), BigDecimal.valueOf(52000),
-                forespørsel.getOrganisasjonsnummer()));
+        assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).hasSize(3);
+        assertThat(imDialogDto.inntektsopplysninger().gjennomsnittLønn()).isEqualByComparingTo(BigDecimal.valueOf(52_000));
+        assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).contains(
+            new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(LocalDate.of(2024, 3, 1), LocalDate.of(2024, 3, 31), BigDecimal.valueOf(52_000),
+                MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
+        assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).contains(
+            new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(LocalDate.of(2024, 4, 1), LocalDate.of(2024, 4, 30), BigDecimal.valueOf(52_000),
+                MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
+        assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).contains(
+            new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 31), BigDecimal.valueOf(52_000),
+                MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
     }
 
     @Test
