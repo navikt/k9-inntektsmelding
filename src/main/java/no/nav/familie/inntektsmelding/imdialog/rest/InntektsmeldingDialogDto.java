@@ -14,10 +14,15 @@ import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto person, @Valid @NotNull OrganisasjonInfoResponseDto arbeidsgiver,
                                        @Valid @NotNull InnsenderDto innsender, @Valid @NotNull List<MånedsinntektResponsDto> inntekter,
                                        @NotNull LocalDate startdatoPermisjon, @Valid @NotNull YtelseTypeDto ytelse,
+                                       @NotNull @Valid SøkersFraværDto søkersFravær,
                                        @Valid @NotNull UUID forespørselUuid, @Valid @NotNull ForespørselStatusDto forespørselStatus) {
 
     public record PersonInfoResponseDto(@NotNull String fornavn, @NotNull String mellomnavn, @NotNull String etternavn, @NotNull String fødselsnummer,
                                         @NotNull String aktørId) {
+    }
+
+    public record SøkersFraværDto(@NotNull LocalDate førsteFraværsdag, @NotNull LocalDate sisteFraværsdag, List<SøkersFraværPeriodeDto> perioder) {
+        public record SøkersFraværPeriodeDto(@NotNull LocalDate fom, @NotNull LocalDate tom){}
     }
 
     public record OrganisasjonInfoResponseDto(@NotNull String organisasjonNavn, @NotNull String organisasjonNummer) {

@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 
+import no.nav.familie.inntektsmelding.integrasjoner.fpsak.FagsystemTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 
 import org.slf4j.Logger;
@@ -44,6 +46,7 @@ public class InntektsmeldingTjeneste {
     private InntektsmeldingRepository inntektsmeldingRepository;
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
+    private FagsystemTjeneste fagsystemTjeneste;
     private InntektTjeneste inntektTjeneste;
     private FpDokgenTjeneste fpDokgenTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
@@ -56,6 +59,7 @@ public class InntektsmeldingTjeneste {
                                    InntektsmeldingRepository inntektsmeldingRepository,
                                    PersonTjeneste personTjeneste,
                                    OrganisasjonTjeneste organisasjonTjeneste,
+                                   FagsystemTjeneste fagsystemTjeneste,
                                    InntektTjeneste inntektTjeneste,
                                    FpDokgenTjeneste fpDokgenTjeneste,
                                    ProsessTaskTjeneste prosessTaskTjeneste) {
@@ -63,6 +67,7 @@ public class InntektsmeldingTjeneste {
         this.inntektsmeldingRepository = inntektsmeldingRepository;
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
+        this.fagsystemTjeneste = fagsystemTjeneste;
         this.inntektTjeneste = inntektTjeneste;
         this.fpDokgenTjeneste = fpDokgenTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
@@ -112,8 +117,9 @@ public class InntektsmeldingTjeneste {
         var organisasjonDto = lagOrganisasjonDto(forespørsel);
         var innmelderDto = lagInnmelderDto(forespørsel.getYtelseType());
         var inntektDtoer = lagInntekterDto(forespørsel);
+        var søkersFraværDto = lagSøkersFraværDto(forespørsel);
         return new InntektsmeldingDialogDto(personDto, organisasjonDto, innmelderDto, inntektDtoer, forespørsel.getSkjæringstidspunkt(),
-            KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), forespørsel.getUuid(), KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()));
+            KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), søkersFraværDto, forespørsel.getUuid(), KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()));
     }
 
     public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {
@@ -166,4 +172,12 @@ public class InntektsmeldingTjeneste {
         return new InntektsmeldingDialogDto.PersonInfoResponseDto(persondata.fornavn(), persondata.mellomnavn(), persondata.etternavn(),
             persondata.fødselsnummer().getIdent(), persondata.aktørId().getAktørId());
     }
+
+    private InntektsmeldingDialogDto.SøkersFraværDto lagSøkersFraværDto(ForespørselEntitet forespørsel) {
+        var fraværsperioder = fagsystemTjeneste.hentSøkersFraværsperioder(forespørsel).stream().map(p -> new InntektsmeldingDialogDto.SøkersFraværDto.SøkersFraværPeriodeDto(p.fom(), p.tom())).toList();
+        var førsteFraværsdag = fraværsperioder.stream().map(InntektsmeldingDialogDto.SøkersFraværDto.SøkersFraværPeriodeDto::fom).min(Comparator.naturalOrder());
+        var sisteFraværsperiode = fraværsperioder.stream().map(InntektsmeldingDialogDto.SøkersFraværDto.SøkersFraværPeriodeDto::tom).max(Comparator.naturalOrder());
+        return new InntektsmeldingDialogDto.SøkersFraværDto(førsteFraværsdag.orElse(null), sisteFraværsperiode.orElse(null), fraværsperioder);
+    }
+
 }

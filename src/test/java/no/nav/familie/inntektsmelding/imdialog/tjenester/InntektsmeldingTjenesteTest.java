@@ -12,8 +12,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import net.bytebuddy.asm.Advice;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 
+import no.nav.familie.inntektsmelding.integrasjoner.fpsak.FagsystemTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.fpsak.SøkersFraværsperiode;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 
@@ -66,6 +69,8 @@ class InntektsmeldingTjenesteTest {
     private InntektTjeneste inntektTjeneste;
     @Mock
     private FpDokgenTjeneste fpDokgenTjeneste;
+    @Mock
+    private FagsystemTjeneste fagsystemTjeneste;
 
     @Mock
     private ProsessTaskTjeneste prosessTaskTjeneste;
@@ -86,7 +91,7 @@ class InntektsmeldingTjenesteTest {
     @BeforeEach
     void setUp() {
         inntektsmeldingTjeneste = new InntektsmeldingTjeneste(forespørselBehandlingTjeneste, inntektsmeldingRepository, personTjeneste,
-            organisasjonTjeneste, inntektTjeneste, fpDokgenTjeneste, prosessTaskTjeneste);
+            organisasjonTjeneste, fagsystemTjeneste, inntektTjeneste, fpDokgenTjeneste, prosessTaskTjeneste);
     }
 
     @Test
@@ -109,6 +114,7 @@ class InntektsmeldingTjenesteTest {
         var inntekt3 = new InntektTjeneste.Månedsinntekt(YearMonth.of(2024, 5), BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer());
         when(inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
             forespørsel.getOrganisasjonsnummer())).thenReturn(List.of(inntekt1, inntekt2, inntekt3));
+        when(fagsystemTjeneste.hentSøkersFraværsperioder(forespørsel)).thenReturn(List.of(new SøkersFraværsperiode(LocalDate.now().plusDays(10), LocalDate.now().plusDays(15))));
 
         // Act
         var imDialogDto = inntektsmeldingTjeneste.lagDialogDto(uuid);
@@ -128,6 +134,11 @@ class InntektsmeldingTjenesteTest {
         assertThat(imDialogDto.innsender().etternavn()).isEqualTo(innsenderEtternavn);
         assertThat(imDialogDto.innsender().mellomnavn()).isNull();
         assertThat(imDialogDto.innsender().telefon()).isEqualTo(innsenderTelefonnummer);
+
+        assertThat(imDialogDto.søkersFravær().førsteFraværsdag()).isEqualTo(LocalDate.now().plusDays(10));
+        assertThat(imDialogDto.søkersFravær().sisteFraværsdag()).isEqualTo(LocalDate.now().plusDays(15));
+        assertThat(imDialogDto.søkersFravær().perioder()).hasSize(1);
+        assertThat(imDialogDto.søkersFravær().perioder().stream().anyMatch(p -> p.fom().equals(LocalDate.now().plusDays(10)))).isTrue();
 
         assertThat(imDialogDto.inntekter()).hasSize(3);
 
