@@ -33,7 +33,6 @@ public class InntektsmeldingDialogRest {
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingDialogRest.class);
 
     public static final String BASE_PATH = "/imdialog";
-    private static final String HENT_GRUNNLAG = "/grunnlag";
     private static final String HENT_OPPLYSNINGER = "/opplysninger";
     private static final String HENT_INNTEKTSMELDINGER_FOR_OPPGAVE = "/inntektsmeldinger";
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
@@ -50,26 +49,6 @@ public class InntektsmeldingDialogRest {
     public InntektsmeldingDialogRest(InntektsmeldingTjeneste inntektsmeldingTjeneste, Tilgang tilgang) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.tilgang = tilgang;
-    }
-
-    /**
-     * @deprecated Ikke bruk, går over til å bruke hentOpplysninger for å bruke samme begrep som frontend. Kan slettes når frontend er over
-     */
-    @Deprecated
-    @GET
-    @Path(HENT_GRUNNLAG)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet.", tags = "imdialog")
-    @Tilgangskontrollert
-    public Response hentInnsendingsinfo(
-        @Parameter(description = "Henter et grunnlag av all data vi har om søker, inntekt og arbeidsforholdet basert på en forespørsel UUID") @NotNull
-        @QueryParam("foresporselUuid") UUID forespørselUuid) {
-        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
-
-        LOG.info("Henter grunnlag for forespørsel {}", forespørselUuid);
-        var dto = inntektsmeldingTjeneste.lagDialogDto(forespørselUuid);
-        return Response.ok(dto).build();
-
     }
 
     @GET

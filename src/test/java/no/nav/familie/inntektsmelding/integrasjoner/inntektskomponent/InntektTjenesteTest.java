@@ -9,6 +9,8 @@ import java.time.YearMonth;
 import java.util.Collections;
 import java.util.List;
 
+import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,9 +60,9 @@ class InntektTjenesteTest {
 
         var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
 
-        var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 7), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT)
-            , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT)
-            , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 9), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT));
+        var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 7), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 9), MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
         assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(25_000));
     }
 
@@ -83,10 +85,10 @@ class InntektTjenesteTest {
 
             var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
 
-            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 6), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT),
-                new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 7), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT)
-                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT)
-                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), Inntektsopplysninger.LønnStatus.RAPPORTERINGSFRIST_IKKE_PASSERT));
+            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 6), MånedslønnStatus.BRUKT_I_GJENNOMSNITT),
+                new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 7), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), MånedslønnStatus.IKKE_RAPPORTERT_RAPPORTERINGSFRIST_IKKE_PASSERT));
             assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(25_000));
         }
 
@@ -111,9 +113,9 @@ class InntektTjenesteTest {
 
             var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
 
-            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 7), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT)
-                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT)
-                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 9), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT));
+            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 7), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 9), MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
             assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(25_000));
      }
 
@@ -136,9 +138,9 @@ class InntektTjenesteTest {
 
             var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
 
-            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 7), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT)
-                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 8), Inntektsopplysninger.LønnStatus.IKKE_RAPPORTERT)
-                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 9), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT));
+            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 7), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 8), MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 9), MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
             assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(16_666.67));
         }
 
@@ -162,10 +164,10 @@ class InntektTjenesteTest {
 
             var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
 
-            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 6), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT),
-                new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 7), Inntektsopplysninger.LønnStatus.IKKE_RAPPORTERT)
-                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT)
-                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), Inntektsopplysninger.LønnStatus.RAPPORTERINGSFRIST_IKKE_PASSERT));
+            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 6), MånedslønnStatus.BRUKT_I_GJENNOMSNITT),
+                new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 7), MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), MånedslønnStatus.IKKE_RAPPORTERT_RAPPORTERINGSFRIST_IKKE_PASSERT));
             assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(16_666.67));
         }
 
@@ -185,9 +187,9 @@ class InntektTjenesteTest {
 
             var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
 
-            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 7), Inntektsopplysninger.LønnStatus.IKKE_RAPPORTERT)
-                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 8), Inntektsopplysninger.LønnStatus.IKKE_RAPPORTERT)
-                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), Inntektsopplysninger.LønnStatus.IKKE_RAPPORTERT));
+            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 7), MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 8), MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT));
             assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.ZERO);
         }
 
@@ -210,11 +212,11 @@ class InntektTjenesteTest {
 
             var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
 
-            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(20_000), YearMonth.of(2024, 7), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT),
-            new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT),
-                new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(30_000), YearMonth.of(2024, 9), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT)
-                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 10), Inntektsopplysninger.LønnStatus.RAPPORTERINGSFRIST_IKKE_PASSERT)
-                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 11), Inntektsopplysninger.LønnStatus.RAPPORTERINGSFRIST_IKKE_PASSERT));
+            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(20_000), YearMonth.of(2024, 7), MånedslønnStatus.BRUKT_I_GJENNOMSNITT),
+            new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), MånedslønnStatus.BRUKT_I_GJENNOMSNITT),
+                new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(30_000), YearMonth.of(2024, 9), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 10), MånedslønnStatus.IKKE_RAPPORTERT_RAPPORTERINGSFRIST_IKKE_PASSERT)
+                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 11), MånedslønnStatus.IKKE_RAPPORTERT_RAPPORTERINGSFRIST_IKKE_PASSERT));
             assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(25_000));
         }
 
@@ -238,10 +240,10 @@ class InntektTjenesteTest {
 
             var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
 
-            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT),
-                new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(30_000), YearMonth.of(2024, 9), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT)
-                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(30_000), YearMonth.of(2024, 10), Inntektsopplysninger.LønnStatus.BRUKT_I_GJENNOMSNITT)
-                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 11), Inntektsopplysninger.LønnStatus.RAPPORTERINGSFRIST_IKKE_PASSERT));
+            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), MånedslønnStatus.BRUKT_I_GJENNOMSNITT),
+                new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(30_000), YearMonth.of(2024, 9), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(30_000), YearMonth.of(2024, 10), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 11), MånedslønnStatus.IKKE_RAPPORTERT_RAPPORTERINGSFRIST_IKKE_PASSERT));
             assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(28_333.33));
         }
 

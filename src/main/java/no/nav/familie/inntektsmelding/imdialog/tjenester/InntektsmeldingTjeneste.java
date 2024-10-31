@@ -147,13 +147,17 @@ public class InntektsmeldingTjeneste {
             personInfo.telefonnummer());
     }
 
-    private List<InntektsmeldingDialogDto.MånedsinntektResponsDto> lagInntekterDto(ForespørselEntitet forespørsel) {
-        var inntekter = inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
-            forespørsel.getOrganisasjonsnummer()).måneder();
-        return inntekter.stream()
-            .map(i -> new InntektsmeldingDialogDto.MånedsinntektResponsDto(i.månedÅr().atDay(1), i.månedÅr().atEndOfMonth(), i.beløp(),
-                forespørsel.getOrganisasjonsnummer()))
+    private InntektsmeldingDialogDto.InntektsopplysningerDto lagInntekterDto(ForespørselEntitet forespørsel) {
+        var inntektsopplysninger = inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
+            forespørsel.getOrganisasjonsnummer());
+        var inntekter = inntektsopplysninger.måneder()
+            .stream()
+            .map(i -> new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(i.månedÅr().atDay(1),
+                i.månedÅr().atEndOfMonth(),
+                i.beløp(),
+                i.status()))
             .toList();
+        return new InntektsmeldingDialogDto.InntektsopplysningerDto(inntektsopplysninger.gjennomsnitt(), inntekter);
     }
 
     private InntektsmeldingDialogDto.OrganisasjonInfoResponseDto lagOrganisasjonDto(ForespørselEntitet forespørsel) {
