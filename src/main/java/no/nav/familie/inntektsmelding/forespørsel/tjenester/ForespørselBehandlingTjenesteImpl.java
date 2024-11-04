@@ -61,10 +61,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                                              AktørIdEntitet aktørId,
                                                              OrganisasjonsnummerDto organisasjonsnummer,
                                                              SaksnummerDto fagsakSaksnummer) {
-        var åpenForespørsel = forespørselTjeneste.finnÅpenForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer);
+        var åpenForespørsel = forespørselTjeneste.finnÅpenForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
 
         if (åpenForespørsel.isPresent()) {
-            LOG.info("Finnes allerede forespørsel for aktør {} på startdato {} + på ytelse {}", aktørId, skjæringstidspunkt, ytelsetype);
+            LOG.info("Finnes allerede forespørsel for aktør {} med orgnummer {} og saksnr {} på startdato {} på ytelse {}", aktørId, organisasjonsnummer, fagsakSaksnummer, skjæringstidspunkt, ytelsetype);
             return ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE_ÅPEN;
         }
 

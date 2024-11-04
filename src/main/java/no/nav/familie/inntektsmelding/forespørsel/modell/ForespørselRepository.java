@@ -10,6 +10,8 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,12 +138,16 @@ public class ForespørselRepository {
 
     public Optional<ForespørselEntitet> finnÅpenForespørsel(AktørIdEntitet aktørId,
                                                             Ytelsetype ytelsetype,
-                                                            String arbeidsgiverIdent,
-                                                            LocalDate startdato) {
+                                                            OrganisasjonsnummerDto organisasjonsnummer,
+                                                            LocalDate startdato,
+                                                            SaksnummerDto fagsakSaksnummer) {
+        var arbeidsgiverIdent = organisasjonsnummer.orgnr();
         var query = entityManager.createQuery("FROM ForespørselEntitet where status='UNDER_BEHANDLING' " + "and aktørId = :brukerAktørId "
-                    + "and organisasjonsnummer = :arbeidsgiverIdent " + "and skjæringstidspunkt = :skjæringstidspunkt " + "and ytelseType = :ytelsetype",
+                    + "and fagsystemSaksnummer = :fagsakNr " +  "and organisasjonsnummer = :arbeidsgiverIdent " + "and skjæringstidspunkt = :skjæringstidspunkt "
+                    + "and ytelseType = :ytelsetype",
                 ForespørselEntitet.class)
             .setParameter("brukerAktørId", aktørId)
+            .setParameter("fagsakNr", fagsakSaksnummer.saksnr())
             .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
             .setParameter("skjæringstidspunkt", startdato)
             .setParameter("ytelsetype", ytelsetype);
@@ -151,7 +157,7 @@ public class ForespørselRepository {
             return Optional.empty();
         } else if (resultList.size() > 1) {
             throw new IllegalStateException(
-                "Forventet å finne kun en forespørsel for gitt id arbeidsgiver og startdato" + aktørId + arbeidsgiverIdent + startdato);
+                "Forventet å finne kun en forespørsel for gitt id arbeidsgiver og startdato" + aktørId + organisasjonsnummer + startdato);
         } else {
             return Optional.of(resultList.getFirst());
         }
