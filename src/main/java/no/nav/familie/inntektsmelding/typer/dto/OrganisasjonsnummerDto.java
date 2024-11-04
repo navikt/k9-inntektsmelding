@@ -30,6 +30,6 @@ public record OrganisasjonsnummerDto(
 
     @Override
     public String toString() {
-        return "Organisasjonsnummer[" + "orgnr=" + orgnr.substring(0, Math.min(orgnr.length(), 3)) + "...]";
+        return "Organisasjonsnummer[" + "orgnr=" + "*".repeat(orgnr.length() - 4) + orgnr.substring(orgnr.length() - 4) + "]";
     }
 }

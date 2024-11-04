@@ -162,5 +162,4 @@ public class ForespørselEntitet {
         }
         return "*".repeat(length - 4) + id.substring(length - 4);
     }
-
 }
