@@ -1,6 +1,8 @@
 package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,6 +14,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import no.nav.familie.inntektsmelding.typer.entitet.IntervallEntitet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,12 +62,15 @@ public class ForespørselRest {
     public Response opprettForespørsel(OpprettForespørselRequest request) {
         LOG.info("Mottok forespørsel om inntektsmeldingoppgave på fagsakSaksnummer {}", request.fagsakSaksnummer());
         sjekkErSystemkall();
-
+        List<IntervallEntitet> perioder = request.søknadsperioder() == null
+                       ? Collections.emptyList()
+                       : request.søknadsperioder().stream().map(s -> IntervallEntitet.fraOgMedTilOgMed(s.fom(), s.tom())).toList();
         var bleForespørselOpprettet = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(),
             KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdEntitet(request.aktørId().id()),
             new OrganisasjonsnummerDto(request.orgnummer().orgnr()),
-            request.fagsakSaksnummer());
+            request.fagsakSaksnummer(),
+            perioder);
 
         if (bleForespørselOpprettet.equals(ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
             MetrikkerTjeneste.loggForespørselOpprettet(KodeverkMapper.mapYtelsetype(request.ytelsetype()));
@@ -110,7 +117,7 @@ public class ForespørselRest {
         LOG.info("Setter forespørsel for fagsakSaksnummer {} til utgått", request.fagsakSaksnummer());
 
         sjekkErSystemkall();
-        
+
         forespørselBehandlingTjeneste.settForespørselTilUtgått(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
         return Response.ok().build();
     }

@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -59,7 +60,8 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
             return;
         }
 
-        forespørselBehandlingTjeneste.opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
+        // TODO her må vi vel lagre json i prosesstaskdata?
+        forespørselBehandlingTjeneste.opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, Collections.emptyList());
     }
 
     public static ProsessTaskData lagTaskData(Ytelsetype ytelsetype,

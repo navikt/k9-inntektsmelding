@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ class OpprettForespørselTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste).opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt);
+        verify(forespørselBehandlingTjeneste).opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt, Collections.emptyList());
     }
 
     @Test
@@ -55,10 +56,11 @@ class OpprettForespørselTaskTest {
         taskdata.setProperty(OpprettForespørselTask.STP, skjæringstidspunkt.toString());
 
         when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(fagsakSaksnummer, organisasjon, skjæringstidspunkt))
-            .thenReturn(List.of(new ForespørselEntitet(organisasjon.orgnr(), skjæringstidspunkt, aktørId, ytelsetype, fagsakSaksnummer.saksnr())));
+            .thenReturn(List.of(new ForespørselEntitet(organisasjon.orgnr(), skjæringstidspunkt, aktørId, ytelsetype, fagsakSaksnummer.saksnr(),
+                Collections.emptyList())));
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste, times(0)).opprettForespørsel(any(), any(), any(), any(), any());
+        verify(forespørselBehandlingTjeneste, times(0)).opprettForespørsel(any(), any(), any(), any(), any(), any());
     }
 }

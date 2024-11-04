@@ -12,6 +12,7 @@ import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.familie.inntektsmelding.typer.entitet.IntervallEntitet;
 
 public interface ForespørselBehandlingTjeneste {
 
@@ -19,7 +20,8 @@ public interface ForespørselBehandlingTjeneste {
                                                       Ytelsetype ytelsetype,
                                                       AktørIdEntitet aktørId,
                                                       OrganisasjonsnummerDto organisasjonsnummer,
-                                                      SaksnummerDto fagsakSaksnummer);
+                                                      SaksnummerDto fagsakSaksnummer,
+                                                      List<IntervallEntitet> søknadsperioder);
 
     ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
                                 AktørIdEntitet aktorId,
@@ -42,7 +44,7 @@ public interface ForespørselBehandlingTjeneste {
                             AktørIdEntitet aktørId,
                             SaksnummerDto fagsakSaksnummer,
                             OrganisasjonsnummerDto organisasjonsnummer,
-                            LocalDate skjæringstidspunkt);
+                            LocalDate skjæringstidspunkt, List<IntervallEntitet> søknadsperioder);
 
     void lukkForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
 

@@ -11,6 +11,8 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.typer.entitet.IntervallEntitet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +62,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                                              Ytelsetype ytelsetype,
                                                              AktørIdEntitet aktørId,
                                                              OrganisasjonsnummerDto organisasjonsnummer,
-                                                             SaksnummerDto fagsakSaksnummer) {
+                                                             SaksnummerDto fagsakSaksnummer,
+                                                             List<IntervallEntitet> søknadsperioder) {
         var åpenForespørsel = forespørselTjeneste.finnÅpenForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
 
         if (åpenForespørsel.isPresent()) {
@@ -68,7 +71,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             return ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE_ÅPEN;
         }
 
-        opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
+        opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, søknadsperioder);
         return ForespørselResultat.FORESPØRSEL_OPPRETTET;
     }
 
@@ -180,7 +183,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                    AktørIdEntitet aktørId,
                                    SaksnummerDto fagsakSaksnummer,
                                    OrganisasjonsnummerDto organisasjonsnummer,
-                                   LocalDate skjæringstidspunkt) {
+                                   LocalDate skjæringstidspunkt,
+                                   List<IntervallEntitet> søknadsperioder) {
         var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
             organisasjonsnummer,
             skjæringstidspunkt,
@@ -188,7 +192,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             ytelsetype);
         LOG.info(msg);
 
-        var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
+        var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer, søknadsperioder);
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);

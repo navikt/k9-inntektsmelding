@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.UUID;
 
 import org.eclipse.jetty.http.HttpStatus;
@@ -54,12 +55,12 @@ public class ForespørselRestTest {
 
         var fagsakSaksnummer = new SaksnummerDto("SAK");
         var response = forespørselRest.opprettForespørsel(
-            new OpprettForespørselRequest(aktørId, orgnummer, LocalDate.now(), YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
+            new OpprettForespørselRequest(aktørId, orgnummer, LocalDate.now(), YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer, Collections.emptyList()));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
         assertThat(response.getEntity()).isEqualTo(new OpprettForespørselResponse(ForespørselResultat.FORESPØRSEL_OPPRETTET));
         verify(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(eq(LocalDate.now()), eq(Ytelsetype.PLEIEPENGER_SYKT_BARN),
-            eq(new AktørIdEntitet(aktørId.id())), eq(orgnummer), eq(fagsakSaksnummer));
+            eq(new AktørIdEntitet(aktørId.id())), eq(orgnummer), eq(fagsakSaksnummer), eq(Collections.emptyList()));
     }
 
     @Test
@@ -68,7 +69,7 @@ public class ForespørselRestTest {
         var expectedBruker = "1233425324241";
         var expectedSkjæringstidspunkt = LocalDate.now();
         var input = new ForespørselEntitet(expectedOrg, expectedSkjæringstidspunkt, new AktørIdEntitet(expectedBruker), Ytelsetype.FORELDREPENGER,
-            "9876544321");
+            "9876544321", Collections.emptyList());
 
         var resultat = ForespørselRest.mapTilDto(input);
 
@@ -98,6 +99,7 @@ public class ForespørselRestTest {
 
     private void mockForespørsel() {
         when(forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(any(),
+            any(),
             any(),
             any(),
             any(),

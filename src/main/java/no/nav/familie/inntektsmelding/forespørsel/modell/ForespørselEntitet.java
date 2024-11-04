@@ -2,10 +2,13 @@ package no.nav.familie.inntektsmelding.forespørsel.modell;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -14,6 +17,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -61,6 +65,9 @@ public class ForespørselEntitet {
     @Column(name = "fagsystem_saksnummer", nullable = false, updatable = false)
     private String fagsystemSaksnummer;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "forespørsel")
+    private List<SøknadsperiodeEntitet> søknadsperioder;
+
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
     private final LocalDateTime opprettetTidspunkt = LocalDateTime.now();
 
@@ -71,13 +78,16 @@ public class ForespørselEntitet {
                               LocalDate skjæringstidspunkt,
                               AktørIdEntitet aktørId,
                               Ytelsetype ytelseType,
-                              String fagsystemSaksnummer) {
+                              String fagsystemSaksnummer,
+                              List<SøknadsperiodeEntitet> søknadsperioder) {
         this.uuid = UUID.randomUUID();
         this.organisasjonsnummer = organisasjonsnummer;
         this.skjæringstidspunkt = skjæringstidspunkt;
         this.aktørId = aktørId;
         this.ytelseType = ytelseType;
         this.fagsystemSaksnummer = fagsystemSaksnummer;
+        søknadsperioder.forEach(s -> s.setForespørsel(this));
+        this.søknadsperioder = søknadsperioder;
     }
 
     public ForespørselEntitet() {
@@ -130,6 +140,10 @@ public class ForespørselEntitet {
 
     public AktørIdEntitet getAktørId() {
         return aktørId;
+    }
+
+    public List<SøknadsperiodeEntitet> getSøknadsperioder() {
+        return søknadsperioder == null ? Collections.emptyList() : Collections.unmodifiableList(søknadsperioder);
     }
 
     public Ytelsetype getYtelseType() {
