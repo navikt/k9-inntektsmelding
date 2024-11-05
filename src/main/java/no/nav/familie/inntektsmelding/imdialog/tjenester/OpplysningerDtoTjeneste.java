@@ -44,17 +44,20 @@ public class OpplysningerDtoTjeneste {
         var inntektDtoer = lagInntekterDto(forespørsel);
         var søknadsopplysninger = utledSøknadsopplysninger(forespørsel);
         return new InntektsmeldingDialogDto(personDto, organisasjonDto, innmelderDto, inntektDtoer, forespørsel.getSkjæringstidspunkt(),
-            KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), forespørsel.getUuid(), KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()), søknadsopplysninger);
+            KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), forespørsel.getUuid(), KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()), søknadsopplysninger.orElse(null));
     }
 
-    private InntektsmeldingDialogDto.SøknadsopplysningerDto utledSøknadsopplysninger(ForespørselEntitet forespørsel) {
+    private Optional<InntektsmeldingDialogDto.SøknadsopplysningerDto> utledSøknadsopplysninger(ForespørselEntitet forespørsel) {
         Optional<LocalDate> førsteFom = forespørsel.getSøknadsperioder().stream().map(s -> s.getPeriode().getFom()).min(Comparator.naturalOrder());
+        if (førsteFom.isEmpty()) {
+            return Optional.empty();
+        }
         Optional<LocalDate> sistTom = forespørsel.getSøknadsperioder().stream().map(s -> s.getPeriode().getTom()).max(Comparator.naturalOrder());
         List<InntektsmeldingDialogDto.SøknadsperioderDto> allePerioder = forespørsel.getSøknadsperioder()
             .stream()
             .map(s -> new InntektsmeldingDialogDto.SøknadsperioderDto(s.getPeriode().getFom(), s.getPeriode().getTom()))
             .toList();
-        return new InntektsmeldingDialogDto.SøknadsopplysningerDto(førsteFom.orElse(null), sistTom.orElse(null), allePerioder);
+        return Optional.of(new InntektsmeldingDialogDto.SøknadsopplysningerDto(førsteFom.orElse(null), sistTom.orElse(null), allePerioder));
     }
 
     private InntektsmeldingDialogDto.InnsenderDto lagInnmelderDto(Ytelsetype ytelsetype) {
