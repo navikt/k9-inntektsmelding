@@ -10,7 +10,7 @@ CREATE TABLE SOKNADSPERIODE
 
 create sequence if not exists SEQ_SOKNADSPERIODE increment by 50 minvalue 1000000;
 
-create unique index IDX_SOKNADSPERIODE_PRIMARY_KEY on SOKNADSPERIODE (ID);
+create unique index UIDX_SOKNADSPERIODE_PRIMARY_KEY on SOKNADSPERIODE (ID);
 
 comment on table SOKNADSPERIODE is 'Søknadsperioder som knyttes til forespørselen om inntektsmelding';
 comment on column SOKNADSPERIODE.ID is 'PK';
