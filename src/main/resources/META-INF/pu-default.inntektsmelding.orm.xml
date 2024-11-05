@@ -12,8 +12,10 @@
     <sequence-generator name="SEQ_INNTEKTSMELDING" allocation-size="50" sequence-name="SEQ_INNTEKTSMELDING" />
     <sequence-generator name="SEQ_REFUSJON_ENDRING" allocation-size="50" sequence-name="SEQ_REFUSJON_ENDRING" />
     <sequence-generator name="SEQ_ENDRINGSAARSAK" allocation-size="50" sequence-name="SEQ_ENDRINGSAARSAK" />
+    <sequence-generator name="SEQ_SOKNADSPERIODE" allocation-size="50" sequence-name="SEQ_SOKNADSPERIODE" />
 
     <entity class="no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet"/>
+    <entity class="no.nav.familie.inntektsmelding.forespørsel.modell.SøknadsperiodeEntitet"/>
     <entity class="no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet"/>
     <entity class="no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet"/>
     <entity class="no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet"/>

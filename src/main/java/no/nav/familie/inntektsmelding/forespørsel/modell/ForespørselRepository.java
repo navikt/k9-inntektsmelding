@@ -10,6 +10,8 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
+import no.nav.familie.inntektsmelding.typer.entitet.IntervallEntitet;
+
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 
 import org.slf4j.Logger;
@@ -36,8 +38,10 @@ public class ForespørselRepository {
     }
 
 
-    public UUID lagreForespørsel(LocalDate skjæringstidspunkt, Ytelsetype ytelsetype, String aktørId, String orgnummer, String fagsakSaksnummer) {
-        var forespørselEntitet = new ForespørselEntitet(orgnummer, skjæringstidspunkt, new AktørIdEntitet(aktørId), ytelsetype, fagsakSaksnummer);
+    public UUID lagreForespørsel(LocalDate skjæringstidspunkt, Ytelsetype ytelsetype, String aktørId, String orgnummer, String fagsakSaksnummer,
+                                 List<IntervallEntitet> perioder) {
+        var søknadsperioder = perioder.stream().map(SøknadsperiodeEntitet::new).toList();
+        var forespørselEntitet = new ForespørselEntitet(orgnummer, skjæringstidspunkt, new AktørIdEntitet(aktørId), ytelsetype, fagsakSaksnummer, søknadsperioder);
 
         final Query query = entityManager.createNativeQuery("SELECT nextval('SEQ_FORESPOERSEL')");
         var tall = (Number) query.getSingleResult();
