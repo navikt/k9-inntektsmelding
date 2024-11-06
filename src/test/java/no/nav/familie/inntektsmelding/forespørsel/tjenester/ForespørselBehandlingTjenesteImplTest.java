@@ -8,11 +8,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
-import no.nav.familie.inntektsmelding.typer.entitet.IntervallEntitet;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,7 +72,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
             new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
             new SaksnummerDto(SAKSNUMMMER),
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
 
         clearHibernateCache();
 
@@ -85,16 +82,12 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         assertThat(lagret.size()).isEqualTo(1);
         assertThat(lagret.getFirst().getArbeidsgiverNotifikasjonSakId()).isEqualTo(SAK_ID);
         assertThat(lagret.getFirst().getOppgaveId()).isEqualTo(OPPGAVE_ID);
-        assertThat(lagret.getFirst().getSøknadsperioder().size()).isEqualTo(1);
-        assertThat(lagret.getFirst().getSøknadsperioder().getFirst().getPeriode().getFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
-        assertThat(lagret.getFirst().getSøknadsperioder().getFirst().getPeriode().getTom()).isEqualTo(SKJÆRINGSTIDSPUNKT.plusDays(10));
-
     }
 
 
     @Test
     public void eksisterende_åpen_forespørsel_skal_gi_noop() {
-        forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER, Collections.emptyList());
+        forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER, SKJÆRINGSTIDSPUNKT);
 
         getEntityManager().clear();
 
@@ -103,7 +96,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
             new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
             new SaksnummerDto(SAKSNUMMMER),
-            Collections.emptyList());
+            SKJÆRINGSTIDSPUNKT);
 
         clearHibernateCache();
 
@@ -115,7 +108,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     @Test
     public void skal_ferdigstille_forespørsel() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
@@ -133,14 +126,14 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     @Test
     public void skal_sette_alle_forespørspørsler_for_sak_til_ferdig() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2),
             YTELSETYPE,
             AKTØR_ID,
             BRREG_ORGNUMMER,
             SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.plusDays(2), SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid2, "2");
 
         forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), null);
@@ -156,14 +149,14 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     @Test
     public void skal_sette_alle_forespørspørsler_for_sak_til_utgått() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2),
             YTELSETYPE,
             AKTØR_ID,
             BRREG_ORGNUMMER,
             SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.plusDays(2), SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid2, "2");
 
         forespørselBehandlingTjeneste.settForespørselTilUtgått(new SaksnummerDto(SAKSNUMMMER), null, null);
@@ -179,7 +172,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     @Test
     public void skal_lukke_forespørsel_for_sak_med_gitt_stp() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
         var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2),
@@ -187,7 +180,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
             AKTØR_ID,
             BRREG_ORGNUMMER,
             SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.plusDays(2), SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, "2");
 
         forespørselBehandlingTjeneste.lukkForespørsel(new SaksnummerDto(SAKSNUMMMER),
@@ -227,7 +220,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     @Test
     public void skal_ikke_opprette_ny_forespørsel_dersom_det_eksisterer_en_for_samme_stp() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
         var orgPerStp = new HashMap<LocalDate, List<OrganisasjonsnummerDto>>() {{
@@ -243,7 +236,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
 
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
         var orgPerStp = new HashMap<LocalDate, List<OrganisasjonsnummerDto>>() {{
@@ -265,7 +258,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
 
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
         var orgPerStp = new HashMap<LocalDate, List<OrganisasjonsnummerDto>>() {{
@@ -289,7 +282,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     @Test
     public void skal_slette_oppgave_gitt_saksnummer_og_orgnr() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
         when(arbeidsgiverNotifikasjon.slettSak(SAK_ID)).thenReturn(SAK_ID);
@@ -306,7 +299,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     @Test
     public void skal_slette_oppgave_gitt_saksnummer() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            Collections.singletonList(IntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10))));
+            SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
         when(arbeidsgiverNotifikasjon.slettSak(SAK_ID)).thenReturn(SAK_ID);

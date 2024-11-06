@@ -1,7 +1,6 @@
 package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +15,4 @@ public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
                                         @NotNull LocalDate skjæringstidspunkt,
                                         @NotNull YtelseTypeDto ytelsetype,
                                         @NotNull @Valid SaksnummerDto fagsakSaksnummer,
-                                        @Valid List<Søknadsperiode> søknadsperioder) {
-    public record Søknadsperiode(@NotNull @Valid LocalDate fom, @NotNull @Valid LocalDate tom){}
-}
+                                        @Valid LocalDate førsteUttaksdato) {}
