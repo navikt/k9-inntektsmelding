@@ -11,7 +11,6 @@ import io.micrometer.core.instrument.ImmutableTag;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tag;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.foreldrepenger.konfig.Environment;
