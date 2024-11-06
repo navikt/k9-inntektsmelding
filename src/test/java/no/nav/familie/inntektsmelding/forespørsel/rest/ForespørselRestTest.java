@@ -59,7 +59,7 @@ public class ForespørselRestTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
         assertThat(response.getEntity()).isEqualTo(new OpprettForespørselResponse(ForespørselResultat.FORESPØRSEL_OPPRETTET));
         verify(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(eq(LocalDate.now()), eq(Ytelsetype.PLEIEPENGER_SYKT_BARN),
-            eq(new AktørIdEntitet(aktørId.id())), eq(orgnummer), eq(fagsakSaksnummer), LocalDate.now().plusDays(5));
+            eq(new AktørIdEntitet(aktørId.id())), eq(orgnummer), eq(fagsakSaksnummer), eq(LocalDate.now().plusDays(5)));
     }
 
     @Test
