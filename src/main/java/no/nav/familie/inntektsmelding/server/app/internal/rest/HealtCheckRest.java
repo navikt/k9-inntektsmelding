@@ -4,12 +4,15 @@ import static jakarta.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
 
 import java.util.List;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.CacheControl;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -24,10 +27,20 @@ import no.nav.vedtak.log.metrics.ReadinessAware;
 public class HealtCheckRest {
 
     private static final Logger LOG = LoggerFactory.getLogger(HealtCheckRest.class);
+    private static final CacheControl cacheControl = noCache();
 
     private List<LivenessAware> live;
     private List<ReadinessAware> ready;
     private ApplicationServiceStarter starter;
+
+    private static CacheControl noCache() {
+        var cc = new CacheControl();
+        cc.setMustRevalidate(true);
+        cc.setPrivate(true);
+        cc.setNoCache(true);
+        cc.setNoStore(true);
+        return cc;
+    }
 
     @Inject
     public HealtCheckRest(ApplicationServiceStarter starter, @Any Instance<LivenessAware> live, @Any Instance<ReadinessAware> ready) {
@@ -43,21 +56,27 @@ public class HealtCheckRest {
     @GET
     @Path("/isAlive")
     public Response isAlive() {
+        Response.ResponseBuilder builder;
         if (live.stream().allMatch(LivenessAware::isAlive)) {
-            return Response.ok().build();
+            builder = Response.ok("OK", MediaType.TEXT_PLAIN_TYPE);
+        } else {
+            builder = Response.serverError();
         }
         LOG.info("/isAlive NOK.");
-        return Response.serverError().build();
+        return builder.cacheControl(cacheControl).build();
     }
 
     @GET
     @Path("/isReady")
     public Response isReady() {
+        Response.ResponseBuilder builder;
         if (ready.stream().allMatch(ReadinessAware::isReady)) {
-            return Response.ok().build();
+            builder = Response.ok("OK", MediaType.TEXT_PLAIN_TYPE);
+        } else {
+            builder = Response.status(SERVICE_UNAVAILABLE);
         }
         LOG.info("/isReady NOK.");
-        return Response.status(SERVICE_UNAVAILABLE).build();
+        return builder.cacheControl(cacheControl).build();
     }
 
     @GET
