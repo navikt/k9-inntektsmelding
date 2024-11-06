@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/java21-debian12:nonroot
+FROM ghcr.io/navikt/baseimages/temurin:21
 
 LABEL org.opencontainers.image.source=https://github.com/navikt/ft-inntektsmelding
 # Healtcheck lokalt/test
