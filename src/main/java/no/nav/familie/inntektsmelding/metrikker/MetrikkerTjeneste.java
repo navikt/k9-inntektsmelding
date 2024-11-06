@@ -87,9 +87,8 @@ public class MetrikkerTjeneste {
             var endringsårsakerTags = new ArrayList<Tag>();
             endringsårsakerTags.add(new ImmutableTag(TAG_YTELSE, inntektsmelding.getYtelsetype().name()));
             endringsårsakerTags.add(new ImmutableTag(TAG_AARSAK, inntektsmelding.getEndringsårsaker().stream()
+                .map(en -> en.getÅrsak().name())
                 .sorted()
-                .map(EndringsårsakEntitet::getÅrsak)
-                .map(Enum::name)
                 .collect(Collectors.joining("-"))));
             Metrics.counter(COUNTER_ENDRINGSÅRSAKER, endringsårsakerTags).increment();
         }
