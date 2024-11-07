@@ -25,13 +25,13 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_teste_at_forespørsel_lagres_uten_perioder() {
+    void skal_teste_at_forespørsel_lagres_uten_første_uttak() {
         var uuid = forespørselRepository.lagreForespørsel(LocalDate.now(),
             Ytelsetype.FORELDREPENGER,
             "9999999999999",
             "999999999",
             "123",
-            LocalDate.now());
+            null);
 
         var hentet = forespørselRepository.hentForespørsel(uuid).orElse(null);
 
@@ -41,10 +41,11 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
         assertThat(hentet.getAktørId().getAktørId()).isEqualTo("9999999999999");
         assertThat(hentet.getYtelseType()).isEqualTo(Ytelsetype.FORELDREPENGER);
         assertThat(hentet.getFagsystemSaksnummer()).isEqualTo("123");
+        assertThat(hentet.getFørsteUttaksdato()).isEmpty();
     }
 
     @Test
-    void skal_teste_at_forespørsel_lagres_med_en_periode() {
+    void skal_teste_at_forespørsel_lagres_med_første_uttaksdato() {
         var uuid = forespørselRepository.lagreForespørsel(LocalDate.now(),
             Ytelsetype.FORELDREPENGER,
             "9999999999999",
@@ -60,25 +61,7 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
         assertThat(hentet.getAktørId().getAktørId()).isEqualTo("9999999999999");
         assertThat(hentet.getYtelseType()).isEqualTo(Ytelsetype.FORELDREPENGER);
         assertThat(hentet.getFagsystemSaksnummer()).isEqualTo("123");
+        assertThat(hentet.getFørsteUttaksdato()).isPresent();
+        assertThat(hentet.getFørsteUttaksdato().get()).isEqualTo(LocalDate.now());
     }
-
-    @Test
-    void skal_teste_at_forespørsel_lagres_med_flere_perioder() {
-        var uuid = forespørselRepository.lagreForespørsel(LocalDate.now(),
-            Ytelsetype.FORELDREPENGER,
-            "9999999999999",
-            "999999999",
-            "123",
-            LocalDate.now());
-
-        var hentet = forespørselRepository.hentForespørsel(uuid).orElse(null);
-
-        assertThat(hentet).isNotNull();
-        assertThat(hentet.getSkjæringstidspunkt()).isEqualTo(LocalDate.now());
-        assertThat(hentet.getOrganisasjonsnummer()).isEqualTo("999999999");
-        assertThat(hentet.getAktørId().getAktørId()).isEqualTo("9999999999999");
-        assertThat(hentet.getYtelseType()).isEqualTo(Ytelsetype.FORELDREPENGER);
-        assertThat(hentet.getFagsystemSaksnummer()).isEqualTo("123");
-    }
-
 }
