@@ -6,6 +6,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.ImmutableTag;
 import io.micrometer.core.instrument.Metrics;
@@ -17,6 +20,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.konfig.Tid;
 
 public class MetrikkerTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(MetrikkerTjeneste.class);
 
     private static final String JA = "Ja";
     private static final String NEI = "Nei";
@@ -48,12 +52,40 @@ public class MetrikkerTjeneste {
     private static final String TAG_AARSAK = "aarsak";
 
     public static void loggForespørselOpprettet(Ytelsetype ytelsetype) {
-        var tags = new ArrayList<Tag>();
-        tags.add(new ImmutableTag(TAG_YTELSE, ytelsetype.name()));
-        Metrics.counter(COUNTER_FORESPØRRSEL, tags).increment();
+        try {
+            var tags = new ArrayList<Tag>();
+            tags.add(new ImmutableTag(TAG_YTELSE, ytelsetype.name()));
+            Metrics.counter(COUNTER_FORESPØRRSEL, tags).increment();
+        } catch (Exception e) {
+            loggFeil(e, "loggForespørselOpprettet");
+        }
     }
 
     public static void loggForespørselLukkEkstern(ForespørselEntitet forespørsel) {
+        try {
+            forsøkLoggForespørselLukkEkstern(forespørsel);
+        } catch (Exception e) {
+            loggFeil(e, "loggForespørselLukkEkstern");
+        }
+    }
+
+    public static void loggInnsendtInntektsmelding(InntektsmeldingEntitet inntektsmelding) {
+        try {
+            forsøkLoggInnsendtInntektsmelding(inntektsmelding);
+        } catch (Exception e) {
+            loggFeil(e, "loggInnsendtInntektsmelding");
+        }
+    }
+
+    public static void loggForespørselLukkIntern(ForespørselEntitet forespørsel) {
+        try {
+            OPPGAVE_VARIGHET_INTERN_TELLER.record(finnAntallDagerÅpen(forespørsel));
+        } catch (Exception e) {
+            loggFeil(e, "loggForespørselLukkIntern");
+        }
+    }
+
+    private static void forsøkLoggForespørselLukkEkstern(ForespørselEntitet forespørsel) {
         var tags = new ArrayList<Tag>();
         tags.add(new ImmutableTag(TAG_YTELSE, forespørsel.getYtelseType().name()));
         Metrics.counter(COUNTER_LUKK_EKSTERN, tags).increment();
@@ -65,7 +97,7 @@ public class MetrikkerTjeneste {
         return ChronoUnit.DAYS.between(opprettetDato, LocalDate.now());
     }
 
-    public static void loggInnsendtInntektsmelding(InntektsmeldingEntitet inntektsmelding) {
+    private static void forsøkLoggInnsendtInntektsmelding(InntektsmeldingEntitet inntektsmelding) {
         var tags = new ArrayList<Tag>();
         var harOppgittRefusjon = inntektsmelding.getMånedRefusjon() != null && inntektsmelding.getMånedRefusjon().compareTo(BigDecimal.ZERO) > 0;
         var harOppgittEndringerIRefusjon = inntektsmelding.getRefusjonsendringer() != null && !inntektsmelding.getRefusjonsendringer().isEmpty();
@@ -93,7 +125,8 @@ public class MetrikkerTjeneste {
         }
     }
 
-    public static void loggForespørselLukkIntern(ForespørselEntitet forespørsel) {
-        OPPGAVE_VARIGHET_INTERN_TELLER.record(finnAntallDagerÅpen(forespørsel));
+    private static void loggFeil(Exception e, String metodekall) {
+        String msg = String.format("FPINNTEKTSMELDING_METRIKKER_1: Feil ved generering av metrikker i metode %s, fikk feilmelding %s", metodekall, e);
+        LOG.warn(msg);
     }
 }
