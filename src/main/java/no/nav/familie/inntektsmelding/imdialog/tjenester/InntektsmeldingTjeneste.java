@@ -106,14 +106,14 @@ public class InntektsmeldingTjeneste {
 
     public InntektsmeldingDialogDto lagDialogDto(UUID forespørselUuid) {
         var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
-            .orElseThrow(
-                () -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
+            .orElseThrow(() -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
         var personDto = lagPersonDto(forespørsel);
         var organisasjonDto = lagOrganisasjonDto(forespørsel);
         var innmelderDto = lagInnmelderDto(forespørsel.getYtelseType());
         var inntektDtoer = lagInntekterDto(forespørsel);
         return new InntektsmeldingDialogDto(personDto, organisasjonDto, innmelderDto, inntektDtoer, forespørsel.getSkjæringstidspunkt(),
-            KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), forespørsel.getUuid(), KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()));
+            KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), forespørsel.getUuid(), KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()),
+            forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt));
     }
 
     public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {

@@ -14,7 +14,6 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.familie.inntektsmelding.typer.entitet.IntervallEntitet;
 
 @ApplicationScoped
 public class ForespørselTjeneste {
@@ -34,9 +33,9 @@ public class ForespørselTjeneste {
                                    AktørIdEntitet brukerAktørId,
                                    OrganisasjonsnummerDto orgnr,
                                    SaksnummerDto fagsakSaksnummer,
-                                   List<IntervallEntitet> søknadsperioder) {
+                                   LocalDate førsteUttaksdato) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            fagsakSaksnummer.saksnr(), søknadsperioder);
+            fagsakSaksnummer.saksnr(), førsteUttaksdato);
     }
 
     public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {

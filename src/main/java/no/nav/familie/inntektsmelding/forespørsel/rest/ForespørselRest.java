@@ -15,8 +15,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.familie.inntektsmelding.typer.entitet.IntervallEntitet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,15 +60,12 @@ public class ForespørselRest {
     public Response opprettForespørsel(OpprettForespørselRequest request) {
         LOG.info("Mottok forespørsel om inntektsmeldingoppgave på fagsakSaksnummer {}", request.fagsakSaksnummer());
         sjekkErSystemkall();
-        List<IntervallEntitet> perioder = request.søknadsperioder() == null
-                       ? Collections.emptyList()
-                       : request.søknadsperioder().stream().map(s -> IntervallEntitet.fraOgMedTilOgMed(s.fom(), s.tom())).toList();
         var bleForespørselOpprettet = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(),
             KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdEntitet(request.aktørId().id()),
             new OrganisasjonsnummerDto(request.orgnummer().orgnr()),
             request.fagsakSaksnummer(),
-            perioder);
+            request.førsteUttaksdato());
 
         if (bleForespørselOpprettet.equals(ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
             MetrikkerTjeneste.loggForespørselOpprettet(KodeverkMapper.mapYtelsetype(request.ytelsetype()));

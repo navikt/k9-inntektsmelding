@@ -1,7 +1,6 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -59,9 +58,9 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
                 organisasjonsnummer.orgnr(), skjæringstidspunkt, fagsakSaksnummer.saksnr(), ytelsetype);
             return;
         }
-
-        // TODO her må vi vel lagre json i prosesstaskdata?
-        forespørselBehandlingTjeneste.opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, Collections.emptyList());
+        // K9 trenger ikke førsteUttaksdato, setter alltid null her
+        forespørselBehandlingTjeneste.opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt,
+            null);
     }
 
     public static ProsessTaskData lagTaskData(Ytelsetype ytelsetype,

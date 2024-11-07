@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -97,8 +96,7 @@ class InntektsmeldingTjenesteTest {
     void skal_lage_dto() {
         // Arrange
         var uuid = UUID.randomUUID();
-        var forespørsel = new ForespørselEntitet("999999999", LocalDate.now(), new AktørIdEntitet("9999999999999"), Ytelsetype.FORELDREPENGER, "123",
-            Collections.emptyList());
+        var forespørsel = new ForespørselEntitet("999999999", LocalDate.now(), new AktørIdEntitet("9999999999999"), Ytelsetype.FORELDREPENGER, "123", null);
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer())).thenReturn(
             new Organisasjon("Bedriften", forespørsel.getOrganisasjonsnummer()));
@@ -129,6 +127,8 @@ class InntektsmeldingTjenesteTest {
         assertThat(imDialogDto.arbeidsgiver().organisasjonNavn()).isEqualTo("Bedriften");
         assertThat(imDialogDto.arbeidsgiver().organisasjonNummer()).isEqualTo(forespørsel.getOrganisasjonsnummer());
 
+        assertThat(imDialogDto.førsteUttaksdato()).isEqualTo(LocalDate.now());
+
         assertThat(imDialogDto.innsender().fornavn()).isEqualTo(innsenderNavn);
         assertThat(imDialogDto.innsender().etternavn()).isEqualTo(innsenderEtternavn);
         assertThat(imDialogDto.innsender().mellomnavn()).isNull();
@@ -148,10 +148,50 @@ class InntektsmeldingTjenesteTest {
     }
 
     @Test
+    void skal_lage_dto_med_første_uttaksdato() {
+        // Arrange
+        var uuid = UUID.randomUUID();
+        var forespørsel = new ForespørselEntitet("999999999", LocalDate.now(), new AktørIdEntitet("9999999999999"), Ytelsetype.FORELDREPENGER, "123", LocalDate.now().plusDays(10));
+        when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
+        when(organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer())).thenReturn(
+            new Organisasjon("Bedriften", forespørsel.getOrganisasjonsnummer()));
+        when(personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId(), forespørsel.getYtelseType())).thenReturn(
+            new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), forespørsel.getAktørId(), LocalDate.now(), null));
+        var innsenderNavn = "Ine";
+        var innsenderEtternavn = "Sender";
+        var innsenderTelefonnummer = "+4711111111";
+        when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID), forespørsel.getYtelseType())).thenReturn(
+            new PersonInfo(innsenderNavn, null, innsenderEtternavn, new PersonIdent(INNMELDER_UID), null, LocalDate.now(), innsenderTelefonnummer));
+        when(inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
+            forespørsel.getOrganisasjonsnummer())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer(), List.of()));
+
+        // Act
+        var imDialogDto = inntektsmeldingTjeneste.lagDialogDto(uuid);
+
+        // Assert
+        assertThat(imDialogDto.startdatoPermisjon()).isEqualTo(forespørsel.getSkjæringstidspunkt());
+        assertThat(imDialogDto.ytelse()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
+
+        assertThat(imDialogDto.person().aktørId()).isEqualTo(forespørsel.getAktørId().getAktørId());
+        assertThat(imDialogDto.person().fornavn()).isEqualTo("Navn");
+        assertThat(imDialogDto.person().etternavn()).isEqualTo("Navnesen");
+
+        assertThat(imDialogDto.arbeidsgiver().organisasjonNavn()).isEqualTo("Bedriften");
+        assertThat(imDialogDto.arbeidsgiver().organisasjonNummer()).isEqualTo(forespørsel.getOrganisasjonsnummer());
+
+        assertThat(imDialogDto.førsteUttaksdato()).isEqualTo(LocalDate.now().plusDays(10));
+
+        assertThat(imDialogDto.innsender().fornavn()).isEqualTo(innsenderNavn);
+        assertThat(imDialogDto.innsender().etternavn()).isEqualTo(innsenderEtternavn);
+        assertThat(imDialogDto.innsender().mellomnavn()).isNull();
+        assertThat(imDialogDto.innsender().telefon()).isEqualTo(innsenderTelefonnummer);
+    }
+
+    @Test
     void skal_ikke_godta_im_på_utgått_forespørrsel() {
         // Arrange
         var uuid = UUID.randomUUID();
-        var forespørsel = new ForespørselEntitet("999999999", LocalDate.now(), new AktørIdEntitet("9999999999999"), Ytelsetype.FORELDREPENGER, "123", Collections.emptyList());
+        var forespørsel = new ForespørselEntitet("999999999", LocalDate.now(), new AktørIdEntitet("9999999999999"), Ytelsetype.FORELDREPENGER, "123", null);
         forespørsel.setStatus(ForespørselStatus.UTGÅTT);
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
         var innsendingDto = new SendInntektsmeldingRequestDto(uuid,

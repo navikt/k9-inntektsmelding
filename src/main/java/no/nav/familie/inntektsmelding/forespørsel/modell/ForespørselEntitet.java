@@ -2,13 +2,11 @@ package no.nav.familie.inntektsmelding.forespørsel.modell;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -17,7 +15,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -25,6 +22,8 @@ import jakarta.persistence.Table;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+
+import org.jboss.jdeparser.FormatPreferences;
 
 @Entity(name = "ForespørselEntitet")
 @Table(name = "FORESPOERSEL")
@@ -54,6 +53,9 @@ public class ForespørselEntitet {
     @Column(name = "skjaeringstidspunkt", nullable = false, updatable = false)
     private LocalDate skjæringstidspunkt;
 
+    @Column(name = "forste_uttaksdato", updatable = false)
+    private LocalDate førsteUttaksdato;
+
     @Embedded
     @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "bruker_aktoer_id", nullable = false, updatable = false)))
     private AktørIdEntitet aktørId;
@@ -64,9 +66,6 @@ public class ForespørselEntitet {
 
     @Column(name = "fagsystem_saksnummer", nullable = false, updatable = false)
     private String fagsystemSaksnummer;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "forespørsel")
-    private List<SøknadsperiodeEntitet> søknadsperioder;
 
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
     private final LocalDateTime opprettetTidspunkt = LocalDateTime.now();
@@ -79,15 +78,14 @@ public class ForespørselEntitet {
                               AktørIdEntitet aktørId,
                               Ytelsetype ytelseType,
                               String fagsystemSaksnummer,
-                              List<SøknadsperiodeEntitet> søknadsperioder) {
+                              LocalDate førsteUttaksdato) {
         this.uuid = UUID.randomUUID();
         this.organisasjonsnummer = organisasjonsnummer;
         this.skjæringstidspunkt = skjæringstidspunkt;
         this.aktørId = aktørId;
         this.ytelseType = ytelseType;
         this.fagsystemSaksnummer = fagsystemSaksnummer;
-        søknadsperioder.forEach(s -> s.setForespørsel(this));
-        this.søknadsperioder = søknadsperioder;
+        this.førsteUttaksdato = førsteUttaksdato;
     }
 
     public ForespørselEntitet() {
@@ -142,10 +140,6 @@ public class ForespørselEntitet {
         return aktørId;
     }
 
-    public List<SøknadsperiodeEntitet> getSøknadsperioder() {
-        return søknadsperioder == null ? Collections.emptyList() : Collections.unmodifiableList(søknadsperioder);
-    }
-
     public Ytelsetype getYtelseType() {
         return ytelseType;
     }
@@ -156,6 +150,10 @@ public class ForespørselEntitet {
 
     public LocalDateTime getOpprettetTidspunkt() {
         return opprettetTidspunkt;
+    }
+
+    public Optional<LocalDate> getFørsteUttaksdato() {
+        return Optional.ofNullable(førsteUttaksdato);
     }
 
     @Override
