@@ -22,6 +22,7 @@ import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.DokumentInfoOpprett;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Dokumentvariant;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostRequest;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
 
 @ApplicationScoped
 public class JoarkTjeneste {
@@ -50,10 +51,11 @@ public class JoarkTjeneste {
     }
 
 
-    public String journalførInntektsmelding(String XMLAvInntektsmelding, InntektsmeldingEntitet inntektsmelding, byte[] pdf) {
-        var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding, pdf);
+    public String journalførInntektsmelding(String XMLAvInntektsmelding, InntektsmeldingEntitet inntektsmelding, byte[] pdf,
+                                            String fagsystemSaksnummer) {
+        var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding, pdf, fagsystemSaksnummer);
         try {
-            var response = joarkKlient.opprettJournalpost(request, false);
+            var response = joarkKlient.opprettJournalpost(request, fagsystemSaksnummer != null);
             // Kan nok fjerne loggingen etter en periode i dev, mest for feilsøking i starten.
             LOG.info("Journalført inntektsmelding fikk journalpostId {}", response.journalpostId());
             LOG.info("Ble journalført inntektsmelding ferdigstilt: {}", response.journalpostferdigstilt());
@@ -63,10 +65,11 @@ public class JoarkTjeneste {
         }
     }
 
-    private OpprettJournalpostRequest opprettRequest(String xmlAvInntektsmelding, InntektsmeldingEntitet inntektsmeldingEntitet, byte[] pdf) {
+    private OpprettJournalpostRequest opprettRequest(String xmlAvInntektsmelding, InntektsmeldingEntitet inntektsmeldingEntitet, byte[] pdf,
+                                                     String fagsystemSaksnummer) {
         var erBedrift = inntektsmeldingEntitet.getArbeidsgiverIdent().length() == 9;
         var avsenderMottaker = erBedrift ? lagAvsenderBedrift(inntektsmeldingEntitet) : lagAvsenderPrivatperson(inntektsmeldingEntitet);
-        return OpprettJournalpostRequest.nyInngående()
+        var opprettJournalpostRequestBuilder = OpprettJournalpostRequest.nyInngående()
             .medTittel(JOURNALFØRING_TITTEL)
             .medAvsenderMottaker(avsenderMottaker)
             .medBruker(lagBruker(inntektsmeldingEntitet.getAktørId()))
@@ -76,8 +79,14 @@ public class JoarkTjeneste {
             .medEksternReferanseId(UUID.randomUUID().toString())
             .medJournalfoerendeEnhet(JOURNALFØRENDE_ENHET)
             .medKanal(KANAL)
-            .medDokumenter(lagDokumenter(xmlAvInntektsmelding, pdf))
-            .build();
+            .medDokumenter(lagDokumenter(xmlAvInntektsmelding, pdf));
+
+        // Dette er for overstyring, siden fpsak ikke sender saksnummer ennå.
+        if (fagsystemSaksnummer != null) {
+            opprettJournalpostRequestBuilder
+                .medSak(sak(fagsystemSaksnummer, inntektsmeldingEntitet.getYtelsetype()));
+        }
+        return opprettJournalpostRequestBuilder.build();
     }
 
     private List<DokumentInfoOpprett> lagDokumenter(String xmlAvInntektsmelding, byte[] pdf) {
@@ -93,6 +102,17 @@ public class JoarkTjeneste {
             .leggTilDokumentvariant(dokumentPDF);
 
         return Collections.singletonList(builder.build());
+    }
+
+    private Sak sak(String saksnummer, Ytelsetype ytelsetype) {
+        return new Sak(saksnummer, utledFagsystemKode(ytelsetype).getOffisiellKode(), Sak.Sakstype.FAGSAK);
+    }
+
+    private Fagsystem utledFagsystemKode(Ytelsetype ytelsetype) {
+        return switch (ytelsetype) {
+            case FORELDREPENGER, SVANGERSKAPSPENGER -> Fagsystem.FPSAK;
+            case PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OMSORGSPENGER, OPPLÆRINGSPENGER -> Fagsystem.K9SAK;
+        };
     }
 
     private String mapTema(Ytelsetype ytelsetype) {

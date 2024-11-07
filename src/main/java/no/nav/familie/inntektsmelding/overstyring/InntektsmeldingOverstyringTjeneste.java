@@ -2,13 +2,15 @@ package no.nav.familie.inntektsmelding.overstyring;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Dependent
 public class InntektsmeldingOverstyringTjeneste {
@@ -27,7 +29,6 @@ public class InntektsmeldingOverstyringTjeneste {
         this.inntektsmeldingRepository = inntektsmeldingRepository;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
-
 
     public void mottaOverstyrtInntektsmelding(SendOverstyrtInntektsmeldingRequestDto mottattInntektsmeldingDto) {
         lagreOgLagJournalførTask(InntektsmeldingOverstyringMapper.mapTilEntitet(mottattInntektsmeldingDto));
