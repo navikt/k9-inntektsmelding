@@ -18,6 +18,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class SendTilJoarkTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SendTilJoarkTask.class);
     public static final String KEY_INNTEKTSMELDING_ID = "inntektsmeldingId";
+    public static final String KEY_SAKSNUMMER = "saksnummer";
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private InntektsmeldingXMLTjeneste inntektsmeldingXMLTjeneste;
@@ -43,13 +44,15 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         LOG.info("Opprettet task for oversending til joark");
         var inntektsmeldingId = Integer.parseInt(prosessTaskData.getPropertyValue(KEY_INNTEKTSMELDING_ID));
+        var fagsysteSaksnummer = prosessTaskData.getPropertyValue(KEY_SAKSNUMMER);
+
         var inntektsmelding = inntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingId);
         var xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
 
         var pdf = fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);
 
-        LOG.info("Genererte XML: {} og pdf av inntektsmeldingen ", xml);
-        joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf);
+        LOG.debug("Genererte XML: {} og pdf av inntektsmeldingen, journalfører på sak: {}", xml, fagsysteSaksnummer);
+        joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf, fagsysteSaksnummer);
         LOG.info("Sluttfører task oversendJoark");
     }
 }

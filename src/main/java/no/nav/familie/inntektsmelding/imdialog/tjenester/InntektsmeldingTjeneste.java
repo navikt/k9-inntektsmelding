@@ -7,15 +7,12 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
-
-import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
@@ -27,6 +24,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTje
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
@@ -69,15 +67,17 @@ public class InntektsmeldingTjeneste {
     }
 
     public InntektsmeldingResponseDto mottaInntektsmelding(SendInntektsmeldingRequestDto mottattInntektsmeldingDto) {
+        var forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(mottattInntektsmeldingDto.foresporselUuid())
+            .orElseThrow(() -> new IllegalStateException("Mangler forespørsel entitet"));
+
+        if (ForespørselStatus.UTGÅTT.equals(forespørselEntitet.getStatus())) {
+            throw new IllegalStateException("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
+        }
+
         var aktorId = new AktørIdEntitet(mottattInntektsmeldingDto.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto);
-        var imId = lagreOgLagJournalførTask(entitet);
-        var forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(mottattInntektsmeldingDto.foresporselUuid());
-        var erTilhørendeForespørselUtgått = forespørselEntitet.map(f -> ForespørselStatus.UTGÅTT.equals(f.getStatus())).orElse(false);
-        if (erTilhørendeForespørselUtgått) {
-            throw new IllegalStateException("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
-        }
+        var imId = lagreOgLagJournalførTask(entitet, forespørselEntitet.getFagsystemSaksnummer());
         var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(mottattInntektsmeldingDto.foresporselUuid(), aktorId, orgnummer,
             mottattInntektsmeldingDto.startdato(), LukkeÅrsak.ORDINÆR_INNSENDING);
 
@@ -90,15 +90,16 @@ public class InntektsmeldingTjeneste {
         return InntektsmeldingMapper.mapFraEntitet(imEntitet, mottattInntektsmeldingDto.foresporselUuid());
     }
 
-    private Long lagreOgLagJournalførTask(InntektsmeldingEntitet entitet) {
+    private Long lagreOgLagJournalførTask(InntektsmeldingEntitet entitet, String fagsystemSaksnummer) {
         var imId = inntektsmeldingRepository.lagreInntektsmelding(entitet);
-        opprettTaskForSendTilJoark(imId);
+        opprettTaskForSendTilJoark(imId, fagsystemSaksnummer);
         return imId;
     }
 
-    private void opprettTaskForSendTilJoark(Long imId) {
+    private void opprettTaskForSendTilJoark(Long imId, String fagsystemSaksnummer) {
         var task = ProsessTaskData.forProsessTask(SendTilJoarkTask.class);
         task.setProperty(SendTilJoarkTask.KEY_INNTEKTSMELDING_ID, imId.toString());
+        task.setProperty(SendTilJoarkTask.KEY_SAKSNUMMER, fagsystemSaksnummer);
         task.setCallIdFraEksisterende();
         prosessTaskTjeneste.lagre(task);
         LOG.info("Opprettet task for oversending til joark");
@@ -111,8 +112,14 @@ public class InntektsmeldingTjeneste {
         var organisasjonDto = lagOrganisasjonDto(forespørsel);
         var innmelderDto = lagInnmelderDto(forespørsel.getYtelseType());
         var inntektDtoer = lagInntekterDto(forespørsel);
-        return new InntektsmeldingDialogDto(personDto, organisasjonDto, innmelderDto, inntektDtoer, forespørsel.getSkjæringstidspunkt(),
-            KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()), forespørsel.getUuid(), KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()),
+        return new InntektsmeldingDialogDto(personDto,
+            organisasjonDto,
+            innmelderDto,
+            inntektDtoer,
+            forespørsel.getSkjæringstidspunkt(),
+            KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()),
+            forespørsel.getUuid(),
+            KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()),
             forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt));
     }
 
