@@ -42,9 +42,9 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        LOG.info("Starter task for oversending til joark");
         var inntektsmeldingId = Integer.parseInt(prosessTaskData.getPropertyValue(KEY_INNTEKTSMELDING_ID));
         var fagsysteSaksnummer = prosessTaskData.getPropertyValue(KEY_SAKSNUMMER);
+        LOG.info("Starter task for oversending til joark for saksnummer {}", fagsysteSaksnummer);
 
         var inntektsmelding = inntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingId);
         var xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
