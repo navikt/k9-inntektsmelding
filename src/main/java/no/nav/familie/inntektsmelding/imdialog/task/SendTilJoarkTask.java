@@ -52,7 +52,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
         var pdf = fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);
 
         LOG.debug("Genererte XML: {} og pdf av inntektsmeldingen, journalfører på sak: {}", xml, fagsysteSaksnummer);
-        joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf, fagsysteSaksnummer);
+        joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf);
         LOG.info("Sluttfører task oversendJoark");
     }
 }

@@ -51,9 +51,8 @@ public class JoarkTjeneste {
     }
 
 
-    public String journalførInntektsmelding(String XMLAvInntektsmelding, InntektsmeldingEntitet inntektsmelding, byte[] pdf,
-                                            String fagsystemSaksnummer) {
-        var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding, pdf, fagsystemSaksnummer);
+    public String journalførInntektsmelding(String XMLAvInntektsmelding, InntektsmeldingEntitet inntektsmelding, byte[] pdf) {
+        var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding, pdf);
         try {
             var response = joarkKlient.opprettJournalpost(request, false);
             // Kan nok fjerne loggingen etter en periode i dev, mest for feilsøking i starten.
@@ -64,8 +63,7 @@ public class JoarkTjeneste {
         }
     }
 
-    private OpprettJournalpostRequest opprettRequest(String xmlAvInntektsmelding, InntektsmeldingEntitet inntektsmeldingEntitet, byte[] pdf,
-                                                     String fagsystemSaksnummer) {
+    private OpprettJournalpostRequest opprettRequest(String xmlAvInntektsmelding, InntektsmeldingEntitet inntektsmeldingEntitet, byte[] pdf) {
         var erBedrift = inntektsmeldingEntitet.getArbeidsgiverIdent().length() == 9;
         var avsenderMottaker = erBedrift ? lagAvsenderBedrift(inntektsmeldingEntitet) : lagAvsenderPrivatperson(inntektsmeldingEntitet);
         var opprettJournalpostRequestBuilder = OpprettJournalpostRequest.nyInngående()
@@ -79,11 +77,11 @@ public class JoarkTjeneste {
             .medJournalfoerendeEnhet(JOURNALFØRENDE_ENHET)
             .medKanal(KANAL)
             .medDokumenter(lagDokumenter(xmlAvInntektsmelding, pdf));
-
+/*      Todo Dette må gås opp før vi kan ta det i bruk. Inntektsmelding ble sendt til manuell journalføring
         if (fagsystemSaksnummer != null) {
             opprettJournalpostRequestBuilder
                 .medSak(sak(fagsystemSaksnummer, inntektsmeldingEntitet.getYtelsetype()));
-        }
+        }*/
         return opprettJournalpostRequestBuilder.build();
     }
 
