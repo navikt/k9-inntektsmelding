@@ -94,7 +94,7 @@ class JoarkTjenesteTest {
         assertThat(journalpostId).isEqualTo("9999");
 
         var argumentCaptor = ArgumentCaptor.forClass(OpprettJournalpostRequest.class);
-        verify(klient).opprettJournalpost(argumentCaptor.capture(), eq(true));
+        verify(klient).opprettJournalpost(argumentCaptor.capture(), eq(false));
 
         var opprettJournalpostRequest = argumentCaptor.getValue();
         assertThat(opprettJournalpostRequest.sak()).isNotNull();

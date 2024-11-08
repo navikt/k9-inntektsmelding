@@ -55,10 +55,9 @@ public class JoarkTjeneste {
                                             String fagsystemSaksnummer) {
         var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding, pdf, fagsystemSaksnummer);
         try {
-            var response = joarkKlient.opprettJournalpost(request, fagsystemSaksnummer != null);
+            var response = joarkKlient.opprettJournalpost(request, false);
             // Kan nok fjerne loggingen etter en periode i dev, mest for feilsøking i starten.
             LOG.info("Journalført inntektsmelding fikk journalpostId {}", response.journalpostId());
-            LOG.info("Ble journalført inntektsmelding ferdigstilt: {}", response.journalpostferdigstilt());
             return response.journalpostId();
         } catch (Exception e) {
             throw new IllegalStateException("Klarte ikke journalføre innteketsmelding " + e);
@@ -81,7 +80,6 @@ public class JoarkTjeneste {
             .medKanal(KANAL)
             .medDokumenter(lagDokumenter(xmlAvInntektsmelding, pdf));
 
-        // Dette er for overstyring, siden fpsak ikke sender saksnummer ennå.
         if (fagsystemSaksnummer != null) {
             opprettJournalpostRequestBuilder
                 .medSak(sak(fagsystemSaksnummer, inntektsmeldingEntitet.getYtelsetype()));
