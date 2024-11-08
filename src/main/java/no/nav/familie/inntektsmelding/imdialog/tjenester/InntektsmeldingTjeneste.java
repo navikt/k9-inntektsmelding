@@ -77,7 +77,7 @@ public class InntektsmeldingTjeneste {
         var aktorId = new AktørIdEntitet(mottattInntektsmeldingDto.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto);
-        var imId = lagreOgLagJournalførTask(entitet, forespørselEntitet.getFagsystemSaksnummer());
+        var imId = lagreOgLagJournalførTask(entitet, forespørselEntitet);
         var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(mottattInntektsmeldingDto.foresporselUuid(), aktorId, orgnummer,
             mottattInntektsmeldingDto.startdato(), LukkeÅrsak.ORDINÆR_INNSENDING);
 
@@ -90,9 +90,10 @@ public class InntektsmeldingTjeneste {
         return InntektsmeldingMapper.mapFraEntitet(imEntitet, mottattInntektsmeldingDto.foresporselUuid());
     }
 
-    private Long lagreOgLagJournalførTask(InntektsmeldingEntitet entitet, String fagsystemSaksnummer) {
+    private Long lagreOgLagJournalførTask(InntektsmeldingEntitet entitet, ForespørselEntitet forespørsel) {
+        LOG.info(String.format("Lagrer inntektsmelding for forespørsel %s", forespørsel.getUuid()));
         var imId = inntektsmeldingRepository.lagreInntektsmelding(entitet);
-        opprettTaskForSendTilJoark(imId, fagsystemSaksnummer);
+        opprettTaskForSendTilJoark(imId, forespørsel.getFagsystemSaksnummer());
         return imId;
     }
 
@@ -157,6 +158,7 @@ public class InntektsmeldingTjeneste {
     private InntektsmeldingDialogDto.InntektsopplysningerDto lagInntekterDto(ForespørselEntitet forespørsel) {
         var inntektsopplysninger = inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
             forespørsel.getOrganisasjonsnummer());
+        LOG.debug(String.format("Inntektsopplysninger for forespørsel %s var %s", forespørsel.getUuid(), inntektsopplysninger.toString()));
         var inntekter = inntektsopplysninger.måneder()
             .stream()
             .map(i -> new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(i.månedÅr().atDay(1),
