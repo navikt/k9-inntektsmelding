@@ -43,7 +43,7 @@ public class InntektsmeldingOverstyringTjeneste {
     private void opprettTaskForSendTilJoark(Long imId, SaksnummerDto fagsystemSaksnummer) {
         var task = ProsessTaskData.forProsessTask(SendTilJoarkTask.class);
         task.setProperty(SendTilJoarkTask.KEY_INNTEKTSMELDING_ID, imId.toString());
-        task.setProperty(SendTilJoarkTask.KEY_SAKSNUMMER, fagsystemSaksnummer.toString());
+        task.setProperty(SendTilJoarkTask.KEY_SAKSNUMMER, fagsystemSaksnummer.saksnr());
         task.setCallIdFraEksisterende();
         prosessTaskTjeneste.lagre(task);
         LOG.info("Opprettet task for oversending til joark");
