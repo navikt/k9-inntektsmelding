@@ -58,7 +58,6 @@ public class InntektsmeldingXMLMapper {
         skjemainnhold.setArbeidsforhold(lagArbeidsforholdXml(inntektsmelding));
         skjemainnhold.setArbeidstakerFnr(aktørIdFnrMap.get(inntektsmelding.getAktørId()).getIdent());
 
-        // TODO sett ny eller endring når dette blir mulig
         skjemainnhold.setAarsakTilInnsending("Ny");
         skjemainnhold.setAvsendersystem(lagAvsendersysem(inntektsmelding));
 
