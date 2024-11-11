@@ -14,7 +14,7 @@ import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 //TODO Fjern feltet startdatoPermisjon når frontend er over på skjæringstidspunkt
 public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto person, @Valid @NotNull OrganisasjonInfoResponseDto arbeidsgiver,
                                        @Valid @NotNull InnsenderDto innsender, @Valid @NotNull InntektsopplysningerDto inntektsopplysninger,
-                                       @NotNull LocalDate startdatoPermisjon, @NotNull @Valid LocalDate skjæringstidspunkt, @Valid @NotNull YtelseTypeDto ytelse,
+                                       @NotNull @Valid LocalDate skjæringstidspunkt, @Valid @NotNull YtelseTypeDto ytelse,
                                        @Valid @NotNull UUID forespørselUuid, @Valid @NotNull ForespørselStatusDto forespørselStatus,
                                        @Valid @NotNull LocalDate førsteUttaksdato) {
 
