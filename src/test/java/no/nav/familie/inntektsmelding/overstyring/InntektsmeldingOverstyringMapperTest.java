@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
@@ -30,7 +32,8 @@ class InntektsmeldingOverstyringMapperTest {
             BigDecimal.valueOf(5000),
             foventedeRefusjonsendringer,
             Collections.emptyList(),
-            "Truls Test");
+            "Truls Test",
+            new SaksnummerDto("1234"));
 
         // Act
         var entitet = InntektsmeldingOverstyringMapper.mapTilEntitet(request);
