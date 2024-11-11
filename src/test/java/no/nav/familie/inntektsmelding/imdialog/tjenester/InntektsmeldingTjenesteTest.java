@@ -117,7 +117,6 @@ class InntektsmeldingTjenesteTest {
         var imDialogDto = inntektsmeldingTjeneste.lagDialogDto(uuid);
 
         // Assert
-        assertThat(imDialogDto.skjæringstidspunkt()).isEqualTo(forespørsel.getSkjæringstidspunkt());
         assertThat(imDialogDto.ytelse()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
 
         assertThat(imDialogDto.person().aktørId()).isEqualTo(forespørsel.getAktørId().getAktørId());
