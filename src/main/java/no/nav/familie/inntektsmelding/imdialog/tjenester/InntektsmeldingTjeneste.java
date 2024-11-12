@@ -118,7 +118,6 @@ public class InntektsmeldingTjeneste {
             innmelderDto,
             inntektDtoer,
             forespørsel.getSkjæringstidspunkt(),
-            forespørsel.getSkjæringstidspunkt(),
             KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()),
             forespørsel.getUuid(),
             KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()),
