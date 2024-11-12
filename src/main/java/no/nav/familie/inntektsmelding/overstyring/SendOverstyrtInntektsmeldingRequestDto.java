@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
 public record SendOverstyrtInntektsmeldingRequestDto(@NotNull @Valid AktørIdDto aktorId,
@@ -23,7 +24,8 @@ public record SendOverstyrtInntektsmeldingRequestDto(@NotNull @Valid AktørIdDto
                                                      @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal refusjon,
                                                      @NotNull List<@Valid RefusjonendringRequestDto> refusjonsendringer,
                                                      @NotNull List<@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder,
-                                                     @NotNull String opprettetAv) {
+                                                     @NotNull String opprettetAv,
+                                                     @NotNull SaksnummerDto fagsystemSaksnummer) {
 
     public record RefusjonendringRequestDto(@NotNull LocalDate fom,
                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {

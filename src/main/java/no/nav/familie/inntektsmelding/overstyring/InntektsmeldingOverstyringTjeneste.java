@@ -3,6 +3,8 @@ package no.nav.familie.inntektsmelding.overstyring;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,16 +33,17 @@ public class InntektsmeldingOverstyringTjeneste {
     }
 
     public void mottaOverstyrtInntektsmelding(SendOverstyrtInntektsmeldingRequestDto mottattInntektsmeldingDto) {
-        lagreOgLagJournalførTask(InntektsmeldingOverstyringMapper.mapTilEntitet(mottattInntektsmeldingDto));
+        lagreOgLagJournalførTask(InntektsmeldingOverstyringMapper.mapTilEntitet(mottattInntektsmeldingDto), mottattInntektsmeldingDto.fagsystemSaksnummer());
     }
 
-    private void lagreOgLagJournalførTask(InntektsmeldingEntitet entitet) {
-        opprettTaskForSendTilJoark(inntektsmeldingRepository.lagreInntektsmelding(entitet));
+    private void lagreOgLagJournalførTask(InntektsmeldingEntitet entitet, SaksnummerDto fagsystemSaksnummer) {
+        opprettTaskForSendTilJoark(inntektsmeldingRepository.lagreInntektsmelding(entitet), fagsystemSaksnummer);
     }
 
-    private void opprettTaskForSendTilJoark(Long imId) {
+    private void opprettTaskForSendTilJoark(Long imId, SaksnummerDto fagsystemSaksnummer) {
         var task = ProsessTaskData.forProsessTask(SendTilJoarkTask.class);
         task.setProperty(SendTilJoarkTask.KEY_INNTEKTSMELDING_ID, imId.toString());
+        task.setProperty(SendTilJoarkTask.KEY_SAKSNUMMER, fagsystemSaksnummer.saksnr());
         task.setCallIdFraEksisterende();
         prosessTaskTjeneste.lagre(task);
         LOG.info("Opprettet task for oversending til joark");
