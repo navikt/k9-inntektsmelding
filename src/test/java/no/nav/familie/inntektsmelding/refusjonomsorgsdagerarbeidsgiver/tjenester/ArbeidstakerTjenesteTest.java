@@ -11,6 +11,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
+
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
+
 
 @ExtendWith(MockitoExtension.class)
 public class ArbeidstakerTjenesteTest {
@@ -63,6 +65,7 @@ public class ArbeidstakerTjenesteTest {
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
 
         var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER);
+
         assertThat(resultat).isNotNull();
         assertThat(resultat.fornavn()).isEqualTo("Test");
         assertThat(resultat.mellomnavn()).isEqualTo("Filiokus");

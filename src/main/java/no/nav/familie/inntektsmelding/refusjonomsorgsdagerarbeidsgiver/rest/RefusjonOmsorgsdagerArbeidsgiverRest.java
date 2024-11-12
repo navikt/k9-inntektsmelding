@@ -12,6 +12,10 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+<<<<<<< HEAD
+=======
+import jakarta.ws.rs.GET;
+>>>>>>> de52948 (Legg til tester)
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
