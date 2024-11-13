@@ -65,32 +65,53 @@ class InntektTjenesteTest {
             , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 9), MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
         assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(25_000));
     }
+    @Test
+    void skal_teste_at_inntekter_ikke_finnes() {
+        var aktørId = new AktørIdEntitet(AKTØR_ID);
+        var stp = LocalDate.of(2024,10,15);
+        var dagensDato = LocalDate.of(2024,10,15);
+        var forventetRequest = new FinnInntektRequest(aktørId.getAktørId(), YearMonth.of(2024, 7), YearMonth.of(2024, 9));
 
-        @Test
-        void skal_teste_at_inntekter_innhentes_dagens_dato_er_før_rapporteringsfrist_og_inntekt_ikke_finnes_for_siste_måned() {
-            var aktørId = new AktørIdEntitet(AKTØR_ID);
-            var stp = LocalDate.of(2024,10,15);
-            var dagensDato = LocalDate.of(2024,10,1);
-            var forventetRequest = new FinnInntektRequest(aktørId.getAktørId(), YearMonth.of(2024, 6), YearMonth.of(2024, 9));
+        var response = new HentInntektListeBolkResponse();
+        var aiResponse = new ArbeidsInntektIdent();
+        aiResponse.setIdent(new Aktoer(aktørId.getAktørId(), AktoerType.AKTOER_ID));
+        aiResponse.setArbeidsInntektMaaned(null);
+        response.setArbeidsInntektIdentListe(Collections.singletonList(aiResponse));
+        when(klient.finnInntekt(forventetRequest)).thenReturn(response);
 
-            var response = new HentInntektListeBolkResponse();
-            var aiResponse = new ArbeidsInntektIdent();
-            aiResponse.setIdent(new Aktoer(aktørId.getAktørId(), AktoerType.AKTOER_ID));
-            var inntekt1 = getInntekt(YearMonth.of(2024,6), BigDecimal.valueOf(25_000));
-            var inntekt2 = getInntekt(YearMonth.of(2024,7), BigDecimal.valueOf(25_000));
-            var inntekt3 = getInntekt(YearMonth.of(2024,8), BigDecimal.valueOf(25_000));
-            aiResponse.setArbeidsInntektMaaned(List.of(inntekt1, inntekt2, inntekt3));
-            response.setArbeidsInntektIdentListe(Collections.singletonList(aiResponse));
-            when(klient.finnInntekt(forventetRequest)).thenReturn(response);
+        var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
 
-            var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
+        var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 7), MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 8), MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT));
+        assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.ZERO);
+    }
 
-            var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 6), MånedslønnStatus.BRUKT_I_GJENNOMSNITT),
-                new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 7), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
-                , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
-                , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), MånedslønnStatus.IKKE_RAPPORTERT_RAPPORTERINGSFRIST_IKKE_PASSERT));
-            assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(25_000));
-        }
+    @Test
+    void skal_teste_at_inntekter_innhentes_dagens_dato_er_før_rapporteringsfrist_og_inntekt_ikke_finnes_for_siste_måned() {
+        var aktørId = new AktørIdEntitet(AKTØR_ID);
+        var stp = LocalDate.of(2024,10,15);
+        var dagensDato = LocalDate.of(2024,10,1);
+        var forventetRequest = new FinnInntektRequest(aktørId.getAktørId(), YearMonth.of(2024, 6), YearMonth.of(2024, 9));
+
+        var response = new HentInntektListeBolkResponse();
+        var aiResponse = new ArbeidsInntektIdent();
+        aiResponse.setIdent(new Aktoer(aktørId.getAktørId(), AktoerType.AKTOER_ID));
+        var inntekt1 = getInntekt(YearMonth.of(2024,6), BigDecimal.valueOf(25_000));
+        var inntekt2 = getInntekt(YearMonth.of(2024,7), BigDecimal.valueOf(25_000));
+        var inntekt3 = getInntekt(YearMonth.of(2024,8), BigDecimal.valueOf(25_000));
+        aiResponse.setArbeidsInntektMaaned(List.of(inntekt1, inntekt2, inntekt3));
+        response.setArbeidsInntektIdentListe(Collections.singletonList(aiResponse));
+        when(klient.finnInntekt(forventetRequest)).thenReturn(response);
+
+        var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
+
+        var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 6), MånedslønnStatus.BRUKT_I_GJENNOMSNITT),
+            new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 7), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 8), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), MånedslønnStatus.IKKE_RAPPORTERT_RAPPORTERINGSFRIST_IKKE_PASSERT));
+        assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(25_000));
+    }
 
         @Test
         void skal_teste_at_inntekter_innhentes_dagens_dato_er_før_rapporteringsfrist_og_inntekt_finnes_for_siste_måned() {
