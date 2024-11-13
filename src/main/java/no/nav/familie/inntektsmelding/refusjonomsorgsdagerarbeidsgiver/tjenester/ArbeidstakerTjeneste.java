@@ -4,13 +4,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.SlåOppArbeidstakerResponseDto;
 
