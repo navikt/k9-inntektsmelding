@@ -143,14 +143,18 @@ public class InntektTjeneste {
 
         List<Månedsinntekt> månedsInntektListe = new ArrayList<>();
 
-        inntektPerMånedForBruker.forEach(inntektMåned -> inntektMåned.getArbeidsInntektInformasjon()
-            .getInntektListe()
-            .stream()
-            .filter(inntekt -> InntektType.LOENNSINNTEKT.equals(inntekt.getInntektType()) && organisasjonsnummer.equals(
-                inntekt.getVirksomhet().getIdentifikator()))
-            .findFirst()
-            .map(this::mapMånedsInntekt)
-            .ifPresent(månedsInntektListe::add));
+        inntektPerMånedForBruker.forEach(inntektMåned -> {
+            if (inntektMåned.getArbeidsInntektInformasjon() != null && inntektMåned.getArbeidsInntektInformasjon().getInntektListe() != null) {
+                inntektMåned.getArbeidsInntektInformasjon()
+                    .getInntektListe()
+                    .stream()
+                    .filter(inntekt -> InntektType.LOENNSINNTEKT.equals(inntekt.getInntektType()) && organisasjonsnummer.equals(
+                        inntekt.getVirksomhet().getIdentifikator()))
+                    .findFirst()
+                    .map(this::mapMånedsInntekt)
+                    .ifPresent(månedsInntektListe::add);
+            }
+        });
 
         return månedsInntektListe;
     }
