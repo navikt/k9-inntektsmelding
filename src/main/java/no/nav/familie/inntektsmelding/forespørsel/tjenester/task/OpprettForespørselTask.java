@@ -1,7 +1,10 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +23,8 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ProsessTask(value = OpprettForespørselTask.TASKTYPE)
@@ -34,10 +39,13 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
     public static final String STP = "skjaeringstidspunkt";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     @Inject
-    public OpprettForespørselTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
+    public OpprettForespørselTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
+                                  ProsessTaskTjeneste prosessTaskTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     OpprettForespørselTask() {
@@ -51,6 +59,22 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         SaksnummerDto fagsakSaksnummer = new SaksnummerDto(prosessTaskData.getPropertyValue(FAGSAK_SAKSNUMMER));
         OrganisasjonsnummerDto organisasjonsnummer = new OrganisasjonsnummerDto(prosessTaskData.getPropertyValue(ORGNR));
         LocalDate skjæringstidspunkt = LocalDate.parse(prosessTaskData.getPropertyValue(STP));
+
+        Optional<ProsessTaskData> eksisterendeTask = prosessTaskTjeneste.finnAlleMedParameterTekst(fagsakSaksnummer.saksnr(), LocalDate.MIN, LocalDate.MAX)
+            .stream()
+            .filter(task -> task.getStatus() == ProsessTaskStatus.KLAR)
+            .filter(task -> List.of(OpprettForespørselTask.TASKTYPE, SettForespørselTilUtgåttTask.TASKTYPE).contains(task.getTaskType()))
+            .filter(task -> !Objects.equals(task.getGruppe(), prosessTaskData.getGruppe()))
+            .filter(task -> task.getOpprettetTid().isBefore(prosessTaskData.getOpprettetTid()))
+            .max(Comparator.comparing(ProsessTaskData::getOpprettetTid));
+
+        if (eksisterendeTask.isPresent()) {
+            log.info("Vetoet av eksisterende task med id {}", eksisterendeTask.get().getId());
+            prosessTaskData.setBlokkertAvProsessTaskId(eksisterendeTask.get().getId());
+            prosessTaskData.setStatus(ProsessTaskStatus.VETO);
+            prosessTaskTjeneste.lagre(prosessTaskData);
+            return;
+        }
 
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
         if (eksisterendeForespørsler.stream().anyMatch(eksisterende -> !eksisterende.getStatus().equals(ForespørselStatus.UTGÅTT))) {
