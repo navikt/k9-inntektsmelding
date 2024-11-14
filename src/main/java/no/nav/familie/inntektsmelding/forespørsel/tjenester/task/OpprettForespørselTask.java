@@ -62,8 +62,8 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
 
         Optional<ProsessTaskData> eksisterendeTask = prosessTaskTjeneste.finnAlleMedParameterTekst(fagsakSaksnummer.saksnr(), LocalDate.MIN, LocalDate.MAX)
             .stream()
-            .filter(task -> List.of(OpprettForespørselTask.TASKTYPE, SettForespørselTilUtgåttTask.TASKTYPE).contains(task.getTaskType()))
             .filter(task -> task.getStatus() == ProsessTaskStatus.KLAR)
+            .filter(task -> List.of(OpprettForespørselTask.TASKTYPE, SettForespørselTilUtgåttTask.TASKTYPE).contains(task.getTaskType()))
             .filter(task -> !Objects.equals(task.getGruppe(), prosessTaskData.getGruppe()))
             .filter(task -> task.getOpprettetTid().isBefore(prosessTaskData.getOpprettetTid()))
             .max(Comparator.comparing(ProsessTaskData::getOpprettetTid));
