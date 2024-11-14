@@ -57,7 +57,6 @@ class ForespørselTekster {
             case FORELDREPENGER -> Merkelapp.INNTEKTSMELDING_FP;
             case PLEIEPENGER_SYKT_BARN -> Merkelapp.INNTEKTSMELDING_PSB;
             case OMSORGSPENGER -> Merkelapp.INNTEKTSMELDING_OMP;
-            case OMSORGSDAGER -> Merkelapp.SØKNAD_REFUSJON_OMS_AG;
             case SVANGERSKAPSPENGER -> Merkelapp.INNTEKTSMELDING_SVP;
             case PLEIEPENGER_NÆRSTÅENDE -> Merkelapp.INNTEKTSMELDING_PILS;
             case OPPLÆRINGSPENGER -> Merkelapp.INNTEKTSMELDING_OPP;
@@ -69,7 +68,6 @@ class ForespørselTekster {
             case FORELDREPENGER -> "foreldrepenger";
             case PLEIEPENGER_SYKT_BARN -> "pleiepenger sykt barn";
             case OMSORGSPENGER -> "omsorgspenger";
-            case OMSORGSDAGER -> "omsorgsdager";
             case SVANGERSKAPSPENGER -> "svangerskapspenger";
             case PLEIEPENGER_NÆRSTÅENDE -> "pleiepenger for nærstående";
             case OPPLÆRINGSPENGER -> "opplæringspenger";
