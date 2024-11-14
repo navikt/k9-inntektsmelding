@@ -18,6 +18,7 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 class OpprettForespørselTaskTest {
 
@@ -28,10 +29,11 @@ class OpprettForespørselTaskTest {
     private final LocalDate skjæringstidspunkt = LocalDate.now();
 
     private final ForespørselBehandlingTjeneste forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
+    private final ProsessTaskTjeneste prosessTaskTjeneste = Mockito.mock(ProsessTaskTjeneste.class);
 
     @Test
     void skal_opprette_forespørsel_dersom_det_ikke_eksisterer_en_for_stp() {
-        var task = new OpprettForespørselTask(forespørselBehandlingTjeneste);
+        var task = new OpprettForespørselTask(forespørselBehandlingTjeneste, prosessTaskTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
         taskdata.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
         taskdata.setProperty(OpprettForespørselTask.AKTØR_ID, aktørId.getAktørId());
@@ -47,7 +49,7 @@ class OpprettForespørselTaskTest {
 
     @Test
     void skal_ikke_opprette_ny_forespørsel_dersom_det_eksisterer_en_for_samme_stp() {
-        var task = new OpprettForespørselTask(forespørselBehandlingTjeneste);
+        var task = new OpprettForespørselTask(forespørselBehandlingTjeneste, prosessTaskTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
         taskdata.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
         taskdata.setProperty(OpprettForespørselTask.AKTØR_ID, aktørId.getAktørId());
