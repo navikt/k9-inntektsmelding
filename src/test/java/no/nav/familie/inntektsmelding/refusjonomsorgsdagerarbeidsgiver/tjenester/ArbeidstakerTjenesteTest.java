@@ -4,28 +4,22 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
-
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-
-import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
-
-import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.time.LocalDate;
 import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 
 @ExtendWith(MockitoExtension.class)
