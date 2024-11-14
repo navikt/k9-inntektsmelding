@@ -2,6 +2,14 @@ package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest;
 
 import static no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.RefusjonOmsorgsdagerArbeidsgiverRest.BASE_PATH;
 
+import jakarta.ws.rs.GET;
+
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
+
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.OpplysningerTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,10 +20,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-<<<<<<< HEAD
-=======
+
 import jakarta.ws.rs.GET;
->>>>>>> de52948 (Legg til tester)
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -35,16 +41,19 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
 
     public static final String BASE_PATH = "/imdialog/refusjon-omsorgsdager-arbeidsgiver";
     private static final String SLÅ_OPP_ARBEIDSTAKER = "/arbeidstaker";
+    private static final String OPPLYSNINGER = "/opplysninger";
 
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
+    private OpplysningerTjeneste opplysningerTjeneste;
 
     RefusjonOmsorgsdagerArbeidsgiverRest() {
         // CDI
     }
 
     @Inject
-    public RefusjonOmsorgsdagerArbeidsgiverRest(ArbeidstakerTjeneste arbeidstakerTjeneste) {
+    public RefusjonOmsorgsdagerArbeidsgiverRest(ArbeidstakerTjeneste arbeidstakerTjeneste, OpplysningerTjeneste opplysningerTjeneste) {
         this.arbeidstakerTjeneste = arbeidstakerTjeneste;
+        this.opplysningerTjeneste = opplysningerTjeneste;
     }
 
     @POST
@@ -53,13 +62,24 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
     @Operation(description = "Henter opplysninger om arbeidstaker, gitt et fødselsnummer.", tags = "imdialog")
     @Tilgangskontrollert
     public Response slåOppArbeidstaker(
-            @Parameter(description = "Datapakke som inneholder fødselsnummeret til en arbeidstaker") @NotNull @Valid SlåOppArbeidstakerDto slåOppArbeidstakerDto) {
+        @Parameter(description = "Datapakke som inneholder fødselsnummeret til en arbeidstaker") @NotNull @Valid
+        SlåOppArbeidstakerDto slåOppArbeidstakerDto) {
 
         LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerDto.fødselsnummer());
         var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerDto.fødselsnummer(), slåOppArbeidstakerDto.ytelseType());
         if (dto == null) {
             throw new NotFoundException();
         }
+        return Response.ok(dto).build();
+    }
+
+    @GET
+    @Path(OPPLYSNINGER)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Henter opplysninger om innmelder.", tags = "imdialog")
+    @Tilgangskontrollert
+    public Response hentOpplysninger() {
+        var dto = opplysningerTjeneste.hentOpplysninger();
         return Response.ok(dto).build();
     }
 }
