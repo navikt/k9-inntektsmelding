@@ -25,6 +25,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 @ProsessTask(value = OpprettForespørselTask.TASKTYPE)
@@ -60,7 +61,7 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         OrganisasjonsnummerDto organisasjonsnummer = new OrganisasjonsnummerDto(prosessTaskData.getPropertyValue(ORGNR));
         LocalDate skjæringstidspunkt = LocalDate.parse(prosessTaskData.getPropertyValue(STP));
 
-        Optional<ProsessTaskData> eksisterendeTask = prosessTaskTjeneste.finnAlleMedParameterTekst(fagsakSaksnummer.saksnr(), LocalDate.MIN, LocalDate.MAX)
+        Optional<ProsessTaskData> eksisterendeTask = prosessTaskTjeneste.finnAlleMedParameterTekst(fagsakSaksnummer.saksnr(), Tid.TIDENES_BEGYNNELSE, LocalDate.now())
             .stream()
             .filter(task -> task.getStatus() == ProsessTaskStatus.KLAR)
             .filter(task -> List.of(OpprettForespørselTask.TASKTYPE, SettForespørselTilUtgåttTask.TASKTYPE).contains(task.getTaskType()))
