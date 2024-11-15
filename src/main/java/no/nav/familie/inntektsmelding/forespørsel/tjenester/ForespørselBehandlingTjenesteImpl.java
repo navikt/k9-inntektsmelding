@@ -223,7 +223,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             var lukketForespørsel = ferdigstillForespørsel(f.getUuid(),
                 f.getAktørId(),
                 new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()),
-                f.getSkjæringstidspunkt(),
+                f.getFørsteUttaksdato().orElseGet(f::getSkjæringstidspunkt),
                 LukkeÅrsak.EKSTERN_INNSENDING);
             MetrikkerTjeneste.loggForespørselLukkEkstern(lukketForespørsel);
         });
