@@ -61,7 +61,8 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         OrganisasjonsnummerDto organisasjonsnummer = new OrganisasjonsnummerDto(prosessTaskData.getPropertyValue(ORGNR));
         LocalDate skjæringstidspunkt = LocalDate.parse(prosessTaskData.getPropertyValue(STP));
 
-        Optional<ProsessTaskData> eksisterendeTask = prosessTaskTjeneste.finnAlleMedParameterTekst(fagsakSaksnummer.saksnr(), Tid.TIDENES_BEGYNNELSE, LocalDate.now())
+        //TODO lage en query som slipper å søke i parameterteksten
+        Optional<ProsessTaskData> blokkerendeTask = prosessTaskTjeneste.finnAlleMedParameterTekst(fagsakSaksnummer.saksnr(), Tid.TIDENES_BEGYNNELSE, LocalDate.now())
             .stream()
             .filter(task -> task.getStatus() == ProsessTaskStatus.KLAR)
             .filter(task -> List.of(OpprettForespørselTask.TASKTYPE, SettForespørselTilUtgåttTask.TASKTYPE).contains(task.getTaskType()))
@@ -69,11 +70,14 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
             .filter(task -> task.getOpprettetTid().isBefore(prosessTaskData.getOpprettetTid()))
             .max(Comparator.comparing(ProsessTaskData::getOpprettetTid));
 
-        if (eksisterendeTask.isPresent()) {
-            log.info("Vetoet av eksisterende task med id {}", eksisterendeTask.get().getId());
-            prosessTaskData.setBlokkertAvProsessTaskId(eksisterendeTask.get().getId());
-            prosessTaskData.setStatus(ProsessTaskStatus.VETO);
-            prosessTaskTjeneste.lagre(prosessTaskData);
+        if (blokkerendeTask.isPresent()) {
+            //TODO burde vi lage et bedre rammeverk for å vetoe tasker, slik som i k9-sak?
+            log.info("Vetoet av eksisterende task med id {}", blokkerendeTask.get().getId());
+            var vetoetTask = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
+            vetoetTask.setProperties(prosessTaskData.getProperties());
+            vetoetTask.setBlokkertAvProsessTaskId(blokkerendeTask.get().getId());
+            vetoetTask.setStatus(ProsessTaskStatus.VETO);
+            prosessTaskTjeneste.lagre(vetoetTask);
             return;
         }
 
