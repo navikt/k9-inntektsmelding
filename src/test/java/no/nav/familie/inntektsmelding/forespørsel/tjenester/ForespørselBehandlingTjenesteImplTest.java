@@ -124,6 +124,24 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
+    public void skal_ferdigstille_forespørsel_ulik_stp_og_startdato() {
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
+            SKJÆRINGSTIDSPUNKT.plusDays(3));
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+
+        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
+            new AktørIdEntitet(AKTØR_ID),
+            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
+            SKJÆRINGSTIDSPUNKT.plusDays(3),
+            LukkeÅrsak.EKSTERN_INNSENDING);
+
+        clearHibernateCache();
+
+        var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
+        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
+    }
+
+    @Test
     public void skal_sette_alle_forespørspørsler_for_sak_til_ferdig() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
