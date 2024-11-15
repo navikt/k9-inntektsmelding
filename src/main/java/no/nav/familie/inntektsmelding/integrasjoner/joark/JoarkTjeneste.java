@@ -17,6 +17,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Behandlingtema;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.DokArkiv;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.AvsenderMottaker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.DokumentInfoOpprett;
@@ -35,7 +36,7 @@ public class JoarkTjeneste {
     // TODO Dette er brevkode for altinn skjema. Trenger vi egen?
     private static final String BREVKODE_IM = "4936";
 
-    private JoarkKlient joarkKlient;
+    private DokArkiv joarkKlient;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private PersonTjeneste personTjeneste;
 
@@ -51,7 +52,10 @@ public class JoarkTjeneste {
     }
 
 
-    public String journalførInntektsmelding(String XMLAvInntektsmelding, InntektsmeldingEntitet inntektsmelding, byte[] pdf, String fagsystemSaksnummer) {
+    public String journalførInntektsmelding(String XMLAvInntektsmelding,
+                                            InntektsmeldingEntitet inntektsmelding,
+                                            byte[] pdf,
+                                            String fagsystemSaksnummer) {
         var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding, pdf, fagsystemSaksnummer);
         try {
             var response = joarkKlient.opprettJournalpost(request, false);
@@ -63,7 +67,10 @@ public class JoarkTjeneste {
         }
     }
 
-    private OpprettJournalpostRequest opprettRequest(String xmlAvInntektsmelding, InntektsmeldingEntitet inntektsmeldingEntitet, byte[] pdf, String fagsystemSaksnummer) {
+    private OpprettJournalpostRequest opprettRequest(String xmlAvInntektsmelding,
+                                                     InntektsmeldingEntitet inntektsmeldingEntitet,
+                                                     byte[] pdf,
+                                                     String fagsystemSaksnummer) {
         var erBedrift = inntektsmeldingEntitet.getArbeidsgiverIdent().length() == 9;
         var avsenderMottaker = erBedrift ? lagAvsenderBedrift(inntektsmeldingEntitet) : lagAvsenderPrivatperson(inntektsmeldingEntitet);
         var opprettJournalpostRequestBuilder = OpprettJournalpostRequest.nyInngående()
