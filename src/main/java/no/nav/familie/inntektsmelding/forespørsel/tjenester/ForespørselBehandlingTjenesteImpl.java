@@ -273,7 +273,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {
-        if (!forespørsel.getSkjæringstidspunkt().equals(startdato)) {
+        var datoÅMatcheMot = forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt);
+        if (!datoÅMatcheMot.equals(startdato)) {
             throw new IllegalStateException("Startdato var ikke like");
         }
     }
