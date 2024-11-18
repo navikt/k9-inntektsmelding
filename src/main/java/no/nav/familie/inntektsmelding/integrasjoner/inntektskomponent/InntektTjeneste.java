@@ -96,11 +96,17 @@ public class InntektTjeneste {
     }
 
     private static List<Månedsinntekt> fjernOverflødigeMånederOmNødvendig(List<Månedsinntekt> alleMåneder) {
+        // Er alle de tre siste månedene rapportert?
+        alleMåneder.sort(Comparator.comparing(Månedsinntekt::måned));
+        var treSisteMåneder = alleMåneder.subList(alleMåneder.size()-3, alleMåneder.size());
+        if (treSisteMåneder.stream().noneMatch(i -> i.beløp() == null)) {
+            return treSisteMåneder;
+        }
+
         var antallMndMedSattInntekt = alleMåneder.stream().filter(m -> m.beløp != null).toList().size();
         int overflødigeMåneder = antallMndMedSattInntekt > 3 ? antallMndMedSattInntekt-3 : 0;
         // Vi fant inntekt på flere måneder enn vi trenger, fjerner de eldste som er overflødige
         if (overflødigeMåneder > 0) {
-            alleMåneder.sort(Comparator.comparing(m -> m.måned));
             return alleMåneder.subList(overflødigeMåneder, alleMåneder.size());
         }
         return alleMåneder;

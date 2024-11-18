@@ -320,6 +320,32 @@ class InntektTjenesteTest {
         assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(30_000));
     }
 
+    @Test
+    void skal_fjerne_alle_eldre_måneder_uten_inntekt_når_tre_nyeste_er_rapportert() {
+        var aktørId = new AktørIdEntitet(AKTØR_ID);
+        var stp = LocalDate.of(2024,12,15);
+        var dagensDato = LocalDate.of(2024,11,18);
+        var forventetRequest = new FinnInntektRequest(aktørId.getAktørId(), YearMonth.of(2024, 8), YearMonth.of(2024, 11));
+
+        var response = new HentInntektListeBolkResponse();
+        var aiResponse = new ArbeidsInntektIdent();
+        aiResponse.setIdent(new Aktoer(aktørId.getAktørId(), AktoerType.AKTOER_ID));
+        var inntekt0 = getInntekt(YearMonth.of(2024,8), null);
+        var inntekt1 = getInntekt(YearMonth.of(2024,9), BigDecimal.valueOf(25_000));
+        var inntekt2 = getInntekt(YearMonth.of(2024,10), BigDecimal.valueOf(25_000));
+        var inntekt3 = getInntekt(YearMonth.of(2024,11), BigDecimal.valueOf(25_000));
+        aiResponse.setArbeidsInntektMaaned(List.of(inntekt0, inntekt1, inntekt2, inntekt3));
+        response.setArbeidsInntektIdentListe(Collections.singletonList(aiResponse));
+        when(klient.finnInntekt(forventetRequest)).thenReturn(response);
+
+        var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
+
+        var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 9), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 10), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(25_000), YearMonth.of(2024, 11), MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
+        assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(25_000));
+    }
+
     private void assertResultat(Inntektsopplysninger inntektsopplysinger,
                                 List<Inntektsopplysninger.InntektMåned> forventetListe,
                                 String orgnr,
