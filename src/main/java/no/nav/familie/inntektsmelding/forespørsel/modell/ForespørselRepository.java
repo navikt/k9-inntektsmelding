@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.forespørsel.modell;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.enterprise.context.Dependent;
@@ -10,14 +11,12 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
-import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -117,40 +116,27 @@ public class ForespørselRepository {
         return query.getResultList();
     }
 
-
-    public Optional<ForespørselEntitet> finnForespørsel(AktørIdEntitet aktørId, ArbeidsgiverDto arbeidsgiverIdent, LocalDate startdato) {
-        var query = entityManager.createQuery("FROM ForespørselEntitet where aktørId = :brukerAktørId and organisasjonsnummer = :arbeidsgiverIdent "
-                + "and skjæringstidspunkt = :skjæringstidspunkt", ForespørselEntitet.class)
-            .setParameter("brukerAktørId", aktørId)
-            .setParameter("arbeidsgiverIdent", arbeidsgiverIdent.ident())
-            .setParameter("skjæringstidspunkt", startdato);
-
-        var resultList = query.getResultList();
-        if (resultList.isEmpty()) {
-            return Optional.empty();
-        } else if (resultList.size() > 1) {
-            var feilmelding = String.format("Forventet å finne kun en forespørsel for gitt aktør %s, arbeidsgiver %s og startdato %s", aktørId,
-                arbeidsgiverIdent, startdato);
-            throw new IllegalStateException(feilmelding);
-        } else {
-            return Optional.of(resultList.getFirst());
-        }
-    }
-
-    public Optional<ForespørselEntitet> finnÅpenForespørsel(AktørIdEntitet aktørId,
-                                                            Ytelsetype ytelsetype,
-                                                            OrganisasjonsnummerDto organisasjonsnummer,
-                                                            LocalDate startdato,
-                                                            SaksnummerDto fagsakSaksnummer) {
+    public Optional<ForespørselEntitet> finnGjeldendeForespørsel(AktørIdEntitet aktørId,
+                                                                 Ytelsetype ytelsetype,
+                                                                 OrganisasjonsnummerDto organisasjonsnummer,
+                                                                 LocalDate stp,
+                                                                 SaksnummerDto fagsakSaksnummer,
+                                                                 LocalDate førsteUttaksdato) {
         var arbeidsgiverIdent = organisasjonsnummer.orgnr();
-        var query = entityManager.createQuery("FROM ForespørselEntitet where status='UNDER_BEHANDLING' " + "and aktørId = :brukerAktørId "
-                    + "and fagsystemSaksnummer = :fagsakNr " +  "and organisasjonsnummer = :arbeidsgiverIdent " + "and skjæringstidspunkt = :skjæringstidspunkt "
+        var query = entityManager.createQuery("FROM ForespørselEntitet where status in(:fpStatuser) "
+                    + "and aktørId = :brukerAktørId "
+                    + "and fagsystemSaksnummer = :fagsakNr "
+                    +  "and organisasjonsnummer = :arbeidsgiverIdent "
+                    + "and skjæringstidspunkt = :skjæringstidspunkt "
+                    + "and førsteUttaksdato = :førsteUttaksdato "
                     + "and ytelseType = :ytelsetype",
                 ForespørselEntitet.class)
+            .setParameter("fpStatuser", Set.of(ForespørselStatus.UNDER_BEHANDLING, ForespørselStatus.FERDIG))
             .setParameter("brukerAktørId", aktørId)
             .setParameter("fagsakNr", fagsakSaksnummer.saksnr())
             .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
-            .setParameter("skjæringstidspunkt", startdato)
+            .setParameter("skjæringstidspunkt", stp)
+            .setParameter("førsteUttaksdato", førsteUttaksdato)
             .setParameter("ytelsetype", ytelsetype);
 
         var resultList = query.getResultList();
@@ -158,7 +144,7 @@ public class ForespørselRepository {
             return Optional.empty();
         } else if (resultList.size() > 1) {
             throw new IllegalStateException(
-                "Forventet å finne kun en forespørsel for gitt id arbeidsgiver og startdato" + aktørId + organisasjonsnummer + startdato);
+                "Forventet å finne kun en forespørsel for gitt sak {}, arbeidsgiver {}, skjæringstidspunkt {} og første uttaksdato" + aktørId + organisasjonsnummer + stp + førsteUttaksdato);
         } else {
             return Optional.of(resultList.getFirst());
         }

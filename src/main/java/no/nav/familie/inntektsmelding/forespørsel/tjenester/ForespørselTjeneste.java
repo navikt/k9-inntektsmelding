@@ -56,12 +56,12 @@ public class ForespørselTjeneste {
         forespørselRepository.settForespørselTilUtgått(arbeidsgiverNotifikasjonSakId);
     }
 
-    public Optional<ForespørselEntitet> finnÅpenForespørsel(LocalDate skjæringstidspunkt,
-                                                            Ytelsetype ytelseType,
-                                                            AktørIdEntitet brukerAktørId,
-                                                            OrganisasjonsnummerDto orgnr,
-                                                            SaksnummerDto fagsakSaksnummer) {
-        return forespørselRepository.finnÅpenForespørsel(brukerAktørId, ytelseType, orgnr, skjæringstidspunkt, fagsakSaksnummer);
+    public Optional<ForespørselEntitet> finnGjeldendeForespørsel(LocalDate skjæringstidspunkt,
+                                                                 Ytelsetype ytelseType,
+                                                                 AktørIdEntitet brukerAktørId,
+                                                                 OrganisasjonsnummerDto orgnr,
+                                                                 SaksnummerDto fagsakSaksnummer, LocalDate førsteUttaksdato) {
+        return forespørselRepository.finnGjeldendeForespørsel(brukerAktørId, ytelseType, orgnr, skjæringstidspunkt, fagsakSaksnummer, førsteUttaksdato);
     }
 
     public List<ForespørselEntitet> finnÅpneForespørslerForFagsak(SaksnummerDto fagsakSaksnummer) {
