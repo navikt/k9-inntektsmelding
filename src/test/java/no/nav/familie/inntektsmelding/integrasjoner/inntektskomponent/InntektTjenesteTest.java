@@ -330,10 +330,11 @@ class InntektTjenesteTest {
         var response = new HentInntektListeBolkResponse();
         var aiResponse = new ArbeidsInntektIdent();
         aiResponse.setIdent(new Aktoer(aktørId.getAktørId(), AktoerType.AKTOER_ID));
+        var inntekt0 = getInntekt(YearMonth.of(2024,8), null);
         var inntekt1 = getInntekt(YearMonth.of(2024,9), BigDecimal.valueOf(25_000));
         var inntekt2 = getInntekt(YearMonth.of(2024,10), BigDecimal.valueOf(25_000));
         var inntekt3 = getInntekt(YearMonth.of(2024,11), BigDecimal.valueOf(25_000));
-        aiResponse.setArbeidsInntektMaaned(List.of(inntekt1, inntekt2, inntekt3));
+        aiResponse.setArbeidsInntektMaaned(List.of(inntekt0, inntekt1, inntekt2, inntekt3));
         response.setArbeidsInntektIdentListe(Collections.singletonList(aiResponse));
         when(klient.finnInntekt(forventetRequest)).thenReturn(response);
 
