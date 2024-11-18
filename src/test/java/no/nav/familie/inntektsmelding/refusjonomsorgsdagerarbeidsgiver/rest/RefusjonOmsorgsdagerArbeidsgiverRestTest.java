@@ -16,6 +16,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.dto.InnsenderDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.dto.OpplysningerResponseDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.dto.SlåOppArbeidstakerDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.dto.SlåOppArbeidstakerResponseDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidstakerTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.OpplysningerTjeneste;
 

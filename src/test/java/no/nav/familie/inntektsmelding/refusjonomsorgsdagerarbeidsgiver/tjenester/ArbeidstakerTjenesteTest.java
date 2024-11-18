@@ -18,7 +18,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.dto.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 
