@@ -135,6 +135,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
                 var settForespørselTilUtgåttTask = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
                 settForespørselTilUtgåttTask.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, eksisterendeForespørsel.getUuid().toString());
+                settForespørselTilUtgåttTask.setProperty(OpprettForespørselTask.FAGSAK_SAKSNUMMER, fagsakSaksnummer.saksnr());
                 taskGruppe.addNesteParallell(settForespørselTilUtgåttTask);
             }
         });
