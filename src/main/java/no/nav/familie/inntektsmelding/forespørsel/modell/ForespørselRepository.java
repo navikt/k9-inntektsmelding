@@ -144,7 +144,7 @@ public class ForespørselRepository {
             return Optional.empty();
         } else if (resultList.size() > 1) {
             throw new IllegalStateException(
-                "Forventet å finne kun en forespørsel for gitt sak {}, arbeidsgiver {}, skjæringstidspunkt {} og første uttaksdato" + aktørId + organisasjonsnummer + stp + førsteUttaksdato);
+                "Forventet å finne kun en forespørsel for gitt sak {}, orgnr {}, skjæringstidspunkt {} og første uttaksdato" + fagsakSaksnummer + organisasjonsnummer + stp + førsteUttaksdato);
         } else {
             return Optional.of(resultList.getFirst());
         }
