@@ -1,6 +1,6 @@
-# ft-inntektsmelding
+# k9-inntektsmelding
 
-Backend for inntektsmelding for Team Foreldrepenger og Team Sykdom i Familien
+Backend for inntektsmelding for Team Sykdom i Familien
 
 ## Oppdatere graphql skjema til Arbeidsgiver Notifikasjon API
 
