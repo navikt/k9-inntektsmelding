@@ -58,7 +58,7 @@ public class InntektsmeldingDialogRest {
     @Tilgangskontrollert
     public Response hentOpplysninger(
         @Parameter(description = "Henter alle opplysninger vi har om søker, inntekt og arbeidsforholdet basert på en forespørsel UUID") @NotNull
-        @QueryParam("foresporselUuid") UUID forespørselUuid) {
+        @Valid @NotNull @QueryParam("foresporselUuid") UUID forespørselUuid) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
         LOG.info("Henter forespørsel med uuid {}", forespørselUuid);
@@ -73,7 +73,7 @@ public class InntektsmeldingDialogRest {
     @Operation(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel", tags = "imdialog")
     @Tilgangskontrollert
     public Response hentInntektsmeldingerForOppgave(
-        @Parameter(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel") @NotNull @QueryParam("foresporselUuid")
+        @Parameter(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel") @NotNull @Valid @QueryParam("foresporselUuid")
         UUID forespørselUuid) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
@@ -101,7 +101,8 @@ public class InntektsmeldingDialogRest {
     @Produces("application/pdf")
     @Operation(description = "Lager PDF av inntektsmelding", tags = "imdialog")
     @Tilgangskontrollert
-    public Response lastNedPDF(@Parameter(description = "ID for inntektsmelding å lage PDF av") @NotNull @QueryParam("id") long inntektsmeldingId) {
+    public Response lastNedPDF(
+        @Parameter(description = "ID for inntektsmelding å lage PDF av") @Valid @NotNull @QueryParam("id") long inntektsmeldingId) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId);
 
         LOG.info("Henter inntektsmelding for id {}", inntektsmeldingId);
