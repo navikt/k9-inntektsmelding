@@ -9,7 +9,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +36,13 @@ public class ForespørselRepository {
 
     public UUID lagreForespørsel(LocalDate skjæringstidspunkt, Ytelsetype ytelsetype, String aktørId, String orgnummer, String fagsakSaksnummer,
                                  LocalDate førsteUttaksdato) {
-        var forespørselEntitet = new ForespørselEntitet(orgnummer, skjæringstidspunkt, new AktørIdEntitet(aktørId), ytelsetype, fagsakSaksnummer, førsteUttaksdato);
-
-        final Query query = entityManager.createNativeQuery("SELECT nextval('SEQ_FORESPOERSEL')");
-        var tall = (Number) query.getSingleResult();
-
-        LOG.info("ForespørselRepository: lagrer forespørsel entitet: {} med id:{}", forespørselEntitet, tall);
-
+        var forespørselEntitet = new ForespørselEntitet(orgnummer,
+            skjæringstidspunkt,
+            new AktørIdEntitet(aktørId),
+            ytelsetype,
+            fagsakSaksnummer,
+            førsteUttaksdato);
+        LOG.info("ForespørselRepository: lagrer forespørsel entitet: {}", forespørselEntitet);
         entityManager.persist(forespørselEntitet);
         entityManager.flush();
         return forespørselEntitet.getUuid();
@@ -92,7 +91,6 @@ public class ForespørselRepository {
             f.setStatus(ForespørselStatus.FERDIG);
             entityManager.persist(f);
         });
-
         entityManager.flush();
     }
 
@@ -105,7 +103,6 @@ public class ForespørselRepository {
             f.setStatus(ForespørselStatus.UTGÅTT);
             entityManager.persist(f);
         });
-
         entityManager.flush();
     }
 
@@ -126,7 +123,7 @@ public class ForespørselRepository {
         var query = entityManager.createQuery("FROM ForespørselEntitet where status in(:fpStatuser) "
                     + "and aktørId = :brukerAktørId "
                     + "and fagsystemSaksnummer = :fagsakNr "
-                    +  "and organisasjonsnummer = :arbeidsgiverIdent "
+                    + "and organisasjonsnummer = :arbeidsgiverIdent "
                     + "and skjæringstidspunkt = :skjæringstidspunkt "
                     + "and førsteUttaksdato = :førsteUttaksdato "
                     + "and ytelseType = :ytelsetype",
@@ -144,7 +141,8 @@ public class ForespørselRepository {
             return Optional.empty();
         } else if (resultList.size() > 1) {
             throw new IllegalStateException(
-                "Forventet å finne kun en forespørsel for gitt sak {}, orgnr {}, skjæringstidspunkt {} og første uttaksdato" + fagsakSaksnummer + organisasjonsnummer + stp + førsteUttaksdato);
+                "Forventet å finne kun en forespørsel for gitt sak {}, orgnr {}, skjæringstidspunkt {} og første uttaksdato" + fagsakSaksnummer
+                    + organisasjonsnummer + stp + førsteUttaksdato);
         } else {
             return Optional.of(resultList.getFirst());
         }

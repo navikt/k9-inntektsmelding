@@ -1,20 +1,18 @@
 package no.nav.familie.inntektsmelding.forespørsel.modell;
 
-import no.nav.familie.inntektsmelding.database.JpaTestcontainerExtension;
+import static org.assertj.core.api.Assertions.assertThat;
 
-
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.LocalDate;
+import no.nav.familie.inntektsmelding.database.JpaExtension;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-@ExtendWith(JpaTestcontainerExtension.class)
+@ExtendWith(JpaExtension.class)
 class ForespørselRepositoryTest extends EntityManagerAwareTest {
 
     private ForespørselRepository forespørselRepository;
