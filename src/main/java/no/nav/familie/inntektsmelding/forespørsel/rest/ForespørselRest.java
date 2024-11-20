@@ -54,6 +54,7 @@ public class ForespørselRest {
         this.tilgang = tilgang;
     }
 
+    @Deprecated
     @POST
     @Path("/opprett")
     @Tilgangskontrollert
