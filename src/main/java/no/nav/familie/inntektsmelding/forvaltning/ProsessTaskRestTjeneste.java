@@ -92,7 +92,7 @@ public class ProsessTaskRestTjeneste {
     @Tilgangskontrollert
     public ProsessTaskRestartResultatDto restartProsessTask(
         @Parameter(description = "Informasjon for restart en eksisterende prosesstask") @Valid @NotNull
-        @PathParam("taskStatus") FeiletTaskStatus feiletTaskStatus, @NotNull @PathParam("taskId") Long prosessTaskId) {
+        @PathParam("taskStatus") FeiletTaskStatus feiletTaskStatus, @Valid @NotNull @PathParam("taskId") Long prosessTaskId) {
         sjekkAtKallerHarRollenDrift();
         // kjøres manuelt for å avhjelpe feilsituasjon, da er det veldig greit at det blir logget!
         LOG.info("Restarter prossess task {}", prosessTaskId);
@@ -178,7 +178,7 @@ public class ProsessTaskRestTjeneste {
     public Response setFeiletProsessTaskFerdig(
         @NotNull @Parameter(description = "Prosesstask-id for feilet prosesstask") @Valid
         @PathParam("taskStatus") ProsessTaskRestTjeneste.AlleIkkeFerdigStatus naavarendeTaskStatus,
-        @NotNull @PathParam("taskId") Long prosessTaskId) {
+        @Valid @NotNull @PathParam("taskId") Long prosessTaskId) {
         sjekkAtKallerHarRollenDrift();
         prosessTaskApplikasjonTjeneste.setProsessTaskFerdig(prosessTaskId,
             ProsessTaskStatus.valueOf(naavarendeTaskStatus.name()));

@@ -1,16 +1,17 @@
 package no.nav.familie.inntektsmelding.database;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import no.nav.foreldrepenger.konfig.Environment;
+import java.io.File;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-import java.io.File;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * Initielt skjemaoppsett + migrering av unittest-skjemaer
@@ -24,11 +25,11 @@ public final class TestDatabaseInit {
         settJdniOppslag(ds);
         if (GUARD_UNIT_TEST_SKJEMAER.compareAndSet(false, true)) {
             var flyway = Flyway.configure()
-                    .dataSource(ds)
-                    .locations(getScriptLocation())
-                    .baselineOnMigrate(true)
-                    .cleanDisabled(false)
-                    .load();
+                .dataSource(ds)
+                .locations(getScriptLocation())
+                .baselineOnMigrate(true)
+                .cleanDisabled(false)
+                .load();
             try {
                 flyway.migrate();
             } catch (FlywayException fwe) {
@@ -44,14 +45,7 @@ public final class TestDatabaseInit {
     }
 
     private static String getScriptLocation() {
-        if (Environment.current().getProperty("maven.cmd.line.args") != null) {
-            return classpathScriptLocation();
-        }
         return fileScriptLocation();
-    }
-
-    private static String classpathScriptLocation() {
-        return "classpath:" + DB_SCRIPT_LOCATION;
     }
 
     private static String fileScriptLocation() {
