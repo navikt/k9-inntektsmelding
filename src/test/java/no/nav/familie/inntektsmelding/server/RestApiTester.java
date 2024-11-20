@@ -15,7 +15,6 @@ import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
 public class RestApiTester {
 
-    //TODO: Fjern denne etter ProsesstaskRestTjeneste er annotert riktig.
     static final List<Class<?>> UNNTATT = List.of(ProsessTaskRestTjeneste.class);
 
     static Collection<Method> finnAlleRestMetoder() {

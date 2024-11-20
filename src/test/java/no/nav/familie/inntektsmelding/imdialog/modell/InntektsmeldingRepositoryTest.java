@@ -11,14 +11,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.familie.inntektsmelding.database.JpaTestcontainerExtension;
+import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.konfig.Tid;
 
-@ExtendWith(JpaTestcontainerExtension.class)
+@ExtendWith(JpaExtension.class)
 class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
 
     private InntektsmeldingRepository inntektsmeldingRepository;

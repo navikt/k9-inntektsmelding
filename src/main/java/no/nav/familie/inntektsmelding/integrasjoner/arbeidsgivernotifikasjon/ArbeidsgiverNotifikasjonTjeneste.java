@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
 import java.net.URI;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -109,7 +110,10 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
                 .setTittel("Du har fått en oppgave fra Nav")
                 .setInnhold(varselTekst)
                 .setMottaker(lagAltinnTjenesteMottakerInput())
-                .setSendetidspunkt(SendetidspunktInput.builder().setSendevindu(VARSEL_SENDEVINDU).build())
+                .setSendetidspunkt(SendetidspunktInput.builder()
+                    .setSendevindu(VARSEL_SENDEVINDU)
+                    .setTidspunkt(LocalDateTime.now().plusMinutes(15).toString())
+                    .build())
                 .build())
             .build();
     }
@@ -171,7 +175,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .setNyStatus(SaksStatus.FERDIG)
             .setOverstyrStatustekstMed(SAK_STATUS_TEKST)
             .build();
-        
+
         var projection = new NyStatusSakResultatResponseProjection().typename()
             .onNyStatusSakVellykket(new NyStatusSakVellykketResponseProjection().id())
             .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())

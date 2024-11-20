@@ -1,13 +1,13 @@
 package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -57,7 +57,7 @@ public class ForespørselRest {
     @POST
     @Path("/opprett")
     @Tilgangskontrollert
-    public Response opprettForespørsel(OpprettForespørselRequest request) {
+    public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request) {
         LOG.info("Mottok forespørsel om inntektsmeldingoppgave på fagsakSaksnummer {}", request.fagsakSaksnummer());
         sjekkErSystemkall();
         var bleForespørselOpprettet = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(),
@@ -76,7 +76,7 @@ public class ForespørselRest {
     @POST
     @Path("/oppdater")
     @Tilgangskontrollert
-    public Response oppdaterForespørsler(OppdaterForespørslerRequest request) {
+    public Response oppdaterForespørsler(@Valid @NotNull OppdaterForespørslerRequest request) {
         LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på fagsakSaksnummer {}", request.fagsakSaksnummer());
         sjekkErSystemkall();
 
@@ -93,7 +93,7 @@ public class ForespørselRest {
     @POST
     @Path("/lukk")
     @Tilgangskontrollert
-    public Response lukkForespørsel(LukkForespørselRequest request) {
+    public Response lukkForespørsel(@Valid @NotNull LukkForespørselRequest request) {
         LOG.info("Lukk forespørsel for fagsakSaksnummer {} med orgnummer {} og skjæringstidspunkt {}",
             request.fagsakSaksnummer(),
             request.orgnummer(),
@@ -108,7 +108,7 @@ public class ForespørselRest {
     @POST
     @Path("/sett-til-utgatt")
     @Tilgangskontrollert
-    public Response settForespørselTilUtgått(LukkForespørselRequest request) {
+    public Response settForespørselTilUtgått(@Valid @NotNull LukkForespørselRequest request) {
         LOG.info("Setter forespørsel for fagsakSaksnummer {} til utgått", request.fagsakSaksnummer());
 
         sjekkErSystemkall();
