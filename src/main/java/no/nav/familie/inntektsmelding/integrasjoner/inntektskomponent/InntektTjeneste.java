@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -95,11 +96,17 @@ public class InntektTjeneste {
     }
 
     private static List<Månedsinntekt> fjernOverflødigeMånederOmNødvendig(List<Månedsinntekt> alleMåneder) {
+        // Er alle de tre siste månedene rapportert?
+        alleMåneder.sort(Comparator.comparing(Månedsinntekt::måned));
+        var treSisteMåneder = alleMåneder.subList(alleMåneder.size()-3, alleMåneder.size());
+        if (treSisteMåneder.stream().noneMatch(i -> i.beløp() == null)) {
+            return treSisteMåneder;
+        }
+
         var antallMndMedSattInntekt = alleMåneder.stream().filter(m -> m.beløp != null).toList().size();
         int overflødigeMåneder = antallMndMedSattInntekt > 3 ? antallMndMedSattInntekt-3 : 0;
         // Vi fant inntekt på flere måneder enn vi trenger, fjerner de eldste som er overflødige
         if (overflødigeMåneder > 0) {
-            alleMåneder.sort(Comparator.comparing(m -> m.måned));
             return alleMåneder.subList(overflødigeMåneder, alleMåneder.size());
         }
         return alleMåneder;
@@ -122,8 +129,7 @@ public class InntektTjeneste {
             .limit(månederViBerOm)
             .map(fom -> new Månedsinntekt(
                 YearMonth.of(fom.getYear(), fom.getMonth()),
-                null,
-                organisasjonsnummer))
+                null))
             .collect(Collectors.toList());
     }
 
@@ -145,26 +151,25 @@ public class InntektTjeneste {
 
         inntektPerMånedForBruker.forEach(inntektMåned -> {
             if (inntektMåned.getArbeidsInntektInformasjon() != null && inntektMåned.getArbeidsInntektInformasjon().getInntektListe() != null) {
-                inntektMåned.getArbeidsInntektInformasjon()
+                var inntekterPrMåned = inntektMåned.getArbeidsInntektInformasjon()
                     .getInntektListe()
                     .stream()
-                    .filter(inntekt -> InntektType.LOENNSINNTEKT.equals(inntekt.getInntektType()) && organisasjonsnummer.equals(
-                        inntekt.getVirksomhet().getIdentifikator()))
-                    .findFirst()
-                    .map(this::mapMånedsInntekt)
-                    .ifPresent(månedsInntektListe::add);
+                    .filter(inntekt -> InntektType.LOENNSINNTEKT.equals(inntekt.getInntektType())
+                        && organisasjonsnummer.equals(inntekt.getVirksomhet().getIdentifikator()))
+                    .collect(Collectors.groupingBy(Inntekt::getUtbetaltIMaaned));
+                inntekterPrMåned.forEach((key, value) -> {
+                    var totalInntektForMnd = value.stream().map(Inntekt::getBeloep)
+                        .filter(Objects::nonNull)
+                        .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+                    var inntekt = new Månedsinntekt(key, totalInntektForMnd);
+                    månedsInntektListe.add(inntekt);
+                });
             }
         });
-
         return månedsInntektListe;
     }
 
-    private Månedsinntekt mapMånedsInntekt(Inntekt månedsInntekt) {
-        return new Månedsinntekt(månedsInntekt.getUtbetaltIMaaned(), månedsInntekt.getBeloep(), månedsInntekt.getVirksomhet().getIdentifikator());
-    }
-
-    public record Månedsinntekt(YearMonth måned, BigDecimal beløp, String organisasjonsnummer) {
-    }
+    private record Månedsinntekt(YearMonth måned, BigDecimal beløp) {}
 
     private FinnInntektRequest lagRequest(AktørIdEntitet aktørId, LocalDate fomDato, LocalDate tomDato) {
         var fomÅrMåned = YearMonth.of(fomDato.getYear(), fomDato.getMonth());

@@ -62,11 +62,11 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                                              OrganisasjonsnummerDto organisasjonsnummer,
                                                              SaksnummerDto fagsakSaksnummer,
                                                              LocalDate førsteUttaksdato) {
-        var åpenForespørsel = forespørselTjeneste.finnÅpenForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer);
+        var finnesForespørsel = forespørselTjeneste.finnGjeldendeForespørsel(skjæringstidspunkt, ytelsetype, aktørId, organisasjonsnummer, fagsakSaksnummer, førsteUttaksdato);
 
-        if (åpenForespørsel.isPresent()) {
-            LOG.info("Finnes allerede forespørsel for aktør {} med orgnummer {} og saksnr {} på skjæringstidspunkt {} på ytelse {}", aktørId, organisasjonsnummer, fagsakSaksnummer, skjæringstidspunkt, ytelsetype);
-            return ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE_ÅPEN;
+        if (finnesForespørsel.isPresent()) {
+            LOG.info("Finnes allerede forespørsel for saksnummer: {} med orgnummer: {} med skjæringstidspunkt: {} og første uttaksdato: {}", fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, førsteUttaksdato);
+            return ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE;
         }
 
         opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, førsteUttaksdato);
@@ -135,6 +135,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             if (!trengerEksisterendeForespørsel && eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
                 var settForespørselTilUtgåttTask = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
                 settForespørselTilUtgåttTask.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, eksisterendeForespørsel.getUuid().toString());
+                settForespørselTilUtgåttTask.setProperty(OpprettForespørselTask.FAGSAK_SAKSNUMMER, fagsakSaksnummer.saksnr());
                 taskGruppe.addNesteParallell(settForespørselTilUtgåttTask);
             }
         });
