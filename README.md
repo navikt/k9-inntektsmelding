@@ -2,6 +2,8 @@
 
 Backend for inntektsmelding for Team Sykdom i Familien
 
+Swagger: https://k9swagger.intern.dev.nav.no/?urls.primaryName=k9-inntektsmelding
+
 ## Oppdatere graphql skjema til Arbeidsgiver Notifikasjon API
 
 Bytt ut [produsent.graphql](./src/main/resources/graphql/produsent.graphql) med SDL skjemaet som man kan lastes ned fra playground i
