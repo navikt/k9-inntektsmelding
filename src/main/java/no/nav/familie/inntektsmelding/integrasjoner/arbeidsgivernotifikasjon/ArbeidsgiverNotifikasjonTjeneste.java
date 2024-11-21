@@ -111,7 +111,6 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
                 .setInnhold(varselTekst)
                 .setMottaker(lagAltinnTjenesteMottakerInput())
                 .setSendetidspunkt(SendetidspunktInput.builder()
-                    .setSendevindu(VARSEL_SENDEVINDU)
                     .setTidspunkt(LocalDateTime.now().plusMinutes(15).toString())
                     .build())
                 .build())
