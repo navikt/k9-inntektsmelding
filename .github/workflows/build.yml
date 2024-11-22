@@ -27,6 +27,7 @@ jobs:
       java-version: 21
       build-image: ${{ github.actor != 'dependabot[bot]' }}
       push-image: ${{ github.ref_name == github.event.repository.default_branch}}
+      db_schema: k9inntektsmelding_unit
     secrets: inherit
 
 #  deploy-dev-k9saksbehandling:
