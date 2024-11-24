@@ -15,5 +15,7 @@ jobs:
      actions: read
      contents: read
      security-events: write
-   uses: navikt/fp-gha-workflows/.github/workflows/codeql.yml@main
+   uses: navikt/sif-gha-workflows/.github/workflows/codeql.yml@main
    secrets: inherit
+   with:
+     java-version: 21

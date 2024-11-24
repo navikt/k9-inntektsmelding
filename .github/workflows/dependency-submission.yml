@@ -12,5 +12,5 @@ jobs:
   deps:
     permissions:
       contents: write
-    uses: navikt/fp-gha-workflows/.github/workflows/mvn-dependency-submission.yml@main
+    uses: navikt/sif-gha-workflows/.github/workflows/maven-dependency-submission.yml@main
     secrets: inherit
