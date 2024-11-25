@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselDto;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
@@ -37,6 +38,7 @@ public interface ForespørselBehandlingTjeneste {
     void oppdaterForespørsler(Ytelsetype ytelsetype,
                               AktørIdEntitet aktørId,
                               Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
+                              List<ForespørselDto> forespørsler,
                               SaksnummerDto fagsakSaksnummer);
 
     void opprettForespørsel(Ytelsetype ytelsetype,
@@ -52,5 +54,5 @@ public interface ForespørselBehandlingTjeneste {
 
     void settForespørselTilUtgått(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummer, LocalDate skjæringstidspunkt);
 
-    void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel);
+    void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel, boolean skalOppdatereArbeidsgiverNotifikasjon);
 }

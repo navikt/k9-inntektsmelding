@@ -279,7 +279,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         var orgPerStp = new HashMap<LocalDate, List<OrganisasjonsnummerDto>>() {{
             put(SKJÆRINGSTIDSPUNKT, List.of(new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
         }};
-        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, new SaksnummerDto(SAKSNUMMMER));
+        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, List.of(), new SaksnummerDto(SAKSNUMMMER));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
         verify(prosessTaskTjeneste).lagre(captor.capture());
@@ -303,7 +303,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         var orgPerStp = new HashMap<LocalDate, List<OrganisasjonsnummerDto>>() {{
             put(SKJÆRINGSTIDSPUNKT, List.of(new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
         }};
-        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, new SaksnummerDto(SAKSNUMMMER));
+        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, List.of(),new SaksnummerDto(SAKSNUMMMER));
 
         verifyNoInteractions(prosessTaskTjeneste);
     }
@@ -320,7 +320,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
             put(SKJÆRINGSTIDSPUNKT, List.of(new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
             put(SKJÆRINGSTIDSPUNKT.plusDays(10), List.of(new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
         }};
-        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, new SaksnummerDto(SAKSNUMMMER));
+        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, List.of(),new SaksnummerDto(SAKSNUMMMER));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
         verify(prosessTaskTjeneste).lagre(captor.capture());
@@ -343,7 +343,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         }};
 
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID_2, OPPGAVE_ID_2);
-        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, new SaksnummerDto(SAKSNUMMMER));
+        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), orgPerStp, List.of(),new SaksnummerDto(SAKSNUMMMER));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
         verify(prosessTaskTjeneste).lagre(captor.capture());
