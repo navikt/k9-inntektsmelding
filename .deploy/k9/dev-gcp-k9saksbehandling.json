@@ -26,5 +26,7 @@
         "swagger"
       ]
     }
-  ]
+  ],
+  "devOnly": "true"
+
 }
