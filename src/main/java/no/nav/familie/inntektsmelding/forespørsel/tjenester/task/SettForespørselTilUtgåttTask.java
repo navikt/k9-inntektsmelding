@@ -47,11 +47,12 @@ public class SettForespørselTilUtgåttTask implements ProsessTaskHandler {
         }
 
         ForespørselEntitet forespørsel = opt.get();
-        if (forespørsel.getStatus() != ForespørselStatus.UNDER_BEHANDLING) {
-            log.info("Forespørsel med uuid {} kan ikke settes til utgått, status er {}", forespørselUuid, forespørsel.getStatus());
+        if (forespørsel.getStatus() == ForespørselStatus.UTGÅTT) {
+            log.info("Forespørsel med uuid {} har allerede status utgått", forespørselUuid);
             return;
         }
 
-        forespørselBehandlingTjeneste.settForespørselTilUtgått(forespørsel, true);
+        boolean skalOppdatereArbeidsgiverNotifikasjon =  forespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING;
+        forespørselBehandlingTjeneste.settForespørselTilUtgått(forespørsel, skalOppdatereArbeidsgiverNotifikasjon);
     }
 }
