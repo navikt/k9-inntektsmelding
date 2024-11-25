@@ -104,7 +104,6 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public void oppdaterForespørsler(Ytelsetype ytelsetype,
                                      AktørIdEntitet aktørId,
-                                     Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                                      List<ForespørselDto> forespørseler,
                                      SaksnummerDto fagsakSaksnummer) {
         final var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer);

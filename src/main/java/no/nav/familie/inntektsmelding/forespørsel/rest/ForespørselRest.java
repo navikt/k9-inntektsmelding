@@ -83,7 +83,6 @@ public class ForespørselRest {
         forespørselBehandlingTjeneste.oppdaterForespørsler(
             KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdEntitet(request.aktørId().id()),
-            request.organisasjonerPerSkjæringstidspunkt(),
             request.forespørsler(),
             request.fagsakSaksnummer()
         );

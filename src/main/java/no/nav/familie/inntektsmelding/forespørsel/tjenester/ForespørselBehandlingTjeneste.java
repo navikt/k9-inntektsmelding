@@ -37,7 +37,6 @@ public interface ForespørselBehandlingTjeneste {
 
     void oppdaterForespørsler(Ytelsetype ytelsetype,
                               AktørIdEntitet aktørId,
-                              Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                               List<ForespørselDto> forespørsler,
                               SaksnummerDto fagsakSaksnummer);
 
