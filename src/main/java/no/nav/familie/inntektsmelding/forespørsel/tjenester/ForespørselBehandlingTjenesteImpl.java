@@ -4,7 +4,6 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -172,14 +171,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
             ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT));
+        //forespørsel i ftinntektsmelding
         forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
-        var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
-            eksisterendeForespørsel.getOrganisasjonsnummer(),
+        LOG.info("Setter forespørsel til utgått, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}", eksisterendeForespørsel.getOrganisasjonsnummer(),
             eksisterendeForespørsel.getSkjæringstidspunkt(),
             eksisterendeForespørsel.getFagsystemSaksnummer(),
             eksisterendeForespørsel.getYtelseType());
-        LOG.info(msg);
     }
 
     private boolean innholderRequestEksisterendeForespørsel(List<ForespørselDto> forepørsler,
@@ -242,10 +240,20 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     @Override
-    public void settForespørselTilUtgått(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
-        var forespørsler = hentÅpneForespørslerForFagsak(fagsakSaksnummer, orgnummerDto, skjæringstidspunkt);
+    public void settForespørslerTilUtgått(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
+        var forespørsler = hentGjeldendeForespørslerForFagsak(fagsakSaksnummer, orgnummerDto, skjæringstidspunkt);
 
-        forespørsler.forEach(it -> settForespørselTilUtgått(it, true));
+        forespørsler.forEach(forespørselEntitet -> {
+            var skalOppdatereArbgiverportalen = ForespørselStatus.UNDER_BEHANDLING.equals(forespørselEntitet.getStatus());
+            settForespørselTilUtgått(forespørselEntitet, skalOppdatereArbgiverportalen);
+        });
+    }
+
+    private List<ForespørselEntitet> hentGjeldendeForespørslerForFagsak(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
+        return forespørselTjeneste.finnGjeldeneForespørslerForFagsak(fagsakSaksnummer).stream()
+            .filter(f -> orgnummerDto == null || orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
+            .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
+            .toList();
     }
 
     private List<ForespørselEntitet> hentÅpneForespørslerForFagsak(SaksnummerDto fagsakSaksnummer,
