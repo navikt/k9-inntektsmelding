@@ -250,16 +250,19 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     private List<ForespørselEntitet> hentGjeldendeForespørslerForFagsak(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
-        return forespørselTjeneste.finnGjeldeneForespørslerForFagsak(fagsakSaksnummer).stream()
-            .filter(f -> orgnummerDto == null || orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
-            .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
-            .toList();
+        var gjeldendeForespørsler = forespørselTjeneste.finnGjeldeneForespørslerForFagsak(fagsakSaksnummer);
+        return filtrerForespørsler(gjeldendeForespørsler, orgnummerDto, skjæringstidspunkt);
     }
 
     private List<ForespørselEntitet> hentÅpneForespørslerForFagsak(SaksnummerDto fagsakSaksnummer,
                                                                    OrganisasjonsnummerDto orgnummerDto,
                                                                    LocalDate skjæringstidspunkt) {
-        return forespørselTjeneste.finnÅpneForespørslerForFagsak(fagsakSaksnummer).stream()
+        var åpneForepsørsler = forespørselTjeneste.finnÅpneForespørslerForFagsak(fagsakSaksnummer);
+        return filtrerForespørsler(åpneForepsørsler, orgnummerDto, skjæringstidspunkt);
+    }
+
+    private List<ForespørselEntitet> filtrerForespørsler(List<ForespørselEntitet> forespørsler, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
+        return forespørsler.stream()
             .filter(f -> orgnummerDto == null || orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
             .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
             .toList();
