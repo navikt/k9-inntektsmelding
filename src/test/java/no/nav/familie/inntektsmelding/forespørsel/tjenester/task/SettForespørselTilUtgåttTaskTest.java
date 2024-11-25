@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,7 +36,7 @@ class SettForespørselTilUtgåttTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste).settForespørselTilUtgått(entitet);
+        verify(forespørselBehandlingTjeneste).settForespørselTilUtgått(entitet, true);
     }
 
     @Test
@@ -50,6 +51,6 @@ class SettForespørselTilUtgåttTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste, times(0)).settForespørselTilUtgått(any(ForespørselEntitet.class));
+        verify(forespørselBehandlingTjeneste, times(0)).settForespørselTilUtgått(any(ForespørselEntitet.class), eq(true));
     }
 }

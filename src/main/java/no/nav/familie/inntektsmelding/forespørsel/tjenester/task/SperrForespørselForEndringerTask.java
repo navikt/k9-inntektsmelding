@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.ApplicationScoped;
-
 import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
@@ -18,21 +17,21 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = SettForespørselTilUtgåttTask.TASKTYPE)
-public class SettForespørselTilUtgåttTask implements ProsessTaskHandler {
-    public static final String TASKTYPE = "forespørsel.utgått";
-    private static final Logger log = LoggerFactory.getLogger(SettForespørselTilUtgåttTask.class);
+@ProsessTask(value = SperrForespørselForEndringerTask.TASKTYPE)
+public class SperrForespørselForEndringerTask implements ProsessTaskHandler {
+    public static final String TASKTYPE = "forespørsel.sperrForEndringer";
+    private static final Logger log = LoggerFactory.getLogger(SperrForespørselForEndringerTask.class);
 
     public static final String FORESPØRSEL_UUID = "forespoerselUuid";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
     @Inject
-    public SettForespørselTilUtgåttTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
+    public SperrForespørselForEndringerTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
     }
 
-    SettForespørselTilUtgåttTask() {
+    SperrForespørselForEndringerTask() {
         // CDI
     }
 
@@ -47,11 +46,11 @@ public class SettForespørselTilUtgåttTask implements ProsessTaskHandler {
         }
 
         ForespørselEntitet forespørsel = opt.get();
-        if (forespørsel.getStatus() != ForespørselStatus.UNDER_BEHANDLING) {
-            log.info("Forespørsel med uuid {} kan ikke settes til utgått, status er {}", forespørselUuid, forespørsel.getStatus());
+        if (forespørsel.getStatus() != ForespørselStatus.FERDIG) {
+            log.info("Forespørsel med uuid {} kan ikke settes sperres for endringer, status er {}", forespørselUuid, forespørsel.getStatus());
             return;
         }
 
-        forespørselBehandlingTjeneste.settForespørselTilUtgått(forespørsel, true);
+        forespørselBehandlingTjeneste.settForespørselTilUtgått(forespørsel, false);
     }
 }
