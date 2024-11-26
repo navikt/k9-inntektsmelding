@@ -109,11 +109,11 @@ public class ForespørselRest {
     @Path("/sett-til-utgatt")
     @Tilgangskontrollert
     public Response settForespørselTilUtgått(@Valid @NotNull LukkForespørselRequest request) {
-        LOG.info("Setter forespørsel for fagsakSaksnummer {} til utgått", request.fagsakSaksnummer());
+        LOG.info("Setter forespørsler for fagsakSaksnummer {} til utgått", request.fagsakSaksnummer());
 
         sjekkErSystemkall();
 
-        forespørselBehandlingTjeneste.settForespørselTilUtgått(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        forespørselBehandlingTjeneste.settForespørslerTilUtgått(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
         return Response.ok().build();
     }
 
