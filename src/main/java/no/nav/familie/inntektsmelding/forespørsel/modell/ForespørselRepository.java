@@ -155,4 +155,12 @@ public class ForespørselRepository {
             .setParameter("status", ForespørselStatus.UNDER_BEHANDLING);
         return query.getResultList();
     }
+
+    public List<ForespørselEntitet> hentGjeldendeForespørsler(SaksnummerDto fagsakSaksnummer) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet where status in (:statuser) " + "and fagsystemSaksnummer=:saksnummer",
+                ForespørselEntitet.class)
+            .setParameter("saksnummer", fagsakSaksnummer.saksnr())
+            .setParameter("statuser", Set.of(ForespørselStatus.UNDER_BEHANDLING, ForespørselStatus.FERDIG));
+        return query.getResultList();
+    }
 }
