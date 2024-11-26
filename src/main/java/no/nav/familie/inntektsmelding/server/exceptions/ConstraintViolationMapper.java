@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.server.exceptions;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViolationException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConstraintViolationMapper.class);
+    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
@@ -30,6 +32,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
 
     private void log(ConstraintViolationException exception) {
         LOG.warn("Det oppstod en valideringsfeil: {}", constraints(exception));
+        SECURE_LOG.warn("Det oppstod en valideringsfeil: felt {} - input {}", constraints(exception), getInputs(exception));
     }
 
     private static Response lagResponse(ConstraintViolationException exception) {
@@ -42,6 +45,15 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         var feilmelding = String.format("Det oppstod en valideringsfeil på felt %s. " + "Vennligst kontroller at alle feltverdier er korrekte.",
             feltNavn);
         return Response.status(Response.Status.BAD_REQUEST).entity(new FeilDto(feilmelding, feilene, MDCOperations.getCallId())).type(MediaType.APPLICATION_JSON).build();
+    }
+
+    private static Set<String> getInputs(ConstraintViolationException exception) {
+        return exception.getConstraintViolations()
+            .stream()
+            .map(ConstraintViolation::getInvalidValue)
+            .filter(Objects::nonNull)
+            .map(Object::toString)
+            .collect(Collectors.toSet());
     }
 
     private static Set<String> constraints(ConstraintViolationException exception) {
