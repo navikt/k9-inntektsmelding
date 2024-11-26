@@ -63,7 +63,7 @@ public class KodeverkMapper {
             case FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER -> Endringsårsak.FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER;
             case NYANSATT -> Endringsårsak.NYANSATT;
             case MANGELFULL_RAPPORTERING_AORDNING -> Endringsårsak.MANGELFULL_RAPPORTERING_AORDNING;
-            case FEIL_RAPPORTERING_AORDNING -> Endringsårsak.FEIL_RAPPORTERING_AORDNING;
+            case IKKE_RAPPORTERT_AORDNING -> Endringsårsak.IKKE_RAPPORTERT_AORDNING;
             case TARIFFENDRING -> Endringsårsak.TARIFFENDRING;
             case FERIE -> Endringsårsak.FERIE;
             case VARIG_LØNNSENDRING -> Endringsårsak.VARIG_LØNNSENDRING;
@@ -81,7 +81,7 @@ public class KodeverkMapper {
             case FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER -> EndringsårsakDto.FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER;
             case NYANSATT -> EndringsårsakDto.NYANSATT;
             case MANGELFULL_RAPPORTERING_AORDNING -> EndringsårsakDto.MANGELFULL_RAPPORTERING_AORDNING;
-            case FEIL_RAPPORTERING_AORDNING -> EndringsårsakDto.FEIL_RAPPORTERING_AORDNING;
+            case IKKE_RAPPORTERT_AORDNING -> EndringsårsakDto.IKKE_RAPPORTERT_AORDNING;
             case TARIFFENDRING -> EndringsårsakDto.TARIFFENDRING;
             case FERIE -> EndringsårsakDto.FERIE;
             case VARIG_LØNNSENDRING -> EndringsårsakDto.VARIG_LØNNSENDRING;
