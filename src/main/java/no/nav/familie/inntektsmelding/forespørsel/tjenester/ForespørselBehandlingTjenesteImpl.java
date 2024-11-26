@@ -108,26 +108,20 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         final var taskGruppe = new ProsessTaskGruppe();
 
         for (ForespørselDto forespørselDto : forespørsler) {
-            if (!forespørselDto.skalSperresForEndringer()) {
+            if (skalOppretteNy(forespørselDto, eksisterendeForespørsler)) {
                 // Oppretter forespørsler for alle skjæringstidspunkt som ikke allerede er opprettet
-                var eksisterendeForespørsel = finnEksisterendeForespørsel(forespørselDto, eksisterendeForespørsler, List.of(ForespørselStatus.UNDER_BEHANDLING, ForespørselStatus.FERDIG));
-
-                if (eksisterendeForespørsel.isEmpty()) {
-                    var opprettForespørselTask = OpprettForespørselTask.lagTaskData(ytelsetype,
-                        aktørId,
-                        fagsakSaksnummer,
-                        forespørselDto.orgnr(),
-                        forespørselDto.skjæringstidspunkt());
-                    taskGruppe.addNesteParallell(opprettForespørselTask);
-                }
-
+                var opprettForespørselTask = OpprettForespørselTask.lagTaskData(ytelsetype,
+                    aktørId,
+                    fagsakSaksnummer,
+                    forespørselDto.orgnr(),
+                    forespørselDto.skjæringstidspunkt());
+                taskGruppe.addNesteParallell(opprettForespørselTask);
             } else {
-                // Forespørsler som skal sperres for endringer settes til utgått
-                var eksisterendeForespørsel = finnEksisterendeForespørsel(forespørselDto, eksisterendeForespørsler, List.of(ForespørselStatus.FERDIG));
-
-                if (eksisterendeForespørsel.isPresent()) {
+                var skalSperresForEndringer = skalSperresForEndringer(forespørselDto, eksisterendeForespørsler);
+                if (skalSperresForEndringer.isPresent()) {
+                    // Forespørsler som skal sperres for endringer settes til utgått
                     var settForespørselTilUtgåttTask = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
-                    settForespørselTilUtgåttTask.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, eksisterendeForespørsel.get().getUuid().toString());
+                    settForespørselTilUtgåttTask.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, skalSperresForEndringer.get().getUuid().toString());
                     settForespørselTilUtgåttTask.setProperty(OpprettForespørselTask.FAGSAK_SAKSNUMMER, fagsakSaksnummer.saksnr());
                     taskGruppe.addNesteParallell(settForespørselTilUtgåttTask);
                 }
@@ -154,6 +148,20 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         } else {
             LOG.info("Ingen oppdatering er nødvendig for saksnr: {}", fagsakSaksnummer);
         }
+    }
+
+    private static boolean skalOppretteNy(ForespørselDto forespørselDto, List<ForespørselEntitet> eksisterendeForespørsler) {
+        if (forespørselDto.skalSperresForEndringer()) {
+            return false;
+        }
+        return finnEksisterendeForespørsel(forespørselDto, eksisterendeForespørsler, List.of(ForespørselStatus.UNDER_BEHANDLING, ForespørselStatus.FERDIG)).isEmpty();
+    }
+
+    private static Optional<ForespørselEntitet> skalSperresForEndringer(ForespørselDto forespørselDto, List<ForespørselEntitet> eksisterendeForespørsler) {
+        if (!forespørselDto.skalSperresForEndringer()) {
+            return Optional.empty();
+        }
+        return finnEksisterendeForespørsel(forespørselDto, eksisterendeForespørsler, List.of(ForespørselStatus.FERDIG));
     }
 
     private static Optional<ForespørselEntitet> finnEksisterendeForespørsel(ForespørselDto forespørselDto, List<ForespørselEntitet> eksisterendeForespørsler, List<ForespørselStatus> statuser) {
