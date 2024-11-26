@@ -12,6 +12,8 @@ import java.util.List;
 
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 
+import no.nav.vedtak.exception.IntegrasjonException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -346,13 +348,34 @@ class InntektTjenesteTest {
         assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(25_000));
     }
 
+    @Test
+    void skal_returnere_tomme_inntekter_hvis_inntektskomponenten_er_nede() {
+        var aktørId = new AktørIdEntitet(AKTØR_ID);
+        var stp = LocalDate.of(2024,12,15);
+        var dagensDato = LocalDate.of(2024,11,18);
+        var forventetRequest = new FinnInntektRequest(aktørId.getAktørId(), YearMonth.of(2024, 8), YearMonth.of(2024, 11));
+
+        when(klient.finnInntekt(forventetRequest)).thenThrow(new IntegrasjonException("TESTMELDING", "Noe feil"));
+
+        var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
+
+        var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), MånedslønnStatus.NEDETID_AINNTEKT)
+            , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 10), MånedslønnStatus.NEDETID_AINNTEKT)
+            , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 11), MånedslønnStatus.NEDETID_AINNTEKT));
+        assertResultat(inntektsopplysinger, forventetListe, ORGNR, null);
+    }
+
     private void assertResultat(Inntektsopplysninger inntektsopplysinger,
                                 List<Inntektsopplysninger.InntektMåned> forventetListe,
                                 String orgnr,
                                 BigDecimal forventetSnittlønn) {
         assertThat(inntektsopplysinger).isNotNull();
         assertThat(inntektsopplysinger.orgnummer()).isEqualTo(orgnr);
-        assertThat(inntektsopplysinger.gjennomsnitt()).isEqualByComparingTo(forventetSnittlønn);
+        if (forventetSnittlønn == null) {
+            assertThat(inntektsopplysinger.gjennomsnitt()).isNull();
+        } else {
+            assertThat(inntektsopplysinger.gjennomsnitt()).isEqualByComparingTo(forventetSnittlønn);
+        }
         assertThat(inntektsopplysinger.måneder()).hasSameSizeAs(forventetListe);
         assertThat(inntektsopplysinger.måneder()).containsAll(forventetListe);
     }

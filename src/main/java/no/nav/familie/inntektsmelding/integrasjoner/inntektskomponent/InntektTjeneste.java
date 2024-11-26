@@ -9,11 +9,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -26,6 +30,7 @@ import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class InntektTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(InntektTjeneste.class);
     private static final int DAG_I_MÅNED_RAPPORTERINGSFRIST = 5;
     private InntektskomponentKlient inntektskomponentKlient;
 
@@ -39,18 +44,30 @@ public class InntektTjeneste {
     }
 
     // Tar inn dagens dato som parameter for å gjøre det enklere å skrive tester
-    public Inntektsopplysninger hentInntekt(AktørIdEntitet aktørId, LocalDate startdato, LocalDate dagensDato, String organisasjonsnummer) {
-        var antallMånederViBerOm = finnAntallMånederViMåBeOm(startdato, dagensDato);
-        var fomDato = startdato.minusMonths(antallMånederViBerOm);
-        var tomDato = startdato.minusMonths(1);
+    public Inntektsopplysninger hentInntekt(AktørIdEntitet aktørId, LocalDate skjæringstidspunkt, LocalDate dagensDato, String organisasjonsnummer) {
+        var antallMånederViBerOm = finnAntallMånederViMåBeOm(skjæringstidspunkt, dagensDato);
+        var fomDato = skjæringstidspunkt.minusMonths(antallMånederViBerOm);
+        var tomDato = skjæringstidspunkt.minusMonths(1);
         var request = lagRequest(aktørId, fomDato, tomDato);
-        var respons = inntektskomponentKlient.finnInntekt(request);
-        var inntekter = oversettRespons(respons, aktørId, organisasjonsnummer);
-        var alleMåneder = inntekter.size() == antallMånederViBerOm
-                          ? inntekter
-                          : fyllInnManglendeMåneder(fomDato, antallMånederViBerOm, organisasjonsnummer, inntekter);
-        var kuttetNedTilTreMndInntekt = fjernOverflødigeMånederOmNødvendig(alleMåneder);
-        return beregnSnittOgLeggPåStatus(kuttetNedTilTreMndInntekt, dagensDato, organisasjonsnummer);
+        try {
+            var respons = inntektskomponentKlient.finnInntekt(request);
+            var inntekter = oversettRespons(respons, aktørId, organisasjonsnummer);
+            var alleMåneder = inntekter.size() == antallMånederViBerOm
+                              ? inntekter
+                              : fyllInnManglendeMåneder(fomDato, antallMånederViBerOm, organisasjonsnummer, inntekter);
+            var kuttetNedTilTreMndInntekt = fjernOverflødigeMånederOmNødvendig(alleMåneder);
+            return beregnSnittOgLeggPåStatus(kuttetNedTilTreMndInntekt, dagensDato, organisasjonsnummer);
+        } catch (IntegrasjonException e) {
+            LOG.warn("Nedetid i inntektskomponenten, returnerer tomme måneder uten snittlønn til frontend.");
+            return lagTomRespons(skjæringstidspunkt, organisasjonsnummer);
+        }
+    }
+
+    private Inntektsopplysninger lagTomRespons(LocalDate skjæringstidspunkt, String organisasjonsnummer) {
+        var tommeMåneder = Set.of(1, 2, 3).stream().map(i -> new Inntektsopplysninger.InntektMåned(null,
+            YearMonth.from(skjæringstidspunkt.minusMonths(i)),
+            MånedslønnStatus.NEDETID_AINNTEKT)).toList();
+        return new Inntektsopplysninger(null, organisasjonsnummer, tommeMåneder);
     }
 
     private Inntektsopplysninger beregnSnittOgLeggPåStatus(List<Månedsinntekt> inntekter, LocalDate dagensDato, String organisasjonsnummer) {
@@ -80,12 +97,12 @@ public class InntektTjeneste {
                : new Inntektsopplysninger.InntektMåned(i.beløp, i.måned, MånedslønnStatus.IKKE_RAPPORTERT_RAPPORTERINGSFRIST_IKKE_PASSERT);
     }
 
-    private int finnAntallMånederViMåBeOm(LocalDate startdato, LocalDate dagensDato) {
+    private int finnAntallMånederViMåBeOm(LocalDate skjæringstidspunkt, LocalDate dagensDato) {
         var beregningsperiodeAntallMnd = 3;
-        if (!rapporteringsfristErPassert(startdato.minusMonths(1), dagensDato)) {
+        if (!rapporteringsfristErPassert(skjæringstidspunkt.minusMonths(1), dagensDato)) {
             beregningsperiodeAntallMnd++;
         }
-        if (!rapporteringsfristErPassert(startdato.minusMonths(2), dagensDato)) {
+        if (!rapporteringsfristErPassert(skjæringstidspunkt.minusMonths(2), dagensDato)) {
             beregningsperiodeAntallMnd++;
         }
         return beregningsperiodeAntallMnd;
