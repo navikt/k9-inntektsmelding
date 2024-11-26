@@ -76,7 +76,4 @@ public class ForespørselTjeneste {
         return forespørselRepository.hentForespørsler(fagsakSaksnummer);
     }
 
-    public List<ForespørselEntitet> finnGjeldeneForespørslerForFagsak(SaksnummerDto fagsakSaksnummer) {
-        return forespørselRepository.hentGjeldendeForespørsler(fagsakSaksnummer);
-    }
 }
