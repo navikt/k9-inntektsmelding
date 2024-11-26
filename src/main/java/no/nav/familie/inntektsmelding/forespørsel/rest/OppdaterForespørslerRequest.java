@@ -13,7 +13,7 @@ import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
 public record OppdaterForespørslerRequest(@NotNull @Valid AktørIdDto aktørId,
-                                          @NotNull @Valid Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
+                                          @Deprecated @NotNull @Valid Map<LocalDate, List<OrganisasjonsnummerDto>> organisasjonerPerSkjæringstidspunkt,
                                           @NotNull List<ForespørselDto> forespørsler,
                                           @NotNull YtelseTypeDto ytelsetype,
                                           @NotNull @Valid SaksnummerDto fagsakSaksnummer) {
