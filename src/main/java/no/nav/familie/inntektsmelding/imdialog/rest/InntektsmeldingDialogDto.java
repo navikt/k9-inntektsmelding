@@ -27,7 +27,7 @@ public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto per
 
     public record InnsenderDto(@NotNull String fornavn, String mellomnavn, @NotNull String etternavn, String telefon) {}
 
-    public record InntektsopplysningerDto(@NotNull @Valid BigDecimal gjennomsnittLønn, @NotNull @Valid List<MånedsinntektDto> månedsinntekter){
+    public record InntektsopplysningerDto(@Valid BigDecimal gjennomsnittLønn, @NotNull @Valid List<MånedsinntektDto> månedsinntekter){
         public record MånedsinntektDto(@NotNull LocalDate fom, @NotNull LocalDate tom, BigDecimal beløp, @Valid @NotNull MånedslønnStatus status) {}
     }
 }
