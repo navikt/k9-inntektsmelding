@@ -3,16 +3,16 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.enterprise.context.ApplicationScoped;
-
-import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -52,7 +52,8 @@ public class SettForespørselTilUtgåttTask implements ProsessTaskHandler {
             return;
         }
 
-        boolean skalOppdatereArbeidsgiverNotifikasjon =  forespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING;
+        boolean skalOppdatereArbeidsgiverNotifikasjon = forespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING;
         forespørselBehandlingTjeneste.settForespørselTilUtgått(forespørsel, skalOppdatereArbeidsgiverNotifikasjon);
+        MetrikkerTjeneste.loggForespørselLukkEkstern(forespørsel);
     }
 }
