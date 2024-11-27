@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -14,7 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
@@ -22,6 +25,8 @@ import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselDto;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
+import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
+import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
@@ -35,7 +40,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@ExtendWith(JpaExtension.class)
+@ExtendWith({JpaExtension.class, MockitoExtension.class})
 public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
 
     private static final String BRREG_ORGNUMMER = "974760673";
@@ -49,11 +54,17 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     private static final LocalDate FØRSTE_UTTAKSDATO = LocalDate.now().minusYears(1).plusDays(1);
     private static final Ytelsetype YTELSETYPE = Ytelsetype.PLEIEPENGER_SYKT_BARN;
 
-    private final ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon = Mockito.mock(ArbeidsgiverNotifikasjon.class);
-    private final PersonTjeneste personTjeneste = Mockito.mock(PersonTjeneste.class);
+    @Mock
+    private ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
+    @Mock
+    private PersonTjeneste personTjeneste;
+    @Mock
+    private ProsessTaskTjeneste prosessTaskTjeneste;
+    @Mock
+    private OrganisasjonTjeneste organisasjonTjeneste;
+
     private ForespørselRepository forespørselRepository;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private final ProsessTaskTjeneste prosessTaskTjeneste = Mockito.mock(ProsessTaskTjeneste.class);
 
     @BeforeEach
     public void setUp() {
@@ -61,12 +72,14 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         this.forespørselBehandlingTjeneste = new ForespørselBehandlingTjenesteImpl(new ForespørselTjeneste(forespørselRepository),
             arbeidsgiverNotifikasjon,
             personTjeneste,
-            prosessTaskTjeneste);
+            prosessTaskTjeneste,
+            organisasjonTjeneste);
     }
 
     @Test
     public void skal_opprette_forespørsel_og_sette_sak_og_oppgave() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
+        when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("test org", BRREG_ORGNUMMER));
 
         var resultat = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
             YTELSETYPE,
@@ -108,8 +121,9 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     @Test
     public void skal_ikke_opprette_forespørsel_når_finnes_allerede_for_stp_og_første_uttaksdato() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
+        when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("test org", BRREG_ORGNUMMER));
 
-        var resultat = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
+        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
             YTELSETYPE,
             new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
@@ -119,8 +133,11 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         clearHibernateCache();
 
         var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER)).getFirst();
-        var fpEntitet = forespørselBehandlingTjeneste.ferdigstillForespørsel(lagret.getUuid(), lagret.getAktørId(), new OrganisasjonsnummerDto(lagret.getOrganisasjonsnummer()),
-            lagret.getFørsteUttaksdato().orElse(lagret.getSkjæringstidspunkt()), LukkeÅrsak.EKSTERN_INNSENDING );
+        var fpEntitet = forespørselBehandlingTjeneste.ferdigstillForespørsel(lagret.getUuid(),
+            lagret.getAktørId(),
+            new OrganisasjonsnummerDto(lagret.getOrganisasjonsnummer()),
+            lagret.getFørsteUttaksdato().orElse(lagret.getSkjæringstidspunkt()),
+            LukkeÅrsak.EKSTERN_INNSENDING);
 
         assertThat(fpEntitet.getStatus()).isEqualTo(ForespørselStatus.FERDIG);
 
@@ -137,6 +154,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     @Test
     public void skal_opprette_forespørsel_når_finnes_allerede_for_samme_stp_og_ulik_uttaksdato() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
+        when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("test org", BRREG_ORGNUMMER));
 
         forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
             YTELSETYPE,
@@ -149,8 +167,11 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
 
         var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER)).getFirst();
 
-        var fpEntitet = forespørselBehandlingTjeneste.ferdigstillForespørsel(lagret.getUuid(), lagret.getAktørId(), new OrganisasjonsnummerDto(lagret.getOrganisasjonsnummer()),
-            lagret.getFørsteUttaksdato().orElse(lagret.getSkjæringstidspunkt()), LukkeÅrsak.EKSTERN_INNSENDING );
+        var fpEntitet = forespørselBehandlingTjeneste.ferdigstillForespørsel(lagret.getUuid(),
+            lagret.getAktørId(),
+            new OrganisasjonsnummerDto(lagret.getOrganisasjonsnummer()),
+            lagret.getFørsteUttaksdato().orElse(lagret.getSkjæringstidspunkt()),
+            LukkeÅrsak.EKSTERN_INNSENDING);
 
         assertThat(fpEntitet.getStatus()).isEqualTo(ForespørselStatus.FERDIG);
 
@@ -420,8 +441,9 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
             null);
         var sakTittel = ForespørselTekster.lagSaksTittel(personInfo.mapFulltNavn(), personInfo.fødselsdato());
 
-        when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørId), ytelsetype)).thenReturn(personInfo);
-        when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(brregOrgnummer), eq(sakTittel), any())).thenReturn(sakId);
-        when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(brregOrgnummer), any(), any(), any(), any())).thenReturn(oppgaveId);
+        lenient().when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørId), ytelsetype)).thenReturn(personInfo);
+        lenient().when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(brregOrgnummer), eq(sakTittel), any())).thenReturn(sakId);
+        lenient().when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(brregOrgnummer), any(), any(), any(), any()))
+            .thenReturn(oppgaveId);
     }
 }

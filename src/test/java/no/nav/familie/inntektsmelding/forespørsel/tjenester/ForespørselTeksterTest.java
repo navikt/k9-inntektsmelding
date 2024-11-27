@@ -1,12 +1,14 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
 class ForespørselTeksterTest {
 
@@ -38,5 +40,29 @@ class ForespørselTeksterTest {
     void lagTilleggsInformasjon_Utgått() {
         String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT);
         assertEquals("Du trenger ikke lenger å sende denne inntektsmeldingen", statusTekst);
+    }
+
+    @Test
+    void legVarselTekstMedOrgnvOgNavn() {
+        var testOrgNavn = "test org";
+        var testOrgNr = "1234321";
+        var varselTekst = ForespørselTekster.lagVarselTekst(Ytelsetype.FORELDREPENGER, new Organisasjon(testOrgNavn, testOrgNr));
+
+        assertThat(varselTekst).isNotEmpty()
+            .startsWith(testOrgNavn.toUpperCase())
+            .contains(testOrgNr)
+            .contains(Ytelsetype.FORELDREPENGER.name().toLowerCase());
+    }
+
+    @Test
+    void legPåminnelseTekstMedOrgnvOgNavn() {
+        var testOrgNavn = "org test org";
+        var testOrgNr = "6531342";
+        var varselTekst = ForespørselTekster.lagPåminnelseTekst(Ytelsetype.SVANGERSKAPSPENGER, new Organisasjon(testOrgNavn, testOrgNr));
+
+        assertThat(varselTekst).isNotEmpty()
+            .startsWith(testOrgNavn.toUpperCase())
+            .contains(testOrgNr)
+            .contains(Ytelsetype.SVANGERSKAPSPENGER.name().toLowerCase());
     }
 }
