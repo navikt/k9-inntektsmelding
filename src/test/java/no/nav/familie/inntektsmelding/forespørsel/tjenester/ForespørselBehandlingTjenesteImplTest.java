@@ -349,6 +349,27 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
+    public void skal_sperre_forespørsel_for_endringer() {
+        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
+
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
+            SKJÆRINGSTIDSPUNKT);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+        forespørselRepository.ferdigstillForespørsel(SAK_ID);
+
+        var forespørsler = List.of(new ForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), true));
+        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
+
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskGruppe = captor.getValue();
+        assertThat(taskGruppe.getTasks().size()).isEqualTo(1);
+        var taskdata = taskGruppe.getTasks().getFirst().task();
+        assertThat(taskdata.getTaskType()).isEqualTo(SettForespørselTilUtgåttTask.TASKTYPE);
+        assertThat(taskdata.getPropertyValue(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+    }
+
+    @Test
     public void skal_slette_oppgave_gitt_saksnummer_og_orgnr() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
