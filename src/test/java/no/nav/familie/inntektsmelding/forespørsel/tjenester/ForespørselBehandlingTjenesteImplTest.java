@@ -224,7 +224,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_sette_alle_åpne_forespørspørsler_for_sak_til_utgått() {
+    public void skal_sette_alle_forespørspørsler_for_sak_til_utgått() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             FØRSTE_UTTAKSDATO);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
@@ -236,7 +236,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
             FØRSTE_UTTAKSDATO);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid2, "2");
 
-        forespørselBehandlingTjeneste.settForespørslerTilUtgått(new SaksnummerDto(SAKSNUMMMER), null, null);
+        forespørselBehandlingTjeneste.settForespørselTilUtgått(new SaksnummerDto(SAKSNUMMMER), null, null);
 
         clearHibernateCache();
 
@@ -244,57 +244,6 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
         var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
         assertThat(lagret2.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
-    }
-
-    @Test
-    public void skal_sette_forespørsel_for_fagsak_til_utgått_selvom_inntektsmelding_er_motatt() {
-        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            FØRSTE_UTTAKSDATO);
-        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
-        var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusDays(2),
-            YTELSETYPE,
-            AKTØR_ID,
-            BRREG_ORGNUMMER,
-            SAKSNUMMMER,
-            FØRSTE_UTTAKSDATO);
-        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid2, "2");
-
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, new AktørIdEntitet(AKTØR_ID), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), FØRSTE_UTTAKSDATO, LukkeÅrsak.ORDINÆR_INNSENDING);
-
-        forespørselBehandlingTjeneste.settForespørslerTilUtgått(new SaksnummerDto(SAKSNUMMMER), null, null);
-
-        clearHibernateCache();
-
-        var lagretFp1 = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagretFp1.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
-        var lagret2Fp2 = forespørselRepository.hentForespørsel(forespørselUuid2);
-        assertThat(lagret2Fp2.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
-    }
-
-    @Test
-    public void skal_sette_forespørsel_for_fagsak_med_gitt_orgnummer_og_stp_til_utgått() {
-        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            FØRSTE_UTTAKSDATO);
-        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
-        var stp2 = SKJÆRINGSTIDSPUNKT.plusDays(2);
-        var forespørselUuid2 = forespørselRepository.lagreForespørsel(stp2,
-            YTELSETYPE,
-            AKTØR_ID,
-            BRREG_ORGNUMMER,
-            SAKSNUMMMER,
-            FØRSTE_UTTAKSDATO.plusDays(2));
-        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid2, "2");
-
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, new AktørIdEntitet(AKTØR_ID), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), FØRSTE_UTTAKSDATO, LukkeÅrsak.ORDINÆR_INNSENDING);
-
-        forespørselBehandlingTjeneste.settForespørslerTilUtgått(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), stp2);
-
-        clearHibernateCache();
-
-        var lagretFp1 = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagretFp1.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
-        var lagretFp2 = forespørselRepository.hentForespørsel(forespørselUuid2);
-        assertThat(lagretFp2.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
     }
 
     @Test
