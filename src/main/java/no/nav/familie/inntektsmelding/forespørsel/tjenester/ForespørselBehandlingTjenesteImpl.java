@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -107,39 +108,24 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         final var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer);
         final var taskGruppe = new ProsessTaskGruppe();
 
-        for (ForespørselDto forespørselDto : forespørsler) {
-            if (skalOppretteNy(forespørselDto, eksisterendeForespørsler)) {
-                // Oppretter forespørsler for alle skjæringstidspunkt som ikke allerede er opprettet
-                var opprettForespørselTask = OpprettForespørselTask.lagTaskData(ytelsetype,
-                    aktørId,
-                    fagsakSaksnummer,
-                    forespørselDto.orgnr(),
-                    forespørselDto.skjæringstidspunkt());
-                taskGruppe.addNesteParallell(opprettForespørselTask);
-            } else {
-                var skalSperresForEndringer = skalSperresForEndringer(forespørselDto, eksisterendeForespørsler);
-                if (skalSperresForEndringer.isPresent()) {
-                    // Forespørsler som skal sperres for endringer settes til utgått
-                    var settForespørselTilUtgåttTask = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
-                    settForespørselTilUtgåttTask.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, skalSperresForEndringer.get().getUuid().toString());
-                    settForespørselTilUtgåttTask.setProperty(OpprettForespørselTask.FAGSAK_SAKSNUMMER, fagsakSaksnummer.saksnr());
-                    taskGruppe.addNesteParallell(settForespørselTilUtgåttTask);
-                }
-            }
+        // Forespørsler som skal opprettes
+        var skalOpprettes = utledNyeForespørsler(forespørsler, eksisterendeForespørsler);
+        for (ForespørselDto forespørselDto : skalOpprettes) {
+            var opprettForespørselTask = OpprettForespørselTask.lagTaskData(ytelsetype,
+                aktørId,
+                fagsakSaksnummer,
+                forespørselDto.orgnr(),
+                forespørselDto.skjæringstidspunkt());
+            taskGruppe.addNesteParallell(opprettForespørselTask);
         }
 
-        // Forespørsler som ikke lenger er aktuelle settes til utgått
-        for (ForespørselEntitet eksisterendeForespørsel : eksisterendeForespørsler) {
-            if (eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
-                boolean trengerEksisterendeForespørsel = innholderRequestEksisterendeForespørsel(forespørsler, eksisterendeForespørsel);
-
-                if (!trengerEksisterendeForespørsel) {
-                    var settForespørselTilUtgåttTask = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
-                    settForespørselTilUtgåttTask.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, eksisterendeForespørsel.getUuid().toString());
-                    settForespørselTilUtgåttTask.setProperty(OpprettForespørselTask.FAGSAK_SAKSNUMMER, fagsakSaksnummer.saksnr());
-                    taskGruppe.addNesteParallell(settForespørselTilUtgåttTask);
-                }
-            }
+        // Forespørsler som skal settes til utgått
+        var skalSettesUtgått = utledForespørslerSomSkalSettesUtgått(forespørsler, eksisterendeForespørsler);
+        for (ForespørselEntitet forespørsel : skalSettesUtgått) {
+            var settForespørselTilUtgåttTask = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
+            settForespørselTilUtgåttTask.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørsel.getUuid().toString());
+            settForespørselTilUtgåttTask.setProperty(OpprettForespørselTask.FAGSAK_SAKSNUMMER, fagsakSaksnummer.saksnr());
+            taskGruppe.addNesteParallell(settForespørselTilUtgåttTask);
         }
 
         if (!taskGruppe.getTasks().isEmpty()) {
@@ -150,18 +136,33 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         }
     }
 
-    private static boolean skalOppretteNy(ForespørselDto forespørselDto, List<ForespørselEntitet> eksisterendeForespørsler) {
-        if (forespørselDto.skalSperresForEndringer()) {
-            return false;
-        }
-        return finnEksisterendeForespørsel(forespørselDto, eksisterendeForespørsler, List.of(ForespørselStatus.UNDER_BEHANDLING, ForespørselStatus.FERDIG)).isEmpty();
+    private static List<ForespørselDto> utledNyeForespørsler(List<ForespørselDto> forespørsler, List<ForespørselEntitet> eksisterendeForespørsler) {
+        // Skal opprette forespørsler for alle skjæringstidspunkt som ikke allerede er opprettet
+        return forespørsler.stream()
+            .filter(f -> !f.skalSperresForEndringer())
+            .filter(f -> finnEksisterendeForespørsel(f, eksisterendeForespørsler, List.of(ForespørselStatus.UNDER_BEHANDLING, ForespørselStatus.FERDIG)).isEmpty())
+            .toList();
     }
 
-    private static Optional<ForespørselEntitet> skalSperresForEndringer(ForespørselDto forespørselDto, List<ForespørselEntitet> eksisterendeForespørsler) {
-        if (!forespørselDto.skalSperresForEndringer()) {
-            return Optional.empty();
+    private static List<ForespørselEntitet> utledForespørslerSomSkalSettesUtgått(List<ForespørselDto> forespørsler, List<ForespørselEntitet> eksisterendeForespørsler) {
+        List<ForespørselEntitet> skalSettesUtgått = new ArrayList<>();
+        // Forespørsler som ikke lenger er aktuelle settes til utgått
+        for (ForespørselEntitet eksisterendeForespørsel : eksisterendeForespørsler) {
+            if (eksisterendeForespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING) {
+                boolean trengerEksisterendeForespørsel = innholderRequestEksisterendeForespørsel(forespørsler, eksisterendeForespørsel);
+                if (!trengerEksisterendeForespørsel) {
+                    skalSettesUtgått.add(eksisterendeForespørsel);
+                }
+            }
         }
-        return finnEksisterendeForespørsel(forespørselDto, eksisterendeForespørsler, List.of(ForespørselStatus.FERDIG));
+        // Forespørsler som skal sperres for endringer settes til utgått
+        for (ForespørselDto forespørselDto : forespørsler) {
+            if (forespørselDto.skalSperresForEndringer()) {
+                var skalSperresForEndringer = finnEksisterendeForespørsel(forespørselDto, eksisterendeForespørsler, List.of(ForespørselStatus.FERDIG));
+                skalSperresForEndringer.ifPresent(skalSettesUtgått::add);
+            }
+        }
+        return skalSettesUtgått;
     }
 
     private static Optional<ForespørselEntitet> finnEksisterendeForespørsel(ForespørselDto forespørselDto, List<ForespørselEntitet> eksisterendeForespørsler, List<ForespørselStatus> statuser) {
