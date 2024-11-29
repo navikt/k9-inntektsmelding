@@ -25,4 +25,12 @@ public interface ArbeidsgiverNotifikasjon {
     String oppgaveUtgått(String oppgaveId, OffsetDateTime utgåttTidspunkt);
 
     String slettSak(String id);
+
+    String opprettNyBeskjedMedEksternVarsling(String grupperingsid,
+                                              Merkelapp merkelapp,
+                                              String eksternId,
+                                              String virksomhetsnummer,
+                                              String beskjedTekst,
+                                              String varselTekst,
+                                              URI lenke);
 }

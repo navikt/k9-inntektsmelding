@@ -98,6 +98,41 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
         return klient.opprettOppgave(request, projection);
     }
 
+    @Override
+    public String opprettNyBeskjedMedEksternVarsling(String grupperingsid,
+                                                     Merkelapp beskjedMerkelapp,
+                                                     String eksternId,
+                                                     String virksomhetsnummer,
+                                                     String beskjedTekst,
+                                                     String varselTekst,
+                                                     URI oppgaveLenke) {
+        var beskjedInput = NyBeskjedInput.builder()
+            .setNotifikasjon(NotifikasjonInput.builder()
+                .setMerkelapp(beskjedMerkelapp.getBeskrivelse())
+                .setTekst(beskjedTekst)
+                .setLenke(oppgaveLenke.toString())
+                .build())
+            .setMottaker(lagAltinnMottakerInput())
+            .setMetadata(MetadataInput.builder()
+                .setVirksomhetsnummer(virksomhetsnummer)
+                .setEksternId(eksternId)
+                .setGrupperingsid(grupperingsid)
+                .build())
+            .setEksterneVarsler(List.of(lagEksternVarselAltinn(varselTekst)))
+            .build();
+        var beskjedRequest = new NyBeskjedMutationRequest();
+        beskjedRequest.setNyBeskjed(beskjedInput);
+        var projection = new NyBeskjedResultatResponseProjection().typename()
+            .onNyBeskjedVellykket(new NyBeskjedVellykketResponseProjection().id())
+            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
+            .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding())
+            .onDuplikatEksternIdOgMerkelapp(new DuplikatEksternIdOgMerkelappResponseProjection().feilmelding())
+            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
+            .onUgyldigMottaker(new UgyldigMottakerResponseProjection().feilmelding())
+            .onUkjentRolle(new UkjentRolleResponseProjection().feilmelding());
+        return klient.opprettBeskjedOgVarsling(beskjedRequest, projection);
+    }
+
     private static MottakerInput lagAltinnMottakerInput() {
         return MottakerInput.builder()
             .setAltinn(AltinnMottakerInput.builder().setServiceCode(SERVICE_CODE).setServiceEdition(SERVICE_EDITION_CODE).build())

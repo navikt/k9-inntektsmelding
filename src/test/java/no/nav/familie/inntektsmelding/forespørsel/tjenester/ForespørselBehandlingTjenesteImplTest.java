@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -8,8 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
+
+import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
+
+import no.nav.vedtak.exception.TekniskException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -422,6 +428,39 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
         verify(arbeidsgiverNotifikasjon, Mockito.times(1)).slettSak(SAK_ID);
+    }
+
+    @Test
+    public void skal_opprette_ny_beskjed() {
+        String varseltekst = "En av dine ansatte har sendt søknad om foreldrepenger og vi trenger inntektsmelding for å behandle søknaden. Logg inn på Min side – arbeidsgiver på nav.no";
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.FORELDREPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
+            SKJÆRINGSTIDSPUNKT);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+        var uri = URI.create(String.format("https://arbeidsgiver.intern.dev.nav.no/fp-im-dialog/%s", forespørselUuid.toString()));
+
+        when(arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_FP, forespørselUuid.toString(), BRREG_ORGNUMMER, varseltekst, varseltekst,
+            URI.create("Test"))).thenReturn("beskjedId");
+
+        forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER));
+
+        clearHibernateCache();
+
+        verify(arbeidsgiverNotifikasjon, Mockito.times(1)).opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_FP, forespørselUuid.toString(), BRREG_ORGNUMMER, varseltekst, varseltekst,
+            uri);
+    }
+
+    @Test
+    public void skal_feile_ved_opprettelse_av_beskjed_om_det_ikke_finnes_åpen_forespørsel() {
+        String varseltekst = "En av dine ansatte har sendt søknad om foreldrepenger og vi trenger inntektsmelding for å behandle søknaden. Logg inn på Min side – arbeidsgiver på nav.no";
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.FORELDREPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
+            SKJÆRINGSTIDSPUNKT);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+        forespørselRepository.ferdigstillForespørsel(SAK_ID);
+
+        when(arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_FP, forespørselUuid.toString(), BRREG_ORGNUMMER, varseltekst, varseltekst,
+            URI.create("Test"))).thenReturn("beskjedId");
+
+        assertThrows(IllegalStateException.class, () -> forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
     }
 
     private void clearHibernateCache() {

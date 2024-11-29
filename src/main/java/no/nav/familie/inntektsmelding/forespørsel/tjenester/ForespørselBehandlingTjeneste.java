@@ -54,4 +54,7 @@ public interface ForespørselBehandlingTjeneste {
     void settForespørselTilUtgått(SaksnummerDto saksnummerDto, OrganisasjonsnummerDto orgnummer, LocalDate skjæringstidspunkt);
 
     void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel, boolean skalOppdatereArbeidsgiverNotifikasjon);
+
+    void opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
+                                            OrganisasjonsnummerDto organisasjonsnummer);
 }
