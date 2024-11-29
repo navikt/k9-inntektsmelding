@@ -27,9 +27,9 @@ import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselDto;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
+import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
@@ -429,14 +429,15 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
 
     @Test
     void skal_opprette_ny_beskjed() {
-        String varseltekst = "En av dine ansatte har sendt søknad om foreldrepenger og vi trenger inntektsmelding for å behandle søknaden. Logg inn på Min side – arbeidsgiver på nav.no";
+        String varseltekst = "TEST A/S - orgnr 974760673: En av dine ansatte har søkt om foreldrepenger og vi trenger inntektsmelding for å behandle søknaden. Logg inn på Min side – arbeidsgiver hos Nav. Hvis dere sender inn via lønnssystem kan dere fortsette med dette.";
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.FORELDREPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         var uri = URI.create(String.format("https://arbeidsgiver.intern.dev.nav.no/fp-im-dialog/%s", forespørselUuid.toString()));
 
+        when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("Test A/S", BRREG_ORGNUMMER));
         when(arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_FP, forespørselUuid.toString(), BRREG_ORGNUMMER, varseltekst, varseltekst,
-            URI.create("Test"))).thenReturn("beskjedId");
+            uri)).thenReturn("beskjedId");
 
         forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER));
 
@@ -448,14 +449,10 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
 
     @Test
     void skal_feile_ved_opprettelse_av_beskjed_om_det_ikke_finnes_åpen_forespørsel() {
-        String varseltekst = "En av dine ansatte har sendt søknad om foreldrepenger og vi trenger inntektsmelding for å behandle søknaden. Logg inn på Min side – arbeidsgiver på nav.no";
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.FORELDREPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         forespørselRepository.ferdigstillForespørsel(SAK_ID);
-
-        when(arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_FP, forespørselUuid.toString(), BRREG_ORGNUMMER, varseltekst, varseltekst,
-            URI.create("Test"))).thenReturn("beskjedId");
 
         assertThrows(IllegalStateException.class, () -> forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
     }

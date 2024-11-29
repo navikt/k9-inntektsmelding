@@ -283,7 +283,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
         var forespørselUuid = forespørsel.getUuid();
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
-        var varselTekst = ForespørselTekster.lagVarselTekst(forespørsel.getYtelseType());
+        var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr());
+        var varselTekst = ForespørselTekster.lagVarselTekst(forespørsel.getYtelseType(), organisasjon);
         arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), merkelapp, forespørselUuid.toString(), organisasjonsnummer.orgnr(),
             varselTekst,
             varselTekst, skjemaUri);
