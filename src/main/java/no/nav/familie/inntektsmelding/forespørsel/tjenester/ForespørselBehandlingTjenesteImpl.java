@@ -223,14 +223,21 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
 
-        var oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(),
-            merkelapp,
-            uuid.toString(),
-            organisasjonsnummer.orgnr(),
-            ForespørselTekster.lagOppgaveTekst(ytelsetype),
-            ForespørselTekster.lagVarselTekst(ytelsetype),
-            ForespørselTekster.lagPåminnelseTekst(ytelsetype),
-            skjemaUri);
+        String oppgaveId;
+        try {
+            oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(),
+                merkelapp,
+                uuid.toString(),
+                organisasjonsnummer.orgnr(),
+                ForespørselTekster.lagOppgaveTekst(ytelsetype),
+                ForespørselTekster.lagVarselTekst(ytelsetype),
+                ForespørselTekster.lagPåminnelseTekst(ytelsetype),
+                skjemaUri);
+        } catch (Exception e) {
+            //Manuell rollback er nødvendig fordi sak og oppgave går i to forskjellige kall
+            arbeidsgiverNotifikasjon.slettSak(arbeidsgiverNotifikasjonSakId);
+            throw e;
+        }
 
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
     }
