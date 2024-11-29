@@ -273,7 +273,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     public void opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
                                                    OrganisasjonsnummerDto organisasjonsnummer) {
         var forespørsel = forespørselTjeneste.finnÅpenForespørslelForFagsak(fagsakSaksnummer, organisasjonsnummer)
-            .orElseThrow(() -> new IllegalStateException(String.format("Ugyldig tilstand, kan ikke opprette beskjed når det ikke finnes en aktiv forespørsel på sak %s med orgnr %s", fagsakSaksnummer.saksnr(), organisasjonsnummer)));;
+            .orElseThrow(() -> new IllegalStateException(String.format("Ugyldig tilstand, kan ikke opprette beskjed når det ikke finnes en aktiv forespørsel på sak %s med orgnr %s", fagsakSaksnummer.saksnr(), organisasjonsnummer)));
         var msg = String.format("Oppretter ny beskjed med ekstern varsling, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
             organisasjonsnummer,
             forespørsel.getSkjæringstidspunkt(),

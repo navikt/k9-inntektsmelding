@@ -13,10 +13,6 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
-
-import no.nav.vedtak.exception.TekniskException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +29,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørs
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
@@ -73,7 +70,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.forespørselRepository = new ForespørselRepository(getEntityManager());
         this.forespørselBehandlingTjeneste = new ForespørselBehandlingTjenesteImpl(new ForespørselTjeneste(forespørselRepository),
             arbeidsgiverNotifikasjon,
@@ -83,7 +80,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_opprette_forespørsel_og_sette_sak_og_oppgave() {
+    void skal_opprette_forespørsel_og_sette_sak_og_oppgave() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
         when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("test org", BRREG_ORGNUMMER));
 
@@ -105,7 +102,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void eksisterende_forespørsel_på_samme_stp_skal_gi_nei() {
+    void eksisterende_forespørsel_på_samme_stp_skal_gi_nei() {
         forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER, SKJÆRINGSTIDSPUNKT);
 
         getEntityManager().clear();
@@ -125,7 +122,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_ikke_opprette_forespørsel_når_finnes_allerede_for_stp_og_første_uttaksdato() {
+    void skal_ikke_opprette_forespørsel_når_finnes_allerede_for_stp_og_første_uttaksdato() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
         when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("test org", BRREG_ORGNUMMER));
 
@@ -158,7 +155,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_opprette_forespørsel_når_finnes_allerede_for_samme_stp_og_ulik_uttaksdato() {
+    void skal_opprette_forespørsel_når_finnes_allerede_for_samme_stp_og_ulik_uttaksdato() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
         when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("test org", BRREG_ORGNUMMER));
 
@@ -192,7 +189,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_ferdigstille_forespørsel() {
+    void skal_ferdigstille_forespørsel() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
@@ -210,7 +207,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_ferdigstille_forespørsel_ulik_stp_og_startdato() {
+    void skal_ferdigstille_forespørsel_ulik_stp_og_startdato() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             FØRSTE_UTTAKSDATO);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
@@ -228,7 +225,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_sette_alle_forespørspørsler_for_sak_til_ferdig() {
+    void skal_sette_alle_forespørspørsler_for_sak_til_ferdig() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             FØRSTE_UTTAKSDATO);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
@@ -251,7 +248,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_sette_alle_forespørspørsler_for_sak_til_utgått() {
+    void skal_sette_alle_forespørspørsler_for_sak_til_utgått() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             FØRSTE_UTTAKSDATO);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
@@ -274,7 +271,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_lukke_forespørsel_for_sak_med_gitt_stp() {
+    void skal_lukke_forespørsel_for_sak_med_gitt_stp() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
@@ -300,7 +297,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_opprette_forespørsel_dersom_det_ikke_eksisterer_en_for_stp() {
+    void skal_opprette_forespørsel_dersom_det_ikke_eksisterer_en_for_stp() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
 
         var forespørsler = List.of(new ForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false));
@@ -320,7 +317,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_ikke_opprette_ny_forespørsel_dersom_det_eksisterer_en_for_samme_stp() {
+    void skal_ikke_opprette_ny_forespørsel_dersom_det_eksisterer_en_for_samme_stp() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
@@ -332,7 +329,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_opprette_ny_forespørsel_og_beholde_gammel_dersom_vi_ber_om_et_nytt_stp() {
+    void skal_opprette_ny_forespørsel_og_beholde_gammel_dersom_vi_ber_om_et_nytt_stp() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
 
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
@@ -352,7 +349,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_opprette_ny_forespørsel_og_markere_gammel_som_utgått_dersom_vi_erstatter_stp() {
+    void skal_opprette_ny_forespørsel_og_markere_gammel_som_utgått_dersom_vi_erstatter_stp() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
 
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
@@ -376,7 +373,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_sperre_forespørsel_for_endringer() {
+    void skal_sperre_forespørsel_for_endringer() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
 
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
@@ -397,7 +394,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_slette_oppgave_gitt_saksnummer_og_orgnr() {
+    void skal_slette_oppgave_gitt_saksnummer_og_orgnr() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
@@ -414,7 +411,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_slette_oppgave_gitt_saksnummer() {
+    void skal_slette_oppgave_gitt_saksnummer() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
@@ -431,7 +428,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_opprette_ny_beskjed() {
+    void skal_opprette_ny_beskjed() {
         String varseltekst = "En av dine ansatte har sendt søknad om foreldrepenger og vi trenger inntektsmelding for å behandle søknaden. Logg inn på Min side – arbeidsgiver på nav.no";
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.FORELDREPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
@@ -450,7 +447,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     }
 
     @Test
-    public void skal_feile_ved_opprettelse_av_beskjed_om_det_ikke_finnes_åpen_forespørsel() {
+    void skal_feile_ved_opprettelse_av_beskjed_om_det_ikke_finnes_åpen_forespørsel() {
         String varseltekst = "En av dine ansatte har sendt søknad om foreldrepenger og vi trenger inntektsmelding for å behandle søknaden. Logg inn på Min side – arbeidsgiver på nav.no";
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.FORELDREPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
