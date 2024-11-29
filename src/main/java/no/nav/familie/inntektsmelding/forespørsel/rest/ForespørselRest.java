@@ -60,6 +60,10 @@ public class ForespørselRest {
     public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request) {
         LOG.info("Mottok forespørsel om inntektsmeldingoppgave på fagsakSaksnummer {}", request.fagsakSaksnummer());
         sjekkErSystemkall();
+        //legger på denne sjekken inntil vi tar i mot ny liste av orgnumre
+        if (request.orgnummer() == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
         var bleForespørselOpprettet = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(),
             KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdEntitet(request.aktørId().id()),

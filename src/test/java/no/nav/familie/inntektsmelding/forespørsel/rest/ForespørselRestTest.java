@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.UUID;
 
 import org.eclipse.jetty.http.HttpStatus;
@@ -54,7 +55,7 @@ public class ForespørselRestTest {
 
         var fagsakSaksnummer = new SaksnummerDto("SAK");
         var response = forespørselRest.opprettForespørsel(
-            new OpprettForespørselRequest(aktørId, orgnummer, LocalDate.now(), YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer, LocalDate.now().plusDays(5)));
+            new OpprettForespørselRequest(aktørId, orgnummer, LocalDate.now(), YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer, LocalDate.now().plusDays(5), Collections.emptyList()));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
         assertThat(response.getEntity()).isEqualTo(new OpprettForespørselResponse(ForespørselResultat.FORESPØRSEL_OPPRETTET));
