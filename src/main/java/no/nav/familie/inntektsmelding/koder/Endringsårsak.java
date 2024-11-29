@@ -12,6 +12,7 @@ public enum Endringsårsak {
     FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER("Ferietrekk eller utbetaling av feriepenger"),
     NYANSATT("Nyansatt"),
     MANGELFULL_RAPPORTERING_AORDNING("Mangelfull rapportering i a-ordning"),
+    INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING("Ikke rapportert enda i a-ordning"),
     TARIFFENDRING("Tariffendring"),
     FERIE("Ferie"),
     VARIG_LØNNSENDRING("Varig lønnsendring"),
