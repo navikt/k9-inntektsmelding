@@ -8,11 +8,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
+import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
 class ForespørselTekster {
     private static final String OPPGAVE_TEKST_NY = "Innsending av inntektsmelding for %s";
-    private static final String VARSEL_TEKST = "En av dine ansatte har sendt søknad om %s og vi trenger inntektsmelding for å behandle søknaden. Logg inn på Min side – arbeidsgiver på nav.no";
+    private static final String VARSEL_TEKST = "%s - orgnr %s: En av dine ansatte har søkt om %s og vi trenger inntektsmelding for å behandle søknaden. Logg inn på Min side – arbeidsgiver hos Nav. Hvis dere sender inn via lønnssystem kan dere fortsette med dette.";
 
     private static final String TILLEGGSINFORMASJON_UTFØRT_EKSTERN = "Utført i Altinn eller i bedriftens lønns- og personalsystem";
     private static final String TILLEGGSINFORMASJON_UTGÅTT = "Du trenger ikke lenger å sende denne inntektsmeldingen";
@@ -33,12 +34,12 @@ class ForespørselTekster {
         return String.format("Inntektsmelding for %s (%s)", capitalizeFully(navn), fødselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
     }
 
-    public static String lagVarselTekst(Ytelsetype ytelsetype) {
-        return String.format(VARSEL_TEKST, mapYtelsestypeNavn(ytelsetype));
+    public static String lagVarselTekst(Ytelsetype ytelsetype, Organisasjon org) {
+        return String.format(VARSEL_TEKST, org.navn().toUpperCase(), org.orgnr(), mapYtelsestypeNavn(ytelsetype));
     }
 
-    public static String lagPåminnelseTekst(Ytelsetype ytelsetype) {
-        return String.format(VARSEL_TEKST, mapYtelsestypeNavn(ytelsetype));
+    public static String lagPåminnelseTekst(Ytelsetype ytelsetype, Organisasjon org) {
+        return String.format(VARSEL_TEKST, org.navn().toUpperCase(), org.orgnr(), mapYtelsestypeNavn(ytelsetype));
     }
 
     static String capitalizeFully(String input) {
