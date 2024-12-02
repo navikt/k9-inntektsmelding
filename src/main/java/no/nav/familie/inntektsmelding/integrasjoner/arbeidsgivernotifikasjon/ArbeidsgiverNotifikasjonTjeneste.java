@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -115,7 +116,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .setMottaker(lagAltinnMottakerInput())
             .setMetadata(MetadataInput.builder()
                 .setVirksomhetsnummer(virksomhetsnummer)
-                .setEksternId(eksternId)
+                .setEksternId(UUID.randomUUID().toString())
                 .setGrupperingsid(grupperingsid)
                 .build())
             .setEksterneVarsler(List.of(lagEksternVarselAltinn(varselTekst)))
