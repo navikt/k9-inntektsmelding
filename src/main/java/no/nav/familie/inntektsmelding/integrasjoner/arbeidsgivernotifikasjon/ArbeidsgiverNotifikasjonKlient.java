@@ -120,6 +120,18 @@ class ArbeidsgiverNotifikasjonKlient {
         throw ulovligTilstandException();
     }
 
+    public String opprettBeskjedOgVarsling(NyBeskjedMutationRequest request, NyBeskjedResultatResponseProjection projection) {
+        LOG.info("FAGER: Oppretter beskjed og ekstern varsling");
+        var resultat = query(new GraphQLRequest(request, projection), NyBeskjedMutationResponse.class).nyBeskjed();
+        if (resultat instanceof NyBeskjedVellykket vellykket) {
+            LOG.info("Vellykket opprettelse av beskjed");
+            return vellykket.getId();
+        } else {
+            loggFeilmelding((Error) resultat, "opprettelse av ny beskjed");
+        }
+        throw ulovligTilstandException();
+    }
+
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
         var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
         var restRequest = RestRequest.newRequest(method, restConfig.endpoint(), restConfig);
@@ -157,4 +169,5 @@ class ArbeidsgiverNotifikasjonKlient {
     public String toString() {
         return getClass().getSimpleName() + " [endpoint=" + restConfig.endpoint() + "]";
     }
+
 }

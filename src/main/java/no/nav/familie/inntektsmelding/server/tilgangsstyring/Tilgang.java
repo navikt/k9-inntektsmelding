@@ -30,6 +30,14 @@ public interface Tilgang {
     void sjekkAtAnsattHarRollenDrift();
 
     /**
+     * Sjekker om den Nav ansatte som prøver å utføre operasjonen har en SAKSBEHANDLER rolle.
+     * Brukes når det gjøres synkrone restkall fra fagsystemet initiert av en saksbehandler.
+     *
+     * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
+     */
+    void sjekkAtAnsattHarRollenSaksbehandler();
+
+    /**
      * Sjekker at det er et systembruker som står bak kallet.
      *
      * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.

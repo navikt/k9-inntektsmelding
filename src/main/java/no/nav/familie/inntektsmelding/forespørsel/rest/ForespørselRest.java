@@ -109,6 +109,26 @@ public class ForespørselRest {
         return Response.ok().build();
     }
 
+    /**
+     * Tjeneste for å opprette en ny beskjed på en eksisterende forespørsel.
+     * Vil opprette ny beskjed som er synlig under saken i min side arbeidsgiver,samt sende ut et eksternt varsel
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/ny-beskjed")
+    @Tilgangskontrollert
+    public Response sendNyBeskjedOgVarsel(@Valid @NotNull NyBeskjedRequest request) {
+        LOG.info("Ny beskjed på aktiv forespørsel for fagsakSaksnummer {} med orgnummer {}",
+            request.fagsakSaksnummer(),
+            request.orgnummer());
+
+        sjekkErSaksbehandlerkall();
+
+        forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(request.fagsakSaksnummer(), request.orgnummer());
+        return Response.ok().build();
+    }
+
     @POST
     @Path("/sett-til-utgatt")
     @Tilgangskontrollert
@@ -133,5 +153,10 @@ public class ForespørselRest {
     private void sjekkErSystemkall() {
         tilgang.sjekkErSystembruker();
     }
+
+    private void sjekkErSaksbehandlerkall() {
+        tilgang.sjekkAtAnsattHarRollenSaksbehandler();
+    }
+
 }
 

@@ -74,6 +74,14 @@ public class TilgangTjeneste implements Tilgang {
         ikkeTilgang("Ansatt mangler en rolle.");
     }
 
+    public void sjekkAtAnsattHarRollenSaksbehandler() {
+        var kontekst = KontekstHolder.getKontekst();
+        if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, Groups.SAKSBEHANDLER)) {
+            return;
+        }
+        ikkeTilgang("Ansatt mangler en rolle.");
+    }
+
     @Override
     public void sjekkErSystembruker() {
         if (KontekstHolder.getKontekst() instanceof RequestKontekst rq && rq.getIdentType().erSystem()) {
