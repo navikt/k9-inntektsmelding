@@ -12,6 +12,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.familie.inntektsmelding.forespørsel.rest.NyBeskjedRequest;
+
+import no.nav.foreldrepenger.konfig.Environment;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +64,30 @@ public class OppgaverForvaltningRestTjeneste {
     })
     @Tilgangskontrollert
     public Response slettOppgave(
-        @Parameter(description = "Informasjon for restart en eksisterende prosesstask") @Valid SlettOppgaveRequest inputDto) {
+        @Parameter(description = "Informasjon om oppgaven") @Valid SlettOppgaveRequest inputDto) {
         sjekkAtKallerHarRollenDrift();
         LOG.info("Sletter oppgave med saksnummer {}", inputDto.saksnummer());
         forespørselBehandlingTjeneste.slettForespørsel(inputDto.saksnummer(), inputDto.orgnr(), null);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/nyBeskjed")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Oppretter ny beskjed i arbeidsgiverportalen", summary = "Oppretter ny beskjed i arbeidsgiverportalen.", tags = "oppgaver", responses = {
+        @ApiResponse(responseCode = "202", description = "Beskjeden er sendt", content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @Tilgangskontrollert
+    public Response nyBeskjed(
+        @Parameter(description = "Informasjon om oppgaven") @Valid NyBeskjedRequest inputDto) {
+        sjekkAtKallerHarRollenDrift();
+        if (Environment.current().isProd()) {
+            // Kun ment for test i dev
+            return Response.ok().build();
+        }
+        LOG.info("Oppretter beskjed på oppgave med saksnummer {}", inputDto.fagsakSaksnummer());
+        forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(inputDto.fagsakSaksnummer(), inputDto.orgnummer());
         return Response.ok().build();
     }
 
