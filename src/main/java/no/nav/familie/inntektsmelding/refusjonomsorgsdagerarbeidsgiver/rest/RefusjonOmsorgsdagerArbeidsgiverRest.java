@@ -63,10 +63,8 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
         SlåOppArbeidstakerDto slåOppArbeidstakerDto) {
 
         LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerDto.fødselsnummer());
+
         var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerDto.fødselsnummer(), slåOppArbeidstakerDto.ytelseType());
-        if (dto == null) {
-            throw new NotFoundException();
-        }
         return Response.ok(dto).build();
     }
 
