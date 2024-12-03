@@ -23,15 +23,13 @@ import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
-import org.jboss.jdeparser.FormatPreferences;
-
+@SequenceGenerator(name = "GLOBAL_PK_SEQ_GENERATOR", sequenceName = "SEQ_GLOBAL_PK")
 @Entity(name = "ForespørselEntitet")
 @Table(name = "FORESPOERSEL")
 public class ForespørselEntitet {
 
     @Id
-    @SequenceGenerator(name = "SEQ_FORESPOERSEL", sequenceName = "SEQ_FORESPOERSEL")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_FORESPOERSEL")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
     private Long id;
 
     @Column(name = "uuid", nullable = false, updatable = false)
