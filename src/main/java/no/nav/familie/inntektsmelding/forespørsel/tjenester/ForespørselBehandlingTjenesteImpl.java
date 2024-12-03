@@ -284,9 +284,12 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         var forespørselUuid = forespørsel.getUuid();
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
         var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr());
-        var varselTekst = ForespørselTekster.lagVarselTekst(forespørsel.getYtelseType(), organisasjon);
+        var person = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId(), forespørsel.getYtelseType());
+        var varselTekst = ForespørselTekster.lagVarselFraSaksbehandlerTekst(forespørsel.getYtelseType(), organisasjon);
+        var beskjedTekst = ForespørselTekster.lagBeskjedFraSaksbehandlerTekst(forespørsel.getYtelseType(), person.mapFulltNavn());
+
         arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), merkelapp, forespørselUuid.toString(), organisasjonsnummer.orgnr(),
-            varselTekst,
+            beskjedTekst,
             varselTekst, skjemaUri);
     }
 
