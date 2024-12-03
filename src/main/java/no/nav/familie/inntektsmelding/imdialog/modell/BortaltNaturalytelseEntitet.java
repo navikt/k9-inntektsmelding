@@ -22,7 +22,7 @@ import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 public class BortaltNaturalytelseEntitet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BORTFALT_NATURALYTELSE")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
     private Long id;
 
     @ManyToOne(optional = false)

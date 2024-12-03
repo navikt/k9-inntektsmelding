@@ -22,7 +22,7 @@ import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 public class EndringsårsakEntitet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_ENDRINGSAARSAK")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
     private Long id;
 
     @ManyToOne(optional = false)

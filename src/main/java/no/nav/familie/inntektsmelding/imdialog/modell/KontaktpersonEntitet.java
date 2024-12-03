@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 public class KontaktpersonEntitet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_KONTAKTPERSON")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
     private Long id;
 
     @OneToOne(optional = false)

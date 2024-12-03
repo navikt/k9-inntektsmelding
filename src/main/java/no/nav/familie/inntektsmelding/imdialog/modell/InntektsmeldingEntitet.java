@@ -32,7 +32,7 @@ import no.nav.vedtak.exception.TekniskException;
 public class InntektsmeldingEntitet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_INNTEKTSMELDING")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
     private Long id;
 
     @Embedded
@@ -186,9 +186,12 @@ public class InntektsmeldingEntitet {
 
     @Override
     public String toString() {
-        return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelsetype=" + ytelsetype + ", arbeidsgiverIdent='"
-            + maskerId(arbeidsgiverIdent) + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt + ", opprettetTidspunkt=" + opprettetTidspunkt
-            + ", refusjonendringer=" + refusjonsendringer + ", endringAvInntektÅrsaker=" + endringsårsaker + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser + '}';
+        return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelsetype=" + ytelsetype
+            + ", arbeidsgiverIdent='"
+            + maskerId(arbeidsgiverIdent) + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt + ", opprettetTidspunkt="
+            + opprettetTidspunkt
+            + ", refusjonendringer=" + refusjonsendringer + ", endringAvInntektÅrsaker=" + endringsårsaker + ", bortfaltNaturalYtelser="
+            + borfalteNaturalYtelser + '}';
     }
 
     private String maskerId(String id) {
@@ -289,15 +292,23 @@ public class InntektsmeldingEntitet {
         private void validerRefusjonsperioder() {
             if (!kladd.getRefusjonsendringer().isEmpty() && kladd.getMånedRefusjon() == null) {
                 throw new TekniskException("FPINNTEKTSMELDING_REFUSJON_1",
-                    String.format("Kan ikke ha refusjonsendringer når det ikke er oppgitt refusjon. Endringer var %s", kladd.getRefusjonsendringer()));
+                    String.format("Kan ikke ha refusjonsendringer når det ikke er oppgitt refusjon. Endringer var %s",
+                        kladd.getRefusjonsendringer()));
             }
             if (kladd.getRefusjonsendringer().stream().anyMatch(r -> !r.getFom().isAfter(kladd.getStartDato()))) {
                 throw new TekniskException("FPINNTEKTSMELDING_REFUSJON_2",
-                    String.format("Kan ikke ha refusjonsendring som gjelder fra startdato eller før, ugyldig tilstand. Endringer var %s og startdato var %s", kladd.getRefusjonsendringer(), kladd.getStartDato()));
+                    String.format(
+                        "Kan ikke ha refusjonsendring som gjelder fra startdato eller før, ugyldig tilstand. Endringer var %s og startdato var %s",
+                        kladd.getRefusjonsendringer(),
+                        kladd.getStartDato()));
             }
-            if (kladd.getOpphørsdatoRefusjon() != null && kladd.getRefusjonsendringer().stream().anyMatch(r -> r.getFom().isAfter(kladd.getOpphørsdatoRefusjon()))) {
+            if (kladd.getOpphørsdatoRefusjon() != null && kladd.getRefusjonsendringer()
+                .stream()
+                .anyMatch(r -> r.getFom().isAfter(kladd.getOpphørsdatoRefusjon()))) {
                 throw new TekniskException("FPINNTEKTSMELDING_REFUSJON_3",
-                    String.format("Kan ikke ha refusjonsendring etter opphørsdato, ugyldig tilstand. Endringer var %s og opphøsdato var %s", kladd.getRefusjonsendringer(), kladd.getOpphørsdatoRefusjon()));
+                    String.format("Kan ikke ha refusjonsendring etter opphørsdato, ugyldig tilstand. Endringer var %s og opphøsdato var %s",
+                        kladd.getRefusjonsendringer(),
+                        kladd.getOpphørsdatoRefusjon()));
             }
         }
 
