@@ -1,4 +1,4 @@
-create sequence SEQ_GLOBAL_PK increment by 50 minvalue 1000000;
+create sequence SEQ_GLOBAL_PK increment by 50 minvalue 2000000;
 
 drop sequence seq_forespoersel;
 drop sequence seq_inntektsmelding;
