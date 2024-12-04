@@ -78,7 +78,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
                     .setEksternId(eksternId)
                     .setGrupperingsid(grupperingsid)
                     .build())
-                .setEksterneVarsler(List.of(lagEksternVarselAltinn(varselTekst, true)))
+                .setEksterneVarsler(List.of(lagEksternVarselAltinn(varselTekst, 15)))
                 .setPaaminnelse(PaaminnelseInput.builder()
                     .setTidspunkt(PaaminnelseTidspunktInput.builder().setEtterOpprettelse(Duration.ofDays(PÅMINNELSE_ETTER_DAGER).toString()).build())
                     .setEksterneVarsler(List.of(lagPåminnelseVarselAltinn(påminnelseTekst)))
@@ -119,7 +119,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
                 .setEksternId(UUID.randomUUID().toString())
                 .setGrupperingsid(grupperingsid)
                 .build())
-            .setEksterneVarsler(List.of(lagEksternVarselAltinn(varselTekst, false)))
+            .setEksterneVarsler(List.of(lagEksternVarselAltinn(varselTekst, 0)))
             .build();
         var beskjedRequest = new NyBeskjedMutationRequest();
         beskjedRequest.setNyBeskjed(beskjedInput);
@@ -140,14 +140,14 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .build();
     }
 
-    private static EksterntVarselInput lagEksternVarselAltinn(String varselTekst, boolean medForsinkelse) {
+    private static EksterntVarselInput lagEksternVarselAltinn(String varselTekst, Integer minutterForsinkelse) {
         return EksterntVarselInput.builder()
             .setAltinntjeneste(EksterntVarselAltinntjenesteInput.builder()
                 .setTittel("Nav trenger inntektsmelding")
                 .setInnhold(varselTekst)
                 .setMottaker(lagAltinnTjenesteMottakerInput())
                 .setSendetidspunkt(SendetidspunktInput.builder()
-                    .setTidspunkt(medForsinkelse ? LocalDateTime.now().plusMinutes(15).toString() : LocalDateTime.now().toString())
+                    .setTidspunkt(LocalDateTime.now().plusMinutes(minutterForsinkelse).toString())
                     .build())
                 .build())
             .build();
