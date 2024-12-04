@@ -36,7 +36,7 @@ class SettForespørselTilUtgåttTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste).settForespørselTilUtgått(entitet, true, false);
+        verify(forespørselBehandlingTjeneste).settForespørselTilUtgått(entitet, true, true);
     }
 
     @Test
@@ -51,6 +51,6 @@ class SettForespørselTilUtgåttTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste, times(0)).settForespørselTilUtgått(any(ForespørselEntitet.class), eq(true), false);
+        verify(forespørselBehandlingTjeneste, times(0)).settForespørselTilUtgått(any(ForespørselEntitet.class), eq(true), eq(true));
     }
 }
