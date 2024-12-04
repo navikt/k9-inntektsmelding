@@ -53,7 +53,7 @@ public class SettForespørselTilUtgåttTask implements ProsessTaskHandler {
         }
 
         boolean skalOppdatereArbeidsgiverNotifikasjon = forespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING;
-        forespørselBehandlingTjeneste.settForespørselTilUtgått(forespørsel, skalOppdatereArbeidsgiverNotifikasjon);
+        forespørselBehandlingTjeneste.settForespørselTilUtgått(forespørsel, skalOppdatereArbeidsgiverNotifikasjon, true);
         MetrikkerTjeneste.loggForespørselLukkEkstern(forespørsel);
     }
 }

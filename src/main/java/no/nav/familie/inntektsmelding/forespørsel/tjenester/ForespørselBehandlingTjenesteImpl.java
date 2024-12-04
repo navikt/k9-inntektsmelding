@@ -200,14 +200,18 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     @Override
-    public void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel, boolean skalOppdatereArbeidsgiverNotifikasjon) {
+    public void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel, boolean skalOppdatereArbeidsgiverNotifikasjon,
+                                         boolean visFraværsdatoPåSak) {
         if (skalOppdatereArbeidsgiverNotifikasjon) {
             arbeidsgiverNotifikasjon.oppgaveUtgått(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
             arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
         }
 
-        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
-            ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT));
+        var tillggsinformasjon = visFraværsdatoPåSak ?
+                                 ForespørselTekster.lagTilleggsInformasjonMedDato(ForespørselStatus.UTGÅTT, eksisterendeForespørsel.getSkjæringstidspunkt()) :
+                                 ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT);
+
+        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), tillggsinformasjon);
         forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
         var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
@@ -279,7 +283,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     public void opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
                                                    OrganisasjonsnummerDto organisasjonsnummer) {
         var forespørsel = forespørselTjeneste.finnÅpenForespørslelForFagsak(fagsakSaksnummer, organisasjonsnummer)
-            .orElseThrow(() -> new IllegalStateException(String.format("Ugyldig tilstand, kan ikke opprette beskjed når det ikke finnes en aktiv forespørsel på sak %s med orgnr %s", fagsakSaksnummer.saksnr(), organisasjonsnummer)));
+            .orElseThrow(() -> new IllegalStateException(String.format(
+                "Ugyldig tilstand, kan ikke opprette beskjed når det ikke finnes en aktiv forespørsel på sak %s med orgnr %s",
+                fagsakSaksnummer.saksnr(),
+                organisasjonsnummer)));
         var msg = String.format("Oppretter ny beskjed med ekstern varsling, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
             organisasjonsnummer,
             forespørsel.getSkjæringstidspunkt(),
@@ -294,9 +301,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         var varselTekst = ForespørselTekster.lagVarselFraSaksbehandlerTekst(forespørsel.getYtelseType(), organisasjon);
         var beskjedTekst = ForespørselTekster.lagBeskjedFraSaksbehandlerTekst(forespørsel.getYtelseType(), person.mapFulltNavn());
 
-        arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), merkelapp, forespørselUuid.toString(), organisasjonsnummer.orgnr(),
+        arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(),
+            merkelapp,
+            forespørselUuid.toString(),
+            organisasjonsnummer.orgnr(),
             beskjedTekst,
-            varselTekst, skjemaUri);
+            varselTekst,
+            skjemaUri);
     }
 
     @Override
@@ -319,7 +330,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     public void settForespørselTilUtgått(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
         var forespørsler = hentÅpneForespørslerForFagsak(fagsakSaksnummer, orgnummerDto, skjæringstidspunkt);
 
-        forespørsler.forEach(it -> settForespørselTilUtgått(it, true));
+        forespørsler.forEach(it -> settForespørselTilUtgått(it, true, false));
     }
 
     private List<ForespørselEntitet> hentÅpneForespørslerForFagsak(SaksnummerDto fagsakSaksnummer,
