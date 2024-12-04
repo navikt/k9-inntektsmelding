@@ -100,10 +100,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         validerOrganisasjon(foresporsel, organisasjonsnummerDto);
         validerStartdato(foresporsel, startdato);
 
+        var tilleggsinformasjon = erK9Forespørsel(foresporsel) ?
+                                  ForespørselTekster.lagTilleggsInformasjonMedDato(ForespørselStatus.FERDIG, foresporsel.getSkjæringstidspunkt()) :
+                                  ForespørselTekster.lagTilleggsInformasjon(årsak);
+
         arbeidsgiverNotifikasjon.oppgaveUtført(foresporsel.getOppgaveId(), OffsetDateTime.now());
         arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
-        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
-            ForespørselTekster.lagTilleggsInformasjon(årsak));
+        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(), tilleggsinformasjon);
         forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
         return foresporsel;
     }
@@ -199,6 +202,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                 forespørselDto.skjæringstidspunkt().equals(eksisterendeForespørsel.getSkjæringstidspunkt()));
     }
 
+    private static boolean erK9Forespørsel(ForespørselEntitet forespørsel) {
+        return switch (forespørsel.getYtelseType()) {
+            case PLEIEPENGER_NÆRSTÅENDE, PLEIEPENGER_SYKT_BARN, OPPLÆRINGSPENGER -> true;
+            default -> false;
+        };
+    }
+
     @Override
     public void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel, boolean skalOppdatereArbeidsgiverNotifikasjon,
                                          boolean visFraværsdatoPåSak) {
@@ -208,7 +218,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         }
 
         var tillggsinformasjon = visFraværsdatoPåSak ?
-                                 ForespørselTekster.lagTilleggsInformasjonMedDato(ForespørselStatus.UTGÅTT, eksisterendeForespørsel.getSkjæringstidspunkt()) :
+                                 ForespørselTekster.lagTilleggsInformasjonMedDato(ForespørselStatus.UTGÅTT,
+                                     eksisterendeForespørsel.getSkjæringstidspunkt()) :
                                  ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT);
 
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), tillggsinformasjon);
