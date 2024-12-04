@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
 class ForespørselTekster {
@@ -20,11 +21,21 @@ class ForespørselTekster {
     private static final String TILLEGGSINFORMASJON_UTFØRT_EKSTERN = "Utført i Altinn eller i bedriftens lønns- og personalsystem";
     private static final String TILLEGGSINFORMASJON_UTGÅTT = "Du trenger ikke lenger å sende denne inntektsmeldingen";
 
+    private static final String TILLEGGSINFORMASJON_FØRSTE_FRAVÆRSDAG = "For første fraværsdag %s";
+    private static final String TILLEGGSINFORMASJON_FØRSTE_FRAVÆRSDAG_UTGÅTT = " Du trenger ikke lenger å sende inntektsmelding for første fraværsdag  %s";
+
     public static String lagTilleggsInformasjon(LukkeÅrsak årsak) {
         return switch (årsak) {
             case EKSTERN_INNSENDING -> TILLEGGSINFORMASJON_UTFØRT_EKSTERN;
             case UTGÅTT -> TILLEGGSINFORMASJON_UTGÅTT;
             default -> null;
+        };
+    }
+
+    public static String lagTilleggsInformasjonMedDato(ForespørselStatus forespørselStatus , LocalDate stp) {
+        return switch (forespørselStatus) {
+            case UNDER_BEHANDLING, FERDIG -> String.format(TILLEGGSINFORMASJON_FØRSTE_FRAVÆRSDAG, stp.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+            case UTGÅTT -> String.format(TILLEGGSINFORMASJON_FØRSTE_FRAVÆRSDAG_UTGÅTT, stp.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
         };
     }
 

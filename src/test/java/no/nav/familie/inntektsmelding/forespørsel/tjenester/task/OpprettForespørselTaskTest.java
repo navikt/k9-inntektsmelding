@@ -42,7 +42,7 @@ class OpprettForespørselTaskTest {
         task.doTask(taskdata);
 
         verify(forespørselBehandlingTjeneste).opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt,
-            null);
+            null, false );
     }
 
     @Test
@@ -61,6 +61,6 @@ class OpprettForespørselTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste, times(0)).opprettForespørsel(any(), any(), any(), any(), any(), any());
+        verify(forespørselBehandlingTjeneste, times(0)).opprettForespørsel(any(), any(), any(), any(), any(), any(), false);
     }
 }

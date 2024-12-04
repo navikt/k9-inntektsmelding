@@ -83,7 +83,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             return ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE;
         }
 
-        opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, førsteUttaksdato);
+        opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, førsteUttaksdato, false);
         return ForespørselResultat.FORESPØRSEL_OPPRETTET;
     }
 
@@ -223,7 +223,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                    SaksnummerDto fagsakSaksnummer,
                                    OrganisasjonsnummerDto organisasjonsnummer,
                                    LocalDate skjæringstidspunkt,
-                                   LocalDate førsteUttaksdato) {
+                                   LocalDate førsteUttaksdato,
+                                   boolean visFraværsdatoPåSak) {
         var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
             organisasjonsnummer,
             skjæringstidspunkt,
@@ -242,11 +243,16 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
+        String tittel = ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato());
+        var tillggsinformasjon = visFraværsdatoPåSak ?
+                                 ForespørselTekster.lagTilleggsInformasjonMedDato(ForespørselStatus.UNDER_BEHANDLING, skjæringstidspunkt) : null;
+
         var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
-            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato()),
-            skjemaUri);
+            tittel,
+            skjemaUri,
+            tillggsinformasjon);
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
 

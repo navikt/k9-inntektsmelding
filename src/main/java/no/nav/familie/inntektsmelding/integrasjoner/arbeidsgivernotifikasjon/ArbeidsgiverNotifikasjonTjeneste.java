@@ -30,7 +30,8 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String opprettSak(String grupperingsid, Merkelapp merkelapp, String virksomhetsnummer, String saksTittel, URI lenke) {
+    public String opprettSak(String grupperingsid, Merkelapp merkelapp, String virksomhetsnummer, String saksTittel, URI lenke,
+                             String tilleggsinformasjon) {
 
         var request = NySakMutationRequest.builder()
             .setGrupperingsid(grupperingsid)
@@ -40,8 +41,11 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .setLenke(lenke.toString())
             .setInitiellStatus(SaksStatus.UNDER_BEHANDLING)
             .setOverstyrStatustekstMed(SAK_STATUS_TEKST)
-            .setMottakere(List.of(lagAltinnMottakerInput()))
-            .build();
+            .setMottakere(List.of(lagAltinnMottakerInput()));
+
+        if (tilleggsinformasjon != null) {
+            request.setTilleggsinformasjon(tilleggsinformasjon);
+        }
 
         var projection = new NySakResultatResponseProjection().typename()
             .onNySakVellykket(new NySakVellykketResponseProjection().id())
@@ -52,7 +56,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding())
             .onUkjentRolle(new UkjentRolleResponseProjection().feilmelding());
 
-        return klient.opprettSak(request, projection);
+        return klient.opprettSak(request.build(), projection);
     }
 
     @Override
