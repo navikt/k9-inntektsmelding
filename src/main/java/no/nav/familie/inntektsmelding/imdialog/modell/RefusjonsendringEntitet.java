@@ -16,7 +16,7 @@ import jakarta.persistence.Table;
 @Table(name = "REFUSJON_ENDRING")
 public class RefusjonsendringEntitet {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_REFUSJON_ENDRING")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
     private Long id;
 
     @ManyToOne(optional = false)

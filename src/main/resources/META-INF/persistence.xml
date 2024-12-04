@@ -36,6 +36,9 @@
             <!-- ikke lekk sql statements og sensitive verdier til logger etc. ved feil -->
             <property name="hibernate.connection.logServerErrorDetail" value="false" />
 
+            <!-- gjør det mulig å gjennbruke en sequence generator på tvers av entiteter -->
+            <property name="hibernate.jpa.compliance.global_id_generators" value="true" />
+
         </properties>
     </persistence-unit>
 
