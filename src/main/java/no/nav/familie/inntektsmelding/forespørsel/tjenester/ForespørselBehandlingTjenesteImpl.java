@@ -83,7 +83,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             return ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE;
         }
 
-        opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, førsteUttaksdato);
+        opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, førsteUttaksdato, null);
         return ForespørselResultat.FORESPØRSEL_OPPRETTET;
     }
 
@@ -223,7 +223,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                    SaksnummerDto fagsakSaksnummer,
                                    OrganisasjonsnummerDto organisasjonsnummer,
                                    LocalDate skjæringstidspunkt,
-                                   LocalDate førsteUttaksdato) {
+                                   LocalDate førsteUttaksdato, String tilleggsinfo) {
         var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
             organisasjonsnummer,
             skjæringstidspunkt,
@@ -247,6 +247,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             organisasjonsnummer.orgnr(),
             ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato()),
             skjemaUri);
+
+        if (tilleggsinfo != null) {
+            arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(arbeidsgiverNotifikasjonSakId, tilleggsinfo);
+        }
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
 
@@ -273,7 +277,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     public void opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
                                                    OrganisasjonsnummerDto organisasjonsnummer) {
         var forespørsel = forespørselTjeneste.finnÅpenForespørslelForFagsak(fagsakSaksnummer, organisasjonsnummer)
-            .orElseThrow(() -> new IllegalStateException(String.format("Ugyldig tilstand, kan ikke opprette beskjed når det ikke finnes en aktiv forespørsel på sak %s med orgnr %s", fagsakSaksnummer.saksnr(), organisasjonsnummer)));
+            .orElseThrow(() -> new IllegalStateException(String.format(
+                "Ugyldig tilstand, kan ikke opprette beskjed når det ikke finnes en aktiv forespørsel på sak %s med orgnr %s",
+                fagsakSaksnummer.saksnr(),
+                organisasjonsnummer)));
         var msg = String.format("Oppretter ny beskjed med ekstern varsling, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
             organisasjonsnummer,
             forespørsel.getSkjæringstidspunkt(),
@@ -288,9 +295,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         var varselTekst = ForespørselTekster.lagVarselFraSaksbehandlerTekst(forespørsel.getYtelseType(), organisasjon);
         var beskjedTekst = ForespørselTekster.lagBeskjedFraSaksbehandlerTekst(forespørsel.getYtelseType(), person.mapFulltNavn());
 
-        arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), merkelapp, forespørselUuid.toString(), organisasjonsnummer.orgnr(),
+        arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(),
+            merkelapp,
+            forespørselUuid.toString(),
+            organisasjonsnummer.orgnr(),
             beskjedTekst,
-            varselTekst, skjemaUri);
+            varselTekst,
+            skjemaUri);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -59,8 +60,10 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
                 organisasjonsnummer.orgnr(), skjæringstidspunkt, fagsakSaksnummer.saksnr(), ytelsetype);
             return;
         }
+
+        String tilleggsinfo = String.format("For første fraværsdag %s", skjæringstidspunkt.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
         // K9 trenger ikke førsteUttaksdato, setter alltid null her
-        forespørselBehandlingTjeneste.opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, null);
+        forespørselBehandlingTjeneste.opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, null, tilleggsinfo);
         MetrikkerTjeneste.loggForespørselOpprettet(ytelsetype);
 
     }

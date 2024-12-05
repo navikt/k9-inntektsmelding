@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -41,8 +42,10 @@ class OpprettForespørselTaskTest {
 
         task.doTask(taskdata);
 
+        String tilleggsinfo = String.format("For første fraværsdag %s", skjæringstidspunkt.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+
         verify(forespørselBehandlingTjeneste).opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt,
-            null);
+            null, tilleggsinfo);
     }
 
     @Test
@@ -61,6 +64,6 @@ class OpprettForespørselTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste, times(0)).opprettForespørsel(any(), any(), any(), any(), any(), any());
+        verify(forespørselBehandlingTjeneste, times(0)).opprettForespørsel(any(), any(), any(), any(), any(), any(), any());
     }
 }
