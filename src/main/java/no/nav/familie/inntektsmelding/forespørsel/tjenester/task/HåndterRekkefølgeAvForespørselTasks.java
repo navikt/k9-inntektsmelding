@@ -39,17 +39,17 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
     public ProsessTaskVeto vetoKjøring(ProsessTaskData prosessTaskData) {
 
         if (prosessTaskData.getTaskType().equals(OpprettForespørselTask.TASKTYPE)) {
-            String fagsakSaksnummer = prosessTaskData.getPropertyValue(OpprettForespørselTask.FAGSAK_SAKSNUMMER);
+            String fagsakSaksnummer = prosessTaskData.getSaksnummer();
 
             if (fagsakSaksnummer == null || fagsakSaksnummer.isBlank()) {
-                throw new IllegalArgumentException("Task av type " + OpprettForespørselTask.TASKTYPE + " mangler " + OpprettForespørselTask.FAGSAK_SAKSNUMMER);
+                throw new IllegalArgumentException("Task av type " + OpprettForespørselTask.TASKTYPE + " mangler saksnummer");
             }
 
             //TODO bytt til en mer spesifikk query når vi er over på k9-prosesstask
             Optional<ProsessTaskData> blokkerendeTask = prosessTaskRepository.finnAlle(List.of(ProsessTaskStatus.KLAR))
                 .stream()
                 .filter(task -> List.of(OpprettForespørselTask.TASKTYPE, SettForespørselTilUtgåttTask.TASKTYPE).contains(task.getTaskType()))
-                .filter(task -> Objects.equals(task.getPropertyValue(OpprettForespørselTask.FAGSAK_SAKSNUMMER), fagsakSaksnummer))
+                .filter(task -> Objects.equals(task.getSaksnummer(), fagsakSaksnummer))
                 .filter(task -> !Objects.equals(task.getGruppe(), prosessTaskData.getGruppe()))
                 .filter(task -> task.getOpprettetTid().isBefore(prosessTaskData.getOpprettetTid()))
                 .max(Comparator.comparing(ProsessTaskData::getOpprettetTid));

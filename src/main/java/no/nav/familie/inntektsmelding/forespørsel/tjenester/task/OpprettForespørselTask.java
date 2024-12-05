@@ -29,7 +29,6 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
 
     public static final String YTELSETYPE = "ytelsetype";
     public static final String AKTØR_ID = "aktoerId";
-    public static final String FAGSAK_SAKSNUMMER = "fagsakSaksnummer";
     public static final String ORGNR = "orgnr";
     public static final String STP = "skjaeringstidspunkt";
 
@@ -48,7 +47,7 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         Ytelsetype ytelsetype = Ytelsetype.valueOf(prosessTaskData.getPropertyValue(YTELSETYPE));
         AktørIdEntitet aktørId = new AktørIdEntitet(prosessTaskData.getPropertyValue(AKTØR_ID));
-        SaksnummerDto fagsakSaksnummer = new SaksnummerDto(prosessTaskData.getPropertyValue(FAGSAK_SAKSNUMMER));
+        SaksnummerDto fagsakSaksnummer = new SaksnummerDto(prosessTaskData.getSaksnummer());
         OrganisasjonsnummerDto organisasjonsnummer = new OrganisasjonsnummerDto(prosessTaskData.getPropertyValue(ORGNR));
         LocalDate skjæringstidspunkt = LocalDate.parse(prosessTaskData.getPropertyValue(STP));
 
@@ -73,7 +72,7 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
         taskdata.setProperty(YTELSETYPE, ytelsetype.name());
         taskdata.setProperty(AKTØR_ID, aktørId.getAktørId());
-        taskdata.setProperty(FAGSAK_SAKSNUMMER, fagsakSaksnummer.saksnr());
+        taskdata.setSaksnummer(fagsakSaksnummer.saksnr());
         taskdata.setProperty(ORGNR, organisasjon.orgnr());
         taskdata.setProperty(STP, skjæringstidspunkt.toString());
         return taskdata;
