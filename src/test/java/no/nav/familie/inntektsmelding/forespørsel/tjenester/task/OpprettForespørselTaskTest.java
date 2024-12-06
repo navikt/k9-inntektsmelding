@@ -36,7 +36,7 @@ class OpprettForespørselTaskTest {
         var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
         taskdata.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
         taskdata.setProperty(OpprettForespørselTask.AKTØR_ID, aktørId.getAktørId());
-        taskdata.setProperty(OpprettForespørselTask.FAGSAK_SAKSNUMMER, fagsakSaksnummer.saksnr());
+        taskdata.setSaksnummer(fagsakSaksnummer.saksnr());
         taskdata.setProperty(OpprettForespørselTask.ORGNR, organisasjon.orgnr());
         taskdata.setProperty(OpprettForespørselTask.STP, skjæringstidspunkt.toString());
 
@@ -54,7 +54,7 @@ class OpprettForespørselTaskTest {
         var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
         taskdata.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
         taskdata.setProperty(OpprettForespørselTask.AKTØR_ID, aktørId.getAktørId());
-        taskdata.setProperty(OpprettForespørselTask.FAGSAK_SAKSNUMMER, fagsakSaksnummer.saksnr());
+        taskdata.setSaksnummer(fagsakSaksnummer.saksnr());
         taskdata.setProperty(OpprettForespørselTask.ORGNR, organisasjon.orgnr());
         taskdata.setProperty(OpprettForespørselTask.STP, skjæringstidspunkt.toString());
 
