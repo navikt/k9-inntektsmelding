@@ -47,7 +47,7 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
             var fagsakSaksnummer = prosessTaskData.getSaksnummer();
 
             if (fagsakSaksnummer == null || fagsakSaksnummer.isBlank()) {
-                throw new IllegalArgumentException("Task av type " + OpprettForespørselTask.TASKTYPE + " mangler saksnummer");
+                throw new IllegalArgumentException("Task av type " + OPPRETT.value() + " mangler saksnummer");
             }
 
             //TODO bytt til en mer spesifikk query når vi er over på k9-prosesstask

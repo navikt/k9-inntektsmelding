@@ -312,7 +312,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OpprettForespørselTask.class));
         assertThat(taskdata.getPropertyValue(OpprettForespørselTask.YTELSETYPE)).isEqualTo(YTELSETYPE.toString());
         assertThat(taskdata.getSaksnummer()).isEqualTo(SAKSNUMMMER);
-        assertThat(taskdata.getPropertyValue(OpprettForespørselTask.AKTØR_ID)).isEqualTo(AKTØR_ID);
+        assertThat(taskdata.getAktørId()).isEqualTo(AKTØR_ID);
         assertThat(taskdata.getPropertyValue(OpprettForespørselTask.ORGNR)).isEqualTo(BRREG_ORGNUMMER);
         assertThat(taskdata.getPropertyValue(OpprettForespørselTask.STP)).isEqualTo(SKJÆRINGSTIDSPUNKT.toString());
     }
