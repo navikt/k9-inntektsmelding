@@ -23,10 +23,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = OpprettForespørselTask.TASKTYPE)
+@ProsessTask("forespørsel.opprett")
 public class OpprettForespørselTask implements ProsessTaskHandler {
-    public static final String TASKTYPE = "forespørsel.opprett";
-    private static final Logger log = LoggerFactory.getLogger(OpprettForespørselTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpprettForespørselTask.class);
 
     public static final String YTELSETYPE = "ytelsetype";
     public static final String AKTØR_ID = "aktoerId";
@@ -55,7 +54,7 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
 
         if (eksisterendeForespørsler.stream().anyMatch(eksisterende -> !eksisterende.getStatus().equals(ForespørselStatus.UTGÅTT))) {
-            log.info("Forespørsel finnes allerede, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
+            LOG.info("Forespørsel finnes allerede, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
                 organisasjonsnummer.orgnr(), skjæringstidspunkt, fagsakSaksnummer.saksnr(), ytelsetype);
             return;
         }
