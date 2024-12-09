@@ -83,8 +83,20 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             return ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE;
         }
 
+        settFerdigeForespørslerForTidligereStpTilUtgått(skjæringstidspunkt, fagsakSaksnummer, organisasjonsnummer);
         opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, førsteUttaksdato, null);
+
         return ForespørselResultat.FORESPØRSEL_OPPRETTET;
+    }
+
+    private void settFerdigeForespørslerForTidligereStpTilUtgått(LocalDate skjæringstidspunkt, SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto organisasjonsnummer) {
+        LOG.info("ForespørselBehandlingTjenesteImpl: settFerdigeForespørslerForTidligereStpTilUtgått for saksnummer: {}, orgnummer: {} med stp: {}", fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt );
+
+        forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer).stream()
+            .filter(forespørselEntitet -> organisasjonsnummer.orgnr().equals(forespørselEntitet.getOrganisasjonsnummer()))
+            .filter(forespørselEntitet -> !skjæringstidspunkt.equals(forespørselEntitet.getSkjæringstidspunkt()))
+            .filter(forespørselEntitet -> ForespørselStatus.FERDIG.equals(forespørselEntitet.getStatus()))
+            .forEach(forespørselEntitet -> settForespørselTilUtgått(forespørselEntitet, false));
     }
 
     @Override
@@ -223,7 +235,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                    SaksnummerDto fagsakSaksnummer,
                                    OrganisasjonsnummerDto organisasjonsnummer,
                                    LocalDate skjæringstidspunkt,
-                                   LocalDate førsteUttaksdato, String tilleggsinfo) {
+                                   LocalDate førsteUttaksdato,
+                                   String tilleggsinfo) {
         var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
             organisasjonsnummer,
             skjæringstidspunkt,
