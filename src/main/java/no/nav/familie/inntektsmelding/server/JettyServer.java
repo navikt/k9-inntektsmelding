@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.server;
 
 import java.io.File;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -112,10 +113,9 @@ public class JettyServer {
         config.setJdbcUrl(ENV.getRequiredProperty("DB_JDBC_URL"));
         config.setUsername(ENV.getRequiredProperty("DB_USERNAME"));
         config.setPassword(ENV.getRequiredProperty("DB_PASSWORD"));
+        config.setConnectionTimeout(TimeUnit.SECONDS.toMillis(1));
         config.setMinimumIdle(1);
         config.setMaximumPoolSize(6);
-        config.setIdleTimeout(10001);
-        config.setMaxLifetime(30001);
         config.setInitializationFailTimeout(30000);
         config.setConnectionTestQuery("select 1");
         config.setDriverClassName("org.postgresql.Driver");
