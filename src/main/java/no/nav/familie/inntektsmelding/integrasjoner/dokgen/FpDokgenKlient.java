@@ -21,25 +21,22 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
     endpointDefault = "http://fpdokgen.teamforeldrepenger",
     application = FpApplication.FPDOKGEN)
 public class FpDokgenKlient {
-    private final RestClient restClient;
-    private final RestConfig restConfig;
+    private RestClient restClient;
+    private RestConfig restConfig;
     private String templatePath;
     private String templateType;
 
     @Inject
     public FpDokgenKlient(
-        @KonfigVerdi(value = "pdf.template.path", defaultVerdi = "/template/fpinntektsmelding-inntektsmelding/PDFINNTEKTSMELDING") String tempatePath,
+        @KonfigVerdi(value = "pdf.template.path", defaultVerdi = "/template/fpinntektsmelding-inntektsmelding/PDFINNTEKTSMELDING") String templatePath,
         @KonfigVerdi(value = "pdf.template.type", defaultVerdi = "/create-pdf-format-variation") String templateType
     ) {
-        this(RestClient.client());
-        this.templatePath = tempatePath;
+        this.restClient = RestClient.client();
+        this.restConfig = RestConfig.forClient(FpDokgenKlient.class);
+        this.templatePath = templatePath;
         this.templateType = templateType;
     }
 
-    public FpDokgenKlient(RestClient restClient) {
-        this.restClient = restClient;
-        this.restConfig = RestConfig.forClient(FpDokgenKlient.class);
-    }
 
     public byte[] genererPdf(InntektsmeldingPdfData dokumentdata) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + templatePath + templateType);
@@ -50,5 +47,10 @@ public class FpDokgenKlient {
             throw new TekniskException("FPIM", "Fikk tomt svar ved kall til dokgen for generering av pdf for inntektsmelding");
         }
         return pdf;
+    }
+
+    void setRestClient(RestClient restClient) {
+        this.restClient = restClient;
+        this.restConfig = RestConfig.forClient(FpDokgenKlient.class);
     }
 }
