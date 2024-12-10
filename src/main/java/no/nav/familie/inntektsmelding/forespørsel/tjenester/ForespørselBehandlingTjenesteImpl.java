@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
-import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselDto;
+import no.nav.familie.inntektsmelding.forespørsel.rest.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
@@ -131,14 +131,14 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public void oppdaterForespørsler(Ytelsetype ytelsetype,
                                      AktørIdEntitet aktørId,
-                                     List<ForespørselDto> forespørsler,
+                                     List<OppdaterForespørselDto> forespørsler,
                                      SaksnummerDto fagsakSaksnummer) {
         final var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer);
         final var taskGruppe = new ProsessTaskGruppe();
 
         // Forespørsler som skal opprettes
         var skalOpprettes = utledNyeForespørsler(forespørsler, eksisterendeForespørsler);
-        for (ForespørselDto forespørselDto : skalOpprettes) {
+        for (OppdaterForespørselDto forespørselDto : skalOpprettes) {
             var opprettForespørselTask = OpprettForespørselTask.lagTaskData(ytelsetype,
                 aktørId,
                 fagsakSaksnummer,
@@ -172,7 +172,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         }
     }
 
-    private static List<ForespørselDto> utledNyeForespørsler(List<ForespørselDto> forespørsler, List<ForespørselEntitet> eksisterendeForespørsler) {
+    private static List<OppdaterForespørselDto> utledNyeForespørsler(List<OppdaterForespørselDto> forespørsler, List<ForespørselEntitet> eksisterendeForespørsler) {
         // Skal opprette forespørsler for alle skjæringstidspunkt som ikke allerede er opprettet
         return forespørsler.stream()
             .filter(f -> f.aksjon() == ForespørselAksjon.OPPRETT)
@@ -182,7 +182,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             .toList();
     }
 
-    private static List<ForespørselEntitet> utledForespørslerSomSkalSettesUtgått(List<ForespørselDto> forespørsler,
+    private static List<ForespørselEntitet> utledForespørslerSomSkalSettesUtgått(List<OppdaterForespørselDto> forespørsler,
                                                                                  List<ForespørselEntitet> eksisterendeForespørsler) {
         List<ForespørselEntitet> skalSettesUtgått = new ArrayList<>();
         // Forespørsler som ikke lenger er aktuelle settes til utgått
@@ -195,7 +195,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             }
         }
         // Forespørsler som skal sperres for endringer settes til utgått
-        for (ForespørselDto forespørselDto : forespørsler) {
+        for (OppdaterForespørselDto forespørselDto : forespørsler) {
             if (forespørselDto.aksjon() == ForespørselAksjon.UTGÅTT) {
                 var skalSperresForEndringer = finnEksisterendeForespørsel(forespørselDto,
                     eksisterendeForespørsler,
@@ -206,10 +206,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         return skalSettesUtgått;
     }
 
-    private static List<ForespørselEntitet> utledForespørslerSomSkalGjenåpnes(List<ForespørselDto> forespørsler,
+    private static List<ForespørselEntitet> utledForespørslerSomSkalGjenåpnes(List<OppdaterForespørselDto> forespørsler,
                                                                               List<ForespørselEntitet> eksisterendeForespørsler) {
         List<ForespørselEntitet> forespørslerSomSkalGjenåpnes = new ArrayList<>();
-        for (ForespørselDto forespørselDto : forespørsler) {
+        for (OppdaterForespørselDto forespørselDto : forespørsler) {
             if (forespørselDto.aksjon() == ForespørselAksjon.BEHOLD) {
                 var skalGjenåpnes = finnEksisterendeForespørsel(forespørselDto,
                     eksisterendeForespørsler,
@@ -220,7 +220,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         return forespørslerSomSkalGjenåpnes;
     }
 
-    private static Optional<ForespørselEntitet> finnEksisterendeForespørsel(ForespørselDto forespørselDto,
+    private static Optional<ForespørselEntitet> finnEksisterendeForespørsel(OppdaterForespørselDto forespørselDto,
                                                                             List<ForespørselEntitet> eksisterendeForespørsler,
                                                                             List<ForespørselStatus> statuser) {
         return eksisterendeForespørsler.stream()
@@ -230,7 +230,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             .findFirst();
     }
 
-    private static boolean innholderRequestEksisterendeForespørsel(List<ForespørselDto> forepørsler, ForespørselEntitet eksisterendeForespørsel) {
+    private static boolean innholderRequestEksisterendeForespørsel(List<OppdaterForespørselDto> forepørsler, ForespørselEntitet eksisterendeForespørsel) {
         return forepørsler.stream()
             .anyMatch(forespørselDto -> forespørselDto.orgnr().orgnr().equals(eksisterendeForespørsel.getOrganisasjonsnummer()) &&
                 forespørselDto.skjæringstidspunkt().equals(eksisterendeForespørsel.getSkjæringstidspunkt()));

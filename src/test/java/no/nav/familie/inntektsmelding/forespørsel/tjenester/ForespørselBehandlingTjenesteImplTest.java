@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
-import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselDto;
+import no.nav.familie.inntektsmelding.forespørsel.rest.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
@@ -341,7 +341,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
     void skal_opprette_forespørsel_dersom_det_ikke_eksisterer_en_for_stp() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
 
-        var forespørsler = List.of(new ForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.OPPRETT));
+        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.OPPRETT));
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
@@ -363,7 +363,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
-        var forespørsler = List.of(new ForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.OPPRETT));
+        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.OPPRETT));
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
         verifyNoInteractions(prosessTaskTjeneste);
@@ -377,8 +377,8 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
-        var forespørsler = List.of(new ForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.OPPRETT),
-            new ForespørselDto(SKJÆRINGSTIDSPUNKT.plusDays(10), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.OPPRETT));
+        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.OPPRETT),
+            new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT.plusDays(10), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.OPPRETT));
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
@@ -397,7 +397,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
-        var forespørsler = List.of(new ForespørselDto(SKJÆRINGSTIDSPUNKT.plusDays(10), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.OPPRETT));
+        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT.plusDays(10), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.OPPRETT));
 
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID_2, OPPGAVE_ID_2);
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
@@ -422,7 +422,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         forespørselRepository.ferdigstillForespørsel(SAK_ID);
 
-        var forespørsler = List.of(new ForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), true, ForespørselAksjon.UTGÅTT));
+        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), true, ForespørselAksjon.UTGÅTT));
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
@@ -443,7 +443,7 @@ public class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTe
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         forespørselRepository.settForespørselTilUtgått(SAK_ID);
 
-        var forespørsler = List.of(new ForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.BEHOLD));
+        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), false, ForespørselAksjon.BEHOLD));
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
