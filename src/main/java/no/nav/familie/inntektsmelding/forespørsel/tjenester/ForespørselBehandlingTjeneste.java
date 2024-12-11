@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.forespørsel.rest.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
@@ -60,4 +61,6 @@ public interface ForespørselBehandlingTjeneste {
 
     void opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
                                             OrganisasjonsnummerDto organisasjonsnummer);
+
+    List<InntektsmeldingForespørselDto> finnForespørslerForFagsak(SaksnummerDto fagsakSaksnummer);
 }
