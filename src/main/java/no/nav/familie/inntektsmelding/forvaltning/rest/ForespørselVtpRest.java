@@ -1,27 +1,21 @@
 package no.nav.familie.inntektsmelding.forvaltning.rest;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.foreldrepenger.konfig.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @AutentisertMedAzure
 @ApplicationScoped
@@ -34,7 +28,6 @@ public class ForespørselVtpRest {
     public static final String BASE_PATH = "/foresporsel";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private Environment environment = Environment.current();
 
     ForespørselVtpRest() {
         // Kun for CDI-proxy
@@ -52,18 +45,12 @@ public class ForespørselVtpRest {
     public Response finnForespoerselForSaksnummer(
         @Parameter(description = "Saksnummer det skal listes ut forespørsler for") @Valid @NotNull
         @PathParam("saksnummer") SaksnummerDto saksnummer) {
-        if (!(environment.isLocal() || environment.isVTP())) {
+        if (!(Environment.current().isLocal() || Environment.current().isVTP())) {
             throw new RuntimeException("Endepunkt for listing av forespørsler per sak skal kun brukes for verdikjedetesting, lokalt eller på github");
         }
         LOG.info("Mottok forespørsel om uuid for forespørsel for sak {}", saksnummer);
         var forespørsler = forespørselBehandlingTjeneste.finnForespørslerForFagsak(saksnummer);
         return Response.ok(new ListForespørslerResponse(forespørsler)).build();
     }
-
-    // Kun for unittesting
-    void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
-
 }
 
