@@ -12,14 +12,12 @@ import static org.mockito.Mockito.when;
 
 class FpDokgenKlientTest {
 
+    RestClient restClient = mock(RestClient.class);
+
     @Test
     public void skal_generere_pdf() throws URISyntaxException {
-        try (var mockRest = Mockito.mockStatic(RestClient.class)) {
-            RestClient restClient = mock(RestClient.class);
-            mockRest.when(RestClient::client).thenReturn(restClient);
-            FpDokgenKlient fpDokgenKlient = new FpDokgenKlient("/path", "/path");
-            when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
-            fpDokgenKlient.genererPdf(new InntektsmeldingPdfData());
-        }
+        FpDokgenKlient fpDokgenKlient = new FpDokgenKlient(restClient, "/path", "/path");
+        when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
+        fpDokgenKlient.genererPdf(new InntektsmeldingPdfData());
     }
 }

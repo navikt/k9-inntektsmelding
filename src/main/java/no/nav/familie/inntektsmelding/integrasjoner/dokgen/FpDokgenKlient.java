@@ -23,15 +23,21 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 public class FpDokgenKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
-    private String templatePath;
-    private String templateType;
+    private final String templatePath;
+    private final String templateType;
 
     @Inject
     public FpDokgenKlient(
-        @KonfigVerdi(value = "pdf.template.path", defaultVerdi = "/template/fpinntektsmelding-inntektsmelding/PDFINNTEKTSMELDING") String templatePath,
+        @KonfigVerdi(value = "pdf.template.path", defaultVerdi = "/template/fpinntektsmelding-inntektsmelding/PDFINNTEKTSMELDING") String tempatePath,
         @KonfigVerdi(value = "pdf.template.type", defaultVerdi = "/create-pdf-format-variation") String templateType
     ) {
-        this.restClient = RestClient.client();
+        this(RestClient.client(), tempatePath, templateType);
+    }
+
+    public FpDokgenKlient(RestClient restClient,
+                          String templatePath,
+                          String templateType) {
+        this.restClient = restClient;
         this.restConfig = RestConfig.forClient(FpDokgenKlient.class);
         this.templatePath = templatePath;
         this.templateType = templateType;
