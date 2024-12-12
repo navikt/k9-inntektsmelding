@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +77,7 @@ public class ForespørselRest {
                 MetrikkerTjeneste.loggForespørselOpprettet(KodeverkMapper.mapYtelsetype(request.ytelsetype()));
             }
             return Response.ok(new OpprettForespørselResponse(bleForespørselOpprettet)).build();
-        } else if (request.organisasjonsnumre() != null){
+        } else if (request.organisasjonsnumre() != null) {
             if (request.organisasjonsnumre().isEmpty()) {
                 return Response.status(Response.Status.NO_CONTENT).build();
             }
@@ -108,6 +110,11 @@ public class ForespørselRest {
         LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på fagsakSaksnummer {}", request.fagsakSaksnummer());
         sjekkErSystemkall();
 
+        boolean validertOk = validerOppdaterForespørslerRequest(request);
+        if (!validertOk) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
         forespørselBehandlingTjeneste.oppdaterForespørsler(
             KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdEntitet(request.aktørId().id()),
@@ -116,6 +123,27 @@ public class ForespørselRest {
         );
 
         return Response.ok().build();
+    }
+
+    private static boolean validerOppdaterForespørslerRequest(OppdaterForespørslerRequest request) {
+        var unikeForespørsler = new ArrayList<>();
+        var dupliserteForespørsler = new ArrayList<>();
+
+        request.forespørsler().forEach(forespørsel -> {
+            var forespørselPair = Pair.of(forespørsel.skjæringstidspunkt(), forespørsel.orgnr());
+            if (!unikeForespørsler.contains(forespørselPair)) {
+                unikeForespørsler.add(forespørselPair);
+            } else {
+                dupliserteForespørsler.add(forespørselPair);
+            }
+        });
+
+        if (!dupliserteForespørsler.isEmpty()) {
+            LOG.warn("Kan ikke oppdatere med duplikate forespørsler: {}", dupliserteForespørsler);
+            return false;
+        }
+
+        return true;
     }
 
     @POST
@@ -136,6 +164,7 @@ public class ForespørselRest {
     /**
      * Tjeneste for å opprette en ny beskjed på en eksisterende forespørsel.
      * Vil opprette ny beskjed som er synlig under saken i min side arbeidsgiver,samt sende ut et eksternt varsel
+     *
      * @param request
      * @return
      */

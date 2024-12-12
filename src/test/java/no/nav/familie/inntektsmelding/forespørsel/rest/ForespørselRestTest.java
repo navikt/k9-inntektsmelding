@@ -10,8 +10,10 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
 import org.eclipse.jetty.http.HttpStatus;
@@ -90,6 +92,49 @@ public class ForespørselRestTest {
         assertThat(response.getEntity()).isEqualTo(forventetResultat);
 
         verify(forespørselBehandlingTjeneste, times(2)).håndterInnkommendeForespørsel(any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void skal_oppdatere_forespørsler() {
+        var orgnummer1 = new OrganisasjonsnummerDto(BRREG_ORGNUMMER);
+        var orgnummer2 = new OrganisasjonsnummerDto(ORGNUMMER_TEST);
+        var stp1 = LocalDate.now();
+        var stp2 = LocalDate.now().minusMonths(2);
+        var aktørId = new AktørIdDto("1234567890134");
+
+        var organisasjonerPerSkjæringstidspunkt = Map.of(stp1, List.of(orgnummer1, orgnummer2),
+            stp2, List.of(orgnummer1, orgnummer2));
+
+        var forespørsler = List.of(new OppdaterForespørselDto(stp1, orgnummer1, false, ForespørselAksjon.OPPRETT),
+            new OppdaterForespørselDto(stp1, orgnummer2, false, ForespørselAksjon.OPPRETT),
+            new OppdaterForespørselDto(stp2, orgnummer1, false, ForespørselAksjon.OPPRETT),
+            new OppdaterForespørselDto(stp2, orgnummer2, false, ForespørselAksjon.OPPRETT));
+
+        var fagsakSaksnummer = new SaksnummerDto("SAK");
+        var response = forespørselRest.oppdaterForespørsler(
+            new OppdaterForespørslerRequest(aktørId, organisasjonerPerSkjæringstidspunkt, forespørsler, YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+    }
+
+    @Test
+    void skal_gi_400_for_oppdater_med_duplikate_forespørsler() {
+        var orgnummer = new OrganisasjonsnummerDto(BRREG_ORGNUMMER);
+        var stp1 = LocalDate.now();
+        var stp2 = LocalDate.now().minusMonths(2);
+        var aktørId = new AktørIdDto("1234567890134");
+
+        var organisasjonerPerSkjæringstidspunkt = Map.of(stp1, List.of(orgnummer),
+            stp2, List.of(orgnummer));
+
+        var forespørsler = List.of(new OppdaterForespørselDto(stp1, orgnummer, false, ForespørselAksjon.OPPRETT),
+            new OppdaterForespørselDto(stp1, orgnummer, false, ForespørselAksjon.OPPRETT));
+
+        var fagsakSaksnummer = new SaksnummerDto("SAK");
+        var response = forespørselRest.oppdaterForespørsler(
+            new OppdaterForespørslerRequest(aktørId, organisasjonerPerSkjæringstidspunkt, forespørsler, YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
     }
 
     @Test

@@ -7,7 +7,7 @@ public interface ArbeidsgiverNotifikasjon {
 
     String opprettSak(String grupperingsid, Merkelapp merkelapp, String virksomhetsnummer, String saksTittel, URI lenke);
 
-    String oppdaterSakTilleggsinformasjon(String id, String overstyrtTillagsinformasjon);
+    String oppdaterSakTilleggsinformasjon(String id, String overstyrtTilleggsinformasjon);
 
     String ferdigstillSak(String id);
 

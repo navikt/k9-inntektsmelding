@@ -27,7 +27,10 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
 
     private static final TaskType OPPRETT = TaskType.forProsessTask(OpprettForespørselTask.class);
 
-    private static final Set<TaskType> BLOKKERENDE = Set.of(OPPRETT, TaskType.forProsessTask(SettForespørselTilUtgåttTask.class));
+    private static final Set<TaskType> BLOKKERENDE = Set.of(
+        OPPRETT,
+        TaskType.forProsessTask(SettForespørselTilUtgåttTask.class),
+        TaskType.forProsessTask(GjenåpneForespørselTask.class));
 
     private ProsessTaskRepository prosessTaskRepository;
 
