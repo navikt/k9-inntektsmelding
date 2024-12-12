@@ -259,6 +259,9 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
     @Override
     public void gjenåpneForespørsel(ForespørselEntitet eksisterendeForespørsel) {
+        if (eksisterendeForespørsel.getStatus() != ForespørselStatus.UTGÅTT) {
+            throw new IllegalArgumentException("Forespørsel som skal gjenåpnes må ha status UTGÅTT, var " + eksisterendeForespørsel.getStatus() + ". " + eksisterendeForespørsel);
+        }
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), null);
         forespørselTjeneste.ferdigstillForespørsel(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
