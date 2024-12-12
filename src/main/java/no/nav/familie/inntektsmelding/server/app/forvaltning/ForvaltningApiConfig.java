@@ -2,15 +2,13 @@ package no.nav.familie.inntektsmelding.server.app.forvaltning;
 
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.ws.rs.ApplicationPath;
-
-import no.nav.familie.inntektsmelding.forvaltning.rest.ForespørselVtpRest;
-import no.nav.familie.inntektsmelding.forvaltning.OppgaverForvaltningRestTjeneste;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
@@ -24,7 +22,9 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import no.nav.familie.inntektsmelding.forvaltning.FpDokgenRestTjeneste;
+import no.nav.familie.inntektsmelding.forvaltning.OppgaverForvaltningRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.ProsessTaskRestTjeneste;
+import no.nav.familie.inntektsmelding.forvaltning.rest.ForespørselVtpRest;
 import no.nav.familie.inntektsmelding.server.auth.AutentiseringFilter;
 import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapper;
@@ -69,7 +69,7 @@ public class ForvaltningApiConfig extends ResourceConfig {
         var oas = new OpenAPI();
         var info = new Info().title(ENV.getNaisAppName())
             .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
-            .description("REST grensesnitt for FPINNTEKTSMELDING.");
+            .description("REST grensesnitt for fp-inntektsmelding.");
 
         oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpinntektsmelding")));
         var oasConfig = new SwaggerConfiguration().openAPI(oas)
@@ -85,10 +85,14 @@ public class ForvaltningApiConfig extends ResourceConfig {
     }
 
     private Set<Class<?>> getApplicationClasses() {
-        return Set.of(ProsessTaskRestTjeneste.class,
-            FpDokgenRestTjeneste.class,
-            OppgaverForvaltningRestTjeneste.class,
-            ForespørselVtpRest.class);
+        var classes = new HashSet<Class<?>>();
+        classes.add(ProsessTaskRestTjeneste.class);
+        classes.add(FpDokgenRestTjeneste.class);
+        classes.add(OppgaverForvaltningRestTjeneste.class);
+        if (Environment.current().isLocal()) {
+            classes.add(ForespørselVtpRest.class);
+        }
+        return classes;
     }
 
     private Map<String, Object> getApplicationProperties() {
