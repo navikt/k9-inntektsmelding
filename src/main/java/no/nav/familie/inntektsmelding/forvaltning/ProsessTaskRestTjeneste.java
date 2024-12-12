@@ -32,6 +32,8 @@ import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.rest.app.ProsessTaskApplikasjonTjeneste;
 import no.nav.vedtak.felles.prosesstask.rest.dto.FeiletProsessTaskDataDto;
+import no.nav.vedtak.felles.prosesstask.rest.dto.FeiletProsessTaskStatusEnum;
+import no.nav.vedtak.felles.prosesstask.rest.dto.IkkeFerdigProsessTaskStatusEnum;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskDataDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskOpprettInputDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartInputDto;
@@ -80,7 +82,7 @@ public class ProsessTaskRestTjeneste {
     }
 
     @POST
-    @Path("/launch/{taskId}/{taskStatus}")
+    @Path("/launch/{prosessTaskId}/{prosessTaskStatus}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Restarter en eksisterende prosesstask.", summary =
         "En allerede FERDIG prosesstask kan ikke restartes. En prosesstask har normalt et gitt antall forsøk den kan kjøres automatisk. "
@@ -92,21 +94,16 @@ public class ProsessTaskRestTjeneste {
     @Tilgangskontrollert
     public ProsessTaskRestartResultatDto restartProsessTask(
         @Parameter(description = "Informasjon for restart en eksisterende prosesstask") @Valid @NotNull
-        @PathParam("taskStatus") FeiletTaskStatus feiletTaskStatus, @Valid @NotNull @PathParam("taskId") Long prosessTaskId) {
+        @PathParam("prosessTaskStatus") FeiletProsessTaskStatusEnum feiletTaskStatus,
+        @Valid @NotNull @PathParam("prosessTaskId") Long prosessTaskId) {
         sjekkAtKallerHarRollenDrift();
         // kjøres manuelt for å avhjelpe feilsituasjon, da er det veldig greit at det blir logget!
         LOG.info("Restarter prossess task {}", prosessTaskId);
 
         var restartInputDto = new ProsessTaskRestartInputDto();
-        restartInputDto.setNaaVaaerendeStatus(feiletTaskStatus.name());
+        restartInputDto.setNaaVaaerendeStatus(feiletTaskStatus);
         restartInputDto.setProsessTaskId(prosessTaskId);
         return prosessTaskApplikasjonTjeneste.flaggProsessTaskForRestart(restartInputDto);
-    }
-
-    public enum FeiletTaskStatus {
-        FEILET,
-        VENTER_SVAR,
-        SUSPENDERT;
     }
 
     @POST
@@ -125,31 +122,23 @@ public class ProsessTaskRestTjeneste {
     }
 
     @POST
-    @Path("/list/{taskStatus}")
+    @Path("/list/{prosessTaskStatus}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Lister prosesstasker med angitt status.", tags = "prosesstask", responses = {
         @ApiResponse(responseCode = "200", description = "Liste over prosesstasker, eller tom liste når angitt/default søkefilter ikke finner noen prosesstasker", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProsessTaskDataDto.class)))
     })
     @Tilgangskontrollert
     public List<ProsessTaskDataDto> finnProsessTasks(
-        @Parameter(description = "Liste av statuser som skal hentes.") @Valid @PathParam("taskStatus")
-        ProsessTaskRestTjeneste.AlleIkkeFerdigStatus finnTaskStatus) {
+        @Parameter(description = "Liste av statuser som skal hentes.") @Valid @PathParam("prosessTaskStatus")
+        IkkeFerdigProsessTaskStatusEnum finnTaskStatus) {
         sjekkAtKallerHarRollenDrift();
         var statusFilterDto = new StatusFilterDto();
         statusFilterDto.setProsessTaskStatuser(List.of(new ProsessTaskStatusDto(finnTaskStatus.name())));
         return prosessTaskApplikasjonTjeneste.finnAlle(statusFilterDto);
     }
 
-    public enum AlleIkkeFerdigStatus {
-        FEILET,
-        VENTER_SVAR,
-        SUSPENDERT,
-        VETO,
-        KLAR;
-    }
-
     @POST
-    @Path("/feil/{taskId}")
+    @Path("/feil/{prosessTaskId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter informasjon om feilet prosesstask med angitt prosesstask-id", tags = "prosesstask", responses = {
         @ApiResponse(responseCode = "200", description = "Angitt prosesstask-id finnes", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FeiletProsessTaskDataDto.class))),
@@ -158,7 +147,7 @@ public class ProsessTaskRestTjeneste {
     })
     @Tilgangskontrollert
     public Response finnFeiletProsessTask(
-        @NotNull @Parameter(description = "Prosesstask-id for feilet prosesstask") @Valid @PathParam("taskId") Long prosessTaskId) {
+        @NotNull @Parameter(description = "Prosesstask-id for feilet prosesstask") @Valid @PathParam("prosessTaskId") Long prosessTaskId) {
         sjekkAtKallerHarRollenDrift();
         var resultat = prosessTaskApplikasjonTjeneste.finnFeiletProsessTask(prosessTaskId);
         if (resultat.isPresent()) {
@@ -168,7 +157,7 @@ public class ProsessTaskRestTjeneste {
     }
 
     @POST
-    @Path("/setferdig/{taskId}/{taskStatus}")
+    @Path("/setferdig/{prosessTaskId}/{prosessTaskStatus}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Setter feilet prosesstask med angitt prosesstask-id til FERDIG (kjøres ikke)", tags = "prosesstask", responses = {
         @ApiResponse(responseCode = "200", description = "Angitt prosesstask-id satt til status FERDIG"),
@@ -176,13 +165,22 @@ public class ProsessTaskRestTjeneste {
     })
     @Tilgangskontrollert
     public Response setFeiletProsessTaskFerdig(
-        @NotNull @Parameter(description = "Prosesstask-id for feilet prosesstask") @Valid
-        @PathParam("taskStatus") ProsessTaskRestTjeneste.AlleIkkeFerdigStatus naavarendeTaskStatus,
-        @Valid @NotNull @PathParam("taskId") Long prosessTaskId) {
+        @Parameter(description = "Prosesstask-id for feilet prosesstask") @Valid @NotNull
+        @PathParam("prosessTaskStatus") IkkeFerdigProsessTaskStatusEnum naavarendeTaskStatus,
+        @Valid @NotNull @PathParam("prosessTaskId") Long prosessTaskId) {
         sjekkAtKallerHarRollenDrift();
-        prosessTaskApplikasjonTjeneste.setProsessTaskFerdig(prosessTaskId,
-            ProsessTaskStatus.valueOf(naavarendeTaskStatus.name()));
+        prosessTaskApplikasjonTjeneste.setProsessTaskFerdig(prosessTaskId, mapIkkeFerdigTaskStatus(naavarendeTaskStatus));
         return Response.ok().build();
+    }
+
+    private ProsessTaskStatus mapIkkeFerdigTaskStatus(@NotNull @Valid IkkeFerdigProsessTaskStatusEnum naavarendeTaskStatus) {
+        return switch (naavarendeTaskStatus) {
+            case FEILET -> ProsessTaskStatus.FEILET;
+            case VENTER_SVAR -> ProsessTaskStatus.VENTER_SVAR;
+            case KLAR -> ProsessTaskStatus.KLAR;
+            case SUSPENDERT -> ProsessTaskStatus.SUSPENDERT;
+            case VETO -> ProsessTaskStatus.VETO;
+        };
     }
 
     private void sjekkAtKallerHarRollenDrift() {
