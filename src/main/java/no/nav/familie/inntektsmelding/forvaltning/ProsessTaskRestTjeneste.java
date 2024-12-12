@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -32,13 +33,14 @@ import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.rest.app.ProsessTaskApplikasjonTjeneste;
 import no.nav.vedtak.felles.prosesstask.rest.dto.FeiletProsessTaskDataDto;
-import no.nav.vedtak.felles.prosesstask.rest.dto.FeiletProsessTaskStatusEnum;
 import no.nav.vedtak.felles.prosesstask.rest.dto.IkkeFerdigProsessTaskStatusEnum;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskDataDto;
+import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskOpprettInputDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartInputDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartResultatDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRetryAllResultatDto;
+import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskSetFerdigInputDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskStatusDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.StatusFilterDto;
 
@@ -93,16 +95,11 @@ public class ProsessTaskRestTjeneste {
     })
     @Tilgangskontrollert
     public ProsessTaskRestartResultatDto restartProsessTask(
-        @Parameter(description = "Informasjon for restart en eksisterende prosesstask") @Valid @NotNull
-        @PathParam("prosessTaskStatus") FeiletProsessTaskStatusEnum feiletTaskStatus,
-        @Valid @NotNull @PathParam("prosessTaskId") Long prosessTaskId) {
+        @Parameter(description = "Informasjon for restart en eksisterende prosesstask") @Valid @BeanParam
+        ProsessTaskRestartInputDto restartInputDto) {
         sjekkAtKallerHarRollenDrift();
         // kjøres manuelt for å avhjelpe feilsituasjon, da er det veldig greit at det blir logget!
-        LOG.info("Restarter prossess task {}", prosessTaskId);
-
-        var restartInputDto = new ProsessTaskRestartInputDto();
-        restartInputDto.setNaaVaaerendeStatus(feiletTaskStatus);
-        restartInputDto.setProsessTaskId(prosessTaskId);
+        LOG.info("Restarter prossess task {}", restartInputDto.getProsessTaskId());
         return prosessTaskApplikasjonTjeneste.flaggProsessTaskForRestart(restartInputDto);
     }
 
@@ -129,7 +126,7 @@ public class ProsessTaskRestTjeneste {
     })
     @Tilgangskontrollert
     public List<ProsessTaskDataDto> finnProsessTasks(
-        @Parameter(description = "Liste av statuser som skal hentes.") @Valid @PathParam("prosessTaskStatus")
+        @Parameter(description = "Task status som skal hentes.") @Valid @PathParam("prosessTaskStatus")
         IkkeFerdigProsessTaskStatusEnum finnTaskStatus) {
         sjekkAtKallerHarRollenDrift();
         var statusFilterDto = new StatusFilterDto();
@@ -147,9 +144,9 @@ public class ProsessTaskRestTjeneste {
     })
     @Tilgangskontrollert
     public Response finnFeiletProsessTask(
-        @NotNull @Parameter(description = "Prosesstask-id for feilet prosesstask") @Valid @PathParam("prosessTaskId") Long prosessTaskId) {
+        @NotNull @Parameter(description = "Prosesstask-id for feilet prosesstask") @Valid @BeanParam ProsessTaskIdDto prosessTaskIdDto) {
         sjekkAtKallerHarRollenDrift();
-        var resultat = prosessTaskApplikasjonTjeneste.finnFeiletProsessTask(prosessTaskId);
+        var resultat = prosessTaskApplikasjonTjeneste.finnFeiletProsessTask(prosessTaskIdDto.getProsessTaskId());
         if (resultat.isPresent()) {
             return Response.ok(resultat.get()).build();
         }
@@ -165,15 +162,14 @@ public class ProsessTaskRestTjeneste {
     })
     @Tilgangskontrollert
     public Response setFeiletProsessTaskFerdig(
-        @Parameter(description = "Prosesstask-id for feilet prosesstask") @Valid @NotNull
-        @PathParam("prosessTaskStatus") IkkeFerdigProsessTaskStatusEnum naavarendeTaskStatus,
-        @Valid @NotNull @PathParam("prosessTaskId") Long prosessTaskId) {
+        @Parameter(description = "Prosesstask-id for feilet prosesstask") @NotNull @Valid @BeanParam ProsessTaskSetFerdigInputDto prosessTaskIdDto) {
         sjekkAtKallerHarRollenDrift();
-        prosessTaskApplikasjonTjeneste.setProsessTaskFerdig(prosessTaskId, mapIkkeFerdigTaskStatus(naavarendeTaskStatus));
+        prosessTaskApplikasjonTjeneste.setProsessTaskFerdig(prosessTaskIdDto.getProsessTaskId(),
+            mapIkkeFerdigTaskStatus(prosessTaskIdDto.getNaaVaaerendeStatus()));
         return Response.ok().build();
     }
 
-    private ProsessTaskStatus mapIkkeFerdigTaskStatus(@NotNull @Valid IkkeFerdigProsessTaskStatusEnum naavarendeTaskStatus) {
+    private ProsessTaskStatus mapIkkeFerdigTaskStatus(IkkeFerdigProsessTaskStatusEnum naavarendeTaskStatus) {
         return switch (naavarendeTaskStatus) {
             case FEILET -> ProsessTaskStatus.FEILET;
             case VENTER_SVAR -> ProsessTaskStatus.VENTER_SVAR;
