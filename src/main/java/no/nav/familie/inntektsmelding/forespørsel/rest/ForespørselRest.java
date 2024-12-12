@@ -18,6 +18,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,12 +110,20 @@ public class ForespørselRest {
         LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på fagsakSaksnummer {}", request.fagsakSaksnummer());
         sjekkErSystemkall();
 
-        var unikeForespørsler = new HashSet<>();
-        request.forespørsler().forEach(forespørsel ->
-            unikeForespørsler.add(new OppdaterForespørselDto(forespørsel.skjæringstidspunkt(), forespørsel.orgnr(), false, null))
-        );
+        var unikeForespørsler = new ArrayList<>();
+        var dupliserteForespørsler = new ArrayList<>();
 
-        if (unikeForespørsler.size() != request.forespørsler().size()) {
+        request.forespørsler().forEach(forespørsel -> {
+            var forespørselPair = Pair.of(forespørsel.skjæringstidspunkt(), forespørsel.orgnr());
+            if (!unikeForespørsler.contains(forespørselPair)) {
+                unikeForespørsler.add(forespørselPair);
+            } else {
+                dupliserteForespørsler.add(forespørselPair);
+            }
+        });
+
+        if (!dupliserteForespørsler.isEmpty()) {
+            LOG.warn("Kan ikke oppdatere med duplikate forespørsler: {}", dupliserteForespørsler);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
