@@ -110,6 +110,22 @@ public class ForespørselRest {
         LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på fagsakSaksnummer {}", request.fagsakSaksnummer());
         sjekkErSystemkall();
 
+        boolean validertOk = validerOppdaterForespørslerRequest(request);
+        if (!validertOk) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        forespørselBehandlingTjeneste.oppdaterForespørsler(
+            KodeverkMapper.mapYtelsetype(request.ytelsetype()),
+            new AktørIdEntitet(request.aktørId().id()),
+            request.forespørsler(),
+            request.fagsakSaksnummer()
+        );
+
+        return Response.ok().build();
+    }
+
+    private static boolean validerOppdaterForespørslerRequest(OppdaterForespørslerRequest request) {
         var unikeForespørsler = new ArrayList<>();
         var dupliserteForespørsler = new ArrayList<>();
 
@@ -124,17 +140,10 @@ public class ForespørselRest {
 
         if (!dupliserteForespørsler.isEmpty()) {
             LOG.warn("Kan ikke oppdatere med duplikate forespørsler: {}", dupliserteForespørsler);
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return false;
         }
 
-        forespørselBehandlingTjeneste.oppdaterForespørsler(
-            KodeverkMapper.mapYtelsetype(request.ytelsetype()),
-            new AktørIdEntitet(request.aktørId().id()),
-            request.forespørsler(),
-            request.fagsakSaksnummer()
-        );
-
-        return Response.ok().build();
+        return true;
     }
 
     @POST
