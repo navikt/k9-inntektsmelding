@@ -64,20 +64,7 @@ public class ForespørselRest {
     public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request) {
         sjekkErSystemkall();
 
-        if (request.orgnummer() != null) {
-            LOG.info("Mottok forespørsel om inntektsmeldingoppgave på fagsakSaksnummer {}", request.fagsakSaksnummer());
-            var bleForespørselOpprettet = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(),
-                KodeverkMapper.mapYtelsetype(request.ytelsetype()),
-                new AktørIdEntitet(request.aktørId().id()),
-                new OrganisasjonsnummerDto(request.orgnummer().orgnr()),
-                request.fagsakSaksnummer(),
-                request.førsteUttaksdato());
-
-            if (ForespørselResultat.FORESPØRSEL_OPPRETTET.equals(bleForespørselOpprettet)) {
-                MetrikkerTjeneste.loggForespørselOpprettet(KodeverkMapper.mapYtelsetype(request.ytelsetype()));
-            }
-            return Response.ok(new OpprettForespørselResponse(bleForespørselOpprettet)).build();
-        } else if (request.organisasjonsnumre() != null) {
+        if (request.organisasjonsnumre() != null){
             if (request.organisasjonsnumre().isEmpty()) {
                 return Response.status(Response.Status.NO_CONTENT).build();
             }
