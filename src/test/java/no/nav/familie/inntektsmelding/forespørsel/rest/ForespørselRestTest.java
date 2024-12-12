@@ -2,19 +2,14 @@ package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +24,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -37,7 +33,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
-public class ForespørselRestTest {
+class ForespørselRestTest {
 
     private static final String BRREG_ORGNUMMER = "974760673";
     private static final String ORGNUMMER_TEST = "450674427";
@@ -68,8 +64,8 @@ public class ForespørselRestTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
         assertThat(response.getEntity()).isEqualTo(forventetResultat);
-        verify(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(eq(LocalDate.now()), eq(Ytelsetype.PLEIEPENGER_SYKT_BARN),
-            eq(new AktørIdEntitet(aktørId.id())), eq(orgnummer), eq(fagsakSaksnummer), eq(LocalDate.now().plusDays(5)));
+        verify(forespørselBehandlingTjeneste).håndterInnkommendeForespørsel(LocalDate.now(), Ytelsetype.PLEIEPENGER_SYKT_BARN,
+            new AktørIdEntitet(aktørId.id()), orgnummer, fagsakSaksnummer, LocalDate.now().plusDays(5));
     }
 
     @Test

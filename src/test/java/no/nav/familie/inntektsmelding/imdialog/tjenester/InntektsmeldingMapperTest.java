@@ -1,7 +1,6 @@
 package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.map;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,16 +10,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
-
-import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;

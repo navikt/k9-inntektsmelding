@@ -27,7 +27,7 @@ class OrganisasjonTjenesteTest {
     }
 
     @Test
-    public void respons_blir_mappet() {
+    void respons_blir_mappet() {
         var testOrgnr = "999999999";
         var testNavn = "Testbedrift";
         when(eregRestKlient.hentOrganisasjon(testOrgnr)).thenReturn(respons);
