@@ -11,6 +11,8 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +43,12 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
     private static final no.nav.foreldrepenger.konfig.Environment ENV = Environment.current();
 
-    private ForespørselTjeneste forespørselTjeneste;
-    private ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
-    private PersonTjeneste personTjeneste;
-    private ProsessTaskTjeneste prosessTaskTjeneste;
-    private OrganisasjonTjeneste organisasjonTjeneste;
-    private String inntektsmeldingSkjemaLenke;
+    private final ForespørselTjeneste forespørselTjeneste;
+    private final ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
+    private final PersonTjeneste personTjeneste;
+    private final ProsessTaskTjeneste prosessTaskTjeneste;
+    private final OrganisasjonTjeneste organisasjonTjeneste;
+    private final String inntektsmeldingSkjemaLenke;
 
     @Inject
     public ForespørselBehandlingTjenesteImpl(ForespørselTjeneste forespørselTjeneste,
@@ -257,6 +259,9 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
     @Override
     public void gjenåpneForespørsel(ForespørselEntitet eksisterendeForespørsel) {
+        if (eksisterendeForespørsel.getStatus() != ForespørselStatus.UTGÅTT) {
+            throw new IllegalArgumentException("Forespørsel som skal gjenåpnes må ha status UTGÅTT, var " + eksisterendeForespørsel.getStatus() + ". " + eksisterendeForespørsel);
+        }
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), null);
         forespørselTjeneste.ferdigstillForespørsel(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
@@ -412,6 +417,18 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         var agPortalSakId = sakerSomSkalSlettes.getFirst().getArbeidsgiverNotifikasjonSakId();
         arbeidsgiverNotifikasjon.slettSak(agPortalSakId);
         forespørselTjeneste.settForespørselTilUtgått(agPortalSakId);
+    }
+
+    @Override
+    public List<InntektsmeldingForespørselDto> finnForespørslerForFagsak(SaksnummerDto fagsakSaksnummer) {
+        return forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer).stream().map(forespoersel ->
+            new InntektsmeldingForespørselDto(
+                forespoersel.getUuid(),
+                forespoersel.getSkjæringstidspunkt(),
+                forespoersel.getOrganisasjonsnummer(),
+                forespoersel.getAktørId().getAktørId(),
+                forespoersel.getYtelseType().toString()))
+            .toList();
     }
 
     private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {
