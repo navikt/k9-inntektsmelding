@@ -60,6 +60,6 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
         assertThat(hentet.getYtelseType()).isEqualTo(Ytelsetype.FORELDREPENGER);
         assertThat(hentet.getFagsystemSaksnummer()).isEqualTo("123");
         assertThat(hentet.getFørsteUttaksdato()).isPresent();
-        assertThat(hentet.getFørsteUttaksdato().get()).isEqualTo(LocalDate.now());
+        assertThat(hentet.getFørsteUttaksdato()).contains(LocalDate.now());
     }
 }

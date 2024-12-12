@@ -51,7 +51,7 @@ import no.nav.vedtak.konfig.Tid;
 /*Denne tjenesten er ment brukt til testformål, og eventuelt for å gjenskape feilsituasjoner i produksjon*/
 public class FpDokgenRestTjeneste {
     public static final String BASE_PATH = "/inntektsmelding-pdf";
-    private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FpDokgenRestTjeneste.class);
     private static final boolean IS_PROD = Environment.current().isProd();
     private FpDokgenTjeneste fpDokgenTjeneste;
     private Tilgang tilgang;

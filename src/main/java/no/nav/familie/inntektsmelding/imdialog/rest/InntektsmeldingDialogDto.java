@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselStatusDto;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
-//TODO Fjern feltet startdatoPermisjon når frontend er over på skjæringstidspunkt
+
 public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto person, @Valid @NotNull OrganisasjonInfoResponseDto arbeidsgiver,
                                        @Valid @NotNull InnsenderDto innsender, @Valid @NotNull InntektsopplysningerDto inntektsopplysninger,
                                        @NotNull @Valid LocalDate skjæringstidspunkt, @Valid @NotNull YtelseTypeDto ytelse,
