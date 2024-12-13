@@ -10,6 +10,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -186,12 +188,12 @@ public class ForespørselRest {
     @GET
     @Path("/sak")
     @Tilgangskontrollert
-    public Response hentForespørslerForSak(@Valid @NotNull @QueryParam("saksnummer") SaksnummerDto saksnummer) {
+    public Response hentForespørslerForSak(@Valid @NotNull @Pattern(regexp = SaksnummerDto.REGEXP) @Size(max = 19) @QueryParam("saksnummer") String saksnummer) {
         LOG.info("Henter forespørsler for fagsakSaksnummer {}", saksnummer);
 
         sjekkErSystemkall();
 
-        var forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(saksnummer, null, null);
+        var forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(new SaksnummerDto(saksnummer), null, null);
         var forespørselDtos = forespørsler.stream().map(ForespørselRest::mapTilDto).toList();
 
         return Response.ok(forespørselDtos).build();
