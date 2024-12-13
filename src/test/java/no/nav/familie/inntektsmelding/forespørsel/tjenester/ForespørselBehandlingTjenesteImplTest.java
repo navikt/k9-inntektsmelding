@@ -52,7 +52,6 @@ import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
 
     private static final String BRREG_ORGNUMMER = "974760673";
-    private static final String BRREG_ORGNUMMER2 = "450674427";
     private static final String AKTØR_ID = "1234567891234";
     private static final String SAK_ID = "1";
     private static final String OPPGAVE_ID = "2";

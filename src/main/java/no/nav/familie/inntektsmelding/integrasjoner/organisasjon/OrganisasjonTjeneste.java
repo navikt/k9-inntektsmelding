@@ -48,7 +48,7 @@ public class OrganisasjonTjeneste {
 
     public Optional<Organisasjon> finnOrganisasjonOptional(String orgNummer) {
         if (!OrganisasjonsNummerValidator.erGyldig(orgNummer)) {
-            LOG.info("Ugyldig orgnummer: " + orgNummer);
+            LOG.info("Ugyldig orgnummer: {}", orgNummer);
             return Optional.empty();
         }
         return Optional.of(hent(orgNummer));

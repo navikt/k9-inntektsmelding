@@ -54,7 +54,7 @@ public class InntektTjeneste {
             var inntekter = oversettRespons(respons, aktørId, organisasjonsnummer);
             var alleMåneder = inntekter.size() == antallMånederViBerOm
                               ? inntekter
-                              : fyllInnManglendeMåneder(fomDato, antallMånederViBerOm, organisasjonsnummer, inntekter);
+                              : fyllInnManglendeMåneder(fomDato, antallMånederViBerOm, inntekter);
             var kuttetNedTilTreMndInntekt = fjernOverflødigeMånederOmNødvendig(alleMåneder);
             return beregnSnittOgLeggPåStatus(kuttetNedTilTreMndInntekt, dagensDato, organisasjonsnummer);
         } catch (IntegrasjonException e) {
@@ -131,23 +131,22 @@ public class InntektTjeneste {
 
     public static List<Månedsinntekt> fyllInnManglendeMåneder(LocalDate fomDato,
                                                               long månederViBerOm,
-                                                              String organisasjonsnummer,
                                                               List<Månedsinntekt> inntekter) {
         List<Månedsinntekt> liste = new ArrayList<>(inntekter);
-        lagTommeInntekter(fomDato, månederViBerOm, organisasjonsnummer).stream()
+        lagTommeInntekter(fomDato, månederViBerOm).stream()
             .filter(tomInntekt -> inntekter.stream().noneMatch(i -> i.måned.equals(tomInntekt.måned)))
             .forEach(liste::add);
         return liste;
     }
 
-    public static List<Månedsinntekt> lagTommeInntekter(LocalDate fomDato, long månederViBerOm, String organisasjonsnummer) {
+    private static List<Månedsinntekt> lagTommeInntekter(LocalDate fomDato, long månederViBerOm) {
         return Stream.iterate(fomDato.withDayOfMonth(1),
                 date -> date.plusMonths(1))
             .limit(månederViBerOm)
             .map(fom -> new Månedsinntekt(
                 YearMonth.of(fom.getYear(), fom.getMonth()),
                 null))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private List<Månedsinntekt> oversettRespons(HentInntektListeBolkResponse response, AktørIdEntitet aktørId, String organisasjonsnummer) {

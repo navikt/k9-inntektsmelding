@@ -20,6 +20,10 @@ class ForespørselTekster {
     private static final String TILLEGGSINFORMASJON_UTFØRT_EKSTERN = "Utført i Altinn eller i bedriftens lønns- og personalsystem";
     private static final String TILLEGGSINFORMASJON_UTGÅTT = "Du trenger ikke lenger å sende denne inntektsmeldingen";
 
+    private ForespørselTekster() {
+        // Skjuler default
+    }
+
     public static String lagTilleggsInformasjon(LukkeÅrsak årsak) {
         return switch (årsak) {
             case EKSTERN_INNSENDING -> TILLEGGSINFORMASJON_UTFØRT_EKSTERN;

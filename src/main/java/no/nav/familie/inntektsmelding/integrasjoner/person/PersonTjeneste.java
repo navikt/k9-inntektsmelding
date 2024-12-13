@@ -105,7 +105,7 @@ public class PersonTjeneste {
             return identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(PersonIdent::new);
         } catch (VLException v) {
             if (Persondata.PDL_KLIENT_NOT_FOUND_KODE.equals(v.getKode())) {
-                LOG.warn("Finner ikke person i PDL, returnerer tomt objekt. Gjelder aktørId " + aktørId);
+                LOG.warn("Finner ikke person i PDL, returnerer tomt objekt. Gjelder aktørId {}", aktørId);
                 return Optional.empty();
             }
             throw v;
