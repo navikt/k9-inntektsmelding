@@ -3,6 +3,8 @@ package no.nav.familie.inntektsmelding.forvaltning.rest;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +34,8 @@ class ForespørselVtpRestTest {
             var vtpEnv = mock(Environment.class);
             when(vtpEnv.isLocal()).thenReturn(true);
             environment.when(Environment::current).thenReturn(vtpEnv);
-            forespørselVtpRest.finnForespoerselForSaksnummer(null);
+            var response = forespørselVtpRest.finnForespoerselForSaksnummer(null);
+            assertThat(response).isNotNull();
         }
     }
 

@@ -91,7 +91,7 @@ public class InntektsmeldingTjeneste {
     }
 
     private Long lagreOgLagJournalførTask(InntektsmeldingEntitet entitet, ForespørselEntitet forespørsel) {
-        LOG.info(String.format("Lagrer inntektsmelding for forespørsel %s", forespørsel.getUuid()));
+        LOG.info("Lagrer inntektsmelding for forespørsel {}", forespørsel.getUuid());
         var imId = inntektsmeldingRepository.lagreInntektsmelding(entitet);
         opprettTaskForSendTilJoark(imId, forespørsel.getFagsystemSaksnummer());
         return imId;
@@ -157,7 +157,7 @@ public class InntektsmeldingTjeneste {
     private InntektsmeldingDialogDto.InntektsopplysningerDto lagInntekterDto(ForespørselEntitet forespørsel) {
         var inntektsopplysninger = inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
             forespørsel.getOrganisasjonsnummer());
-        LOG.info(String.format("Inntektsopplysninger for forespørsel %s var %s", forespørsel.getUuid(), inntektsopplysninger.toString()));
+        LOG.info("Inntektsopplysninger for forespørsel {} var {}", forespørsel.getUuid(), inntektsopplysninger.toString());
         var inntekter = inntektsopplysninger.måneder()
             .stream()
             .map(i -> new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(i.månedÅr().atDay(1),

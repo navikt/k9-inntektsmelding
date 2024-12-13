@@ -34,7 +34,6 @@ public class RefusjonsendringEntitet {
     }
 
     public RefusjonsendringEntitet(LocalDate fom, BigDecimal refusjonPrMnd) {
-        this.inntektsmelding = inntektsmelding;
         this.fom = fom;
         this.refusjonPrMnd = refusjonPrMnd;
     }

@@ -7,6 +7,10 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
 public class KodeverkMapper {
 
+    private KodeverkMapper() {
+        // Skjuler default konstruktør
+    }
+
     public static NaturalytelseType mapNaturalytelseTilEntitet(NaturalytelsetypeDto dto) {
         return switch (dto) {
             case ELEKTRISK_KOMMUNIKASJON -> NaturalytelseType.ELEKTRISK_KOMMUNIKASJON;

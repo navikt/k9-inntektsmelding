@@ -60,14 +60,14 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
             "tidspunkt",
             "tilleggsinformasjon",
             "hardDelete");
-        assertThat(input.get("grupperingsid")).isEqualTo(expectedGrupperingsid);
-        assertThat(input.get("initiellStatus")).isEqualTo(SaksStatus.UNDER_BEHANDLING);
-        assertThat(input.get("lenke")).isEqualTo(expectedLenke);
-        assertThat(input.get("merkelapp")).isEqualTo(expectedMerkelapp.getBeskrivelse());
-        assertThat(input.get("tittel")).isEqualTo(expectedTittel);
-        assertThat(input.get("virksomhetsnummer")).isEqualTo(expectedVirksomhetsnummer);
+        assertThat(input).containsEntry("grupperingsid", expectedGrupperingsid);
+        assertThat(input).containsEntry("initiellStatus", SaksStatus.UNDER_BEHANDLING);
+        assertThat(input).containsEntry("lenke", expectedLenke);
+        assertThat(input).containsEntry("merkelapp", expectedMerkelapp.getBeskrivelse());
+        assertThat(input).containsEntry("tittel", expectedTittel);
+        assertThat(input).containsEntry("virksomhetsnummer", expectedVirksomhetsnummer);
+        assertThat(input).containsEntry("overstyrStatustekstMed", "");
         assertThat(input.get("mottakere")).isNotNull();
-        assertThat(input.get("overstyrStatustekstMed")).isEqualTo("");
     }
 
     @Test
@@ -146,8 +146,8 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         assertThat(input).containsOnlyKeys("id", "utfoertTidspunkt", "hardDelete", "nyLenke");
 
-        assertThat(input.get("id")).isEqualTo(expectedId);
-        assertThat(input.get("utfoertTidspunkt")).isEqualTo(expectedTidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
+        assertThat(input).containsEntry("id", expectedId);
+        assertThat(input).containsEntry("utfoertTidspunkt", expectedTidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
         assertThat(input.get("hardDelete")).isNull();
         assertThat(input.get("nyLenke")).isNull();
     }
