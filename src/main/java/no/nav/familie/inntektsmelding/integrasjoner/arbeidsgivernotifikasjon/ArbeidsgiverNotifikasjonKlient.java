@@ -7,6 +7,8 @@ import java.net.http.HttpRequest;
 
 import jakarta.enterprise.context.Dependent;
 
+import no.nav.vedtak.exception.TekniskException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,7 +150,7 @@ class ArbeidsgiverNotifikasjonKlient {
 
     private <T> T handleResponse(String response, Class<T> clazz) {
         if (response == null) {
-            return null;
+            throw new TekniskException("F-FAGER", "Mottok null som respons fra fager");
         }
         if (clazz.isAssignableFrom(String.class)) {
             return clazz.cast(response);
