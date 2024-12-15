@@ -41,8 +41,7 @@ import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartInputDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRestartResultatDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskRetryAllResultatDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskSetFerdigInputDto;
-import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskStatusDto;
-import no.nav.vedtak.felles.prosesstask.rest.dto.StatusFilterDto;
+
 
 @AutentisertMedAzure
 @OpenAPIDefinition(tags = @Tag(name = "prosesstask", description = "Håndtering av asynkrone oppgaver i form av prosesstask"))
@@ -100,7 +99,7 @@ public class ProsessTaskRestTjeneste {
         sjekkAtKallerHarRollenDrift();
         // kjøres manuelt for å avhjelpe feilsituasjon, da er det veldig greit at det blir logget!
         LOG.info("Restarter prossess task {}", restartInputDto.getProsessTaskId());
-        return prosessTaskApplikasjonTjeneste.flaggProsessTaskForRestart(restartInputDto);
+        return prosessTaskApplikasjonTjeneste.flaggProsessTaskForRestart(restartInputDto.getProsessTaskId(), ProsessTaskStatus.valueOf(restartInputDto.getNaaVaaerendeStatus().name()));
     }
 
     @POST
@@ -129,9 +128,8 @@ public class ProsessTaskRestTjeneste {
         @Parameter(description = "Task status som skal hentes.") @Valid @PathParam("prosessTaskStatus")
         IkkeFerdigProsessTaskStatusEnum finnTaskStatus) {
         sjekkAtKallerHarRollenDrift();
-        var statusFilterDto = new StatusFilterDto();
-        statusFilterDto.setProsessTaskStatuser(List.of(new ProsessTaskStatusDto(finnTaskStatus.name())));
-        return prosessTaskApplikasjonTjeneste.finnAlle(statusFilterDto);
+        var statusFilter = List.of(ProsessTaskStatus.valueOf(finnTaskStatus.name()));
+        return prosessTaskApplikasjonTjeneste.finnAlle(statusFilter);
     }
 
     @POST
