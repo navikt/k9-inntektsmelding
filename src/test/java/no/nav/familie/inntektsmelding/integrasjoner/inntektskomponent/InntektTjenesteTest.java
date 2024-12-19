@@ -365,6 +365,31 @@ class InntektTjenesteTest {
         assertResultat(inntektsopplysinger, forventetListe, ORGNR, null);
     }
 
+    @Test
+    void skal_teste_negative_inntekter_blir_til_0() {
+        var aktørId = new AktørIdEntitet(AKTØR_ID);
+        var stp = LocalDate.of(2024,10,15);
+        var dagensDato = stp.plusDays(10);
+        var forventetRequest = new FinnInntektRequest(aktørId.getAktørId(), YearMonth.of(2024, 7), YearMonth.of(2024, 9));
+
+        var response = new HentInntektListeBolkResponse();
+        var aiResponse = new ArbeidsInntektIdent();
+        aiResponse.setIdent(new Aktoer(aktørId.getAktørId(), AktoerType.AKTOER_ID));
+        var inntekt1 = getInntekt(YearMonth.of(2024,7), BigDecimal.valueOf(3_000));
+        var inntekt2 = getInntekt(YearMonth.of(2024,8), BigDecimal.valueOf(-6_000));
+        var inntekt3 = getInntekt(YearMonth.of(2024,9), null);
+        aiResponse.setArbeidsInntektMaaned(List.of(inntekt1, inntekt2, inntekt3));
+        response.setArbeidsInntektIdentListe(Collections.singletonList(aiResponse));
+        when(klient.finnInntekt(forventetRequest)).thenReturn(response);
+
+        var inntektsopplysinger = tjeneste.hentInntekt(aktørId, stp, dagensDato, ORGNR);
+
+        var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(3000), YearMonth.of(2024, 7), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(-6000), YearMonth.of(2024, 8), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT));
+        assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(0));
+    }
+
     private void assertResultat(Inntektsopplysninger inntektsopplysinger,
                                 List<Inntektsopplysninger.InntektMåned> forventetListe,
                                 String orgnr,
