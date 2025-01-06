@@ -15,8 +15,9 @@ on:
       - 'lokalutvikling/**'
       - '.github/*.yml'
 
+runs-on: "ubuntu-22.04"
+
 jobs:
-  runs-on: "ubuntu-22.04"
   build-app:
     name: Build
     permissions:
