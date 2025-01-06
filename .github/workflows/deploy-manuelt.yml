@@ -28,7 +28,6 @@ jobs:
       id-token: write
     uses: navikt/ft-inntektsmelding/.github/workflows/deploy.yml@master
     with:
-      gar: true
       image: ${{ inputs.image }}
       cluster: ${{ inputs.environment }}-gcp
       namespace: ${{ inputs.namespace }}
