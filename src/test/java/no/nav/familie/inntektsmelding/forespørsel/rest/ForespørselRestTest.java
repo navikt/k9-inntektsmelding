@@ -54,7 +54,8 @@ class ForespørselRestTest {
 
     @Test
     void skal_opprette_forespørsel() {
-        System.out.println("###");
+        System.out.println("###TEST###");
+        System.out.println(Environment.current().getNaisAppName());
         System.out.println(Environment.current());
         mockForespørsel();
 
