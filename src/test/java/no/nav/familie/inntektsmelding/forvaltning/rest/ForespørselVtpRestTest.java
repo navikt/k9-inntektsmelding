@@ -24,9 +24,9 @@ class ForespørselVtpRestTest {
 
     @Test
     void skal_kaste_exception_om_i_prod() {
-        try (var environment = Mockito.mockStatic(Environment.class, Answers.RETURNS_DEEP_STUBS)) {
-            assertThrows(RuntimeException.class, () -> forespørselVtpRest.finnForespoerselForSaksnummer(null));
-        }
+        System.setProperty("NAIS_CLUSTER_NAME", "prod-fss");
+        assertThrows(RuntimeException.class, () -> forespørselVtpRest.finnForespoerselForSaksnummer(null));
+        System.clearProperty("NAIS_CLUSTER_NAME");
     }
 
     @Test
