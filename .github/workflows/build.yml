@@ -17,6 +17,7 @@ on:
 
 jobs:
   build-app:
+    runs-on: "ubuntu:22.04"
     name: Build
     permissions:
       contents: read
