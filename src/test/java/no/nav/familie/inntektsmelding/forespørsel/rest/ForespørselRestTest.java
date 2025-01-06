@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.eclipse.jetty.http.HttpStatus;
@@ -99,17 +98,14 @@ class ForespørselRestTest {
         var stp2 = LocalDate.now().minusMonths(2);
         var aktørId = new AktørIdDto("1234567890134");
 
-        var organisasjonerPerSkjæringstidspunkt = Map.of(stp1, List.of(orgnummer1, orgnummer2),
-            stp2, List.of(orgnummer1, orgnummer2));
-
-        var forespørsler = List.of(new OppdaterForespørselDto(stp1, orgnummer1, false, ForespørselAksjon.OPPRETT),
-            new OppdaterForespørselDto(stp1, orgnummer2, false, ForespørselAksjon.OPPRETT),
-            new OppdaterForespørselDto(stp2, orgnummer1, false, ForespørselAksjon.OPPRETT),
-            new OppdaterForespørselDto(stp2, orgnummer2, false, ForespørselAksjon.OPPRETT));
+        var forespørsler = List.of(new OppdaterForespørselDto(stp1, orgnummer1, ForespørselAksjon.OPPRETT),
+            new OppdaterForespørselDto(stp1, orgnummer2, ForespørselAksjon.OPPRETT),
+            new OppdaterForespørselDto(stp2, orgnummer1, ForespørselAksjon.OPPRETT),
+            new OppdaterForespørselDto(stp2, orgnummer2, ForespørselAksjon.OPPRETT));
 
         var fagsakSaksnummer = new SaksnummerDto("SAK");
         var response = forespørselRest.oppdaterForespørsler(
-            new OppdaterForespørslerRequest(aktørId, organisasjonerPerSkjæringstidspunkt, forespørsler, YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
+            new OppdaterForespørslerRequest(aktørId, forespørsler, YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
     }
@@ -121,15 +117,12 @@ class ForespørselRestTest {
         var stp2 = LocalDate.now().minusMonths(2);
         var aktørId = new AktørIdDto("1234567890134");
 
-        var organisasjonerPerSkjæringstidspunkt = Map.of(stp1, List.of(orgnummer),
-            stp2, List.of(orgnummer));
-
-        var forespørsler = List.of(new OppdaterForespørselDto(stp1, orgnummer, false, ForespørselAksjon.OPPRETT),
-            new OppdaterForespørselDto(stp1, orgnummer, false, ForespørselAksjon.OPPRETT));
+        var forespørsler = List.of(new OppdaterForespørselDto(stp1, orgnummer, ForespørselAksjon.OPPRETT),
+            new OppdaterForespørselDto(stp1, orgnummer, ForespørselAksjon.OPPRETT));
 
         var fagsakSaksnummer = new SaksnummerDto("SAK");
         var response = forespørselRest.oppdaterForespørsler(
-            new OppdaterForespørslerRequest(aktørId, organisasjonerPerSkjæringstidspunkt, forespørsler, YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
+            new OppdaterForespørslerRequest(aktørId, forespørsler, YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
     }
