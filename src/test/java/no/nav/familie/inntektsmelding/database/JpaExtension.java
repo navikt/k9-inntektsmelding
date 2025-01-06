@@ -15,8 +15,7 @@ public class JpaExtension extends EntityManagerAwareExtension {
 
     static {
         try {
-            TEST_DATABASE = new PostgreSQLContainer<>(DockerImageName.parse(TEST_DB_CONTAINER))
-                .withReuse(true);
+            TEST_DATABASE = new PostgreSQLContainer<>(DockerImageName.parse("postgres:17-alpine")).withReuse(true);
             TEST_DATABASE.start();
             TestDatabaseInit.settOppDatasourceOgMigrer(TEST_DATABASE.getJdbcUrl(), TEST_DATABASE.getUsername(), TEST_DATABASE.getPassword());
         } catch (Exception e) {
