@@ -16,8 +16,8 @@ on:
       - '.github/*.yml'
 
 jobs:
+  runs-on: "ubuntu:22.04"
   build-app:
-    runs-on: "ubuntu:22.04"
     name: Build
     permissions:
       contents: read
