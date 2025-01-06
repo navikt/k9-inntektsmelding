@@ -15,8 +15,6 @@ on:
       - 'lokalutvikling/**'
       - '.github/*.yml'
 
-runs-on: "ubuntu-22.04"
-
 jobs:
   build-app:
     name: Build
