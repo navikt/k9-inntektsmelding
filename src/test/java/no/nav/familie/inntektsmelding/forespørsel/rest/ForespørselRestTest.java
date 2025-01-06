@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.konfig.Environment;
+
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +54,8 @@ class ForespørselRestTest {
 
     @Test
     void skal_opprette_forespørsel() {
+        System.out.println("###");
+        System.out.println(Environment.current());
         mockForespørsel();
 
         var orgnummer = new OrganisasjonsnummerDto(BRREG_ORGNUMMER);
