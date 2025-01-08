@@ -81,7 +81,8 @@ public class InntektTjeneste {
             .filter(m -> m.beløp() != null)
             .map(Inntektsopplysninger.InntektMåned::beløp)
             .reduce(BigDecimal::add)
-            .orElse(BigDecimal.ZERO);
+            .orElse(BigDecimal.ZERO)
+            .max(BigDecimal.ZERO); // hvis inntekt blir < 0 setter vi den til 0 for å unngå negative tall i inntektsmeldingen
         var snittlønn = totalLønn.divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_EVEN);
         return new Inntektsopplysninger(snittlønn, organisasjonsnummer, månedsinntekter);
     }
