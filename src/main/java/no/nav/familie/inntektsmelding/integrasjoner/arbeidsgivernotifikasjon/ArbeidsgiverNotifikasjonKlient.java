@@ -142,7 +142,10 @@ class ArbeidsgiverNotifikasjonKlient {
             LOG.info("FAGER: Svar med code: {} og body: {}", response.statusCode(), response.body());
         }
         var res = handleResponse(response.body(), clazz);
-        if (res != null && res.hasErrors()) {
+        if (res == null) {
+            throw new TekniskException("F-FAGER", "Mottok null som respons fra fager");
+        }
+        if (res.hasErrors()) {
             return handleError(res.getErrors(), restConfig.endpoint(), ERROR_RESPONSE);
         }
         return res;
@@ -150,7 +153,7 @@ class ArbeidsgiverNotifikasjonKlient {
 
     private <T> T handleResponse(String response, Class<T> clazz) {
         if (response == null) {
-            throw new TekniskException("F-FAGER", "Mottok null som respons fra fager");
+            return null;
         }
         if (clazz.isAssignableFrom(String.class)) {
             return clazz.cast(response);
