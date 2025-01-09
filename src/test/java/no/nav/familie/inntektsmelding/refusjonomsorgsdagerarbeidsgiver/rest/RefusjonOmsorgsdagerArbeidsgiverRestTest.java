@@ -57,9 +57,9 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
         var fnr = PersonIdent.fra("12345678910");
         var dto = new SlåOppArbeidstakerDto(fnr, Ytelsetype.OMSORGSPENGER);
 
-        when(arbeidstakerTjenesteMock.slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER)).thenReturn(null); // TOOD: Fix
+        when(arbeidstakerTjenesteMock.slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER)).thenThrow(FantIkkeArbeidstakerException.class);
 
-        assertThrows(NotFoundException.class, () -> rest.slåOppArbeidstaker(dto));
+        assertThrows(FantIkkeArbeidstakerException.class, () -> rest.slåOppArbeidstaker(dto));
         verify(arbeidstakerTjenesteMock).slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER);
     }
 
