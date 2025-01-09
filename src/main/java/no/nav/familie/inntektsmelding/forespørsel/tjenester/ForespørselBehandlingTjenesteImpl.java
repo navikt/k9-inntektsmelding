@@ -11,8 +11,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +19,7 @@ import no.nav.familie.inntektsmelding.forespørsel.rest.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
+import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
@@ -93,8 +92,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         return ForespørselResultat.FORESPØRSEL_OPPRETTET;
     }
 
-    private void settFerdigeForespørslerForTidligereStpTilUtgått(LocalDate skjæringstidspunktFraRequest, SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto organisasjonsnummerFraRequest) {
-        LOG.info("ForespørselBehandlingTjenesteImpl: settFerdigeForespørslerForTidligereStpTilUtgått for saksnummer: {}, orgnummer: {} med stp: {}", fagsakSaksnummer, organisasjonsnummerFraRequest, skjæringstidspunktFraRequest );
+    private void settFerdigeForespørslerForTidligereStpTilUtgått(LocalDate skjæringstidspunktFraRequest,
+                                                                 SaksnummerDto fagsakSaksnummer,
+                                                                 OrganisasjonsnummerDto organisasjonsnummerFraRequest) {
+        LOG.info("ForespørselBehandlingTjenesteImpl: settFerdigeForespørslerForTidligereStpTilUtgått for saksnummer: {}, orgnummer: {} med stp: {}",
+            fagsakSaksnummer,
+            organisasjonsnummerFraRequest,
+            skjæringstidspunktFraRequest);
 
         //Vi sjekker kun mot FERDIGE forespørsler da fpsak allerede har lukket forespørsler som er UNDER_BEHANDLING
         forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer).stream()
@@ -174,7 +178,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         }
     }
 
-    private static List<OppdaterForespørselDto> utledNyeForespørsler(List<OppdaterForespørselDto> forespørsler, List<ForespørselEntitet> eksisterendeForespørsler) {
+    private static List<OppdaterForespørselDto> utledNyeForespørsler(List<OppdaterForespørselDto> forespørsler,
+                                                                     List<ForespørselEntitet> eksisterendeForespørsler) {
         // Skal opprette forespørsler for alle skjæringstidspunkt som ikke allerede er opprettet
         return forespørsler.stream()
             .filter(f -> f.aksjon() == ForespørselAksjon.OPPRETT)
@@ -232,7 +237,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             .findFirst();
     }
 
-    private static boolean innholderRequestEksisterendeForespørsel(List<OppdaterForespørselDto> forepørsler, ForespørselEntitet eksisterendeForespørsel) {
+    private static boolean innholderRequestEksisterendeForespørsel(List<OppdaterForespørselDto> forepørsler,
+                                                                   ForespørselEntitet eksisterendeForespørsel) {
         return forepørsler.stream()
             .anyMatch(forespørselDto -> forespørselDto.orgnr().orgnr().equals(eksisterendeForespørsel.getOrganisasjonsnummer()) &&
                 forespørselDto.skjæringstidspunkt().equals(eksisterendeForespørsel.getSkjæringstidspunkt()));
@@ -260,7 +266,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public void gjenåpneForespørsel(ForespørselEntitet eksisterendeForespørsel) {
         if (eksisterendeForespørsel.getStatus() != ForespørselStatus.UTGÅTT) {
-            throw new IllegalArgumentException("Forespørsel som skal gjenåpnes må ha status UTGÅTT, var " + eksisterendeForespørsel.getStatus() + ". " + eksisterendeForespørsel);
+            throw new IllegalArgumentException(
+                "Forespørsel som skal gjenåpnes må ha status UTGÅTT, var " + eksisterendeForespørsel.getStatus() + ". " + eksisterendeForespørsel);
         }
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), null);
         forespørselTjeneste.ferdigstillForespørsel(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
@@ -422,12 +429,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public List<InntektsmeldingForespørselDto> finnForespørslerForFagsak(SaksnummerDto fagsakSaksnummer) {
         return forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer).stream().map(forespoersel ->
-            new InntektsmeldingForespørselDto(
-                forespoersel.getUuid(),
-                forespoersel.getSkjæringstidspunkt(),
-                forespoersel.getOrganisasjonsnummer(),
-                forespoersel.getAktørId().getAktørId(),
-                forespoersel.getYtelseType().toString()))
+                new InntektsmeldingForespørselDto(
+                    forespoersel.getUuid(),
+                    forespoersel.getSkjæringstidspunkt(),
+                    forespoersel.getOrganisasjonsnummer(),
+                    forespoersel.getAktørId().getAktørId(),
+                    forespoersel.getYtelseType().toString(),
+                    forespoersel.getFørsteUttaksdato().orElse(null)))
             .toList();
     }
 

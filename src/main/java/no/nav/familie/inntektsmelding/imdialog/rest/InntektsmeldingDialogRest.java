@@ -2,11 +2,12 @@ package no.nav.familie.inntektsmelding.imdialog.rest;
 
 import java.util.UUID;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -18,16 +19,15 @@ import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 
 @AutentisertMedTokenX
-@ApplicationScoped
+@RequestScoped
 @Transactional
+@Consumes(MediaType.APPLICATION_JSON)
 @Path(InntektsmeldingDialogRest.BASE_PATH)
 public class InntektsmeldingDialogRest {
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingDialogRest.class);
@@ -54,11 +54,8 @@ public class InntektsmeldingDialogRest {
     @GET
     @Path(HENT_OPPLYSNINGER)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter alle opplysninger vi har om søker, inntekt og arbeidsforholdet.", tags = "imdialog")
     @Tilgangskontrollert
-    public Response hentOpplysninger(
-        @Parameter(description = "Henter alle opplysninger vi har om søker, inntekt og arbeidsforholdet basert på en forespørsel UUID") @NotNull
-        @Valid @NotNull @QueryParam("foresporselUuid") UUID forespørselUuid) {
+    public Response hentOpplysninger(@Valid @NotNull @QueryParam("foresporselUuid") UUID forespørselUuid) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
         LOG.info("Henter forespørsel med uuid {}", forespørselUuid);
@@ -70,11 +67,8 @@ public class InntektsmeldingDialogRest {
     @GET
     @Path(HENT_INNTEKTSMELDINGER_FOR_OPPGAVE)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel", tags = "imdialog")
     @Tilgangskontrollert
-    public Response hentInntektsmeldingerForOppgave(
-        @Parameter(description = "Henter alle inntektsmeldinger som er sendt inn for en forespørsel") @NotNull @Valid @QueryParam("foresporselUuid")
-        UUID forespørselUuid) {
+    public Response hentInntektsmeldingerForOppgave(@NotNull @Valid @QueryParam("foresporselUuid") UUID forespørselUuid) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
         LOG.info("Henter inntektsmeldinger for forespørsel {}", forespørselUuid);
@@ -85,10 +79,8 @@ public class InntektsmeldingDialogRest {
     @POST
     @Path(SEND_INNTEKTSMELDING)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Sender inn inntektsmelding", tags = "imdialog")
     @Tilgangskontrollert
-    public Response sendInntektsmelding(@Parameter(description = "Datapakke med informasjon om inntektsmeldingen") @NotNull @Valid
-                                        SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+    public Response sendInntektsmelding(@NotNull @Valid SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
 
         LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequestDto.foresporselUuid());
@@ -99,10 +91,8 @@ public class InntektsmeldingDialogRest {
     @GET
     @Path(LAST_NED_PDF)
     @Produces("application/pdf")
-    @Operation(description = "Lager PDF av inntektsmelding", tags = "imdialog")
     @Tilgangskontrollert
-    public Response lastNedPDF(
-        @Parameter(description = "ID for inntektsmelding å lage PDF av") @Valid @NotNull @QueryParam("id") long inntektsmeldingId) {
+    public Response lastNedPDF(@NotNull @Valid @QueryParam("id") long inntektsmeldingId) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(inntektsmeldingId);
 
         LOG.info("Henter inntektsmelding for id {}", inntektsmeldingId);
