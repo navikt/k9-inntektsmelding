@@ -52,7 +52,7 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
             @Parameter(description = "Datapakke som inneholder fødselsnummeret til en arbeidstaker") @NotNull @Valid SlåOppArbeidstakerDto slåOppArbeidstakerDto) {
 
         LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerDto.fødselsnummer());
-        var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerDto.fødselsnummer());
+        var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerDto.fødselsnummer(), slåOppArbeidstakerDto.ytelseType());
         if (dto == null) {
             throw new NotFoundException();
         }

@@ -29,10 +29,8 @@ public class ArbeidstakerTjeneste {
         this.altinnTilgangTjeneste = altinnTilgangTjeneste;
     }
 
-    public SlåOppArbeidstakerResponseDto slåOppArbeidstaker(PersonIdent ident) {
-        var personInfo = personTjeneste.hentPersonFraIdent(ident, Ytelsetype.OMSORGSPENGER);
-
-        // TODO: Sjekk tilganger til å hente arbeidsforhold fra Altinn
+    public SlåOppArbeidstakerResponseDto slåOppArbeidstaker(PersonIdent ident, Ytelsetype ytelseType) {
+        var personInfo = personTjeneste.hentPersonFraIdent(ident, ytelseType);
 
         if (personInfo == null) {
             return null;
