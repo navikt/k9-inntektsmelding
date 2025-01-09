@@ -8,6 +8,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -48,7 +49,7 @@ public class ArbeidstakerTjenesteTest {
     @Test
     public void returnerer_null_om_pdl_ikke_finner_personen() {
         when(personTjenesteMock.hentPersonFraIdent(any(), any())).thenReturn(null);
-        assertThat(arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT)).isNull();
+        assertThat(arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER)).isNull();
     }
 
     @Test
@@ -61,7 +62,7 @@ public class ArbeidstakerTjenesteTest {
         );
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
 
-        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT);
+        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER);
         assertThat(resultat).isNotNull();
         assertThat(resultat.fornavn()).isEqualTo("Test");
         assertThat(resultat.mellomnavn()).isEqualTo("Filiokus");
@@ -80,7 +81,7 @@ public class ArbeidstakerTjenesteTest {
             new PersonInfo("Test", null, "Personesen", TILFELDIG_PERSON_IDENT, AktørIdEntitet.dummy(), LocalDate.now(), null)
         );
 
-        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT);
+        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER);
 
         assertThat(resultat).isNotNull();
         assertThat(resultat.fornavn()).isEqualTo("Test");
@@ -97,7 +98,7 @@ public class ArbeidstakerTjenesteTest {
             List.of(new ArbeidsforholdDto("Dummy arbeidsgiver", "00000000", "123456789")));
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
 
-        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT);
+        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER);
 
         assertThat(resultat.arbeidsforhold().size()).isEqualTo(1);
         var arbeidsforhold = resultat.arbeidsforhold().get(0);
@@ -121,7 +122,7 @@ public class ArbeidstakerTjenesteTest {
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften("00000000")).thenReturn(false);
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften("00000001")).thenReturn(true);
 
-        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT);
+        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER);
 
         assertThat(resultat.arbeidsforhold().size()).isEqualTo(1);
         var arbeidsforhold = resultat.arbeidsforhold().getFirst();

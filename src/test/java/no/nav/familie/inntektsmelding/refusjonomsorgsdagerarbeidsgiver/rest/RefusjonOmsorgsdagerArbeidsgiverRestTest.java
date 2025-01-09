@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.NotFoundException;
 
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,26 +34,26 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
   @Test
   void slå_opp_arbeidstaker_skal_returnere_ok_response_når_arbeidstaker_finnes() {
     var fnr = PersonIdent.fra("12345678910");
-    var dto = new SlåOppArbeidstakerDto(fnr);
+    var dto = new SlåOppArbeidstakerDto(fnr, Ytelsetype.OMSORGSPENGER);
     var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto("fornavn", "mellomnavn", "etternavn", null);
 
-    when(arbeidstakerTjeneste.slåOppArbeidstaker(fnr)).thenReturn(arbeidstakerInfo);
+    when(arbeidstakerTjeneste.slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER)).thenReturn(arbeidstakerInfo);
 
     Response response = rest.slåOppArbeidstaker(dto);
 
     assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     assertEquals(arbeidstakerInfo, response.getEntity());
-    verify(arbeidstakerTjeneste).slåOppArbeidstaker(fnr);
+    verify(arbeidstakerTjeneste).slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER);
   }
 
   @Test
   void slå_opp_arbeidstaker_skal_kaste_not_found_exception_når_arbeidstaker_ikke_finnes() {
     var fnr = PersonIdent.fra("12345678910");
-    var dto = new SlåOppArbeidstakerDto(fnr);
+    var dto = new SlåOppArbeidstakerDto(fnr, Ytelsetype.OMSORGSPENGER);
 
-    when(arbeidstakerTjeneste.slåOppArbeidstaker(fnr)).thenReturn(null);
+    when(arbeidstakerTjeneste.slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER)).thenReturn(null);
 
     assertThrows(NotFoundException.class, () -> rest.slåOppArbeidstaker(dto));
-    verify(arbeidstakerTjeneste).slåOppArbeidstaker(fnr);
+    verify(arbeidstakerTjeneste).slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER);
   }
 }
