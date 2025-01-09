@@ -8,4 +8,6 @@ public record InntektsmeldingForespørselDto(
     LocalDate skjæringstidspunkt,
     String arbeidsgiverident,
     String aktørid,
-    String ytelsetype) {}
+    String ytelsetype,
+    LocalDate startDato) {
+}

@@ -54,8 +54,8 @@ public class ForespørselVtpRest {
     @Operation(description = "Leverer en liste med forespørsler opprettet for en sak.", summary = "Hent forespørsel for en sak", tags = "vtp")
     @Tilgangskontrollert
     public Response finnForespoerselForSaksnummer(
-        @Parameter(description = "Saksnummer det skal listes ut forespørsler for") @Valid @NotNull
-        @PathParam("saksnummer") SaksnummerDto saksnummer) {
+        @Parameter(description = "Saksnummer det skal listes ut forespørsler for")
+        @Valid @NotNull @PathParam("saksnummer") SaksnummerDto saksnummer) {
         if (!Environment.current().isLocal()) {
             throw new RuntimeException("Endepunkt for listing av forespørsler per sak skal kun brukes for verdikjedetesting, lokalt eller på github");
         }
