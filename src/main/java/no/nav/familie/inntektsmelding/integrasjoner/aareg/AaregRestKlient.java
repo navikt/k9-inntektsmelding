@@ -41,11 +41,11 @@ public class AaregRestKlient {
         this.restConfig = RestConfig.forClient(this.getClass());
     }
 
-    public List<ArbeidsforholdDto> finnNåværendeArbeidsforholdForArbeidstaker(String ident) {
+    public List<ArbeidsforholdDto> finnNåværendeArbeidsforholdForArbeidstaker(String personIdent) {
         try {
             var nå = LocalDate.now();
             var uri = lagUriForForFinnArbeidsforholdForArbeidstaker(nå, nå);
-            var request = RestRequest.newGET(uri, restConfig).header(NavHeaders.HEADER_NAV_PERSONIDENT, ident);
+            var request = RestRequest.newGET(uri, restConfig).header(NavHeaders.HEADER_NAV_PERSONIDENT, personIdent);
             var response = restClient.send(request, ArbeidsforholdDto[].class);
             return Arrays.asList(response);
         } catch (UriBuilderException | IllegalArgumentException e) {
