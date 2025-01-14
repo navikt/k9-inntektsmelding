@@ -41,12 +41,13 @@ public class AaregRestKlient {
         this.restConfig = RestConfig.forClient(this.getClass());
     }
 
-    public List<ArbeidsforholdDto> finnArbeidsforholdForArbeidstaker(String ident, LocalDate qfom, LocalDate qtom) {
+    public List<ArbeidsforholdDto> finnNåværendeArbeidsforholdForArbeidstaker(String ident) {
         try {
-            var target = lagUriForForFinnArbeidsforholdForArbeidstaker(qfom, qtom);
-            var request = RestRequest.newGET(target, restConfig).header(NavHeaders.HEADER_NAV_PERSONIDENT, ident);
-            var result = restClient.send(request, ArbeidsforholdDto[].class);
-            return Arrays.asList(result);
+            var nå = LocalDate.now();
+            var uri = lagUriForForFinnArbeidsforholdForArbeidstaker(nå, nå);
+            var request = RestRequest.newGET(uri, restConfig).header(NavHeaders.HEADER_NAV_PERSONIDENT, ident);
+            var response = restClient.send(request, ArbeidsforholdDto[].class);
+            return Arrays.asList(response);
         } catch (UriBuilderException | IllegalArgumentException e) {
             throw new IllegalArgumentException("Utviklerfeil syntax-exception for finnArbeidsforholdForArbeidstaker");
         }

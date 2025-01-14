@@ -1,17 +1,16 @@
 package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import java.util.Collections;
+import java.util.List;
 
-import no.nav.familie.inntektsmelding.integrasjoner.aareg.AaregRestKlient;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
+import no.nav.familie.inntektsmelding.integrasjoner.aareg.AaregRestKlient;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
 
 @ApplicationScoped
 public class ArbeidsforholdTjeneste {
@@ -27,7 +26,7 @@ public class ArbeidsforholdTjeneste {
     }
 
     public List<ArbeidsforholdDto> hentNåværendeArbeidsforhold(PersonIdent ident) {
-        var aaregInfo = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident.getIdent(), LocalDate.now(), LocalDate.now());
+        var aaregInfo = aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(ident.getIdent());
         if (aaregInfo == null) {
             LOG.info("Fant ingen arbeidsforhold for ident {}. Returnerer tom liste", ident.getIdent());
             return Collections.emptyList();

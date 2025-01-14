@@ -35,10 +35,8 @@ class AaregRestKlientTest {
     }
 
     @Test
-    void skal_hente_arbeidsforhold_for_person() {
+    void skal_hente_nåværende_arbeidsforhold_for_person() {
         var ident = "12345678901";
-        var fom = LocalDate.of(2024, 1, 1);
-        var tom = LocalDate.of(2024, 3, 31);
 
         var arbeidsforhold = new ArbeidsforholdDto(
             "123",
@@ -52,7 +50,7 @@ class AaregRestKlientTest {
         when(restClient.send(any(RestRequest.class), eq(ArbeidsforholdDto[].class)))
             .thenReturn(new ArbeidsforholdDto[]{arbeidsforhold});
 
-        var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, fom, tom);
+        var result = aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(ident);
 
         assertThat(result).hasSize(1);
         assertThat(result.getFirst()).isEqualTo(arbeidsforhold);
@@ -67,15 +65,13 @@ class AaregRestKlientTest {
     void skal_kaste_exception_ved_ugyldig_uri() {
         // Arrange
         var ident = "12345678901";
-        var fom = LocalDate.of(2024, 1, 1);
-        var tom = LocalDate.of(2024, 3, 31);
 
         when(restClient.send(any(RestRequest.class), eq(ArbeidsforholdDto[].class)))
             .thenThrow(new IllegalArgumentException("Invalid URI"));
 
         // Act & Assert
         var exception = assertThrows(IllegalArgumentException.class,
-            () -> aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, fom, tom));
+            () -> aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(ident));
 
         assertThat(exception.getMessage())
             .isEqualTo("Utviklerfeil syntax-exception for finnArbeidsforholdForArbeidstaker");
@@ -85,14 +81,12 @@ class AaregRestKlientTest {
     void skal_returnere_tom_liste_ved_ingen_arbeidsforhold() {
         // Arrange
         var ident = "12345678901";
-        var fom = LocalDate.of(2024, 1, 1);
-        var tom = LocalDate.of(2024, 3, 31);
 
         when(restClient.send(any(RestRequest.class), eq(ArbeidsforholdDto[].class)))
             .thenReturn(new ArbeidsforholdDto[]{});
 
         // Act
-        var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, fom, tom);
+        var result = aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(ident);
 
         // Assert
         assertThat(result).isEmpty();
