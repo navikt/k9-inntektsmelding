@@ -11,6 +11,8 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -337,13 +339,15 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     @Override
-    public void opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
-                                                   OrganisasjonsnummerDto organisasjonsnummer) {
+    public NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
+                                                                OrganisasjonsnummerDto organisasjonsnummer) {
         var forespørsel = forespørselTjeneste.finnÅpenForespørslelForFagsak(fagsakSaksnummer, organisasjonsnummer)
-            .orElseThrow(() -> new IllegalStateException(String.format(
-                "Ugyldig tilstand, kan ikke opprette beskjed når det ikke finnes en aktiv forespørsel på sak %s med orgnr %s",
-                fagsakSaksnummer.saksnr(),
-                organisasjonsnummer)));
+            .orElse(null);
+
+        if (forespørsel == null) {
+            return NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE;
+        }
+
         var msg = String.format("Oppretter ny beskjed med ekstern varsling, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
             organisasjonsnummer,
             forespørsel.getSkjæringstidspunkt(),
@@ -365,6 +369,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             beskjedTekst,
             varselTekst,
             skjemaUri);
+
+        return NyBeskjedResultat.NY_BESKJED_SENDT;
     }
 
     @Override

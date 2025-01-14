@@ -10,6 +10,7 @@ import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørs
 import no.nav.familie.inntektsmelding.forespørsel.rest.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
+import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -59,7 +60,7 @@ public interface ForespørselBehandlingTjeneste {
 
     void gjenåpneForespørsel(ForespørselEntitet eksisterendeForespørsel);
 
-    void opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
+    NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
                                             OrganisasjonsnummerDto organisasjonsnummer);
 
     List<InntektsmeldingForespørselDto> finnForespørslerForFagsak(SaksnummerDto fagsakSaksnummer);

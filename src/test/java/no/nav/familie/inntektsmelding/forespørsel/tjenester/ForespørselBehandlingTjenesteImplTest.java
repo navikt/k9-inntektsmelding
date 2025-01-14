@@ -1,7 +1,6 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -12,6 +11,9 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
+import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -226,7 +228,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         var forrigeForespørsel = forespørselRepository.hentForespørsel(lagret.getUuid());
 
         clearHibernateCache();
-        assertThat(forrigeForespørsel.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
+        assertThat(forrigeForespørsel.map(ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
         assertThat(resultat2).isEqualTo(ForespørselResultat.FORESPØRSEL_OPPRETTET);
     }
 
@@ -245,7 +247,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         clearHibernateCache();
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
     }
 
     @Test
@@ -263,7 +265,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         clearHibernateCache();
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
     }
 
     @Test
@@ -284,9 +286,9 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         clearHibernateCache();
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
         var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
-        assertThat(lagret2.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
+        assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
     }
 
     @Test
@@ -307,9 +309,9 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         clearHibernateCache();
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
         var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
-        assertThat(lagret2.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
+        assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
     }
 
     @Test
@@ -333,9 +335,9 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         clearHibernateCache();
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.FERDIG);
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
         var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
-        assertThat(lagret2.get().getStatus()).isEqualTo(ForespørselStatus.UNDER_BEHANDLING);
+        assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
     }
 
     @Test
@@ -469,7 +471,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         clearHibernateCache();
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
         verify(arbeidsgiverNotifikasjon, Mockito.times(1)).slettSak(SAK_ID);
     }
 
@@ -486,7 +488,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         clearHibernateCache();
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.get().getStatus()).isEqualTo(ForespørselStatus.UTGÅTT);
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
         verify(arbeidsgiverNotifikasjon, Mockito.times(1)).slettSak(SAK_ID);
     }
 
@@ -512,22 +514,26 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
             uri)).thenReturn("beskjedId");
         when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(AKTØR_ID), Ytelsetype.FORELDREPENGER)).thenReturn(personInfo);
 
-        forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER));
+        var resultat = forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER));
 
         clearHibernateCache();
 
+        assertThat(resultat).isEqualTo(NyBeskjedResultat.NY_BESKJED_SENDT);
         verify(arbeidsgiverNotifikasjon, Mockito.times(1)).opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_FP, forespørselUuid.toString(), BRREG_ORGNUMMER, beskjedtekst, varseltekst,
             uri);
     }
 
     @Test
-    void skal_feile_ved_opprettelse_av_beskjed_om_det_ikke_finnes_åpen_forespørsel() {
+    void skal_gi_riktig_resultat_om_det_ikke_finnes_en_åpen_forespørsel() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.FORELDREPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         forespørselRepository.ferdigstillForespørsel(SAK_ID);
 
-        assertThrows(IllegalStateException.class, () -> forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER)));
+        var resultat = forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER));
+        clearHibernateCache();
+        assertThat(resultat).isEqualTo(NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE);
+
     }
 
     @Test
