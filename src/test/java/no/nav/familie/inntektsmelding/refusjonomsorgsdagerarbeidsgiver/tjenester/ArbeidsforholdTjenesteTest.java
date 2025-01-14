@@ -1,7 +1,6 @@
 package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -35,7 +34,7 @@ class ArbeidsforholdTjenesteTest {
 
     @Test
     void skalReturnereTomListeNårAaregReturnerNull() {
-        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(eq(PERSON_IDENT.getIdent())))
+        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent()))
             .thenReturn(null);
 
         var resultat = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(PERSON_IDENT);
@@ -45,7 +44,7 @@ class ArbeidsforholdTjenesteTest {
 
     @Test
     void skalReturnereTomListeNårAaregReturnerTomListe() {
-        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(eq(PERSON_IDENT.getIdent())))
+        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent()))
             .thenReturn(Collections.emptyList());
 
         var resultat = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(PERSON_IDENT);
@@ -70,7 +69,7 @@ class ArbeidsforholdTjenesteTest {
             "type"
         );
 
-        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(eq(PERSON_IDENT.getIdent())))
+        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent()))
             .thenReturn(List.of(arbeidsforhold));
 
         var resultat = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(PERSON_IDENT);
@@ -117,7 +116,7 @@ class ArbeidsforholdTjenesteTest {
             "type"
         );
 
-        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(eq(PERSON_IDENT.getIdent())))
+        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent()))
             .thenReturn(List.of(arbeidsforhold1, arbeidsforhold2));
 
         var resultat = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(PERSON_IDENT);
