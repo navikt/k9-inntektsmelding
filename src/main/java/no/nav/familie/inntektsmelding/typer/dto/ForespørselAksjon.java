@@ -4,4 +4,5 @@ public enum ForespørselAksjon {
     OPPRETT,
     UTGÅTT,
     BEHOLD,
+    GJENOPPRETT
 }

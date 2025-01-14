@@ -217,7 +217,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                                                               List<ForespørselEntitet> eksisterendeForespørsler) {
         List<ForespørselEntitet> forespørslerSomSkalGjenåpnes = new ArrayList<>();
         for (OppdaterForespørselDto forespørselDto : forespørsler) {
-            if (forespørselDto.aksjon() == ForespørselAksjon.BEHOLD) {
+            if (forespørselDto.aksjon() == ForespørselAksjon.GJENOPPRETT) {
                 var skalGjenåpnes = finnEksisterendeForespørsel(forespørselDto,
                     eksisterendeForespørsler,
                     List.of(ForespørselStatus.UTGÅTT));
