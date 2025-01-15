@@ -37,7 +37,6 @@ public class AaregRestKlient {
         this(RestClient.client());
     }
 
-    @Inject
     public AaregRestKlient(RestClient restClient) {
         this.restClient = restClient;
         this.restConfig = RestConfig.forClient(this.getClass());
