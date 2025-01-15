@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriBuilderException;
 
@@ -36,6 +37,7 @@ public class AaregRestKlient {
         this(RestClient.client());
     }
 
+    @Inject
     public AaregRestKlient(RestClient restClient) {
         this.restClient = restClient;
         this.restConfig = RestConfig.forClient(this.getClass());

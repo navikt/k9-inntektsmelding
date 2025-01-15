@@ -2,6 +2,8 @@ package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjeneste
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+import jakarta.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,7 @@ public class ArbeidstakerTjeneste {
         // CDI
     }
 
+    @Inject
     public ArbeidstakerTjeneste(PersonTjeneste personTjeneste, ArbeidsforholdTjeneste arbeidsforholdTjeneste, AltinnTilgangTjeneste altinnTilgangTjeneste) {
         this.personTjeneste = personTjeneste;
         this.arbeidsforholdTjeneste = arbeidsforholdTjeneste;
