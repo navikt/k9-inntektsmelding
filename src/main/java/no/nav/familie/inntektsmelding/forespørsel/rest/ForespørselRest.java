@@ -170,8 +170,8 @@ public class ForespørselRest {
 
         sjekkErSaksbehandlerkall();
 
-        forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(request.fagsakSaksnummer(), request.orgnummer());
-        return Response.ok().build();
+        var resultat = forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(request.fagsakSaksnummer(), request.orgnummer());
+        return Response.ok(new SendNyBeskjedResponse(resultat)).build();
     }
 
     @POST

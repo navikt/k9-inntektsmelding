@@ -87,8 +87,9 @@ public class OppgaverForvaltningRestTjeneste {
             return Response.ok().build();
         }
         LOG.info("Oppretter beskjed på oppgave med saksnummer {}", inputDto.fagsakSaksnummer());
-        forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(inputDto.fagsakSaksnummer(), inputDto.orgnummer());
-        return Response.ok().build();
+        var resultat = forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(inputDto.fagsakSaksnummer(), inputDto.orgnummer());
+        LOG.info("Resultat for opprett beskjed {}", resultat.name());
+        return Response.ok(resultat).build();
     }
 
     protected record SlettOppgaveRequest(@Valid @NotNull SaksnummerDto saksnummer, @Valid @NotNull OrganisasjonsnummerDto orgnr) {
