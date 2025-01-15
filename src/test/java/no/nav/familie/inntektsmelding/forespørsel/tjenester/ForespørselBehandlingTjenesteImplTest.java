@@ -446,7 +446,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         forespørselRepository.settForespørselTilUtgått(SAK_ID);
 
-        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.BEHOLD));
+        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.GJENOPPRETT));
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
