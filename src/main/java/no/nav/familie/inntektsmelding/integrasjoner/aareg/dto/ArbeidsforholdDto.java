@@ -4,17 +4,11 @@ import java.util.List;
 
 public record ArbeidsforholdDto(
     String arbeidsforholdId,
-
     Long navArbeidsforholdId,
-
     OpplysningspliktigArbeidsgiverDto arbeidsgiver,
-
     AnsettelsesperiodeDto ansettelsesperiode,
-
     List<ArbeidsavtaleDto> arbeidsavtaler,
-
     List<PermisjonPermitteringDto> permisjonPermitteringer,
-
     String type // (kodeverk: Arbeidsforholdtyper)
 ) {
     public List<ArbeidsavtaleDto> arbeidsavtaler() {
