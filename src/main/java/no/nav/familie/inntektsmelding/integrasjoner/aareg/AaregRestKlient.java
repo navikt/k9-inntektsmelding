@@ -5,8 +5,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriBuilderException;
 
@@ -24,8 +23,8 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
  * Swagger V2 https://aareg-services-q2.dev.intern.nav.no/swagger-ui/index.html?urls.primaryName=aareg.api.v2#/arbeidstaker/finnArbeidsforholdPrArbeidstaker
  */
 
-@ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "aareg.rs.url",
+@Dependent
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "aareg.rs.url",
     endpointDefault = "https://aareg-services.dev-fss-pub.nais.io",
     scopesProperty = "aareg.scopes", scopesDefault = "api://dev-fss.arbeidsforhold.aareg-services-nais/.default")
 public class AaregRestKlient {
