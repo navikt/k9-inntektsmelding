@@ -63,7 +63,7 @@ class ArbeidstakerTjenesteTest {
         assertThat(resultat.fornavn()).isEqualTo("Test");
         assertThat(resultat.mellomnavn()).isEqualTo("Filiokus");
         assertThat(resultat.etternavn()).isEqualTo("Personesen");
-        assertThat(resultat.arbeidsforhold()).isEqualTo(1);
+        assertThat(resultat.arbeidsforhold().size()).isEqualTo(1);
 
         var arbeidsforhold = resultat.arbeidsforhold().getFirst();
         assertThat(arbeidsforhold.arbeidsgiver()).isEqualTo("Dummy arbeid");
