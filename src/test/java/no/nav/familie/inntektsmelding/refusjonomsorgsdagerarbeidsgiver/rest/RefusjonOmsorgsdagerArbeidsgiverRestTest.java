@@ -1,11 +1,9 @@
 package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -46,13 +44,15 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
     }
 
     @Test
-    void slå_opp_arbeidstaker_skal_kaste_not_found_exception_når_arbeidstaker_ikke_finnes() {
+    void slå_opp_arbeidstaker_skal_returnere_not_found_når_arbeidstaker_ikke_finnes() {
         var fnr = PersonIdent.fra("12345678910");
         var dto = new SlåOppArbeidstakerDto(fnr, Ytelsetype.OMSORGSPENGER);
 
         when(arbeidstakerTjenesteMock.slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER)).thenReturn(null);
 
-        assertThrows(NotFoundException.class, () -> rest.slåOppArbeidstaker(dto));
+        Response response = rest.slåOppArbeidstaker(dto);
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
         verify(arbeidstakerTjenesteMock).slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER);
     }
 }

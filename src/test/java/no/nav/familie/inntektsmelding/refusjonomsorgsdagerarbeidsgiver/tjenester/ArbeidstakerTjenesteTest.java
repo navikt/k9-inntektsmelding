@@ -76,6 +76,9 @@ class ArbeidstakerTjenesteTest {
         when(personTjenesteMock.hentPersonFraIdent(any(), any())).thenReturn(
             new PersonInfo("Test", null, "Personesen", TILFELDIG_PERSON_IDENT, AktørIdEntitet.dummy(), LocalDate.now(), null)
         );
+        when(arbeidsforholdTjenesteMock.hentNåværendeArbeidsforhold(any())).thenReturn(
+            List.of(new ArbeidsforholdDto("Dummy arbeidsgiver", "00000000", "123456789")));
+        when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
 
         var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER);
 

@@ -57,7 +57,7 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
 
         var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerDto.fødselsnummer(), slåOppArbeidstakerDto.ytelseType());
         if (dto == null) {
-            Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         return Response.ok(dto).build();
     }
