@@ -25,8 +25,8 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "aareg.rs.url",
-    endpointDefault = "http://aareg-services-nais.arbeidsforhold/api/v1/arbeidstaker",
-    scopesProperty = "aareg.scopes", scopesDefault = "api://prod-fss.arbeidsforhold.aareg-services-nais/.default")
+    endpointDefault = "https://aareg-services.dev-fss-pub.nais.io",
+    scopesProperty = "aareg.scopes", scopesDefault = "api://dev-fss.arbeidsforhold.aareg-services-nais/.default")
 public class AaregRestKlient {
 
     private final RestClient restClient; // Setter på consumer-token fra STS
