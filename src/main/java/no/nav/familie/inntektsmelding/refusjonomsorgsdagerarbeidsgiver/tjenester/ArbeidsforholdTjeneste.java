@@ -5,6 +5,8 @@ import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+import jakarta.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +23,7 @@ public class ArbeidsforholdTjeneste {
         // CDI
     }
 
+    @Inject
     public ArbeidsforholdTjeneste(AaregRestKlient aaregRestKlient) {
         this.aaregRestKlient = aaregRestKlient;
     }
