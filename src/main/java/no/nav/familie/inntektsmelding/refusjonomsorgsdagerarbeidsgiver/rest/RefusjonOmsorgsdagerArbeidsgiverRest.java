@@ -2,12 +2,12 @@ package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest;
 
 import static no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.RefusjonOmsorgsdagerArbeidsgiverRest.BASE_PATH;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -24,13 +24,14 @@ import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 
 @AutentisertMedTokenX
-@ApplicationScoped
+@RequestScoped
 @Transactional
+@Consumes(MediaType.APPLICATION_JSON)
 @Path(BASE_PATH)
 public class RefusjonOmsorgsdagerArbeidsgiverRest {
     private static final Logger LOG = LoggerFactory.getLogger(RefusjonOmsorgsdagerArbeidsgiverRest.class);
 
-    public static final String BASE_PATH = "/imdialog/refusjon-omsorgsdager-arbeidsgiver";
+    public static final String BASE_PATH = "/refusjon-omsorgsdager-arbeidsgiver";
     private static final String SLÅ_OPP_ARBEIDSTAKER = "/arbeidstaker";
 
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
@@ -56,7 +57,7 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
 
         var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerDto.fødselsnummer(), slåOppArbeidstakerDto.ytelseType());
         if (dto == null) {
-            throw new NotFoundException();
+            Response.status(Response.Status.NOT_FOUND).build();
         }
         return Response.ok(dto).build();
     }
