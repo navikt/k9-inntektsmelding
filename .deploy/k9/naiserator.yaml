@@ -98,4 +98,3 @@ spec:
       {{else}}
         - host: dokarkiv.{{environment}}-fss-pub.nais.io
       {{/if}}
-        - host: aareg-services-nais.arbeidsforhold
