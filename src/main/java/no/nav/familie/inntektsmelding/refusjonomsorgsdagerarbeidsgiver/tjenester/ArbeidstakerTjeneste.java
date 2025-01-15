@@ -32,21 +32,36 @@ public class ArbeidstakerTjeneste {
         var personInfo = personTjeneste.hentPersonFraIdent(ident, ytelseType);
 
         if (personInfo == null) {
+            LOG.warn("Fant ikke personinformasjon for {}", ident);
             return null;
         }
 
-        var arbeidsforhold = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(ident)
+        var alleArbeidsforhold = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(ident);
+        LOG.info("Fant {} arbeidsforhold i Aa-registeret for {}", alleArbeidsforhold.size(), ident);
+
+        if (alleArbeidsforhold.isEmpty()) {
+            LOG.warn("Fant ingen arbeidsforhold i Aa-registeret for {}", ident);
+            return null;
+        }
+
+        var arbeidsforholdBrukerHarTilgangTil = alleArbeidsforhold
             .stream()
             .filter(dto -> altinnTilgangTjeneste.harTilgangTilBedriften(dto.underenhetId()))
             .toList();
 
+        if (alleArbeidsforhold.size() > arbeidsforholdBrukerHarTilgangTil.size()) {
+            LOG.info("Bruker har tilgang til {} av {} arbeidsforhold for {}", arbeidsforholdBrukerHarTilgangTil.size(), alleArbeidsforhold.size(), ident);
+            if (arbeidsforholdBrukerHarTilgangTil.isEmpty()) {
+                return null;
+            }
+        }
 
         LOG.info("Returnerer informasjon om arbeidstaker og arbeidsforhold for {}", personInfo.fødselsnummer());
         return new SlåOppArbeidstakerResponseDto(
             personInfo.fornavn(),
             personInfo.mellomnavn(),
             personInfo.etternavn(),
-            arbeidsforhold
+            arbeidsforholdBrukerHarTilgangTil
         );
     }
 }
