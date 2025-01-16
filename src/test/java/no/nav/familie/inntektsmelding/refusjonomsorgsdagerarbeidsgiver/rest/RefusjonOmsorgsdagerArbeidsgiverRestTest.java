@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,17 +16,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidstakerTjeneste;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.InnloggetBrukerTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class RefusjonOmsorgsdagerArbeidsgiverRestTest {
     @Mock
     private ArbeidstakerTjeneste arbeidstakerTjenesteMock;
 
+    @Mock
+    private InnloggetBrukerTjeneste innloggetBrukerTjenesteMock;
+
     private RefusjonOmsorgsdagerArbeidsgiverRest rest;
 
     @BeforeEach
     void setUp() {
-        rest = new RefusjonOmsorgsdagerArbeidsgiverRest(arbeidstakerTjenesteMock);
+        rest = new RefusjonOmsorgsdagerArbeidsgiverRest(arbeidstakerTjenesteMock, innloggetBrukerTjenesteMock);
     }
 
     @Test
@@ -54,5 +59,15 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
         verify(arbeidstakerTjenesteMock).slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER);
+    }
+
+    @Test
+    void hent_innlogget_bruker_returnerer_ok() {
+        var innloggetBruker = new InnloggetBrukerDto("fornavn", "mellomnavn", "etternavn", "81549300");
+
+        when(innloggetBrukerTjenesteMock.hentInnloggetBruker(any())).thenReturn(innloggetBruker);
+
+        Response response = rest.hentInnloggetBruker(Ytelsetype.OMSORGSPENGER);
+        assertEquals(response.getEntity(), innloggetBruker);
     }
 }

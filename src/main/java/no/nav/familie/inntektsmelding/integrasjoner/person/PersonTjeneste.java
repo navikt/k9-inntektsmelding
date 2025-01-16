@@ -29,6 +29,8 @@ import no.nav.pdl.TelefonnummerResponseProjection;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @ApplicationScoped
 public class PersonTjeneste {
@@ -79,6 +81,14 @@ public class PersonTjeneste {
     public PersonIdent finnPersonIdentForAktørId(AktørIdEntitet aktørIdEntitet) {
         return hentPersonidentForAktørId(aktørIdEntitet).orElseThrow(
             () -> new IllegalStateException("Finner ikke personnummer for id " + aktørIdEntitet));
+    }
+
+    public PersonInfo hentInnloggetPerson(Ytelsetype ytelsetype) {
+        if (!KontekstHolder.harKontekst() || !IdentType.EksternBruker.equals(KontekstHolder.getKontekst().getIdentType())) {
+            throw new IllegalStateException("Mangler innlogget bruker kontekst.");
+        }
+        var pid = KontekstHolder.getKontekst().getUid();
+        return hentPersonFraIdent(PersonIdent.fra(pid), ytelsetype);
     }
 
     private LocalDate mapFødselsdato(Person person) {
