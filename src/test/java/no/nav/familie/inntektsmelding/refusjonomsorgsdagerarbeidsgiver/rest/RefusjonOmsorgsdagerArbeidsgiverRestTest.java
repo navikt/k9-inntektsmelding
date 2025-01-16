@@ -63,11 +63,11 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
 
     @Test
     void hent_innlogget_bruker_returnerer_ok() {
-        var innloggetBruker = new InnloggetBrukerDto("fornavn", "mellomnavn", "etternavn", "81549300");
+        var innloggetBruker = new InnloggetBrukerDto("fornavn", "mellomnavn", "etternavn", "81549300", "123456789", "organisasjonsnavn");
 
-        when(innloggetBrukerTjenesteMock.hentInnloggetBruker(any())).thenReturn(innloggetBruker);
+        when(innloggetBrukerTjenesteMock.hentInnloggetBruker(any(), any())).thenReturn(innloggetBruker);
 
-        Response response = rest.hentInnloggetBruker(Ytelsetype.OMSORGSPENGER);
+        Response response = rest.hentInnloggetBruker(Ytelsetype.OMSORGSPENGER, "123456789");
         assertEquals(response.getEntity(), innloggetBruker);
     }
 }

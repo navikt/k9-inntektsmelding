@@ -79,9 +79,11 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
     @Tilgangskontrollert
     public Response hentInnloggetBruker(
         @Parameter(description = "Hvilken ytelse den innloggete brukeren skal sende inn inntektsmelding for")
-        @QueryParam("ytelseType") Ytelsetype ytelseType
+        @QueryParam("ytelseType") Ytelsetype ytelseType,
+        @Parameter(description = "Hvilken organisasjon den innloggete brukeren skal sende inn inntektsmelding for")
+        @QueryParam("organisasjonsnummer") String organisasjonsnummer
     ) {
-        var dto = innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType);
+        var dto = innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, organisasjonsnummer);
         return Response.ok(dto).build();
     }
 }

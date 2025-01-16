@@ -59,7 +59,7 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
     void assertValidRequest(ContainerRequestContext req) {
         var method = getResourceinfo().getResourceMethod();
         LOG.trace("{} i klasse {}", method.getName(), method.getDeclaringClass());
-        fjernKontektsHvisFinnes();
+        fjernKontekstHvisFinnes();
         AuthenticationFilterDelegate.validerSettKontekst(getResourceinfo(), req);
         assertValidAnnotation(method, req);
     }
@@ -104,7 +104,7 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
     private void validerIkkeAutentisertKontekst() {
         var kontekst = KontekstHolder.getKontekst();
         if (!kontekst.harKontekst() || kontekst.getIdentType() != null) {
-            throw new WebApplicationException("Kan ikke kjøre uten autentisering med autentisert kontekts", Response.Status.UNAUTHORIZED);
+            throw new WebApplicationException("Kan ikke kjøre uten autentisering med autentisert kontekst", Response.Status.UNAUTHORIZED);
         }
     }
 
@@ -122,7 +122,7 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
         }
     }
 
-    private void fjernKontektsHvisFinnes() {
+    private void fjernKontekstHvisFinnes() {
         if (KontekstHolder.harKontekst()) {
             LOG.info("Kall til {} hadde kontekst {}", getResourceinfo().getResourceMethod().getName(), KontekstHolder.getKontekst().getKompaktUid());
             KontekstHolder.fjernKontekst();
