@@ -24,7 +24,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
  */
 
 @Dependent
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "aareg.rs.url",
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "aareg.rs.url",
     endpointDefault = "https://aareg-services.dev-fss-pub.nais.io",
     scopesProperty = "aareg.scopes", scopesDefault = "api://dev-fss.arbeidsforhold.aareg-services-nais/.default")
 public class AaregRestKlient {
