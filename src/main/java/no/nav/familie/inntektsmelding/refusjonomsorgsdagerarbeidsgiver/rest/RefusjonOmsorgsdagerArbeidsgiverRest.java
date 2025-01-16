@@ -80,9 +80,9 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
     @Tilgangskontrollert
     public Response hentInnloggetBruker(
         @Parameter(description = "Hvilken ytelse den innloggete brukeren skal sende inn inntektsmelding for")
-        @NotNull @QueryParam("ytelseType") Ytelsetype ytelseType,
+        @NotNull @QueryParam("ytelseType") @Valid Ytelsetype ytelseType,
         @Parameter(description = "Hvilken organisasjon den innloggete brukeren skal sende inn inntektsmelding for")
-        @NotNull @Pattern(regexp = "^\\d{9}$") @QueryParam("organisasjonsnummer") String organisasjonsnummer
+        @NotNull @Pattern(regexp = "^\\d{9}$") @Valid @QueryParam("organisasjonsnummer") String organisasjonsnummer
     ) {
         var dto = innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, organisasjonsnummer);
         return Response.ok(dto).build();
