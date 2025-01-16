@@ -37,9 +37,9 @@ public class ArbeidsforholdTjeneste {
         LOG.info("Fant {} arbeidsforhold for ident {}.", aaregInfo.size(), ident.getIdent());
         return aaregInfo.stream().map(arbeidsforhold ->
             new ArbeidsforholdDto(
-                arbeidsforhold.arbeidsgiver().offentligIdent(),
-                arbeidsforhold.arbeidsgiver().organisasjonsnummer(),
-                arbeidsforhold.arbeidsforholdId()
+                arbeidsforhold.arbeidsgiver().identer().get(0).ident(), // TODO: hva trenger vi?
+                arbeidsforhold.arbeidsgiver().identer().get(0).ident(),
+                arbeidsforhold.navArbeidsforholdId().toString()
             )).toList();
     }
 }
