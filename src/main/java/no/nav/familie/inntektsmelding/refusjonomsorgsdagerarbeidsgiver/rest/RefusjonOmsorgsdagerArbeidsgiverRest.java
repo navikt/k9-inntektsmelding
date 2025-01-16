@@ -7,6 +7,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -79,9 +80,9 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
     @Tilgangskontrollert
     public Response hentInnloggetBruker(
         @Parameter(description = "Hvilken ytelse den innloggete brukeren skal sende inn inntektsmelding for")
-        @QueryParam("ytelseType") Ytelsetype ytelseType,
+        @NotNull @QueryParam("ytelseType") Ytelsetype ytelseType,
         @Parameter(description = "Hvilken organisasjon den innloggete brukeren skal sende inn inntektsmelding for")
-        @QueryParam("organisasjonsnummer") String organisasjonsnummer
+        @NotNull @Pattern(regexp = "^\\d{9}$") @QueryParam("organisasjonsnummer") String organisasjonsnummer
     ) {
         var dto = innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, organisasjonsnummer);
         return Response.ok(dto).build();
