@@ -43,8 +43,6 @@ class AaregRestKlientTest {
             1234L,
             null,
             null,
-            null,
-            null,
             "ordinært");
 
         when(restClient.send(any(RestRequest.class), eq(ArbeidsforholdDto[].class)))
@@ -54,8 +52,7 @@ class AaregRestKlientTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.getFirst()).isEqualTo(arbeidsforhold);
-        assertTrue(result.getFirst().arbeidsavtaler().isEmpty());
-        assertTrue(result.getFirst().permisjonPermitteringer().isEmpty());
+
 
         var requestCaptor = ArgumentCaptor.forClass(RestRequest.class);
         verify(restClient).send(requestCaptor.capture(), eq(ArbeidsforholdDto[].class));

@@ -1,21 +1,31 @@
 package no.nav.familie.inntektsmelding.integrasjoner.aareg.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.time.LocalDate;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record ArbeidsforholdDto(
-    String arbeidsforholdId,
+    String id,
     Long navArbeidsforholdId,
     OpplysningspliktigArbeidsgiverDto arbeidsgiver,
     AnsettelsesperiodeDto ansettelsesperiode,
-    List<ArbeidsavtaleDto> arbeidsavtaler,
-    List<PermisjonPermitteringDto> permisjonPermitteringer,
     String type // (kodeverk: Arbeidsforholdtyper)
 ) {
-    public List<ArbeidsavtaleDto> arbeidsavtaler() {
-        return arbeidsavtaler != null ? arbeidsavtaler : List.of();
-    }
 
-    public List<PermisjonPermitteringDto> permisjonPermitteringer() {
-        return permisjonPermitteringer != null ? permisjonPermitteringer : List.of();
+    public record AnsettelsesperiodeDto(LocalDate startdato, LocalDate sluttdato) { }
+
+    public record OpplysningspliktigArbeidsgiverDto(Type type, List<Ident> identer) {
+        public record Ident(Type type, String ident, Boolean gjeldende) {
+            public enum Type {
+                AKTORID, FOLKEREGISTERIDENT, ORGANISASJONSNUMMER
+            }
+        }
+
+        public enum Type {
+            Organisasjon,
+            Person
+        }
     }
 }
