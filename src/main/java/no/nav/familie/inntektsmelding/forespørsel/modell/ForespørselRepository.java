@@ -178,4 +178,14 @@ public class ForespørselRepository {
             return Optional.of(resultList.getFirst());
         }
     }
+
+    public List<ForespørselEntitet> finnForespørslerForAktørId(AktørIdEntitet aktørId, Ytelsetype ytelsetype) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet where aktørId=:aktørId "
+                    + "and status !=:utgått and ytelseType=:ytelseType",
+                ForespørselEntitet.class)
+            .setParameter("aktørId", aktørId.getAktørId())
+            .setParameter("utgått", ForespørselStatus.UTGÅTT)
+            .setParameter("ytelseType", ytelsetype);
+        return query.getResultList();
+    }
 }

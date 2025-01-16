@@ -76,6 +76,10 @@ public class ForespørselTjeneste {
         return forespørselRepository.hentForespørsel(forespørselUuid);
     }
 
+    public List<ForespørselEntitet> finnForespørslerForAktørid(AktørIdEntitet aktørId, Ytelsetype ytelsetype) {
+        return forespørselRepository.finnForespørslerForAktørId(aktørId, ytelsetype);
+    }
+
     public List<ForespørselEntitet> finnForespørslerForFagsak(SaksnummerDto fagsakSaksnummer) {
         return forespørselRepository.hentForespørsler(fagsakSaksnummer);
     }

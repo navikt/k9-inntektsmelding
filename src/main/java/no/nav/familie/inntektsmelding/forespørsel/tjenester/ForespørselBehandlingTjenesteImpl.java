@@ -445,6 +445,11 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             .toList();
     }
 
+    @Override
+    public List<ForespørselEntitet> finnForespørslerForAktørId(AktørIdEntitet aktørIdEntitet, Ytelsetype ytelsetype) {
+        return forespørselTjeneste.finnForespørslerForAktørid(aktørIdEntitet, ytelsetype);
+    }
+
     private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {
         var datoÅMatcheMot = forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt);
         if (!datoÅMatcheMot.equals(startdato)) {

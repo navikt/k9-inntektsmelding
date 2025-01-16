@@ -2,10 +2,15 @@ package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import no.nav.familie.inntektsmelding.imdialog.rest.SlåOppArbeidstakerResponseDto;
+import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidsforholdTjeneste;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +50,8 @@ public class InntektsmeldingTjeneste {
     private InntektTjeneste inntektTjeneste;
     private FpDokgenTjeneste fpDokgenTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
+    private ArbeidsforholdTjeneste arbeidsforholdTjeneste;
+    private AltinnTilgangTjeneste altinnTilgangTjeneste;
 
     InntektsmeldingTjeneste() {
     }
@@ -56,7 +63,9 @@ public class InntektsmeldingTjeneste {
                                    OrganisasjonTjeneste organisasjonTjeneste,
                                    InntektTjeneste inntektTjeneste,
                                    FpDokgenTjeneste fpDokgenTjeneste,
-                                   ProsessTaskTjeneste prosessTaskTjeneste) {
+                                   ProsessTaskTjeneste prosessTaskTjeneste,
+                                   ArbeidsforholdTjeneste arbeidsforholdTjeneste,
+                                   AltinnTilgangTjeneste altinnTilgangTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.inntektsmeldingRepository = inntektsmeldingRepository;
         this.personTjeneste = personTjeneste;
@@ -64,6 +73,8 @@ public class InntektsmeldingTjeneste {
         this.inntektTjeneste = inntektTjeneste;
         this.fpDokgenTjeneste = fpDokgenTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
+        this.arbeidsforholdTjeneste = arbeidsforholdTjeneste;
+        this.altinnTilgangTjeneste = altinnTilgangTjeneste;
     }
 
     public InntektsmeldingResponseDto mottaInntektsmelding(SendInntektsmeldingRequestDto mottattInntektsmeldingDto) {
@@ -177,5 +188,26 @@ public class InntektsmeldingTjeneste {
         var persondata = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId(), forespørsel.getYtelseType());
         return new InntektsmeldingDialogDto.PersonInfoResponseDto(persondata.fornavn(), persondata.mellomnavn(), persondata.etternavn(),
             persondata.fødselsnummer().getIdent(), persondata.aktørId().getAktørId());
+    }
+
+    public Optional<SlåOppArbeidstakerResponseDto> finnArbeidsforholdForFnr(PersonIdent fødselsnummer, Ytelsetype ytelsetype) {
+        // TODO Skal vi sjekke noe mtp kode 6/7
+        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype);
+        if (personInfo == null) {
+            return Optional.empty();
+        }
+        // TODO Må vi her slå opp med en spesifikk dato eller kan vi få ut alle og filtrere senere?
+        var alleArbeidsforhold = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(fødselsnummer);
+        var arbeidsforholdBrukerHarTilgangTil = alleArbeidsforhold
+            .stream()
+            .filter(dto -> altinnTilgangTjeneste.harTilgangTilBedriften(dto.underenhetId()))
+            .toList();
+        if (arbeidsforholdBrukerHarTilgangTil.isEmpty()) {
+            return Optional.empty();
+        }
+        var arbeidsforholdDto = arbeidsforholdBrukerHarTilgangTil.stream()
+            .map(a -> new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(organisasjonTjeneste.finnOrganisasjon(a.underenhetId()).navn(), a.underenhetId()))
+            .toList();
+        return Optional.of(new SlåOppArbeidstakerResponseDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), arbeidsforholdDto));
     }
 }

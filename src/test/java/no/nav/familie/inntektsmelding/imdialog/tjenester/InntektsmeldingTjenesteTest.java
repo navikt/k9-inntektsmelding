@@ -16,6 +16,9 @@ import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDt
 
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidsforholdTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
@@ -69,7 +72,10 @@ class InntektsmeldingTjenesteTest {
     private InntektTjeneste inntektTjeneste;
     @Mock
     private FpDokgenTjeneste fpDokgenTjeneste;
-
+    @Mock
+    private ArbeidsforholdTjeneste arbeidsforholdTjeneste;
+    @Mock
+    private AltinnTilgangTjeneste altinnTilgangTjeneste;
     @Mock
     private ProsessTaskTjeneste prosessTaskTjeneste;
 
@@ -89,7 +95,7 @@ class InntektsmeldingTjenesteTest {
     @BeforeEach
     void setUp() {
         inntektsmeldingTjeneste = new InntektsmeldingTjeneste(forespørselBehandlingTjeneste, inntektsmeldingRepository, personTjeneste,
-            organisasjonTjeneste, inntektTjeneste, fpDokgenTjeneste, prosessTaskTjeneste);
+            organisasjonTjeneste, inntektTjeneste, fpDokgenTjeneste, prosessTaskTjeneste, arbeidsforholdTjeneste, altinnTilgangTjeneste);
     }
 
     @Test
@@ -210,6 +216,55 @@ class InntektsmeldingTjenesteTest {
 
         // Assert
         assertThat(ex.getMessage()).contains("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
-
     }
+
+    @Test
+    void skal_hente_arbeidsforhold_gitt_fnr() {
+        // Arrange
+        var fnr = new PersonIdent("11111111111");
+        var aktørId = new AktørIdEntitet("9999999999999");
+        when(personTjeneste.hentPersonFraIdent(fnr, Ytelsetype.FORELDREPENGER)).thenReturn(
+            new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null));
+        var orgnr = "999999999";
+        when(arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(fnr)).thenReturn(List.of(new ArbeidsforholdDto(orgnr, orgnr, "ARB-001")));
+        when(organisasjonTjeneste.finnOrganisasjon(orgnr)).thenReturn(new Organisasjon("Bedriften", orgnr));
+        when(altinnTilgangTjeneste.harTilgangTilBedriften(orgnr)).thenReturn(true);
+        // Act
+        var response = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(fnr, Ytelsetype.FORELDREPENGER).orElse(null);
+
+        // Assert
+        assertThat(response).isNotNull();
+        assertThat(response.fornavn()).isEqualTo("Navn");
+        assertThat(response.etternavn()).isEqualTo("Navnesen");
+        assertThat(response.arbeidsforhold()).hasSize(1);
+        assertThat(response.arbeidsforhold().getFirst().organisasjonsnavn()).isEqualTo("Bedriften");
+        assertThat(response.arbeidsforhold().getFirst().organisasjonsnummer()).isEqualTo(orgnr);
+    }
+
+    @Test
+    void skal_ikke_returnere_arbeidsforhold_innsender_ikke_har_rett_til_å_se() {
+        // Arrange
+        var fnr = new PersonIdent("11111111111");
+        var aktørId = new AktørIdEntitet("9999999999999");
+        when(personTjeneste.hentPersonFraIdent(fnr, Ytelsetype.FORELDREPENGER)).thenReturn(
+            new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null));
+        var orgnr1 = "999999999";
+        var orgnr2 = "999999998";
+        when(arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(fnr)).thenReturn(List.of(new ArbeidsforholdDto(orgnr1, orgnr1, "ARB-001"), new ArbeidsforholdDto(orgnr1, orgnr2, "ARB-001")));
+        when(organisasjonTjeneste.finnOrganisasjon(orgnr2)).thenReturn(new Organisasjon("Selskapet", orgnr1));
+        when(altinnTilgangTjeneste.harTilgangTilBedriften(orgnr1)).thenReturn(false);
+        when(altinnTilgangTjeneste.harTilgangTilBedriften(orgnr2)).thenReturn(true);
+
+        // Act
+        var response = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(fnr, Ytelsetype.FORELDREPENGER).orElse(null);
+
+        // Assert
+        assertThat(response).isNotNull();
+        assertThat(response.fornavn()).isEqualTo("Navn");
+        assertThat(response.etternavn()).isEqualTo("Navnesen");
+        assertThat(response.arbeidsforhold()).hasSize(1);
+        assertThat(response.arbeidsforhold().getFirst().organisasjonsnavn()).isEqualTo("Selskapet");
+        assertThat(response.arbeidsforhold().getFirst().organisasjonsnummer()).isEqualTo(orgnr2);
+    }
+
 }
