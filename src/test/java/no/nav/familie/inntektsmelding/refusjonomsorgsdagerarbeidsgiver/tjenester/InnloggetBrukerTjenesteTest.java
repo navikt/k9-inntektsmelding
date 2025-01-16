@@ -1,7 +1,6 @@
 package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,17 +74,11 @@ class InnloggetBrukerTjenesteTest {
     }
 
     @Test
-    void hent_innlogget_bruker_skal_returnere_tom_dto_om_PersonTjeneste_returnerer_null() {
+    void hent_innlogget_bruker_skal_kaste_exception_om_PersonTjeneste_returnerer_null() {
         var ytelseType = Ytelsetype.OMSORGSPENGER;
         when(personTjenesteMock.hentInnloggetPerson(ytelseType)).thenReturn(null);
 
-        var innloggetBruker = innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, "123456789");
-
-        assertNull(innloggetBruker.fornavn());
-        assertNull(innloggetBruker.mellomnavn());
-        assertNull(innloggetBruker.etternavn());
-        assertNull(innloggetBruker.telefon());
-        verify(personTjenesteMock).hentInnloggetPerson(ytelseType);
+        assertThrows(IllegalStateException.class, () -> innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, "123456789"));
     }
 
     @Test
@@ -104,7 +97,7 @@ class InnloggetBrukerTjenesteTest {
         when(personTjenesteMock.hentInnloggetPerson(ytelseType)).thenReturn(innloggetPerson);
         when(organisasjonTjenesteMock.finnOrganisasjon("123456789")).thenReturn(null);
 
-        assertThrows(IllegalStateException.class, () -> innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, "123456789"));
+        assertThrows(IllegalArgumentException.class, () -> innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, "123456789"));
     }
 
     @Test
@@ -128,7 +121,7 @@ class InnloggetBrukerTjenesteTest {
         when(organisasjonTjenesteMock.finnOrganisasjon("123456789")).thenReturn(organisasjon);
         when(altinnTilgangTjenesteMock.manglerTilgangTilBedriften("123456789")).thenReturn(true);
 
-        assertThrows(IllegalStateException.class, () -> innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, "123456789"));
+        assertThrows(IllegalArgumentException.class, () -> innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, "123456789"));
     }
 
 }

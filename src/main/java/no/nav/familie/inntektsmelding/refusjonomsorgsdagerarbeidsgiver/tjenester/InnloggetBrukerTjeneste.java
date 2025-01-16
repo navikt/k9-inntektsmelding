@@ -30,17 +30,16 @@ public class InnloggetBrukerTjeneste {
         LOG.info("Henter informasjon om innlogget bruker for ytelseType {} og orgnummer {}", ytelseType, organisasjonsnummer);
         var innloggetBruker = personTjeneste.hentInnloggetPerson(ytelseType);
         if (innloggetBruker == null) {
-            LOG.warn("Fant ikke innlogget bruker i PDL. Undersøk hvorfor.");
-            return InnloggetBrukerDto.tom();
+            throw new IllegalStateException("Fant ikke innlogget bruker i PDL.");
         }
 
         var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer);
         if (organisasjon == null) {
-            throw new IllegalStateException("Fant ikke organisasjon med orgnummer " + organisasjonsnummer);
+            throw new IllegalArgumentException("Fant ikke organisasjon med orgnummer " + organisasjonsnummer);
         }
 
         if (altinnTilgangTjeneste.manglerTilgangTilBedriften(organisasjonsnummer)) {
-            throw new IllegalStateException("Innlogget bruker har ikke tilgang til organisasjonsnummer " + organisasjonsnummer);
+            throw new IllegalArgumentException("Innlogget bruker har ikke tilgang til organisasjonsnummer " + organisasjonsnummer);
         }
 
         return new InnloggetBrukerDto(
