@@ -104,9 +104,7 @@ class AaregRestKlientTest {
         // Assert
         assertThat(uri.getPath()).endsWith("arbeidstaker/arbeidsforhold");
         assertThat(uri.getQuery())
-            .contains("ansettelsesperiodeFom=2024-01-01")
-            .contains("ansettelsesperiodeTom=2024-03-31")
-            .contains("regelverk=A_ORDNINGEN")
+            .contains("rapporteringsordning=A_ORDNINGEN")
             .contains("historikk=true")
             .contains("sporingsinformasjon=false");
     }

@@ -47,6 +47,7 @@ public class AaregRestKlient {
             var uri = lagUriForForFinnArbeidsforholdForArbeidstaker(nå, nå);
             var request = RestRequest.newGET(uri, restConfig).header(NavHeaders.HEADER_NAV_PERSONIDENT, personIdent);
             var response = restClient.send(request, ArbeidsforholdDto[].class);
+            // TODO: filtrer på ansettelseperiode
             return Arrays.asList(response);
         } catch (UriBuilderException | IllegalArgumentException e) {
             throw new IllegalArgumentException("Utviklerfeil syntax-exception for finnArbeidsforholdForArbeidstaker");
@@ -57,9 +58,7 @@ public class AaregRestKlient {
     URI lagUriForForFinnArbeidsforholdForArbeidstaker(LocalDate qfom, LocalDate qtom) {
         return UriBuilder.fromUri(restConfig.endpoint())
             .path("arbeidstaker/arbeidsforhold")
-            .queryParam("ansettelsesperiodeFom", String.valueOf(qfom))
-            .queryParam("ansettelsesperiodeTom", String.valueOf(qtom))
-            .queryParam("regelverk", "A_ORDNINGEN")
+            .queryParam("rapporteringsordning", "A_ORDNINGEN")
             .queryParam("historikk", "true")
             .queryParam("sporingsinformasjon", "false")
             .build();
