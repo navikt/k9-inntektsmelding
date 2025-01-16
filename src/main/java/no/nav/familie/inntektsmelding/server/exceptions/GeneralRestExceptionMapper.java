@@ -25,6 +25,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     public Response toResponse(Throwable feil) {
         try {
             if (feil instanceof ManglerTilgangException) {
+                LOG.warn("Tilgangsfeil", getExceptionMelding(feil));
                 return ikkeTilgang("Mangler tilgang");
             }
             loggTilApplikasjonslogg(feil);
