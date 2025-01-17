@@ -69,7 +69,7 @@ class ForespørselTekster {
             case PLEIEPENGER_SYKT_BARN -> "pleiepenger sykt barn";
             case OMSORGSPENGER -> "omsorgspenger";
             case SVANGERSKAPSPENGER -> "svangerskapspenger";
-            case PLEIEPENGER_NÆRSTÅENDE -> "pleiepenger for nærstående";
+            case PLEIEPENGER_NÆRSTÅENDE -> "pleiepenger i livets sluttfase";
             case OPPLÆRINGSPENGER -> "opplæringspenger";
         };
     }
