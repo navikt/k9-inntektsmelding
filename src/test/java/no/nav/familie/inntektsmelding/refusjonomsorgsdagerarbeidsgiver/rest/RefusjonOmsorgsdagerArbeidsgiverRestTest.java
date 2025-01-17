@@ -36,12 +36,12 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
     @Test
     void slå_opp_arbeidstaker_skal_returnere_ok_response_når_arbeidstaker_finnes() {
         var fnr = PersonIdent.fra("12345678910");
-        var dto = new SlåOppArbeidstakerDto(fnr, Ytelsetype.OMSORGSPENGER);
+        var dto = new SlåOppArbeidstakerRequestDto(fnr, Ytelsetype.OMSORGSPENGER);
         var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto("fornavn", "mellomnavn", "etternavn", null);
 
         when(arbeidstakerTjenesteMock.slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER)).thenReturn(arbeidstakerInfo);
 
-        Response response = rest.slåOppArbeidstaker(dto);
+        var response = rest.slåOppArbeidstaker(dto);
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(arbeidstakerInfo, response.getEntity());
@@ -51,11 +51,11 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
     @Test
     void slå_opp_arbeidstaker_skal_returnere_not_found_når_arbeidstaker_ikke_finnes() {
         var fnr = PersonIdent.fra("12345678910");
-        var dto = new SlåOppArbeidstakerDto(fnr, Ytelsetype.OMSORGSPENGER);
+        var dto = new SlåOppArbeidstakerRequestDto(fnr, Ytelsetype.OMSORGSPENGER);
 
         when(arbeidstakerTjenesteMock.slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER)).thenReturn(null);
 
-        Response response = rest.slåOppArbeidstaker(dto);
+        var response = rest.slåOppArbeidstaker(dto);
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
         verify(arbeidstakerTjenesteMock).slåOppArbeidstaker(fnr, Ytelsetype.OMSORGSPENGER);
@@ -67,7 +67,7 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
 
         when(innloggetBrukerTjenesteMock.hentInnloggetBruker(any(), any())).thenReturn(innloggetBruker);
 
-        Response response = rest.hentInnloggetBruker(Ytelsetype.OMSORGSPENGER, "123456789");
+        var response = rest.hentInnloggetBruker(new HentInnloggetBrukerRequestDto(Ytelsetype.OMSORGSPENGER, "123456789"));
         assertEquals(response.getEntity(), innloggetBruker);
     }
 }

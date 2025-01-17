@@ -7,13 +7,10 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -22,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidstakerTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.InnloggetBrukerTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
@@ -61,32 +57,28 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
     public Response slåOppArbeidstaker(
         @Parameter(description = "Datapakke som inneholder fødselsnummeret til en arbeidstaker")
         @NotNull @Valid
-        SlåOppArbeidstakerDto slåOppArbeidstakerDto
+        SlåOppArbeidstakerRequestDto slåOppArbeidstakerRequestDto
     ) {
 
-        LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerDto.fødselsnummer());
+        LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerRequestDto.fødselsnummer());
 
-        var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerDto.fødselsnummer(), slåOppArbeidstakerDto.ytelseType());
+        var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerRequestDto.fødselsnummer(), slåOppArbeidstakerRequestDto.ytelseType());
         if (dto == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         return Response.ok(dto).build();
     }
 
-    @GET
+    @POST
     @Path(INNLOGGET_BRUKER)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Henter opplysninger om innlogget bruker.", tags = "imdialog")
     @Tilgangskontrollert
     public Response hentInnloggetBruker(
-        @Parameter(description = "Hvilken ytelse den innloggete brukeren skal sende inn inntektsmelding for")
-        @QueryParam("ytelseType") @NotNull @Valid
-        Ytelsetype ytelseType,
-        @Parameter(description = "Hvilken organisasjon den innloggete brukeren skal sende inn inntektsmelding for")
-        @QueryParam("organisasjonsnummer") @NotNull @Pattern(regexp = "^\\d{9}$") @Valid
-        String organisasjonsnummer
+        @Parameter(description = "Datapakke som inneholder ytelsestypen og organisasjonsnummeret til den innloggede brukeren")
+        @NotNull @Valid HentInnloggetBrukerRequestDto hentInnloggetBrukerRequestDto
     ) {
-        var dto = innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, organisasjonsnummer);
+        var dto = innloggetBrukerTjeneste.hentInnloggetBruker(hentInnloggetBrukerRequestDto.ytelseType(), hentInnloggetBrukerRequestDto.organisasjonsnummer());
         return Response.ok(dto).build();
     }
 }
