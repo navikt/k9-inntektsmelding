@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidstakerTjeneste;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.InnloggetBrukerTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 
@@ -33,16 +34,19 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
 
     public static final String BASE_PATH = "/refusjon-omsorgsdager-arbeidsgiver";
     private static final String SLÅ_OPP_ARBEIDSTAKER = "/arbeidstaker";
+    private static final String INNLOGGET_BRUKER = "/innlogget-bruker";
 
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
+    private InnloggetBrukerTjeneste innloggetBrukerTjeneste;
 
     RefusjonOmsorgsdagerArbeidsgiverRest() {
         // CDI
     }
 
     @Inject
-    public RefusjonOmsorgsdagerArbeidsgiverRest(ArbeidstakerTjeneste arbeidstakerTjeneste) {
+    public RefusjonOmsorgsdagerArbeidsgiverRest(ArbeidstakerTjeneste arbeidstakerTjeneste, InnloggetBrukerTjeneste innloggetBrukerTjeneste) {
         this.arbeidstakerTjeneste = arbeidstakerTjeneste;
+        this.innloggetBrukerTjeneste = innloggetBrukerTjeneste;
     }
 
     @POST
@@ -51,14 +55,30 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
     @Operation(description = "Henter opplysninger om arbeidstaker, gitt et fødselsnummer.", tags = "imdialog")
     @Tilgangskontrollert
     public Response slåOppArbeidstaker(
-            @Parameter(description = "Datapakke som inneholder fødselsnummeret til en arbeidstaker") @NotNull @Valid SlåOppArbeidstakerDto slåOppArbeidstakerDto) {
+        @Parameter(description = "Datapakke som inneholder fødselsnummeret til en arbeidstaker")
+        @NotNull @Valid
+        SlåOppArbeidstakerRequestDto slåOppArbeidstakerRequestDto
+    ) {
 
-        LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerDto.fødselsnummer());
+        LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerRequestDto.fødselsnummer());
 
-        var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerDto.fødselsnummer(), slåOppArbeidstakerDto.ytelseType());
+        var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerRequestDto.fødselsnummer(), slåOppArbeidstakerRequestDto.ytelseType());
         if (dto == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+        return Response.ok(dto).build();
+    }
+
+    @POST
+    @Path(INNLOGGET_BRUKER)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Henter opplysninger om innlogget bruker.", tags = "imdialog")
+    @Tilgangskontrollert
+    public Response hentInnloggetBruker(
+        @Parameter(description = "Datapakke som inneholder ytelsestypen og organisasjonsnummeret til den innloggede brukeren")
+        @NotNull @Valid HentInnloggetBrukerRequestDto hentInnloggetBrukerRequestDto
+    ) {
+        var dto = innloggetBrukerTjeneste.hentInnloggetBruker(hentInnloggetBrukerRequestDto.ytelseType(), hentInnloggetBrukerRequestDto.organisasjonsnummer());
         return Response.ok(dto).build();
     }
 }
