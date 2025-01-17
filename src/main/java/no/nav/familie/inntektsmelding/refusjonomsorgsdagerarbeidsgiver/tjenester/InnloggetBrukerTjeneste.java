@@ -15,10 +15,14 @@ import no.nav.vedtak.exception.ManglerTilgangException;
 
 @ApplicationScoped
 public class InnloggetBrukerTjeneste {
-    private final PersonTjeneste personTjeneste;
-    private final AltinnTilgangTjeneste altinnTilgangTjeneste;
-    private final OrganisasjonTjeneste organisasjonTjeneste;
+    private PersonTjeneste personTjeneste;
+    private AltinnTilgangTjeneste altinnTilgangTjeneste;
+    private OrganisasjonTjeneste organisasjonTjeneste;
     private static final Logger LOG = LoggerFactory.getLogger(InnloggetBrukerTjeneste.class);
+
+    public InnloggetBrukerTjeneste() {
+        // CDI
+    }
 
     @Inject
     public InnloggetBrukerTjeneste(PersonTjeneste personTjeneste, AltinnTilgangTjeneste altinnTilgangTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
