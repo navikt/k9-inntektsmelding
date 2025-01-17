@@ -11,6 +11,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.InnloggetBrukerDto;
+import no.nav.vedtak.exception.ManglerTilgangException;
 
 @ApplicationScoped
 public class InnloggetBrukerTjeneste {
@@ -39,7 +40,7 @@ public class InnloggetBrukerTjeneste {
         }
 
         if (altinnTilgangTjeneste.manglerTilgangTilBedriften(organisasjonsnummer)) {
-            throw new IllegalArgumentException("Innlogget bruker har ikke tilgang til organisasjonsnummer " + organisasjonsnummer);
+            throw new ManglerTilgangException("MANGLER_TILGANG_FEIL", "Innlogget bruker har ikke tilgang til organisasjonsnummer " + organisasjonsnummer);
         }
 
         return new InnloggetBrukerDto(

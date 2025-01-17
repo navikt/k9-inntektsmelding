@@ -21,6 +21,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.vedtak.exception.ManglerTilgangException;
 
 @ExtendWith(MockitoExtension.class)
 class InnloggetBrukerTjenesteTest {
@@ -121,7 +122,7 @@ class InnloggetBrukerTjenesteTest {
         when(organisasjonTjenesteMock.finnOrganisasjon("123456789")).thenReturn(organisasjon);
         when(altinnTilgangTjenesteMock.manglerTilgangTilBedriften("123456789")).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () -> innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, "123456789"));
+        assertThrows(ManglerTilgangException.class, () -> innloggetBrukerTjeneste.hentInnloggetBruker(ytelseType, "123456789"));
     }
 
 }
