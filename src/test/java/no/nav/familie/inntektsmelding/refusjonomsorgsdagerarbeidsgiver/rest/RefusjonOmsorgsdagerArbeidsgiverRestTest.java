@@ -52,13 +52,13 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
         var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto("fornavn", "mellomnavn", "etternavn", arbeidsforhold);
 
         when(personTjenesteMock.hentPersonFraIdent(fnr, Ytelsetype.OMSORGSPENGER)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fnr, null, LocalDate.now(), null));
-        when(arbeidstakerTjenesteMock.finnArbeidsforholdForFnrMedTilgang(fnr)).thenReturn(arbeidsforhold);
+        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fnr)).thenReturn(arbeidsforhold);
 
         var response = rest.slåOppArbeidstaker(dto);
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(arbeidstakerInfo, response.getEntity());
-        verify(arbeidstakerTjenesteMock).finnArbeidsforholdForFnrMedTilgang(fnr);
+        verify(arbeidstakerTjenesteMock).finnArbeidsforholdInnsenderHarTilgangTil(fnr);
     }
 
     @Test
@@ -71,7 +71,7 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
         var response = rest.slåOppArbeidstaker(dto);
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        verify(arbeidstakerTjenesteMock).finnArbeidsforholdForFnrMedTilgang(fnr);
+        verify(arbeidstakerTjenesteMock).finnArbeidsforholdInnsenderHarTilgangTil(fnr);
     }
 
     @Test

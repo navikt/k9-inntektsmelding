@@ -15,7 +15,7 @@ import no.nav.vedtak.log.util.LoggerUtils;
 
 /**
  * Vi ønsker ikke eksponere detaljerte feilmeldinger frontend. Vi spesialbehandler tilgangsmangel, ellers får alle en generell melding om serverfeil.
- * Legger alltid ved callId så frontend kan vise denne og vi kan finne den igjen i loggene hvis organisasjonsnummer melder den inn.
+ * Legger alltid ved callId så frontend kan vise denne og vi kan finne den igjen i loggene hvis arbeidsgiver melder den inn.
  */
 @Provider
 public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {

@@ -16,7 +16,6 @@ import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDt
 
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
-import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidstakerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
@@ -224,7 +223,7 @@ class InntektsmeldingTjenesteTest {
         when(personTjeneste.hentPersonFraIdent(fnr, Ytelsetype.FORELDREPENGER)).thenReturn(
             new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null));
         var orgnr = "999999999";
-        when(arbeidstakerTjeneste.finnArbeidsforholdForFnrMedTilgang(fnr)).thenReturn(List.of(new ArbeidsforholdDto(orgnr, "ARB-001")));
+        when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fnr)).thenReturn(List.of(new ArbeidsforholdDto(orgnr, "ARB-001")));
         when(organisasjonTjeneste.finnOrganisasjon(orgnr)).thenReturn(new Organisasjon("Bedriften", orgnr));
         // Act
         var response = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(fnr, Ytelsetype.FORELDREPENGER).orElse(null);

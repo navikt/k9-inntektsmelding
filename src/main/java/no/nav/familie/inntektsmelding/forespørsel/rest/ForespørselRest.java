@@ -155,7 +155,7 @@ public class ForespørselRest {
 
     /**
      * Tjeneste for å opprette en ny beskjed på en eksisterende forespørsel.
-     * Vil opprette ny beskjed som er synlig under saken i min side organisasjonsnummer,samt sende ut et eksternt varsel
+     * Vil opprette ny beskjed som er synlig under saken i min side arbeidsgiver, samt sende ut et eksternt varsel
      *
      * @param request
      * @return

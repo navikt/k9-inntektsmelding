@@ -194,7 +194,7 @@ public class InntektsmeldingTjeneste {
             return Optional.empty();
         }
         // TODO Må vi her slå opp med en spesifikk dato eller kan vi få ut alle og filtrere senere?
-        var arbeidsforholdBrukerHarTilgangTil = arbeidstakerTjeneste.finnArbeidsforholdForFnrMedTilgang(fødselsnummer);
+        var arbeidsforholdBrukerHarTilgangTil = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer);
         if (arbeidsforholdBrukerHarTilgangTil.isEmpty()) {
             return Optional.empty();
         }

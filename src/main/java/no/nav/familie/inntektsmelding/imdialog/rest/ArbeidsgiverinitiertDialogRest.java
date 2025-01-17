@@ -48,6 +48,6 @@ public class ArbeidsgiverinitiertDialogRest {
     public Response hentArbeidsforhold(@Valid @NotNull OpplysningerRequestDto request) {
         LOG.info("Henter opplysninger for søker {}", request.fødselsnummer());
         var dto = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), request.ytelseType());
-        return dto.map(d ->Response.ok(d).build()).orElseGet(() ->Response.noContent().build());
+        return dto.map(d ->Response.ok(d).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
 }

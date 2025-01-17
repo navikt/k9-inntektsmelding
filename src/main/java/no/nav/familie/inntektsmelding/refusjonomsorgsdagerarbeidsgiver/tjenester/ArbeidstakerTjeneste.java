@@ -31,7 +31,7 @@ public class ArbeidstakerTjeneste {
         this.altinnTilgangTjeneste = altinnTilgangTjeneste;
     }
 
-    public List<ArbeidsforholdDto> finnArbeidsforholdForFnrMedTilgang(PersonIdent ident) {
+    public List<ArbeidsforholdDto> finnArbeidsforholdInnsenderHarTilgangTil(PersonIdent ident) {
         var alleArbeidsforhold = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(ident);
         LOG.info("Fant {} arbeidsforhold i Aa-registeret for {}", alleArbeidsforhold.size(), ident);
 
@@ -40,16 +40,16 @@ public class ArbeidstakerTjeneste {
             return Collections.emptyList();
         }
 
-        var arbeidsforholdBrukerHarTilgangTil = alleArbeidsforhold
+        var arbeidsforholdInnsenderHarTilgangTil = alleArbeidsforhold
             .stream()
             .filter(dto -> altinnTilgangTjeneste.harTilgangTilBedriften(dto.organisasjonsnummer()))
             .toList();
 
-        if (alleArbeidsforhold.size() > arbeidsforholdBrukerHarTilgangTil.size()) {
-            LOG.info("Bruker har tilgang til {} av {} arbeidsforhold for {}", arbeidsforholdBrukerHarTilgangTil.size(), alleArbeidsforhold.size(), ident);
+        if (alleArbeidsforhold.size() > arbeidsforholdInnsenderHarTilgangTil.size()) {
+            LOG.info("Innsender har tilgang til {} av {} arbeidsforhold for {}", arbeidsforholdInnsenderHarTilgangTil.size(), alleArbeidsforhold.size(), ident);
         }
 
-        LOG.info("Returnerer informasjon om arbeidstaker og arbeidsforhold for {}", ident);
-        return arbeidsforholdBrukerHarTilgangTil;
+        LOG.info("Returnerer informasjon om arbeidsforhold for {}", ident);
+        return arbeidsforholdInnsenderHarTilgangTil;
     }
 }

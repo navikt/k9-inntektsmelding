@@ -38,7 +38,7 @@ public class ArbeidsforholdTjeneste {
         }
         LOG.info("Fant {} arbeidsforhold for ident {}.", aaregInfo.size(), ident.getIdent());
         return aaregInfo.stream()
-            .filter(arb -> arb.arbeidsgiver().type().equals(OpplysningspliktigArbeidsgiverDto.Type.ORGANISASJON)) // Vi skal aldri behandle private arbeidsforhold i ftinntektsmelding
+            .filter(arb -> OpplysningspliktigArbeidsgiverDto.Type.ORGANISASJON.equals(arb.arbeidsgiver().type())) // Vi skal aldri behandle private arbeidsforhold i ftinntektsmelding
             .map(arbeidsforhold -> new ArbeidsforholdDto(
                 arbeidsforhold.arbeidsgiver().organisasjonsnummer(),
                 arbeidsforhold.arbeidsforholdId()

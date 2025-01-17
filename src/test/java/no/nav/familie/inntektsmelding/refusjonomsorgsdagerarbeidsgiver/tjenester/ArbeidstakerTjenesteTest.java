@@ -4,7 +4,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,12 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
-import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @ExtendWith(MockitoExtension.class)
 class ArbeidstakerTjenesteTest {
@@ -46,7 +41,7 @@ class ArbeidstakerTjenesteTest {
         );
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
 
-        var resultat = arbeidstakerTjeneste.finnArbeidsforholdForFnrMedTilgang(TILFELDIG_PERSON_IDENT);
+        var resultat = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(TILFELDIG_PERSON_IDENT);
         assertThat(resultat).isNotNull();
         assertThat(resultat.size()).isEqualTo(1);
 
@@ -61,7 +56,7 @@ class ArbeidstakerTjenesteTest {
             List.of(new ArbeidsforholdDto("00000000", "123456789")));
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
 
-        var resultat = arbeidstakerTjeneste.finnArbeidsforholdForFnrMedTilgang(TILFELDIG_PERSON_IDENT);
+        var resultat = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(TILFELDIG_PERSON_IDENT);
 
         assertThat(resultat.size()).isEqualTo(1);
         var arbeidsforhold = resultat.get(0);
@@ -81,7 +76,7 @@ class ArbeidstakerTjenesteTest {
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften("00000000")).thenReturn(false);
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften("00000001")).thenReturn(true);
 
-        var resultat = arbeidstakerTjeneste.finnArbeidsforholdForFnrMedTilgang(TILFELDIG_PERSON_IDENT);
+        var resultat = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(TILFELDIG_PERSON_IDENT);
 
         assertThat(resultat.size()).isEqualTo(1);
         var arbeidsforhold = resultat.getFirst();

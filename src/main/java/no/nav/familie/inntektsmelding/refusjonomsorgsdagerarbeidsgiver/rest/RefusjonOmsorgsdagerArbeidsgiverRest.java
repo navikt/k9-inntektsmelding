@@ -14,9 +14,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.PeriodeDto;
-
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
@@ -71,8 +68,9 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
 
         LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerRequestDto.fødselsnummer());
 
-        var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerDto.fødselsnummer(), slåOppArbeidstakerDto.ytelseType());
-        if (dto == null) {
+        var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(slåOppArbeidstakerDto.fødselsnummer());
+        var personInfo = personTjeneste.hentPersonFraIdent(slåOppArbeidstakerDto.fødselsnummer(), slåOppArbeidstakerDto.ytelseType());
+        if (arbeidsforhold.isEmpty() || personInfo == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         var dto = new SlåOppArbeidstakerResponseDto(personInfo.fornavn(),
