@@ -151,7 +151,7 @@ public class FpDokgenRestTjeneste {
             case "foreldrepenger" -> Ytelsetype.FORELDREPENGER;
             case "svangerskapspenger" -> Ytelsetype.SVANGERSKAPSPENGER;
             case "pleiepenger sykt barn" -> Ytelsetype.PLEIEPENGER_SYKT_BARN;
-            case "pleiepenger nærstående" -> Ytelsetype.PLEIEPENGER_NÆRSTÅENDE;
+            case "pleiepenger i livets sluttfase" -> Ytelsetype.PLEIEPENGER_NÆRSTÅENDE;
             case "opplæringspenger" -> Ytelsetype.OPPLÆRINGSPENGER;
             case "omsorgspenger" -> Ytelsetype.OMSORGSPENGER;
             default -> throw new IllegalArgumentException("Ugyldig ytelsetype: " + ytelsetype);
