@@ -38,16 +38,13 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
 
     @BeforeEach
     void setUp() {
-        rest = new RefusjonOmsorgsdagerArbeidsgiverRest(arbeidstakerTjenesteMock, personTjenesteMock);
-        rest = new RefusjonOmsorgsdagerArbeidsgiverRest(arbeidstakerTjenesteMock, innloggetBrukerTjenesteMock);
+        rest = new RefusjonOmsorgsdagerArbeidsgiverRest(arbeidstakerTjenesteMock, personTjenesteMock, innloggetBrukerTjenesteMock);
     }
 
     @Test
     void slå_opp_arbeidstaker_skal_returnere_ok_response_når_arbeidstaker_finnes() {
         var fnr = PersonIdent.fra("12345678910");
         var dto = new SlåOppArbeidstakerRequestDto(fnr, Ytelsetype.OMSORGSPENGER);
-        var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto("fornavn", "mellomnavn", "etternavn", null);
-        var dto = new SlåOppArbeidstakerDto(fnr, Ytelsetype.OMSORGSPENGER);
         var arbeidsforhold = List.of(new ArbeidsforholdDto("999999999", "ARB-1"));
         var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto("fornavn", "mellomnavn", "etternavn", arbeidsforhold);
 

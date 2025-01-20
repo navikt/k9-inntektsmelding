@@ -68,8 +68,8 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
 
         LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerRequestDto.fødselsnummer());
 
-        var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(slåOppArbeidstakerDto.fødselsnummer());
-        var personInfo = personTjeneste.hentPersonFraIdent(slåOppArbeidstakerDto.fødselsnummer(), slåOppArbeidstakerDto.ytelseType());
+        var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(slåOppArbeidstakerRequestDto.fødselsnummer());
+        var personInfo = personTjeneste.hentPersonFraIdent(slåOppArbeidstakerRequestDto.fødselsnummer(), slåOppArbeidstakerRequestDto.ytelseType());
         if (arbeidsforhold.isEmpty() || personInfo == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
