@@ -4,7 +4,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,20 +13,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
-import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @ExtendWith(MockitoExtension.class)
 class ArbeidstakerTjenesteTest {
 
     private static final PersonIdent TILFELDIG_PERSON_IDENT = PersonIdent.fra("21073926618");
-
-    @Mock
-    private PersonTjeneste personTjenesteMock;
 
     @Mock
     private ArbeidsforholdTjeneste arbeidsforholdTjenesteMock;
@@ -39,95 +31,57 @@ class ArbeidstakerTjenesteTest {
 
     @BeforeEach
     void setUp() {
-        this.arbeidstakerTjeneste = new ArbeidstakerTjeneste(this.personTjenesteMock, this.arbeidsforholdTjenesteMock, this.altinnTilgangTjenesteMock);
+        this.arbeidstakerTjeneste = new ArbeidstakerTjeneste(this.arbeidsforholdTjenesteMock, this.altinnTilgangTjenesteMock);
     }
 
     @Test
-    void returnerer_null_om_pdl_ikke_finner_personen() {
-        when(personTjenesteMock.hentPersonFraIdent(any(), any())).thenReturn(null);
-        assertThat(arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER)).isNull();
-    }
-
-    @Test
-    void returnerer_arbeidstakerinfo_om_pdl_finner_personen() {
-        when(personTjenesteMock.hentPersonFraIdent(any(), any())).thenReturn(
-            new PersonInfo("Test", "Filiokus", "Personesen", TILFELDIG_PERSON_IDENT, AktørIdEntitet.dummy(), LocalDate.now(), null)
-        );
+    void returnerer_arbeidstakerinfo_om_dette_finnes() {
         when(arbeidsforholdTjenesteMock.hentNåværendeArbeidsforhold(any())).thenReturn(
-            List.of(new ArbeidsforholdDto("Dummy arbeid", "000000000", "111111111"))
+            List.of(new ArbeidsforholdDto("000000000", "111111111"))
         );
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
 
-        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER);
+        var resultat = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(TILFELDIG_PERSON_IDENT);
         assertThat(resultat).isNotNull();
-        assertThat(resultat.fornavn()).isEqualTo("Test");
-        assertThat(resultat.mellomnavn()).isEqualTo("Filiokus");
-        assertThat(resultat.etternavn()).isEqualTo("Personesen");
-        assertThat(resultat.arbeidsforhold().size()).isEqualTo(1);
+        assertThat(resultat.size()).isEqualTo(1);
 
-        var arbeidsforhold = resultat.arbeidsforhold().getFirst();
-        assertThat(arbeidsforhold.arbeidsgiver()).isEqualTo("Dummy arbeid");
-        assertThat(arbeidsforhold.underenhetId()).isEqualTo("000000000");
+        var arbeidsforhold = resultat.getFirst();
+        assertThat(arbeidsforhold.organisasjonsnummer()).isEqualTo("000000000");
         assertThat(arbeidsforhold.arbeidsforholdId()).isEqualTo("111111111");
     }
 
     @Test
-    void returnerer_arbeidstakerinfo_uten_mellomnavn() {
-        when(personTjenesteMock.hentPersonFraIdent(any(), any())).thenReturn(
-            new PersonInfo("Test", null, "Personesen", TILFELDIG_PERSON_IDENT, AktørIdEntitet.dummy(), LocalDate.now(), null)
-        );
-        when(arbeidsforholdTjenesteMock.hentNåværendeArbeidsforhold(any())).thenReturn(
-            List.of(new ArbeidsforholdDto("Dummy arbeidsgiver", "00000000", "123456789")));
-        when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
-
-        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER);
-
-        assertThat(resultat).isNotNull();
-        assertThat(resultat.fornavn()).isEqualTo("Test");
-        assertThat(resultat.mellomnavn()).isNull();
-        assertThat(resultat.etternavn()).isEqualTo("Personesen");
-    }
-
-    @Test
     void verifiserer_arbeidsforhold_detaljer() {
-        when(personTjenesteMock.hentPersonFraIdent(any(), any())).thenReturn(
-            new PersonInfo("Test", "Filiokus", "Personesen", TILFELDIG_PERSON_IDENT, AktørIdEntitet.dummy(), LocalDate.now(), null)
-        );
         when(arbeidsforholdTjenesteMock.hentNåværendeArbeidsforhold(any())).thenReturn(
-            List.of(new ArbeidsforholdDto("Dummy arbeidsgiver", "00000000", "123456789")));
+            List.of(new ArbeidsforholdDto("00000000", "123456789")));
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
 
-        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER);
+        var resultat = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(TILFELDIG_PERSON_IDENT);
 
-        assertThat(resultat.arbeidsforhold().size()).isEqualTo(1);
-        var arbeidsforhold = resultat.arbeidsforhold().get(0);
+        assertThat(resultat.size()).isEqualTo(1);
+        var arbeidsforhold = resultat.get(0);
 
-        assertThat(arbeidsforhold.arbeidsgiver()).isEqualTo("Dummy arbeidsgiver");
-        assertThat(arbeidsforhold.underenhetId()).isEqualTo("00000000");
+        assertThat(arbeidsforhold.organisasjonsnummer()).isEqualTo("00000000");
         assertThat(arbeidsforhold.arbeidsforholdId()).isEqualTo("123456789");
     }
 
     @Test
     void filtrerer_ut_arbeidsforhold_man_ikke_har_tilgang_til() {
-        when(personTjenesteMock.hentPersonFraIdent(any(), any())).thenReturn(
-            new PersonInfo("Test", "Filiokus", "Personesen", TILFELDIG_PERSON_IDENT, AktørIdEntitet.dummy(), LocalDate.now(), null)
-        );
         when(arbeidsforholdTjenesteMock.hentNåværendeArbeidsforhold(any())).thenReturn(
             List.of(
-                new ArbeidsforholdDto("Dummy arbeidsgiver", "00000000", "123456789"),
-                new ArbeidsforholdDto("Dummy arbeidsgiver", "00000001", "123456789")
+                new ArbeidsforholdDto("00000000", "123456789"),
+                new ArbeidsforholdDto("00000001", "123456789")
             )
         );
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften("00000000")).thenReturn(false);
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften("00000001")).thenReturn(true);
 
-        var resultat = arbeidstakerTjeneste.slåOppArbeidstaker(TILFELDIG_PERSON_IDENT, Ytelsetype.OMSORGSPENGER);
+        var resultat = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(TILFELDIG_PERSON_IDENT);
 
-        assertThat(resultat.arbeidsforhold().size()).isEqualTo(1);
-        var arbeidsforhold = resultat.arbeidsforhold().getFirst();
+        assertThat(resultat.size()).isEqualTo(1);
+        var arbeidsforhold = resultat.getFirst();
 
-        assertThat(arbeidsforhold.arbeidsgiver()).isEqualTo("Dummy arbeidsgiver");
-        assertThat(arbeidsforhold.underenhetId()).isEqualTo("00000001");
+        assertThat(arbeidsforhold.organisasjonsnummer()).isEqualTo("00000001");
         assertThat(arbeidsforhold.arbeidsforholdId()).isEqualTo("123456789");
     }
 }

@@ -42,7 +42,7 @@ public class KodeverkMapper {
             case OMSORGSPENGER -> Ytelsetype.OMSORGSPENGER;
             case OPPLÆRINGSPENGER -> Ytelsetype.OPPLÆRINGSPENGER;
             case PLEIEPENGER_SYKT_BARN -> Ytelsetype.PLEIEPENGER_SYKT_BARN;
-            case PLEIEPENGER_NÆRSTÅENDE -> Ytelsetype.PLEIEPENGER_NÆRSTÅENDE;
+            case PLEIEPENGER_I_LIVETS_SLUTTFASE -> Ytelsetype.PLEIEPENGER_NÆRSTÅENDE;
         };
     }
 
@@ -53,7 +53,7 @@ public class KodeverkMapper {
             case OMSORGSPENGER -> YtelseTypeDto.OMSORGSPENGER;
             case OPPLÆRINGSPENGER -> YtelseTypeDto.OPPLÆRINGSPENGER;
             case PLEIEPENGER_SYKT_BARN -> YtelseTypeDto.PLEIEPENGER_SYKT_BARN;
-            case PLEIEPENGER_NÆRSTÅENDE -> YtelseTypeDto.PLEIEPENGER_NÆRSTÅENDE;
+            case PLEIEPENGER_NÆRSTÅENDE -> YtelseTypeDto.PLEIEPENGER_I_LIVETS_SLUTTFASE;
         };
     }
 

@@ -7,6 +7,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.OpplysningspliktigArbeidsgiverDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +37,9 @@ public class ArbeidsforholdTjeneste {
             return Collections.emptyList();
         }
         LOG.info("Fant {} arbeidsforhold for ident {}.", aaregInfo.size(), ident.getIdent());
-        return aaregInfo.stream().map(arbeidsforhold ->
-            new ArbeidsforholdDto(
-                arbeidsforhold.arbeidsgiver().offentligIdent(),
+        return aaregInfo.stream()
+            .filter(arb -> OpplysningspliktigArbeidsgiverDto.Type.ORGANISASJON.equals(arb.arbeidsgiver().type())) // Vi skal aldri behandle private arbeidsforhold i ftinntektsmelding
+            .map(arbeidsforhold -> new ArbeidsforholdDto(
                 arbeidsforhold.arbeidsgiver().organisasjonsnummer(),
                 arbeidsforhold.arbeidsforholdId()
             )).toList();

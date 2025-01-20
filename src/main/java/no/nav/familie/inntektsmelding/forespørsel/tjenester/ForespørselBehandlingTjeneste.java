@@ -64,4 +64,7 @@ public interface ForespørselBehandlingTjeneste {
                                             OrganisasjonsnummerDto organisasjonsnummer);
 
     List<InntektsmeldingForespørselDto> finnForespørslerForFagsak(SaksnummerDto fagsakSaksnummer);
+
+    List<ForespørselEntitet> finnForespørslerForAktørId(AktørIdEntitet aktørIdEntitet, Ytelsetype ytelsetype);
+
 }

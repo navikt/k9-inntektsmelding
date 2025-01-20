@@ -97,7 +97,7 @@ public class InntektsmeldingMapper {
             entitet.getId(),
             forespørselUuid,
             new AktørIdDto(entitet.getAktørId().getAktørId()),
-             YtelseTypeDto.valueOf(entitet.getYtelsetype().toString()),
+            KodeverkMapper.mapYtelsetype(entitet.getYtelsetype()),
             new ArbeidsgiverDto(entitet.getArbeidsgiverIdent()),
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(entitet.getKontaktperson().getNavn(), entitet.getKontaktperson().getTelefonnummer()),
             entitet.getStartDato(),

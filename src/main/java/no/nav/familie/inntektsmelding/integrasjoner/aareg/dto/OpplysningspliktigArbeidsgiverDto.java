@@ -9,7 +9,7 @@ public record OpplysningspliktigArbeidsgiverDto(Type type, String organisasjonsn
     }
 
     public enum Type {
-        Organisasjon,
-        Person
+        ORGANISASJON,
+        PERSON
     }
 }

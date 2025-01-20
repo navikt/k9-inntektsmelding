@@ -1,4 +1,4 @@
 package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest;
 
-public record ArbeidsforholdDto(String arbeidsgiver, String underenhetId, String arbeidsforholdId) {
+public record ArbeidsforholdDto(String organisasjonsnummer, String arbeidsforholdId) {
 }
