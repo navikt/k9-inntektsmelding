@@ -58,7 +58,7 @@ class ArbeidsforholdTjenesteTest {
             "abc123",
             123L,
             new OpplysningspliktigArbeidsgiverDto(
-                OpplysningspliktigArbeidsgiverDto.Type.Organisasjon,
+                OpplysningspliktigArbeidsgiverDto.Type.ORGANISASJON,
                 "999999999",
                 "000000000",
                 "Arbeidsgiver AS"
@@ -78,9 +78,8 @@ class ArbeidsforholdTjenesteTest {
             .hasSize(1)
             .first()
             .satisfies(dto -> {
-                assertThat(dto.underenhetId()).isEqualTo("999999999");
                 assertThat(dto.arbeidsforholdId()).isEqualTo("abc123");
-                assertThat(dto.arbeidsgiver()).isEqualTo("Arbeidsgiver AS");
+                assertThat(dto.organisasjonsnummer()).isEqualTo("999999999");
             });
     }
 
@@ -90,7 +89,7 @@ class ArbeidsforholdTjenesteTest {
             "arbeidsforhold id 1",
             123L,
             new OpplysningspliktigArbeidsgiverDto(
-                OpplysningspliktigArbeidsgiverDto.Type.Organisasjon,
+                OpplysningspliktigArbeidsgiverDto.Type.ORGANISASJON,
                 "000000001",
                 "100000001",
                 "Eino Arbeidsgiver AS"
@@ -105,7 +104,7 @@ class ArbeidsforholdTjenesteTest {
             "arbeidsforhold id 2",
             123L,
             new OpplysningspliktigArbeidsgiverDto(
-                OpplysningspliktigArbeidsgiverDto.Type.Organisasjon,
+                OpplysningspliktigArbeidsgiverDto.Type.ORGANISASJON,
                 "000000002",
                 "100000002",
                 "André Arbeidsgiver AS"
@@ -123,11 +122,9 @@ class ArbeidsforholdTjenesteTest {
 
         assertThat(resultat).hasSize(2);
 
-        assertThat(resultat.getFirst().underenhetId()).isEqualTo("000000001");
         assertThat(resultat.getFirst().arbeidsforholdId()).isEqualTo("arbeidsforhold id 1");
-        assertThat(resultat.getFirst().arbeidsgiver()).isEqualTo("Eino Arbeidsgiver AS");
-        assertThat(resultat.get(1).underenhetId()).isEqualTo("000000002");
+        assertThat(resultat.getFirst().organisasjonsnummer()).isEqualTo("000000001");
         assertThat(resultat.get(1).arbeidsforholdId()).isEqualTo("arbeidsforhold id 2");
-        assertThat(resultat.get(1).arbeidsgiver()).isEqualTo("André Arbeidsgiver AS");
+        assertThat(resultat.get(1).organisasjonsnummer()).isEqualTo("000000002");
     }
 }

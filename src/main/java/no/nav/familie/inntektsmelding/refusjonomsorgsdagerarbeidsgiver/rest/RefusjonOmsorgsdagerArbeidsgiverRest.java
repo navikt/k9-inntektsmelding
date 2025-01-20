@@ -14,6 +14,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,15 +42,17 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
 
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
     private InnloggetBrukerTjeneste innloggetBrukerTjeneste;
+    private PersonTjeneste personTjeneste;
 
     RefusjonOmsorgsdagerArbeidsgiverRest() {
         // CDI
     }
 
     @Inject
-    public RefusjonOmsorgsdagerArbeidsgiverRest(ArbeidstakerTjeneste arbeidstakerTjeneste, InnloggetBrukerTjeneste innloggetBrukerTjeneste) {
+    public RefusjonOmsorgsdagerArbeidsgiverRest(ArbeidstakerTjeneste arbeidstakerTjeneste, PersonTjeneste personTjeneste, InnloggetBrukerTjeneste innloggetBrukerTjeneste) {
         this.arbeidstakerTjeneste = arbeidstakerTjeneste;
         this.innloggetBrukerTjeneste = innloggetBrukerTjeneste;
+        this.personTjeneste = personTjeneste;
     }
 
     @POST
@@ -62,10 +68,15 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
 
         LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerRequestDto.fødselsnummer());
 
-        var dto = arbeidstakerTjeneste.slåOppArbeidstaker(slåOppArbeidstakerRequestDto.fødselsnummer(), slåOppArbeidstakerRequestDto.ytelseType());
-        if (dto == null) {
+        var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(slåOppArbeidstakerRequestDto.fødselsnummer());
+        var personInfo = personTjeneste.hentPersonFraIdent(slåOppArbeidstakerRequestDto.fødselsnummer(), slåOppArbeidstakerRequestDto.ytelseType());
+        if (arbeidsforhold.isEmpty() || personInfo == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+        var dto = new SlåOppArbeidstakerResponseDto(personInfo.fornavn(),
+            personInfo.mellomnavn(),
+            personInfo.etternavn(),
+            arbeidsforhold);
         return Response.ok(dto).build();
     }
 
