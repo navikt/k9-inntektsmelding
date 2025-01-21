@@ -38,7 +38,7 @@ class ArbeidstakerTjenesteTest {
     @Test
     void returnerer_arbeidstakerinfo_om_dette_finnes() {
         var førsteFraværsdag = LocalDate.now();
-        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), førsteFraværsdag)).thenReturn(
+        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), any())).thenReturn(
             List.of(new ArbeidsforholdDto("000000000", "111111111"))
         );
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
@@ -55,7 +55,7 @@ class ArbeidstakerTjenesteTest {
     @Test
     void verifiserer_arbeidsforhold_detaljer() {
         var førsteFraværsdag = LocalDate.now();
-        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), førsteFraværsdag)).thenReturn(
+        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), any())).thenReturn(
             List.of(new ArbeidsforholdDto("00000000", "123456789")));
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
 
@@ -71,7 +71,7 @@ class ArbeidstakerTjenesteTest {
     @Test
     void filtrerer_ut_arbeidsforhold_man_ikke_har_tilgang_til() {
         var førsteFraværsdag = LocalDate.now();
-        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), førsteFraværsdag)).thenReturn(
+        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), any())).thenReturn(
             List.of(
                 new ArbeidsforholdDto("00000000", "123456789"),
                 new ArbeidsforholdDto("00000001", "123456789")
