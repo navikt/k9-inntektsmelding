@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.aareg.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record OpplysningspliktigArbeidsgiverDto(Type type, String organisasjonsnummer, String aktoerId, String offentligIdent) {
 
     @Override
@@ -9,7 +11,9 @@ public record OpplysningspliktigArbeidsgiverDto(Type type, String organisasjonsn
     }
 
     public enum Type {
+        @JsonProperty("Organisasjon")
         ORGANISASJON,
+        @JsonProperty("Person")
         PERSON
     }
 }
