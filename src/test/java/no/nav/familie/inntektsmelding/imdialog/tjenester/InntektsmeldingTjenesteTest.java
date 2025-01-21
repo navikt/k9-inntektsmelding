@@ -234,7 +234,7 @@ class InntektsmeldingTjenesteTest {
         assertThat(response.fornavn()).isEqualTo("Navn");
         assertThat(response.etternavn()).isEqualTo("Navnesen");
         assertThat(response.arbeidsforhold()).hasSize(1);
-        assertThat(response.arbeidsforhold().getFirst().organisasjonsnavn()).isEqualTo("Bedriften");
-        assertThat(response.arbeidsforhold().getFirst().organisasjonsnummer()).isEqualTo(orgnr);
+        assertThat(response.arbeidsforhold().stream().toList().getFirst().organisasjonsnavn()).isEqualTo("Bedriften");
+        assertThat(response.arbeidsforhold().stream().toList().getFirst().organisasjonsnummer()).isEqualTo(orgnr);
     }
 }

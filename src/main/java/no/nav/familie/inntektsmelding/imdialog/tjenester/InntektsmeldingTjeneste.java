@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -200,7 +201,7 @@ public class InntektsmeldingTjeneste {
         }
         var arbeidsforholdDto = arbeidsforholdBrukerHarTilgangTil.stream()
             .map(a -> new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(organisasjonTjeneste.finnOrganisasjon(a.organisasjonsnummer()).navn(), a.organisasjonsnummer()))
-            .toList();
+            .collect(Collectors.toSet());
         return Optional.of(new SlåOppArbeidstakerResponseDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), arbeidsforholdDto));
     }
 }
