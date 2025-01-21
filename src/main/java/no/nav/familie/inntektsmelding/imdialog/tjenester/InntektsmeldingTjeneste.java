@@ -142,7 +142,7 @@ public class InntektsmeldingTjeneste {
 
         var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldinger(forespørsel.getAktørId(),
             forespørsel.getOrganisasjonsnummer(),
-            forespørsel.getSkjæringstidspunkt(),
+            forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt),
             forespørsel.getYtelseType());
         return inntektsmeldinger.stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid())).toList();
     }
