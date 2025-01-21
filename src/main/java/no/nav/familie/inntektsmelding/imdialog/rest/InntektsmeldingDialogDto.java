@@ -18,7 +18,7 @@ public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto per
                                        @Valid @NotNull InntektsopplysningerDto inntektsopplysninger,
                                        @Valid @NotNull LocalDate skjæringstidspunkt,
                                        @Valid @NotNull YtelseTypeDto ytelse,
-                                       @Valid @NotNull UUID forespørselUuid,
+                                       @Valid UUID forespørselUuid,
                                        @Valid @NotNull ForespørselStatusDto forespørselStatus,
                                        @Valid @NotNull LocalDate førsteUttaksdato) {
 
