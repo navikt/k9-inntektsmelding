@@ -10,7 +10,6 @@ import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -85,7 +84,7 @@ public class ForespørselTjeneste {
         return forespørselRepository.hentForespørsler(fagsakSaksnummer);
     }
 
-    public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, LocalDate førsteFraværsdag, String orgnr) {
-        return forespørselRepository.finnForespørsler(aktørId, ytelsetype, førsteFraværsdag, orgnr);
+    public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
+        return forespørselRepository.finnForespørsler(aktørId, ytelsetype, orgnr);
     }
 }

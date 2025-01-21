@@ -138,7 +138,16 @@ public class InntektsmeldingTjeneste {
                                                                      OrganisasjonsnummerDto organisasjonsnummer) {
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype);
 
-        var eksisterendeForepørsel = forespørselBehandlingTjeneste.finnForespørsler(personInfo.aktørId(), ytelsetype, førsteFraværsdag, organisasjonsnummer.orgnr());
+        var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnForespørsler(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
+        var forespørslerSomMatcherFraværsdag = eksisterendeForepørsler.stream()
+            .filter(f -> førsteFraværsdag.equals(f.getFørsteUttaksdato().orElse(null))) // TODO: sjekk for et større intervall etterhvert
+            .toList();
+
+        if (!forespørslerSomMatcherFraværsdag.isEmpty()) {
+            var forespørsel = forespørslerSomMatcherFraværsdag.getFirst();
+            return lagDialogDto(forespørsel.getUuid());
+        }
+
         var personDto = lagPersonDto(personInfo.aktørId(), ytelsetype); //TODO: refactor
         var organisasjonDto = lagOrganisasjonDto(organisasjonsnummer.orgnr());
         var innmelderDto = lagInnmelderDto(ytelsetype);

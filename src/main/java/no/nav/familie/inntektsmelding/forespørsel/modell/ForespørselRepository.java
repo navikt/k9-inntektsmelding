@@ -191,7 +191,7 @@ public class ForespørselRepository {
         return query.getResultList();
     }
 
-    public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, LocalDate førsteFraværsdag, String orgnr) {
+    public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where aktørId=:aktørId "
                     + "and status=:underBehandling and ytelseType=:ytelseType and organisasjonsnummer=:orgnr",
                 ForespørselEntitet.class)

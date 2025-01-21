@@ -11,7 +11,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
 
 import org.slf4j.Logger;
@@ -138,8 +137,8 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     }
 
     @Override
-    public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, LocalDate førsteFraværsdag, String orgnr) {
-        return forespørselTjeneste.finnForespørsler(aktørId, ytelsetype, førsteFraværsdag, orgnr);
+    public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
+        return forespørselTjeneste.finnForespørsler(aktørId, ytelsetype, orgnr);
     }
 
     @Override

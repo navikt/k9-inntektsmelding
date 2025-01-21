@@ -8,7 +8,6 @@ import java.util.UUID;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.forespørsel.rest.OppdaterForespørselDto;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
@@ -33,7 +32,7 @@ public interface ForespørselBehandlingTjeneste {
 
     Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID);
 
-    List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, LocalDate førsteFraværsdag, String orgnr);
+    List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr);
 
     List<ForespørselEntitet> hentForespørslerForFagsak(SaksnummerDto fagsakSaksnummer,
                                                        OrganisasjonsnummerDto orgnummerDto,
