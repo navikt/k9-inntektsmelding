@@ -31,7 +31,6 @@ public class ArbeidsgiverinitiertDialogRest {
     private static final String HENT_ARBEIDSFORHOLD = "/arbeidsforhold";
     private static final String HENT_OPPLYSNINGER = "/opplysninger";
 
-
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     ArbeidsgiverinitiertDialogRest() {
@@ -61,8 +60,10 @@ public class ArbeidsgiverinitiertDialogRest {
     public Response hentOpplysninger(@Valid @NotNull OpplysningerRequestDto request) {
         LOG.info("Henter opplysninger for søker {}", request.fødselsnummer());
 
+
         // 1. sjekk for matchende forespørsler. Hvis treff returner den forespørselen
         // 2. Hvis ikke, hent alle data som trengs.
+
 
         var dto = inntektsmeldingTjeneste.lagArbeidsgiverInitiertDialogDto(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag(), request.organisasjonsnummer());
 //        var dto = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag());

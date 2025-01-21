@@ -136,6 +136,8 @@ public class InntektsmeldingTjeneste {
                                                                      Ytelsetype ytelsetype,
                                                                      LocalDate førsteFraværsdag,
                                                                      OrganisasjonsnummerDto organisasjonsnummer) {
+        var eksisterendeForepørsel = forespørselBehandlingTjeneste.hentForespørsel(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer.orgnr());
+
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype);
         var personDto = lagPersonDto(personInfo.aktørId(), ytelsetype); //TODO: refactor
         var organisasjonDto = lagOrganisasjonDto(organisasjonsnummer.orgnr());
