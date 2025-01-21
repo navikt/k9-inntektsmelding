@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
-public record OpplysningerRequestDto(@Valid @NotNull PersonIdent fødselsnummer, @Valid @NotNull Ytelsetype ytelseType) {
+import java.time.LocalDate;
+
+public record OpplysningerRequestDto(@Valid @NotNull PersonIdent fødselsnummer, @Valid @NotNull Ytelsetype ytelseType, @Valid @NotNull LocalDate førsteFraværsdag) {
 }
 

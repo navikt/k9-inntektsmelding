@@ -41,10 +41,9 @@ public class AaregRestKlient {
         this.restConfig = RestConfig.forClient(this.getClass());
     }
 
-    public List<ArbeidsforholdDto> finnNåværendeArbeidsforholdForArbeidstaker(String personIdent) {
+    public List<ArbeidsforholdDto> finnArbeidsforholdForArbeidstaker(String personIdent, LocalDate førsteFraværsdag) {
         try {
-            var nå = LocalDate.now();
-            var uri = lagUriForForFinnArbeidsforholdForArbeidstaker(nå, nå);
+            var uri = lagUriForForFinnArbeidsforholdForArbeidstaker(førsteFraværsdag, førsteFraværsdag);
             var request = RestRequest.newGET(uri, restConfig).header(NavHeaders.HEADER_NAV_PERSONIDENT, personIdent);
             var response = restClient.send(request, ArbeidsforholdDto[].class);
             return Arrays.asList(response);
