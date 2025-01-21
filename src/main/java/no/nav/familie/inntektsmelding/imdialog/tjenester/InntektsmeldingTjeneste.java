@@ -117,10 +117,10 @@ public class InntektsmeldingTjeneste {
     public InntektsmeldingDialogDto lagDialogDto(UUID forespørselUuid) {
         var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
-        var personDto = lagPersonDto(forespørsel);
-        var organisasjonDto = lagOrganisasjonDto(forespørsel);
+        var personDto = lagPersonDto(forespørsel.getAktørId(), forespørsel.getYtelseType());
+        var organisasjonDto = lagOrganisasjonDto(forespørsel.getOrganisasjonsnummer());
         var innmelderDto = lagInnmelderDto(forespørsel.getYtelseType());
-        var inntektDtoer = lagInntekterDto(forespørsel);
+        var inntektDtoer = lagInntekterDto(forespørsel.getUuid(), forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer());
         return new InntektsmeldingDialogDto(personDto,
             organisasjonDto,
             innmelderDto,
@@ -130,6 +130,27 @@ public class InntektsmeldingTjeneste {
             forespørsel.getUuid(),
             KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()),
             forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt));
+    }
+
+    public InntektsmeldingDialogDto lagArbeidsgiverInitiertDialogDto(PersonIdent fødselsnummer,
+                                                                     Ytelsetype ytelsetype,
+                                                                     LocalDate førsteFraværsdag,
+                                                                     OrganisasjonsnummerDto organisasjonsnummer) {
+        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype);
+        var personDto = lagPersonDto(personInfo.aktørId(), ytelsetype); //TODO: refactor
+        var organisasjonDto = lagOrganisasjonDto(organisasjonsnummer.orgnr());
+        var innmelderDto = lagInnmelderDto(ytelsetype);
+        var inntektDtoer = lagInntekterDto(null, personInfo.aktørId(), førsteFraværsdag, organisasjonsnummer.orgnr());
+        return new InntektsmeldingDialogDto(personDto,
+            organisasjonDto,
+            innmelderDto,
+            inntektDtoer,
+            førsteFraværsdag,
+            KodeverkMapper.mapYtelsetype(ytelsetype),
+            null,
+            KodeverkMapper.mapForespørselStatus(ForespørselStatus.UNDER_BEHANDLING),
+            førsteFraværsdag
+        );
     }
 
     public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {
@@ -163,10 +184,14 @@ public class InntektsmeldingTjeneste {
             personInfo.telefonnummer());
     }
 
-    private InntektsmeldingDialogDto.InntektsopplysningerDto lagInntekterDto(ForespørselEntitet forespørsel) {
-        var inntektsopplysninger = inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
-            forespørsel.getOrganisasjonsnummer());
-        LOG.info("Inntektsopplysninger for forespørsel {} var {}", forespørsel.getUuid(), inntektsopplysninger.toString());
+    private InntektsmeldingDialogDto.InntektsopplysningerDto lagInntekterDto(UUID uuid, AktørIdEntitet aktørId, LocalDate skjæringstidspunkt, String organisasjonsnummer) {
+        var inntektsopplysninger = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(),
+            organisasjonsnummer);
+        if (uuid == null) {
+            LOG.info("Inntektsopplysninger for aktørId {} var {}", aktørId, inntektsopplysninger.toString());
+        } else {
+            LOG.info("Inntektsopplysninger for forespørsel {} var {}", uuid, inntektsopplysninger.toString());
+        }
         var inntekter = inntektsopplysninger.måneder()
             .stream()
             .map(i -> new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(i.månedÅr().atDay(1),
@@ -177,13 +202,13 @@ public class InntektsmeldingTjeneste {
         return new InntektsmeldingDialogDto.InntektsopplysningerDto(inntektsopplysninger.gjennomsnitt(), inntekter);
     }
 
-    private InntektsmeldingDialogDto.OrganisasjonInfoResponseDto lagOrganisasjonDto(ForespørselEntitet forespørsel) {
-        var orgdata = organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer());
+    private InntektsmeldingDialogDto.OrganisasjonInfoResponseDto lagOrganisasjonDto(String organisasjonsnummer) {
+        var orgdata = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer);
         return new InntektsmeldingDialogDto.OrganisasjonInfoResponseDto(orgdata.navn(), orgdata.orgnr());
     }
 
-    private InntektsmeldingDialogDto.PersonInfoResponseDto lagPersonDto(ForespørselEntitet forespørsel) {
-        var persondata = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId(), forespørsel.getYtelseType());
+    private InntektsmeldingDialogDto.PersonInfoResponseDto lagPersonDto(AktørIdEntitet aktørId, Ytelsetype ytelseType) {
+        var persondata = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelseType);
         return new InntektsmeldingDialogDto.PersonInfoResponseDto(persondata.fornavn(), persondata.mellomnavn(), persondata.etternavn(),
             persondata.fødselsnummer().getIdent(), persondata.aktørId().getAktørId());
     }

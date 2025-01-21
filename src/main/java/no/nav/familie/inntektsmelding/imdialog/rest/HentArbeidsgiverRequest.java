@@ -9,8 +9,8 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 
 import java.time.LocalDate;
 
-public record OpplysningerRequestDto(@Valid @NotNull PersonIdent fødselsnummer,
+public record HentArbeidsgiverRequest(@Valid @NotNull PersonIdent fødselsnummer,
                                      @Valid @NotNull Ytelsetype ytelseType,
                                      @Valid @NotNull LocalDate førsteFraværsdag,
-                                     @Valid @NotNull OrganisasjonsnummerDto organisasjonsnummer) {
+                                     @Valid OrganisasjonsnummerDto organisasjonsnummer) {
 }
