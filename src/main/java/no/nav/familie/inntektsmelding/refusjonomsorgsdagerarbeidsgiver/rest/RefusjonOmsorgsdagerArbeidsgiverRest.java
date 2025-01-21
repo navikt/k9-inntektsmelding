@@ -16,8 +16,6 @@ import jakarta.ws.rs.core.Response;
 
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +25,8 @@ import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester
 import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.InnloggetBrukerTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
+
+import java.time.LocalDate;
 
 @AutentisertMedTokenX
 @RequestScoped
@@ -68,7 +68,8 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
 
         LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerRequestDto.fødselsnummer());
 
-        var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(slåOppArbeidstakerRequestDto.fødselsnummer());
+        var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(slåOppArbeidstakerRequestDto.fødselsnummer(),
+            LocalDate.now());
         var personInfo = personTjeneste.hentPersonFraIdent(slåOppArbeidstakerRequestDto.fødselsnummer(), slåOppArbeidstakerRequestDto.ytelseType());
         if (arbeidsforhold.isEmpty() || personInfo == null) {
             return Response.status(Response.Status.NOT_FOUND).build();

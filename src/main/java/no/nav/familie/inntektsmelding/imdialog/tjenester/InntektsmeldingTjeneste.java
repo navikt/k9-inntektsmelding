@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -187,20 +188,20 @@ public class InntektsmeldingTjeneste {
             persondata.fødselsnummer().getIdent(), persondata.aktørId().getAktørId());
     }
 
-    public Optional<SlåOppArbeidstakerResponseDto> finnArbeidsforholdForFnr(PersonIdent fødselsnummer, Ytelsetype ytelsetype) {
+    public Optional<SlåOppArbeidstakerResponseDto> finnArbeidsforholdForFnr(PersonIdent fødselsnummer, Ytelsetype ytelsetype,
+                                                                            LocalDate førsteFraværsdag) {
         // TODO Skal vi sjekke noe mtp kode 6/7
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype);
         if (personInfo == null) {
             return Optional.empty();
         }
-        // TODO Må vi her slå opp med en spesifikk dato eller kan vi få ut alle og filtrere senere?
-        var arbeidsforholdBrukerHarTilgangTil = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer);
+        var arbeidsforholdBrukerHarTilgangTil = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag);
         if (arbeidsforholdBrukerHarTilgangTil.isEmpty()) {
             return Optional.empty();
         }
         var arbeidsforholdDto = arbeidsforholdBrukerHarTilgangTil.stream()
             .map(a -> new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(organisasjonTjeneste.finnOrganisasjon(a.organisasjonsnummer()).navn(), a.organisasjonsnummer()))
-            .toList();
+            .collect(Collectors.toSet());
         return Optional.of(new SlåOppArbeidstakerResponseDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), arbeidsforholdDto));
     }
 }

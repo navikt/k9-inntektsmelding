@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,8 +31,8 @@ public class ArbeidsforholdTjeneste {
         this.aaregRestKlient = aaregRestKlient;
     }
 
-    public List<ArbeidsforholdDto> hentNåværendeArbeidsforhold(PersonIdent ident) {
-        var aaregInfo = aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(ident.getIdent());
+    public List<ArbeidsforholdDto> hentArbeidsforhold(PersonIdent ident, LocalDate førsteFraværsdag) {
+        var aaregInfo = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident.getIdent(), førsteFraværsdag);
         if (aaregInfo == null) {
             LOG.info("Fant ingen arbeidsforhold for ident {}. Returnerer tom liste", ident.getIdent());
             return Collections.emptyList();

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,8 +32,8 @@ public class ArbeidstakerTjeneste {
         this.altinnTilgangTjeneste = altinnTilgangTjeneste;
     }
 
-    public List<ArbeidsforholdDto> finnArbeidsforholdInnsenderHarTilgangTil(PersonIdent ident) {
-        var alleArbeidsforhold = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(ident);
+    public List<ArbeidsforholdDto> finnArbeidsforholdInnsenderHarTilgangTil(PersonIdent ident, LocalDate førsteFraværsdag) {
+        var alleArbeidsforhold = arbeidsforholdTjeneste.hentArbeidsforhold(ident, førsteFraværsdag);
         LOG.info("Fant {} arbeidsforhold i Aa-registeret for {}", alleArbeidsforhold.size(), ident);
 
         if (alleArbeidsforhold.isEmpty()) {

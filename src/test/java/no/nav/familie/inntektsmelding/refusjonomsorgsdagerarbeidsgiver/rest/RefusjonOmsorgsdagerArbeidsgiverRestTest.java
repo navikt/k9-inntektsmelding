@@ -44,31 +44,33 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
     @Test
     void slå_opp_arbeidstaker_skal_returnere_ok_response_når_arbeidstaker_finnes() {
         var fnr = PersonIdent.fra("12345678910");
+        var førsteFraværsdag = LocalDate.now();
         var dto = new SlåOppArbeidstakerRequestDto(fnr, Ytelsetype.OMSORGSPENGER);
         var arbeidsforhold = List.of(new ArbeidsforholdDto("999999999", "ARB-1"));
         var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto("fornavn", "mellomnavn", "etternavn", arbeidsforhold);
 
         when(personTjenesteMock.hentPersonFraIdent(fnr, Ytelsetype.OMSORGSPENGER)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fnr, null, LocalDate.now(), null));
-        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fnr)).thenReturn(arbeidsforhold);
+        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag)).thenReturn(arbeidsforhold);
 
         var response = rest.slåOppArbeidstaker(dto);
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(arbeidstakerInfo, response.getEntity());
-        verify(arbeidstakerTjenesteMock).finnArbeidsforholdInnsenderHarTilgangTil(fnr);
+        verify(arbeidstakerTjenesteMock).finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag);
     }
 
     @Test
     void slå_opp_arbeidstaker_skal_returnere_not_found_når_arbeidstaker_ikke_finnes() {
         var fnr = PersonIdent.fra("12345678910");
         var dto = new SlåOppArbeidstakerRequestDto(fnr, Ytelsetype.OMSORGSPENGER);
+        var førsteFraværsdag = LocalDate.now();
 
         when(personTjenesteMock.hentPersonFraIdent(fnr, Ytelsetype.OMSORGSPENGER)).thenReturn(null);
 
         var response = rest.slåOppArbeidstaker(dto);
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        verify(arbeidstakerTjenesteMock).finnArbeidsforholdInnsenderHarTilgangTil(fnr);
+        verify(arbeidstakerTjenesteMock).finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag);
     }
 
     @Test

@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjeneste
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,20 +35,22 @@ class ArbeidsforholdTjenesteTest {
 
     @Test
     void skalReturnereTomListeNårAaregReturnerNull() {
-        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent()))
+        var nå = LocalDate.now();
+        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå))
             .thenReturn(null);
 
-        var resultat = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(PERSON_IDENT);
+        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå);
 
         assertThat(resultat).isEmpty();
     }
 
     @Test
     void skalReturnereTomListeNårAaregReturnerTomListe() {
-        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent()))
+        var nå = LocalDate.now();
+        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå))
             .thenReturn(Collections.emptyList());
 
-        var resultat = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(PERSON_IDENT);
+        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå);
 
         assertThat(resultat).isEmpty();
     }
@@ -69,10 +72,12 @@ class ArbeidsforholdTjenesteTest {
             "type"
         );
 
-        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent()))
+        var nå = LocalDate.now();
+
+        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå))
             .thenReturn(List.of(arbeidsforhold));
 
-        var resultat = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(PERSON_IDENT);
+        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå);
 
         assertThat(resultat)
             .hasSize(1)
@@ -114,11 +119,13 @@ class ArbeidsforholdTjenesteTest {
             null,
             "type"
         );
+        var nå = LocalDate.now();
 
-        when(aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent()))
+
+        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå))
             .thenReturn(List.of(arbeidsforhold1, arbeidsforhold2));
 
-        var resultat = arbeidsforholdTjeneste.hentNåværendeArbeidsforhold(PERSON_IDENT);
+        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå);
 
         assertThat(resultat).hasSize(2);
 

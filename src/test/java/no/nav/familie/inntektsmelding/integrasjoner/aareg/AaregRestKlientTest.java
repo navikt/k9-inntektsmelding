@@ -50,7 +50,7 @@ class AaregRestKlientTest {
         when(restClient.send(any(RestRequest.class), eq(ArbeidsforholdDto[].class)))
             .thenReturn(new ArbeidsforholdDto[]{arbeidsforhold});
 
-        var result = aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(ident);
+        var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now());
 
         assertThat(result).hasSize(1);
         assertThat(result.getFirst()).isEqualTo(arbeidsforhold);
@@ -71,7 +71,7 @@ class AaregRestKlientTest {
 
         // Act & Assert
         var exception = assertThrows(IllegalArgumentException.class,
-            () -> aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(ident));
+            () -> aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now()));
 
         assertThat(exception.getMessage())
             .isEqualTo("Utviklerfeil syntax-exception for finnArbeidsforholdForArbeidstaker");
@@ -86,7 +86,7 @@ class AaregRestKlientTest {
             .thenReturn(new ArbeidsforholdDto[]{});
 
         // Act
-        var result = aaregRestKlient.finnNåværendeArbeidsforholdForArbeidstaker(ident);
+        var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now());
 
         // Assert
         assertThat(result).isEmpty();
