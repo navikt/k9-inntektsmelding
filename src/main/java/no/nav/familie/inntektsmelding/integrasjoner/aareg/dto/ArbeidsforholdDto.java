@@ -1,7 +1,12 @@
 package no.nav.familie.inntektsmelding.integrasjoner.aareg.dto;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public record ArbeidsforholdDto(
     String arbeidsforholdId,
     Long navArbeidsforholdId,
