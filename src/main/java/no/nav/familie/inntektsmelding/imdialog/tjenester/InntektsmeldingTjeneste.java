@@ -132,7 +132,7 @@ public class InntektsmeldingTjeneste {
             forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt));
     }
 
-    public InntektsmeldingDialogDto lagArbeidsgiverInitiertDialogDto(PersonIdent fødselsnummer,
+    public InntektsmeldingDialogDto lagArbeidsgiverinitiertDialogDto(PersonIdent fødselsnummer,
                                                                      Ytelsetype ytelsetype,
                                                                      LocalDate førsteFraværsdag,
                                                                      OrganisasjonsnummerDto organisasjonsnummer) {

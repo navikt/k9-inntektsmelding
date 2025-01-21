@@ -65,7 +65,7 @@ public class ArbeidsgiverinitiertDialogRest {
         // 2. Hvis ikke, hent alle data som trengs.
 
 
-        var dto = inntektsmeldingTjeneste.lagArbeidsgiverInitiertDialogDto(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag(), request.organisasjonsnummer());
+        var dto = inntektsmeldingTjeneste.lagArbeidsgiverinitiertDialogDto(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag(), request.organisasjonsnummer());
 //        var dto = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag());
         return Response.ok(dto).build();
     }
