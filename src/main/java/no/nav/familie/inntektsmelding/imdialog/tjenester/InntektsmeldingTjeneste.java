@@ -144,7 +144,7 @@ public class InntektsmeldingTjeneste {
 
         var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnForespørsler(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
         var forespørslerSomMatcherFraværsdag = eksisterendeForepørsler.stream()
-            .filter(f -> førsteFraværsdag.equals(f.getFørsteUttaksdato().orElse(null))) // TODO: sjekk for et større intervall etterhvert
+            .filter(f -> førsteFraværsdag.equals(f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt()))) // TODO: sjekk for et større intervall etterhvert
             .toList();
 
         if (!forespørslerSomMatcherFraværsdag.isEmpty()) {
