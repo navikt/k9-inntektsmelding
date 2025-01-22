@@ -7,6 +7,8 @@ import java.util.Set;
 
 import jakarta.ws.rs.ApplicationPath;
 
+import no.nav.familie.inntektsmelding.imdialog.rest.ArbeidsgiverinitiertDialogRest;
+
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
@@ -52,7 +54,11 @@ public class ApiConfig extends ResourceConfig {
     }
 
     private Set<Class<?>> getApplicationClasses() {
-        return Set.of(ForespørselRest.class, InntektsmeldingDialogRest.class, InntektsmeldingFpsakRest.class, RefusjonOmsorgsdagerArbeidsgiverRest.class);
+        return Set.of(ForespørselRest.class,
+            InntektsmeldingDialogRest.class,
+            InntektsmeldingFpsakRest.class,
+            RefusjonOmsorgsdagerArbeidsgiverRest.class,
+            ArbeidsgiverinitiertDialogRest.class);
     }
 
     private Map<String, Object> getApplicationProperties() {
