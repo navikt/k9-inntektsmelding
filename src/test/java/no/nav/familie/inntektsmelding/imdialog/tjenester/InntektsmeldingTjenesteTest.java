@@ -268,7 +268,7 @@ class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    void skal_arbeidsgiverinitiertdto_hvis_ingen_forespørsler_finnes() {
+    void skal_gi_arbeidsgiverinitiertdto_hvis_ingen_forespørsler_finnes() {
         // Arrange
         var fødselsnummer = new PersonIdent("11111111111");
         var ytelsetype = Ytelsetype.FORELDREPENGER;
@@ -302,7 +302,7 @@ class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    void skal_arbeidsgiverinitiertdto_hvis_matchende_forespørsel_finnes() {
+    void skal_gi_opplysningerDto_hvis_matchende_forespørsel_finnes() {
         // Arrange
         var fødselsnummer = new PersonIdent("11111111111");
         var ytelsetype = Ytelsetype.FORELDREPENGER;
