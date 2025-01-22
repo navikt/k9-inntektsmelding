@@ -11,6 +11,5 @@ import java.time.LocalDate;
 
 public record HentArbeidsgiverRequest(@Valid @NotNull PersonIdent fødselsnummer,
                                      @Valid @NotNull Ytelsetype ytelseType,
-                                     @Valid @NotNull LocalDate førsteFraværsdag,
-                                     @Valid OrganisasjonsnummerDto organisasjonsnummer) {
+                                     @Valid @NotNull LocalDate førsteFraværsdag) {
 }
