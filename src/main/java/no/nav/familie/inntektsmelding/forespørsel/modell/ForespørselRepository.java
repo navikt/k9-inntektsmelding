@@ -10,6 +10,8 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,6 +188,17 @@ public class ForespørselRepository {
             .setParameter("aktørId", aktørId.getAktørId())
             .setParameter("utgått", ForespørselStatus.UTGÅTT)
             .setParameter("ytelseType", ytelsetype);
+        return query.getResultList();
+    }
+
+    public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet where aktørId=:aktørId "
+                    + "and status=:underBehandling and ytelseType=:ytelseType and organisasjonsnummer=:orgnr",
+                ForespørselEntitet.class)
+            .setParameter("aktørId", aktørId.getAktørId())
+            .setParameter("underBehandling", ForespørselStatus.UNDER_BEHANDLING)
+            .setParameter("ytelseType", ytelsetype)
+            .setParameter("orgnr", orgnr);
         return query.getResultList();
     }
 }

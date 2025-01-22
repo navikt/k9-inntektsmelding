@@ -72,7 +72,7 @@ public class ForespørselTjeneste {
         return forespørselRepository.finnÅpenForespørsel(fagsakSaksnummer, orgnr);
     }
 
-    public Optional<ForespørselEntitet> finnForespørsel(UUID forespørselUuid) {
+    public Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUuid) {
         return forespørselRepository.hentForespørsel(forespørselUuid);
     }
 
@@ -84,4 +84,7 @@ public class ForespørselTjeneste {
         return forespørselRepository.hentForespørsler(fagsakSaksnummer);
     }
 
+    public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
+        return forespørselRepository.finnForespørsler(aktørId, ytelsetype, orgnr);
+    }
 }

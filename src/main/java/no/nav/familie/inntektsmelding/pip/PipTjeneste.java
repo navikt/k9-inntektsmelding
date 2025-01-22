@@ -26,7 +26,7 @@ public class PipTjeneste {
     }
 
     public OrganisasjonsnummerDto hentOrganisasjonsnummerFor(UUID forespørselUuid) {
-        return forespørselTjeneste.finnForespørsel(forespørselUuid).map(f -> new OrganisasjonsnummerDto(f.getOrganisasjonsnummer())).orElse(null);
+        return forespørselTjeneste.hentForespørsel(forespørselUuid).map(f -> new OrganisasjonsnummerDto(f.getOrganisasjonsnummer())).orElse(null);
     }
 
     public OrganisasjonsnummerDto hentOrganisasjonsnummerFor(long inntektsmeldingId) {

@@ -32,6 +32,8 @@ public interface ForespørselBehandlingTjeneste {
 
     Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID);
 
+    List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr);
+
     List<ForespørselEntitet> hentForespørslerForFagsak(SaksnummerDto fagsakSaksnummer,
                                                        OrganisasjonsnummerDto orgnummerDto,
                                                        LocalDate skjæringstidspunkt);
@@ -66,5 +68,4 @@ public interface ForespørselBehandlingTjeneste {
     List<InntektsmeldingForespørselDto> finnForespørslerForFagsak(SaksnummerDto fagsakSaksnummer);
 
     List<ForespørselEntitet> finnForespørslerForAktørId(AktørIdEntitet aktørIdEntitet, Ytelsetype ytelsetype);
-
 }

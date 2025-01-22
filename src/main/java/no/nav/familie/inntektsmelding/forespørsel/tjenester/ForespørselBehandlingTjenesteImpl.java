@@ -116,7 +116,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                                      OrganisasjonsnummerDto organisasjonsnummerDto,
                                                      LocalDate startdato,
                                                      LukkeÅrsak årsak) {
-        var foresporsel = forespørselTjeneste.finnForespørsel(foresporselUuid)
+        var foresporsel = forespørselTjeneste.hentForespørsel(foresporselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
 
         validerAktør(foresporsel, aktorId);
@@ -133,7 +133,12 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
     @Override
     public Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID) {
-        return forespørselTjeneste.finnForespørsel(forespørselUUID);
+        return forespørselTjeneste.hentForespørsel(forespørselUUID);
+    }
+
+    @Override
+    public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
+        return forespørselTjeneste.finnForespørsler(aktørId, ytelsetype, orgnr);
     }
 
     @Override

@@ -29,6 +29,7 @@ public class ArbeidsgiverinitiertDialogRest {
 
     public static final String BASE_PATH = "/arbeidsgiverinitiert";
     private static final String HENT_ARBEIDSFORHOLD = "/arbeidsforhold";
+    private static final String HENT_OPPLYSNINGER = "/opplysninger";
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
@@ -41,13 +42,24 @@ public class ArbeidsgiverinitiertDialogRest {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
+
     @POST
     @Path(HENT_ARBEIDSFORHOLD)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
-    public Response hentArbeidsforhold(@Valid @NotNull OpplysningerRequestDto request) {
-        LOG.info("Henter opplysninger for søker {}", request.fødselsnummer());
+    public Response hentArbeidsforhold(@Valid @NotNull HentArbeidsgiverRequest request) {
+        LOG.info("Henter arbeidsforhold for søker {}", request.fødselsnummer());
         var dto = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag());
         return dto.map(d ->Response.ok(d).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
+    }
+
+    @POST
+    @Path(HENT_OPPLYSNINGER)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentOpplysninger(@Valid @NotNull OpplysningerRequestDto request) {
+        LOG.info("Henter opplysninger for søker {}", request.fødselsnummer());
+        var dto = inntektsmeldingTjeneste.lagArbeidsgiverinitiertDialogDto(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag(), request.organisasjonsnummer());
+        return Response.ok(dto).build();
     }
 }
