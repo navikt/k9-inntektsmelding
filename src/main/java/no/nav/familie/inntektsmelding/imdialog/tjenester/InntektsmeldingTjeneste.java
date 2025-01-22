@@ -116,11 +116,15 @@ public class InntektsmeldingTjeneste {
 
     public InntektsmeldingDialogDto lagDialogDto(UUID forespørselUuid) {
         var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
-            .orElseThrow(() -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
+            .orElseThrow(() -> new IllegalStateException(
+                "Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
         var personDto = lagPersonDto(forespørsel.getAktørId(), forespørsel.getYtelseType());
         var organisasjonDto = lagOrganisasjonDto(forespørsel.getOrganisasjonsnummer());
         var innmelderDto = lagInnmelderDto(forespørsel.getYtelseType());
-        var inntektDtoer = lagInntekterDto(forespørsel.getUuid(), forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer());
+        var inntektDtoer = lagInntekterDto(forespørsel.getUuid(),
+            forespørsel.getAktørId(),
+            forespørsel.getSkjæringstidspunkt(),
+            forespørsel.getOrganisasjonsnummer());
         return new InntektsmeldingDialogDto(personDto,
             organisasjonDto,
             innmelderDto,
@@ -148,7 +152,8 @@ public class InntektsmeldingTjeneste {
             return lagDialogDto(forespørsel.getUuid());
         }
 
-        var personDto = lagPersonDto(personInfo.aktørId(), ytelsetype); //TODO: refactor
+        var personDto = new InntektsmeldingDialogDto.PersonInfoResponseDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(),
+            personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
         var organisasjonDto = lagOrganisasjonDto(organisasjonsnummer.orgnr());
         var innmelderDto = lagInnmelderDto(ytelsetype);
         var inntektDtoer = lagInntekterDto(null, personInfo.aktørId(), førsteFraværsdag, organisasjonsnummer.orgnr());
@@ -195,7 +200,10 @@ public class InntektsmeldingTjeneste {
             personInfo.telefonnummer());
     }
 
-    private InntektsmeldingDialogDto.InntektsopplysningerDto lagInntekterDto(UUID uuid, AktørIdEntitet aktørId, LocalDate skjæringstidspunkt, String organisasjonsnummer) {
+    private InntektsmeldingDialogDto.InntektsopplysningerDto lagInntekterDto(UUID uuid,
+                                                                             AktørIdEntitet aktørId,
+                                                                             LocalDate skjæringstidspunkt,
+                                                                             String organisasjonsnummer) {
         var inntektsopplysninger = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(),
             organisasjonsnummer);
         if (uuid == null) {
@@ -219,9 +227,9 @@ public class InntektsmeldingTjeneste {
     }
 
     private InntektsmeldingDialogDto.PersonInfoResponseDto lagPersonDto(AktørIdEntitet aktørId, Ytelsetype ytelseType) {
-        var persondata = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelseType);
-        return new InntektsmeldingDialogDto.PersonInfoResponseDto(persondata.fornavn(), persondata.mellomnavn(), persondata.etternavn(),
-            persondata.fødselsnummer().getIdent(), persondata.aktørId().getAktørId());
+        var personInfo = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelseType);
+        return new InntektsmeldingDialogDto.PersonInfoResponseDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(),
+            personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
     }
 
     public Optional<SlåOppArbeidstakerResponseDto> finnArbeidsforholdForFnr(PersonIdent fødselsnummer, Ytelsetype ytelsetype,
@@ -236,8 +244,12 @@ public class InntektsmeldingTjeneste {
             return Optional.empty();
         }
         var arbeidsforholdDto = arbeidsforholdBrukerHarTilgangTil.stream()
-            .map(a -> new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(organisasjonTjeneste.finnOrganisasjon(a.organisasjonsnummer()).navn(), a.organisasjonsnummer()))
+            .map(a -> new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(organisasjonTjeneste.finnOrganisasjon(a.organisasjonsnummer()).navn(),
+                a.organisasjonsnummer()))
             .collect(Collectors.toSet());
-        return Optional.of(new SlåOppArbeidstakerResponseDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), arbeidsforholdDto));
+        return Optional.of(new SlåOppArbeidstakerResponseDto(personInfo.fornavn(),
+            personInfo.mellomnavn(),
+            personInfo.etternavn(),
+            arbeidsforholdDto));
     }
 }
