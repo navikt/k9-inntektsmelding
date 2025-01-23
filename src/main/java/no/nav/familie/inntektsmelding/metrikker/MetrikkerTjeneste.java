@@ -37,6 +37,9 @@ public class MetrikkerTjeneste {
     // Hvor mange dager er det mellom opprettelse og løsning av oppgaven når inntektsmelding sendes inn via vårt eget skjema
     private static final DistributionSummary OPPGAVE_VARIGHET_INTERN_TELLER = Metrics.summary(APP_NAME + ".oppgaver.varighet.intern");
 
+    // Måler innsending av arbeidsgiverinitiert inntektsmelding
+    private static final String ARBEIDSGIVERINITIERT_INNSENDING = APP_NAME + "arbeidsgiverinitiert.innsending";
+
     // Måler opprettelse av oppgaver per ytelse
     private static final String COUNTER_FORESPØRRSEL = APP_NAME + ".oppgaver.opprettet";
 
@@ -128,5 +131,16 @@ public class MetrikkerTjeneste {
     private static void loggFeil(Exception e, String metodekall) {
         String msg = String.format("FPINNTEKTSMELDING_METRIKKER_1: Feil ved generering av metrikker i metode %s, fikk feilmelding %s", metodekall, e);
         LOG.warn(msg);
+    }
+
+    public static void logginnsendtArbeidsgiverinitiertIm(InntektsmeldingEntitet imEntitet) {
+
+        try {
+            var tags = new ArrayList<Tag>();
+            tags.add(new ImmutableTag(TAG_YTELSE, imEntitet.getYtelsetype().name()));
+            Metrics.counter(ARBEIDSGIVERINITIERT_INNSENDING, tags).increment();
+        } catch (Exception e) {
+            loggFeil(e, "logginnsendtArbeidsgiverinitiertIm");
+        }
     }
 }

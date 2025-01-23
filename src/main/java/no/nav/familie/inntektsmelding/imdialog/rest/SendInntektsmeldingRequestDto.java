@@ -19,7 +19,7 @@ import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
-public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid,
+public record SendInntektsmeldingRequestDto(@Valid UUID foresporselUuid,
                                             @NotNull @Valid AktørIdDto aktorId,
                                             @NotNull @Valid YtelseTypeDto ytelse,
                                             @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
@@ -49,6 +49,5 @@ public record SendInntektsmeldingRequestDto(@NotNull @Valid UUID foresporselUuid
 
     public record KontaktpersonRequestDto(@Size(max = 100) @NotNull String navn, @NotNull @Size(max = 100) String telefonnummer) {
     }
-
 }
 

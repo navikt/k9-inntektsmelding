@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -343,6 +344,55 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
     }
 
+    public UUID opprettForespørselForArbeidsgiverInitiertIm(Ytelsetype ytelsetype,
+                                                            AktørIdEntitet aktørId,
+                                                            SaksnummerDto fagsakSaksnummer,
+                                                            OrganisasjonsnummerDto organisasjonsnummer,
+                                                            LocalDate skjæringstidspunkt,
+                                                            LocalDate førsteUttaksdato) {
+        var msg = String.format("Oppretter forespørsel for arbeidsgiverinitiert, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+            organisasjonsnummer,
+            skjæringstidspunkt,
+            fagsakSaksnummer.saksnr(),
+            ytelsetype);
+        LOG.info(msg);
+
+        var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt,
+            ytelsetype,
+            aktørId,
+            organisasjonsnummer,
+            fagsakSaksnummer,
+            førsteUttaksdato);
+
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
+        var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
+        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
+        var fagerSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
+            merkelapp,
+            organisasjonsnummer.orgnr(),
+            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato()),
+            skjemaUri);
+
+        forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, fagerSakId);
+
+        String oppgaveId;
+        try {
+            oppgaveId = arbeidsgiverNotifikasjon.opprettOppgaveForArbeidsgiverIntiert(uuid.toString(),
+                merkelapp,
+                uuid.toString(),
+                organisasjonsnummer.orgnr(),
+                ForespørselTekster.lagOppgaveTekst(ytelsetype),
+                skjemaUri);
+        } catch (Exception e) {
+            //Manuell rollback er nødvendig fordi sak og oppgave går i to forskjellige kall
+            arbeidsgiverNotifikasjon.slettSak(fagerSakId);
+            throw e;
+        }
+
+        forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
+        return uuid;
+    }
+
     @Override
     public NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
                                                                 OrganisasjonsnummerDto organisasjonsnummer) {
@@ -453,6 +503,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public List<ForespørselEntitet> finnForespørslerForAktørId(AktørIdEntitet aktørIdEntitet, Ytelsetype ytelsetype) {
         return forespørselTjeneste.finnForespørslerForAktørid(aktørIdEntitet, ytelsetype);
+    }
+
+    @Override
+    public Optional<ForespørselEntitet> finnOpprinneligForespørsel(AktørIdEntitet aktørId, Ytelsetype ytelseType, LocalDate startdato) {
+        return finnForespørslerForAktørId(aktørId, ytelseType).stream()
+            .filter(f -> f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt()).isBefore(startdato))
+            .max(Comparator.comparing(f -> f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt())));
     }
 
     private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {

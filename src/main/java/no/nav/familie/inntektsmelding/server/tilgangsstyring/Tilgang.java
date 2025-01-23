@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.server.tilgangsstyring;
 
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+
 import java.util.UUID;
 
 public interface Tilgang {
@@ -11,7 +13,13 @@ public interface Tilgang {
      * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
      */
     void sjekkAtArbeidsgiverHarTilgangTilBedrift(UUID forespørselUuid);
-
+    /**
+     * Her sjekkes tilgang i Altinn gitt orgnummer for å se om brukeren som initierte kallet,
+     * har tilgang til den aktuelle bedriften.
+     * @param organisasjonsnummer - organisasjonsnummer som det forsøkes å sende inntektsmelding for.
+     * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
+     */
+    void sjekkAtArbeidsgiverHarTilgangTilBedrift(OrganisasjonsnummerDto organisasjonsnummer);
     /**
      * Her hentes organisasjonsnummer knyttet til en tidligere innsendt inntektsmelding (fra PIP tjenesten),
      * og deretter sjekkes det i Altinn om brukeren som initierte kallet, har tilgang til den aktuelle bedriften.
