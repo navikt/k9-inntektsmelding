@@ -80,15 +80,7 @@ public class PersonTjeneste {
     }
 
     private Optional<AktørIdEntitet> finnAktørIdForIdent(PersonIdent personIdent) {
-        var aktørIdRequest = new HentIdenterQueryRequest();
-        aktørIdRequest.setIdent(personIdent.getIdent());
-        aktørIdRequest.setGrupper(List.of(IdentGruppe.AKTORID));
-        aktørIdRequest.setHistorikk(Boolean.FALSE);
-        var projectionAktørId = new IdentlisteResponseProjection()
-            .identer(new IdentInformasjonResponseProjection().ident());
-
-        var identliste = pdlKlient.hentIdenter(aktørIdRequest, projectionAktørId);
-        return identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(AktørIdEntitet::new);
+        return pdlKlient.hentAktørIdForPersonIdent(personIdent.getIdent(), true).map(AktørIdEntitet::new);
     }
 
     public PersonIdent finnPersonIdentForAktørId(AktørIdEntitet aktørIdEntitet) {
