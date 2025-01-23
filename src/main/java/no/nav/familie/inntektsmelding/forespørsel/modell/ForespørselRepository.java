@@ -185,7 +185,7 @@ public class ForespørselRepository {
         var query = entityManager.createQuery("FROM ForespørselEntitet where aktørId=:aktørId "
                     + "and status !=:utgått and ytelseType=:ytelseType",
                 ForespørselEntitet.class)
-            .setParameter("aktørId", aktørId.getAktørId())
+            .setParameter("aktørId", aktørId)
             .setParameter("utgått", ForespørselStatus.UTGÅTT)
             .setParameter("ytelseType", ytelsetype);
         return query.getResultList();
@@ -195,7 +195,7 @@ public class ForespørselRepository {
         var query = entityManager.createQuery("FROM ForespørselEntitet where aktørId=:aktørId "
                     + "and status=:underBehandling and ytelseType=:ytelseType and organisasjonsnummer=:orgnr",
                 ForespørselEntitet.class)
-            .setParameter("aktørId", aktørId.getAktørId())
+            .setParameter("aktørId", aktørId)
             .setParameter("underBehandling", ForespørselStatus.UNDER_BEHANDLING)
             .setParameter("ytelseType", ytelsetype)
             .setParameter("orgnr", orgnr);
