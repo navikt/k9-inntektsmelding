@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.ArbeidsforholdDto;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 class AaregRestKlientTest {
@@ -47,8 +50,13 @@ class AaregRestKlientTest {
             null,
             "ordinært");
 
-        when(restClient.send(any(RestRequest.class), eq(ArbeidsforholdDto[].class)))
-            .thenReturn(new ArbeidsforholdDto[]{arbeidsforhold});
+        var httpResponse = mock(HttpResponse.class);
+        when(httpResponse.body()).thenReturn(DefaultJsonMapper.toJson(List.of(arbeidsforhold)));
+        when(httpResponse.statusCode()).thenReturn(200);
+
+
+        when(restClient.sendReturnUnhandled(any(RestRequest.class)))
+            .thenReturn(httpResponse);
 
         var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now());
 
@@ -58,7 +66,7 @@ class AaregRestKlientTest {
         assertTrue(result.getFirst().permisjonPermitteringer().isEmpty());
 
         var requestCaptor = ArgumentCaptor.forClass(RestRequest.class);
-        verify(restClient).send(requestCaptor.capture(), eq(ArbeidsforholdDto[].class));
+        verify(restClient).sendReturnUnhandled(requestCaptor.capture());
     }
 
     @Test
@@ -66,7 +74,7 @@ class AaregRestKlientTest {
         // Arrange
         var ident = "12345678901";
 
-        when(restClient.send(any(RestRequest.class), eq(ArbeidsforholdDto[].class)))
+        when(restClient.sendReturnUnhandled(any(RestRequest.class)))
             .thenThrow(new IllegalArgumentException("Invalid URI"));
 
         // Act & Assert
@@ -82,8 +90,12 @@ class AaregRestKlientTest {
         // Arrange
         var ident = "12345678901";
 
-        when(restClient.send(any(RestRequest.class), eq(ArbeidsforholdDto[].class)))
-            .thenReturn(new ArbeidsforholdDto[]{});
+        var httpResponse = mock(HttpResponse.class);
+        when(httpResponse.statusCode()).thenReturn(404);
+
+
+        when(restClient.sendReturnUnhandled(any(RestRequest.class)))
+            .thenReturn(httpResponse);
 
         // Act
         var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now());
