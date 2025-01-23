@@ -71,11 +71,24 @@ public class PersonTjeneste {
             .telefonnummer(new TelefonnummerResponseProjection().landskode().nummer())
             .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
 
+        var aktørId = finnAktørIdForIdent(personIdent);
         var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
         var navn = person.getNavn().getFirst();
 
-        return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, null, mapFødselsdato(person),
+        return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId.orElse(null), mapFødselsdato(person),
             mapTelefonnummer(person));
+    }
+
+    private Optional<AktørIdEntitet> finnAktørIdForIdent(PersonIdent personIdent) {
+        var aktørIdRequest = new HentIdenterQueryRequest();
+        aktørIdRequest.setIdent(personIdent.getIdent());
+        aktørIdRequest.setGrupper(List.of(IdentGruppe.AKTORID));
+        aktørIdRequest.setHistorikk(Boolean.FALSE);
+        var projectionAktørId = new IdentlisteResponseProjection()
+            .identer(new IdentInformasjonResponseProjection().ident());
+
+        var identliste = pdlKlient.hentIdenter(aktørIdRequest, projectionAktørId);
+        return identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(AktørIdEntitet::new);
     }
 
     public PersonIdent finnPersonIdentForAktørId(AktørIdEntitet aktørIdEntitet) {
