@@ -104,7 +104,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         assertThat(resultat).isEqualTo(ForespørselResultat.FORESPØRSEL_OPPRETTET);
         assertThat(lagret).hasSize(1);
         assertThat(lagret.getFirst().getArbeidsgiverNotifikasjonSakId()).isEqualTo(SAK_ID);
-        assertThat(lagret.getFirst().getOppgaveId()).isEqualTo(OPPGAVE_ID);
+        assertThat(lagret.getFirst().getOppgaveId()).isEqualTo(Optional.of(OPPGAVE_ID));
     }
 
     @Test
