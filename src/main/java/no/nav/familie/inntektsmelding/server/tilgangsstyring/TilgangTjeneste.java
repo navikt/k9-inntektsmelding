@@ -52,6 +52,13 @@ public class TilgangTjeneste implements Tilgang {
     }
 
     @Override
+    public void sjekkAtArbeidsgiverHarTilgangTilBedrift(OrganisasjonsnummerDto organisasjonsnummer) {
+        sjekkErBorger();
+
+        sjekkBorgersAltinnTilgangTilOrganisasjon(Set.of(organisasjonsnummer.orgnr()));
+    }
+
+    @Override
     public void sjekkAtArbeidsgiverHarTilgangTilBedrift(long inntektsmeldingId) {
         sjekkErBorger();
 

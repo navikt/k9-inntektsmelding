@@ -2,7 +2,6 @@ package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -12,20 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
-import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
-
-import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
-import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidstakerTjeneste;
-import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
-
-import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
-
-import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
-
-import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,14 +24,23 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidstakerTjeneste;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -241,6 +235,30 @@ class InntektsmeldingTjenesteTest {
 
         // Assert
         assertThat(ex.getMessage()).contains("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
+    }
+
+    @Test
+    void skal_feile_om_opprinnelig_forespørsel_ikke_finnes() {
+        // Arrange
+        var aktørId = new AktørIdEntitet("9999999999999");
+
+        when(forespørselBehandlingTjeneste.finnOpprinneligForespørsel(aktørId, Ytelsetype.FORELDREPENGER, LocalDate.now())).thenReturn(Optional.empty());
+        var innsendingDto = new SendInntektsmeldingRequestDto(null,
+            new AktørIdDto("9999999999999"),
+            YtelseTypeDto.FORELDREPENGER,
+            new ArbeidsgiverDto("999999999"),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Navn", "123"),
+            LocalDate.now(),
+            BigDecimal.valueOf(10000),
+            List.of(),
+            List.of(),
+            List.of());
+
+        // Act
+        var ex = assertThrows(IllegalStateException.class, () -> inntektsmeldingTjeneste.mottaArbeidsgiverInitiertInntektsmelding(innsendingDto));
+
+        // Assert
+        assertThat(ex.getMessage()).contains("Ingen forespørsler funnet for aktørId ved arbeidsgiverintiert innntektsmelding");
     }
 
     @Test

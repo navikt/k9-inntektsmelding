@@ -118,8 +118,8 @@ public class ForespørselEntitet {
         this.status = sakStatus;
     }
 
-    public String getOppgaveId() {
-        return oppgaveId;
+    public Optional<String> getOppgaveId() {
+        return Optional.ofNullable(oppgaveId);
     }
 
     void setOppgaveId(String oppgaveId) {
