@@ -121,7 +121,7 @@ public class InntektsmeldingTjeneste {
         var imId = lagreOgLagJournalførTask(imEnitet, forespørselEnitet);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer,
-            sendInntektsmeldingRequestDto.startdato(), LukkeÅrsak.ARBEIDSGIVERINITIERT_INNSENDING);
+            sendInntektsmeldingRequestDto.startdato(), LukkeÅrsak.ORDINÆR_INNSENDING);
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
 

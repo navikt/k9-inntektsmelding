@@ -251,7 +251,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
 
         clearHibernateCache();
         assertThat(lagret.getStatus()).isEqualTo(ForespørselStatus.UNDER_BEHANDLING);
-        assertThat(lagret.getOppgaveId()).isNull();
+        assertThat(lagret.getOppgaveId()).isEmpty();
         assertThat(lagret.getFørsteUttaksdato().orElse(null)).isEqualTo(FØRSTE_UTTAKSDATO);
     }
 
