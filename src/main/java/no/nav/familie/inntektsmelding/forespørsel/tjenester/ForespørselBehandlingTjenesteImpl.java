@@ -124,7 +124,10 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         validerOrganisasjon(foresporsel, organisasjonsnummerDto);
         validerStartdato(foresporsel, startdato);
 
-        arbeidsgiverNotifikasjon.oppgaveUtført(foresporsel.getOppgaveId(), OffsetDateTime.now());
+        // Arbeidsgiverinitierte forespørsler har ingen oppgave
+        if (foresporsel.getOppgaveId() != null) {
+            arbeidsgiverNotifikasjon.oppgaveUtført(foresporsel.getOppgaveId(), OffsetDateTime.now());
+        }
         arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
             ForespørselTekster.lagTilleggsInformasjon(årsak));
@@ -255,7 +258,9 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel, boolean skalOppdatereArbeidsgiverNotifikasjon) {
         if (skalOppdatereArbeidsgiverNotifikasjon) {
+            if (eksisterendeForespørsel.getOppgaveId() != null) {
             arbeidsgiverNotifikasjon.oppgaveUtgått(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
+            }
             arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
         }
 
@@ -375,21 +380,6 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, fagerSakId);
 
-        String oppgaveId;
-        try {
-            oppgaveId = arbeidsgiverNotifikasjon.opprettOppgaveForArbeidsgiverIntiert(uuid.toString(),
-                merkelapp,
-                uuid.toString(),
-                organisasjonsnummer.orgnr(),
-                ForespørselTekster.lagOppgaveTekst(ytelsetype),
-                skjemaUri);
-        } catch (Exception e) {
-            //Manuell rollback er nødvendig fordi sak og oppgave går i to forskjellige kall
-            arbeidsgiverNotifikasjon.slettSak(fagerSakId);
-            throw e;
-        }
-
-        forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
         return uuid;
     }
 

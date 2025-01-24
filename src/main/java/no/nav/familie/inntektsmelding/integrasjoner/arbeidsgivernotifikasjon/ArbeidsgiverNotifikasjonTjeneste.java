@@ -100,41 +100,6 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String opprettOppgaveForArbeidsgiverIntiert(String grupperingsid,
-                                                       Merkelapp oppgaveMerkelapp,
-                                                       String eksternId,
-                                                       String virksomhetsnummer,
-                                                       String oppgaveTekst,
-                                                       URI oppgaveLenke) {
-        var request = NyOppgaveMutationRequest.builder()
-            .setNyOppgave(NyOppgaveInput.builder()
-                .setMottaker(lagAltinnMottakerInput())
-                .setNotifikasjon(NotifikasjonInput.builder()
-                    .setMerkelapp(oppgaveMerkelapp.getBeskrivelse())
-                    .setTekst(oppgaveTekst)
-                    .setLenke(oppgaveLenke.toString())
-                    .build())
-                .setMetadata(MetadataInput.builder()
-                    .setVirksomhetsnummer(virksomhetsnummer)
-                    .setEksternId(eksternId)
-                    .setGrupperingsid(grupperingsid)
-                    .build())
-                .build())
-            .build();
-
-        var projection = new NyOppgaveResultatResponseProjection().typename()
-            .onNyOppgaveVellykket(new NyOppgaveVellykketResponseProjection().id())
-            .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
-            .onUgyldigMottaker(new UgyldigMottakerResponseProjection().feilmelding())
-            .onDuplikatEksternIdOgMerkelapp(new DuplikatEksternIdOgMerkelappResponseProjection().feilmelding())
-            .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding())
-            .onUkjentRolle(new UkjentRolleResponseProjection().feilmelding())
-            .onUgyldigPaaminnelseTidspunkt(new UgyldigPaaminnelseTidspunktResponseProjection().feilmelding());
-
-        return klient.opprettOppgave(request, projection);
-    }
-
-    @Override
     public String opprettNyBeskjedMedEksternVarsling(String grupperingsid,
                                                      Merkelapp beskjedMerkelapp,
                                                      String eksternId,

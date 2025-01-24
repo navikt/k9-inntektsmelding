@@ -20,13 +20,6 @@ public interface ArbeidsgiverNotifikasjon {
                           String påminnelseTekst,
                           URI lenke);
 
-    String opprettOppgaveForArbeidsgiverIntiert(String grupperingsId,
-                                                Merkelapp merkelapp,
-                                                String eksternId,
-                                                String virksomhetsnummer,
-                                                String oppgaveTekst,
-                                                URI skjemaUri);
-
     String oppgaveUtført(String oppgaveId, OffsetDateTime utførtTidspunkt);
 
     String oppgaveUtgått(String oppgaveId, OffsetDateTime utgåttTidspunkt);
