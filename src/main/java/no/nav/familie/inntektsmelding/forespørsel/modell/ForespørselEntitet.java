@@ -119,7 +119,7 @@ public class ForespørselEntitet {
     }
 
     public Optional<String> getOppgaveId() {
-        return (oppgaveId == null) ? Optional.empty() : Optional.of(oppgaveId);
+        return Optional.ofNullable(oppgaveId);
     }
 
     void setOppgaveId(String oppgaveId) {
