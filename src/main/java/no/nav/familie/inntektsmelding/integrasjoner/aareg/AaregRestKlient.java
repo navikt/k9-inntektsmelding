@@ -20,7 +20,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 /*
  * Dokumentasjon https://confluence.adeo.no/display/FEL/AAREG+-+Tjeneste+REST+aareg.api
@@ -55,6 +55,10 @@ public class AaregRestKlient {
             if (response.statusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
                 // 404 betyr at det ikke finnes arbeidsforhold for personen, eller at personen ikke finnes
                 return Collections.emptyList();
+            }
+
+            if (response.statusCode() >= 400) {
+                throw new IntegrasjonException("FP-12345", "Feil ved henting av arbeidsforhold for person: " + response.body());
             }
 
             var arbeidsforhold = DefaultJsonMapper.fromJson(response.body(), ArbeidsforholdDto[].class);

@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.ArbeidsforholdDto;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
@@ -102,6 +103,32 @@ class AaregRestKlientTest {
 
         // Assert
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void skal_returnere_tom_liste_når_aareg_returnerer_404() {
+        // Arrange
+        var ident = "12345678901";
+
+        when(restClient.sendReturnUnhandled(any(RestRequest.class)))
+            .thenThrow(new IntegrasjonException("FP-12345", "404 feil"));
+
+        // Act
+        var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now());
+
+        // Assert
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void skal_kaste_exception_når_aareg_kaster_annen_integrasjonsexception() {
+        // Arrange
+        var ident = "12345678901";
+
+        when(restClient.sendReturnUnhandled(any(RestRequest.class)))
+            .thenThrow(new IntegrasjonException("FP-w00t", "Ukjent feil"));
+
+        assertThrows(IntegrasjonException.class, () -> aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now()));
     }
 
     @Test
