@@ -9,10 +9,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.familie.inntektsmelding.imdialog.rest.SlåOppArbeidstakerResponseDto;
-
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidstakerTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +20,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.SlåOppArbeidstakerResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
@@ -33,8 +30,10 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidstakerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -97,6 +96,39 @@ public class InntektsmeldingTjeneste {
         MetrikkerTjeneste.loggInnsendtInntektsmelding(imEntitet);
 
         return InntektsmeldingMapper.mapFraEntitet(imEntitet, mottattInntektsmeldingDto.foresporselUuid());
+    }
+
+    public InntektsmeldingResponseDto mottaArbeidsgiverInitiertInntektsmelding(SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+        var imEnitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequestDto);
+        var aktørId = new AktørIdEntitet(sendInntektsmeldingRequestDto.aktorId().id());
+        var ytelseType = KodeverkMapper.mapYtelsetype(sendInntektsmeldingRequestDto.ytelse());
+        var organisasjonsnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident());
+
+
+        var opprinneligForespørsel = forespørselBehandlingTjeneste.finnOpprinneligForespørsel(aktørId, ytelseType, sendInntektsmeldingRequestDto.startdato())
+            .orElseThrow(() -> new IllegalStateException("Ingen forespørsler funnet for aktørId ved arbeidsgiverintiert innntektsmelding: " + aktørId));
+
+        var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForArbeidsgiverInitiertIm(ytelseType,
+            aktørId,
+            new SaksnummerDto(opprinneligForespørsel.getFagsystemSaksnummer()),
+            organisasjonsnummer,
+            opprinneligForespørsel.getSkjæringstidspunkt(),
+            sendInntektsmeldingRequestDto.startdato());
+
+        var forespørselEnitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
+            .orElseThrow(() -> new IllegalStateException("Mangler forespørsel entitet"));
+
+        var imId = lagreOgLagJournalførTask(imEnitet, forespørselEnitet);
+
+        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer,
+            sendInntektsmeldingRequestDto.startdato(), LukkeÅrsak.ORDINÆR_INNSENDING);
+
+        var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
+
+        // Metrikker i prometheus
+        MetrikkerTjeneste.logginnsendtArbeidsgiverinitiertIm(imEntitet);
+
+        return InntektsmeldingMapper.mapFraEntitet(imEntitet, forespørselUuid);
     }
 
     private Long lagreOgLagJournalførTask(InntektsmeldingEntitet entitet, ForespørselEntitet forespørsel) {

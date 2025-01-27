@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @AutentisertMedTokenX
 @RequestScoped
@@ -32,6 +33,7 @@ public class ArbeidsgiverinitiertDialogRest {
     private static final String HENT_OPPLYSNINGER = "/opplysninger";
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private boolean erProd = true;
 
     ArbeidsgiverinitiertDialogRest() {
         // CDI
@@ -40,14 +42,17 @@ public class ArbeidsgiverinitiertDialogRest {
     @Inject
     public ArbeidsgiverinitiertDialogRest(InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.erProd = Environment.current().isProd();
     }
-
 
     @POST
     @Path(HENT_ARBEIDSFORHOLD)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
     public Response hentArbeidsforhold(@Valid @NotNull HentArbeidsgiverRequest request) {
+        if (erProd) {
+            throw new IllegalStateException("Ugyldig kall på restpunkt som ikke er lansert");
+        }
         LOG.info("Henter arbeidsforhold for søker {}", request.fødselsnummer());
         var dto = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag());
         return dto.map(d ->Response.ok(d).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
@@ -58,6 +63,9 @@ public class ArbeidsgiverinitiertDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
     public Response hentOpplysninger(@Valid @NotNull OpplysningerRequestDto request) {
+        if (erProd) {
+            throw new IllegalStateException("Ugyldig kall på restpunkt som ikke er lansert");
+        }
         LOG.info("Henter opplysninger for søker {}", request.fødselsnummer());
         var dto = inntektsmeldingTjeneste.lagArbeidsgiverinitiertDialogDto(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag(), request.organisasjonsnummer());
         return Response.ok(dto).build();

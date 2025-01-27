@@ -6,8 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
-import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.forespørsel.rest.OppdaterForespørselDto;
+import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
@@ -25,10 +25,10 @@ public interface ForespørselBehandlingTjeneste {
                                                       LocalDate førsteUttaksdato);
 
     ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
-                                AktørIdEntitet aktorId,
-                                OrganisasjonsnummerDto organisasjonsnummerDto,
-                                LocalDate startdato,
-                                LukkeÅrsak årsak);
+                                              AktørIdEntitet aktorId,
+                                              OrganisasjonsnummerDto organisasjonsnummerDto,
+                                              LocalDate startdato,
+                                              LukkeÅrsak årsak);
 
     Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID);
 
@@ -51,6 +51,13 @@ public interface ForespørselBehandlingTjeneste {
                             LocalDate førsteUttaksdato,
                             String tilleggsinfo);
 
+    UUID opprettForespørselForArbeidsgiverInitiertIm(Ytelsetype ytelsetype,
+                                                     AktørIdEntitet aktørId,
+                                                     SaksnummerDto fagsakSaksnummer,
+                                                     OrganisasjonsnummerDto organisasjonsnummer,
+                                                     LocalDate skjæringstidspunkt,
+                                                     LocalDate førsteUttaksdato);
+
     void lukkForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
 
     void slettForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt);
@@ -63,9 +70,11 @@ public interface ForespørselBehandlingTjeneste {
     void gjenåpneForespørsel(ForespørselEntitet eksisterendeForespørsel);
 
     NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
-                                            OrganisasjonsnummerDto organisasjonsnummer);
+                                                         OrganisasjonsnummerDto organisasjonsnummer);
 
     List<InntektsmeldingForespørselDto> finnForespørslerForFagsak(SaksnummerDto fagsakSaksnummer);
 
     List<ForespørselEntitet> finnForespørslerForAktørId(AktørIdEntitet aktørIdEntitet, Ytelsetype ytelsetype);
+
+    Optional<ForespørselEntitet> finnOpprinneligForespørsel(AktørIdEntitet aktørId, Ytelsetype ytelseType, LocalDate startdato);
 }

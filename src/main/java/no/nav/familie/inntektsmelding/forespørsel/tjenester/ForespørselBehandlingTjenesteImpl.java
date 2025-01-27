@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -123,7 +124,9 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         validerOrganisasjon(foresporsel, organisasjonsnummerDto);
         validerStartdato(foresporsel, startdato);
 
-        arbeidsgiverNotifikasjon.oppgaveUtført(foresporsel.getOppgaveId(), OffsetDateTime.now());
+        // Arbeidsgiverinitierte forespørsler har ingen oppgave
+        foresporsel.getOppgaveId().map(oppgaveId -> arbeidsgiverNotifikasjon.oppgaveUtført(oppgaveId, OffsetDateTime.now()));
+
         arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
             ForespørselTekster.lagTilleggsInformasjon(årsak));
@@ -254,7 +257,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel, boolean skalOppdatereArbeidsgiverNotifikasjon) {
         if (skalOppdatereArbeidsgiverNotifikasjon) {
-            arbeidsgiverNotifikasjon.oppgaveUtgått(eksisterendeForespørsel.getOppgaveId(), OffsetDateTime.now());
+            eksisterendeForespørsel.getOppgaveId().map( oppgaveId -> arbeidsgiverNotifikasjon.oppgaveUtgått(oppgaveId, OffsetDateTime.now()));
             arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i arbeidsgiver-notifikasjon
         }
 
@@ -341,6 +344,40 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         }
 
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
+    }
+
+    public UUID opprettForespørselForArbeidsgiverInitiertIm(Ytelsetype ytelsetype,
+                                                            AktørIdEntitet aktørId,
+                                                            SaksnummerDto fagsakSaksnummer,
+                                                            OrganisasjonsnummerDto organisasjonsnummer,
+                                                            LocalDate skjæringstidspunkt,
+                                                            LocalDate førsteUttaksdato) {
+        var msg = String.format("Oppretter forespørsel for arbeidsgiverinitiert, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+            organisasjonsnummer,
+            skjæringstidspunkt,
+            fagsakSaksnummer.saksnr(),
+            ytelsetype);
+        LOG.info(msg);
+
+        var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt,
+            ytelsetype,
+            aktørId,
+            organisasjonsnummer,
+            fagsakSaksnummer,
+            førsteUttaksdato);
+
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
+        var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
+        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
+        var fagerSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
+            merkelapp,
+            organisasjonsnummer.orgnr(),
+            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato()),
+            skjemaUri);
+
+        forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, fagerSakId);
+
+        return uuid;
     }
 
     @Override
@@ -453,6 +490,13 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public List<ForespørselEntitet> finnForespørslerForAktørId(AktørIdEntitet aktørIdEntitet, Ytelsetype ytelsetype) {
         return forespørselTjeneste.finnForespørslerForAktørid(aktørIdEntitet, ytelsetype);
+    }
+
+    @Override
+    public Optional<ForespørselEntitet> finnOpprinneligForespørsel(AktørIdEntitet aktørId, Ytelsetype ytelseType, LocalDate startdato) {
+        return finnForespørslerForAktørId(aktørId, ytelseType).stream()
+            .filter(f -> f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt()).isBefore(startdato))
+            .max(Comparator.comparing(f -> f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt())));
     }
 
     private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {

@@ -117,6 +117,31 @@ class TilgangTjenesteTest {
         verify(altinnTilgangTjeneste).manglerTilgangTilBedriften(fakeOrgNr);
     }
 
+    @Test
+    void test_borger_initiert_kall_fra_organisasjon_ikke_ok() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        var fakeOrgNr = "123456789";
+
+        when(altinnTilgangTjeneste.manglerTilgangTilBedriften(fakeOrgNr)).thenReturn(true);
+        var ex = assertThrows(ManglerTilgangException.class,
+            () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(fakeOrgNr)));
+        assertThat(ex.getMessage()).contains("Bruker mangler tilgang til bedriften i Altinn.");
+
+        verify(altinnTilgangTjeneste).manglerTilgangTilBedriften(fakeOrgNr);
+    }
+
+    @Test
+    void test_borger_initiert_kall_fra_organisasjon_ok() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        var okOrgNr = "123456789";
+
+        when(altinnTilgangTjeneste.manglerTilgangTilBedriften(okOrgNr)).thenReturn(false);
+
+        assertDoesNotThrow(() -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(okOrgNr)));
+
+        verify(altinnTilgangTjeneste).manglerTilgangTilBedriften(okOrgNr);
+    }
+
 
     @Test
     void test_borgen_inisjert_kall_mangler_informasjon_om_bedrift_fra_pip_inntektsmelding_nok() {

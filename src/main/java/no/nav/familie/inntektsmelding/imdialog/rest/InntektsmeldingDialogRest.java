@@ -16,6 +16,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,11 +83,16 @@ public class InntektsmeldingDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
     public Response sendInntektsmelding(@NotNull @Valid SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
-        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
 
-        LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequestDto.foresporselUuid());
-        var imResponse = inntektsmeldingTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto);
-        return Response.ok(imResponse).build();
+        if (sendInntektsmeldingRequestDto.foresporselUuid() == null) {
+            tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident()));
+            LOG.info("Mottok arbeisgiverinitert inntektsmelding for aktørId {}", sendInntektsmeldingRequestDto.aktorId());
+           return Response.ok(inntektsmeldingTjeneste.mottaArbeidsgiverInitiertInntektsmelding(sendInntektsmeldingRequestDto)).build();
+        } else {
+            tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
+            LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequestDto.foresporselUuid());
+            return Response.ok(inntektsmeldingTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto)).build();
+        }
     }
 
     @GET

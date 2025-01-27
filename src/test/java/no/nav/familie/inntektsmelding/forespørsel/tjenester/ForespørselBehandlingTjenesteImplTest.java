@@ -13,8 +13,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +40,7 @@ import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
+import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -105,7 +104,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         assertThat(resultat).isEqualTo(ForespørselResultat.FORESPØRSEL_OPPRETTET);
         assertThat(lagret).hasSize(1);
         assertThat(lagret.getFirst().getArbeidsgiverNotifikasjonSakId()).isEqualTo(SAK_ID);
-        assertThat(lagret.getFirst().getOppgaveId()).isEqualTo(OPPGAVE_ID);
+        assertThat(lagret.getFirst().getOppgaveId()).isEqualTo(Optional.of(OPPGAVE_ID));
     }
 
     @Test
@@ -230,6 +229,30 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         clearHibernateCache();
         assertThat(forrigeForespørsel.map(ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
         assertThat(resultat2).isEqualTo(ForespørselResultat.FORESPØRSEL_OPPRETTET);
+    }
+
+    @Test
+    void skal_opprette_opprette_arbeidsgiverinitiert_forespørsel_uten_oppgave() {
+        var aktørIdent = new AktørIdEntitet(AKTØR_ID);
+        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
+        when(personTjeneste.hentPersonInfoFraAktørId(any(), any())).thenReturn(new PersonInfo("12345678910", "test", "test", new PersonIdent("12345678910"), aktørIdent, LocalDate.now(), null));
+        when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), any(), any(), any())).thenReturn(SAK_ID);
+
+        var saksnummerDto = new SaksnummerDto(SAKSNUMMMER);
+
+        var uuid = forespørselBehandlingTjeneste.opprettForespørselForArbeidsgiverInitiertIm(YTELSETYPE,
+            new AktørIdEntitet(AKTØR_ID),
+            saksnummerDto,
+            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
+            SKJÆRINGSTIDSPUNKT,
+            FØRSTE_UTTAKSDATO);
+
+        var lagret = forespørselRepository.hentForespørsel(uuid).orElseThrow();
+
+        clearHibernateCache();
+        assertThat(lagret.getStatus()).isEqualTo(ForespørselStatus.UNDER_BEHANDLING);
+        assertThat(lagret.getOppgaveId()).isEmpty();
+        assertThat(lagret.getFørsteUttaksdato().orElse(null)).isEqualTo(FØRSTE_UTTAKSDATO);
     }
 
     @Test
@@ -533,8 +556,48 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         var resultat = forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER));
         clearHibernateCache();
         assertThat(resultat).isEqualTo(NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE);
-
     }
+
+    @Test
+    void skal_finne_siste_opprinnelig_forespørsel_og_før_ny_start_dato_for_aktør() {
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT,
+            Ytelsetype.FORELDREPENGER,
+            AKTØR_ID,
+            BRREG_ORGNUMMER,
+            SAKSNUMMMER,
+            FØRSTE_UTTAKSDATO);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+        forespørselRepository.ferdigstillForespørsel(SAK_ID);
+
+        var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusMonths(4),
+            Ytelsetype.FORELDREPENGER,
+            AKTØR_ID,
+            BRREG_ORGNUMMER,
+            "SAKSNUMMMER2",
+            FØRSTE_UTTAKSDATO.plusMonths(4));
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid2, SAK_ID_2);
+        forespørselRepository.ferdigstillForespørsel(SAK_ID_2);
+
+        var datoEtterStartDato = LocalDate.now().plusMonths(1);
+        var forespørselUuidEtterStartDato = forespørselRepository.lagreForespørsel(datoEtterStartDato,
+            Ytelsetype.FORELDREPENGER,
+            AKTØR_ID,
+            BRREG_ORGNUMMER,
+            "SAKSNUMMMER3",
+            datoEtterStartDato);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuidEtterStartDato, "3");
+        forespørselRepository.ferdigstillForespørsel("3");
+
+        var resultat = forespørselBehandlingTjeneste.finnOpprinneligForespørsel(new AktørIdEntitet(AKTØR_ID),
+            Ytelsetype.FORELDREPENGER,
+            LocalDate.now());
+
+        clearHibernateCache();
+
+        assertThat(resultat.map(ForespørselEntitet::getUuid)).isEqualTo(Optional.of(forespørselUuid2));
+    }
+
+
 
     @Test
     void skal_returnere_liste_av_inntektsmeldingdto_for_forespørsler() {
