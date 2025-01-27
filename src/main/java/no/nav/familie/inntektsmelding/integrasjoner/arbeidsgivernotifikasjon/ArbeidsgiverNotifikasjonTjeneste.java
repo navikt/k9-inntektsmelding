@@ -19,6 +19,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     static final String SERVICE_CODE = "4936";
     static final String SERVICE_EDITION_CODE = "1";
     static final String SAK_STATUS_TEKST = "";
+    static final String SAK_STATUS_TEKST_ARBEIDSGIVERINITIERT = "Mottatt - Se kvittering eller korriger inntektsmelding";
     static final Sendevindu VARSEL_SENDEVINDU = Sendevindu.LOEPENDE;
     static final int PÅMINNELSE_ETTER_DAGER = Environment.current().getProperty("paaminnelse.etter.dager", int.class, 14);
 
@@ -203,14 +204,17 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String ferdigstillSak(String id) {
+    public String ferdigstillSak(String id, boolean arbeidsgiverInitiert) {
 
-        var request = NyStatusSakMutationRequest.builder()
+        var requestBuilder = NyStatusSakMutationRequest.builder()
             .setId(id)
-            .setNyStatus(SaksStatus.FERDIG)
-            .setOverstyrStatustekstMed(SAK_STATUS_TEKST)
-            .build();
+            .setNyStatus(SaksStatus.FERDIG);
 
+        if (arbeidsgiverInitiert) {
+            requestBuilder.setOverstyrStatustekstMed(SAK_STATUS_TEKST_ARBEIDSGIVERINITIERT);
+        } else {
+            requestBuilder.setOverstyrStatustekstMed(SAK_STATUS_TEKST);
+        }
         var projection = new NyStatusSakResultatResponseProjection().typename()
             .onNyStatusSakVellykket(new NyStatusSakVellykketResponseProjection().id())
             .onUgyldigMerkelapp(new UgyldigMerkelappResponseProjection().feilmelding())
@@ -218,7 +222,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
             .onUkjentProdusent(new UkjentProdusentResponseProjection().feilmelding())
             .onSakFinnesIkke(new SakFinnesIkkeResponseProjection().feilmelding());
 
-        return klient.oppdaterSakStatus(request, projection);
+        return klient.oppdaterSakStatus(requestBuilder.build(), projection);
     }
 
     @Override
