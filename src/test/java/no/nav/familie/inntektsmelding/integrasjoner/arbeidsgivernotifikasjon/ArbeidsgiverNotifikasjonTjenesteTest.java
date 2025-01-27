@@ -159,7 +159,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         var requestCaptor = ArgumentCaptor.forClass(NyStatusSakMutationRequest.class);
 
-        tjeneste.ferdigstillSak(expectedId);
+        tjeneste.ferdigstillSak(expectedId, false);
 
         Mockito.verify(klient).oppdaterSakStatus(requestCaptor.capture(), any(NyStatusSakResultatResponseProjection.class));
 
@@ -172,6 +172,32 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         assertThat(input.get("id")).isEqualTo(expectedId);
         assertThat(input.get("nyStatus")).isEqualTo(SaksStatus.FERDIG);
         assertThat(input.get("overstyrStatustekstMed")).isEqualTo("");
+
+        assertThat(input.get("idempotencyKey")).isNull();
+        assertThat(input.get("hardDelete")).isNull();
+        assertThat(input.get("tidspunkt")).isNull();
+        assertThat(input.get("nyLenkeTilSak")).isNull();
+    }
+
+    @Test
+    void ferdigstill_arbeidsgiverinitiert_sak() {
+        var expectedId = "TestId";
+
+        var requestCaptor = ArgumentCaptor.forClass(NyStatusSakMutationRequest.class);
+
+        tjeneste.ferdigstillSak(expectedId, true);
+
+        Mockito.verify(klient).oppdaterSakStatus(requestCaptor.capture(), any(NyStatusSakResultatResponseProjection.class));
+
+        var request = requestCaptor.getValue();
+
+        var input = request.getInput();
+
+        assertThat(input).containsOnlyKeys("id", "overstyrStatustekstMed", "nyStatus", "idempotencyKey", "hardDelete", "tidspunkt", "nyLenkeTilSak");
+
+        assertThat(input.get("id")).isEqualTo(expectedId);
+        assertThat(input.get("nyStatus")).isEqualTo(SaksStatus.FERDIG);
+        assertThat(input.get("overstyrStatustekstMed")).isEqualTo(ArbeidsgiverNotifikasjonTjeneste.SAK_STATUS_TEKST_ARBEIDSGIVERINITIERT);
 
         assertThat(input.get("idempotencyKey")).isNull();
         assertThat(input.get("hardDelete")).isNull();
