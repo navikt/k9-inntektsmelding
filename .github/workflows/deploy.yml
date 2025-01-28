@@ -15,7 +15,7 @@ on:
         required: false
         type: string
         description: 'The namespace to deploy to'
-        default: 'teamforeldrepenger'
+        default: 'k9saksbehandling'
 
 jobs:
   deploy:
@@ -33,16 +33,6 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           team: ${{ inputs.namespace }}
-
-      - name: Deploy ${{ inputs.cluster }} fra GAR
-        if: inputs.namespace == 'teamforeldrepenger'
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          PRINT_PAYLOAD: true
-          CLUSTER: ${{ inputs.cluster }}
-          IMAGE: ${{ steps.login.outputs.registry }}/${{ github.repository }}:${{ inputs.image }}
-          RESOURCE: .deploy/fp/naiserator.yaml
-          VARS: .deploy/fp/${{ inputs.cluster }}-${{ inputs.namespace }}.json
 
       - name: Deploy ${{ inputs.cluster }}
         if: inputs.namespace == 'k9saksbehandling'

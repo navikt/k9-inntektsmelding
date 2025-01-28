@@ -16,10 +16,9 @@ on:
       namespace:
         required: true
         type: choice
-        description: 'teamforeldrepenger eller k9'
+        description: 'k9'
         options:
           - k9saksbehandling
-          - teamforeldrepenger
 
 jobs:
   deploy:
