@@ -5,7 +5,7 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_ft-inntektsmelding&metric=coverage)](https://sonarcloud.io/summary/new_code?id=navikt_ft-inntektsmelding)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_ft-inntektsmelding&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=navikt_ft-inntektsmelding)
 
-Backend for inntektsmelding for Team Foreldrepenger og Team Sykdom i Familien
+Backend for inntektsmelding for Team Sykdom i Familien
 
 ## Oppdatere graphql skjema til Arbeidsgiver Notifikasjon API
 
