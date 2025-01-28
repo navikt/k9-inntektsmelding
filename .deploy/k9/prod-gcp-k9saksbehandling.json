@@ -10,7 +10,10 @@
     "cpu": "500m",
     "mem": "1024Mi"
   },
-  "dbTier": "TODO",
+  "ingresses": [
+    "https://k9-inntektsmelding.intern.nav.no"
+  ],
+  "dbTier": "db-custom-1-3840",
   "dbDiskAutoresize": "true",
   "dbHighAvailability": "true",
   "dbPointInTimeRecovery": "true",
