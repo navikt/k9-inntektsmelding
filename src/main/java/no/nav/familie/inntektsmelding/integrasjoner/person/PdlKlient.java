@@ -13,8 +13,8 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 class PdlKlient extends AbstractPersonKlient {
 
     PdlKlient() {
-        super(RestClient.client(), Tema.FOR);
-    } //TODO: K9 må bruke egen tema senere.
+        super(RestClient.client(), Tema.OMS);
+    }
 
     PdlKlient(Tema tema) {
         super(RestClient.client(), tema);
