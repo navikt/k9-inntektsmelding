@@ -51,28 +51,36 @@ jobs:
     name: Deploy dev
     permissions:
       id-token: write
+      contents: write
+    # Multiline if condition with pipe must be defined without using ${{ }} around the expressions
+    # bruker always() for å tvinge if'en til å kjøre selv om verdikjedetest feiler pga needs - dette fordi noen av verdikjede suitene er ikke påkrevd for deploy
     if: |
       github.ref_name == 'master'
         && always()
         && needs.verdikjede-tester.outputs.pleiepenger == 'success'
         && needs.verdikjede-tester.outputs.livetssluttfase == 'success'
     needs: [ build-app, verdikjede-tester ]
-    uses: navikt/ft-inntektsmelding/.github/workflows/deploy.yml@master
+    uses: navikt/sif-gha-workflows/.github/workflows/maven-deploy.yml@main
     with:
+      gar: true
       image: ${{ needs.build-app.outputs.build-version }}
       cluster: dev-gcp
-      namespace: k9saksbehandling
+      naiserator_file: .deploy/naiserator.yaml
+      input_vars_file: .deploy/dev-gcp.json
     secrets: inherit
 
   deploy-prod:
     name: Deploy prod
     permissions:
       id-token: write
+      contents: write
     if: github.ref_name == 'master'
     needs: [ build-app, verdikjede-tester, deploy-dev ]
-    uses: navikt/ft-inntektsmelding/.github/workflows/deploy.yml@master
+    uses: navikt/sif-gha-workflows/.github/workflows/maven-deploy.yml@main
     with:
+      gar: true
       image: ${{ needs.build-app.outputs.build-version }}
       cluster: prod-gcp
-      namespace: k9saksbehandling
+      naiserator_file: .deploy/naiserator.yaml
+      input_vars_file: .deploy/prod-gcp.json
     secrets: inherit
