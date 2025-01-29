@@ -21,9 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.InnloggetBrukerTjeneste;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.RefusjonOmsorgsdagerService;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 
@@ -38,20 +36,17 @@ public class RefusjonOmsorgsdagerRest {
     public static final String BASE_PATH = "/refusjon-omsorgsdager";
     private static final String SLÅ_OPP_ARBEIDSTAKER = "/arbeidstaker";
     private static final String INNLOGGET_BRUKER = "/innlogget-bruker";
+    private static final String INNTEKTSOPPLYSNINGER = "/inntektsopplysninger";
 
-    private ArbeidstakerTjeneste arbeidstakerTjeneste;
-    private InnloggetBrukerTjeneste innloggetBrukerTjeneste;
-    private PersonTjeneste personTjeneste;
+    private RefusjonOmsorgsdagerService refusjonOmsorgsdagerService;
 
     RefusjonOmsorgsdagerRest() {
         // CDI
     }
 
     @Inject
-    public RefusjonOmsorgsdagerRest(ArbeidstakerTjeneste arbeidstakerTjeneste, PersonTjeneste personTjeneste, InnloggetBrukerTjeneste innloggetBrukerTjeneste) {
-        this.arbeidstakerTjeneste = arbeidstakerTjeneste;
-        this.innloggetBrukerTjeneste = innloggetBrukerTjeneste;
-        this.personTjeneste = personTjeneste;
+    public RefusjonOmsorgsdagerRest(RefusjonOmsorgsdagerService refusjonOmsorgsdagerService) {
+        this.refusjonOmsorgsdagerService = refusjonOmsorgsdagerService;
     }
 
     @POST
@@ -62,28 +57,16 @@ public class RefusjonOmsorgsdagerRest {
     public Response slåOppArbeidstaker(
         @Parameter(description = "Datapakke som inneholder fødselsnummeret til en arbeidstaker")
         @NotNull @Valid
-        SlåOppArbeidstakerRequestDto slåOppArbeidstakerRequestDto
+        SlåOppArbeidstakerRequestDto dto
     ) {
-
-        LOG.info("Slår opp arbeidstaker med fødselsnummer {}", slåOppArbeidstakerRequestDto.fødselsnummer());
-
-        var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(slåOppArbeidstakerRequestDto.fødselsnummer(),
-            LocalDate.now());
-        var personInfo = personTjeneste.hentPersonFraIdent(slåOppArbeidstakerRequestDto.fødselsnummer(), slåOppArbeidstakerRequestDto.ytelseType());
-        if (arbeidsforhold.isEmpty() || personInfo == null) {
+        var response = refusjonOmsorgsdagerService.hentArbeidstaker(dto.fødselsnummer());
+        if (response == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        var dto = new SlåOppArbeidstakerResponseDto(
-            new SlåOppArbeidstakerResponseDto.Personinformasjon(
-                personInfo.fornavn(),
-                personInfo.mellomnavn(),
-                personInfo.etternavn(),
-                personInfo.fødselsnummer().getIdent()
-            ),
-            arbeidsforhold);
-        return Response.ok(dto).build();
+        return Response.ok(response).build();
     }
+
 
     @POST
     @Path(INNLOGGET_BRUKER)
@@ -92,9 +75,27 @@ public class RefusjonOmsorgsdagerRest {
     @Tilgangskontrollert
     public Response hentInnloggetBruker(
         @Parameter(description = "Datapakke som inneholder ytelsestypen og organisasjonsnummeret til den innloggede brukeren")
-        @NotNull @Valid HentInnloggetBrukerRequestDto hentInnloggetBrukerRequestDto
+        @NotNull @Valid HentInnloggetBrukerRequestDto dto
     ) {
-        var dto = innloggetBrukerTjeneste.hentInnloggetBruker(hentInnloggetBrukerRequestDto.ytelseType(), hentInnloggetBrukerRequestDto.organisasjonsnummer());
-        return Response.ok(dto).build();
+        var response = refusjonOmsorgsdagerService.hentInnloggetBruker(dto.organisasjonsnummer());
+        return Response.ok(response).build();
+    }
+
+
+    @POST
+    @Path(INNTEKTSOPPLYSNINGER)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Henter opplysninger om inntekt, gitt et fødselsnummer og skjæringstidspunkt.", tags = "imdialog")
+    @Tilgangskontrollert
+    public Response hentInntektsopplysninger(
+        @Parameter(description = "Datapakke som inneholder fødselsnummeret og skjæringstidspunktet til en arbeidstaker")
+        @NotNull @Valid HentInntektsopplysningerRequestDto dto
+    ) {
+        var inntektsopplysninger = refusjonOmsorgsdagerService.hentInntektsopplysninger(dto.fødselsnummer(), dto.organisasjonsnummer(), LocalDate.parse(dto.skjæringstidspunkt()));
+
+        if (inntektsopplysninger == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok(inntektsopplysninger).build();
     }
 }
