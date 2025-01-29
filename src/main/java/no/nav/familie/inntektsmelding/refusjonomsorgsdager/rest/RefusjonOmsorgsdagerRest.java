@@ -78,7 +78,8 @@ public class RefusjonOmsorgsdagerRest {
             new SlåOppArbeidstakerResponseDto.Personinformasjon(
                 personInfo.fornavn(),
                 personInfo.mellomnavn(),
-                personInfo.etternavn()
+                personInfo.etternavn(),
+                personInfo.fødselsnummer().getIdent()
             ),
             arbeidsforhold);
         return Response.ok(dto).build();
