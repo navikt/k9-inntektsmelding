@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest;
+package no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,14 +18,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidstakerTjeneste;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.InnloggetBrukerTjeneste;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.InnloggetBrukerTjeneste;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-class RefusjonOmsorgsdagerArbeidsgiverRestTest {
+class RefusjonOmsorgsdagerRestTest {
     @Mock
     private ArbeidstakerTjeneste arbeidstakerTjenesteMock;
     @Mock
@@ -34,11 +34,11 @@ class RefusjonOmsorgsdagerArbeidsgiverRestTest {
     @Mock
     private InnloggetBrukerTjeneste innloggetBrukerTjenesteMock;
 
-    private RefusjonOmsorgsdagerArbeidsgiverRest rest;
+    private RefusjonOmsorgsdagerRest rest;
 
     @BeforeEach
     void setUp() {
-        rest = new RefusjonOmsorgsdagerArbeidsgiverRest(arbeidstakerTjenesteMock, personTjenesteMock, innloggetBrukerTjenesteMock);
+        rest = new RefusjonOmsorgsdagerRest(arbeidstakerTjenesteMock, personTjenesteMock, innloggetBrukerTjenesteMock);
     }
 
     @Test

@@ -1,6 +1,6 @@
-package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest;
+package no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest;
 
-import static no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.RefusjonOmsorgsdagerArbeidsgiverRest.BASE_PATH;
+import static no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.RefusjonOmsorgsdagerRest.BASE_PATH;
 
 import java.time.LocalDate;
 
@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.ArbeidstakerTjeneste;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester.InnloggetBrukerTjeneste;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.InnloggetBrukerTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 
@@ -32,10 +32,10 @@ import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 @Transactional
 @Consumes(MediaType.APPLICATION_JSON)
 @Path(BASE_PATH)
-public class RefusjonOmsorgsdagerArbeidsgiverRest {
-    private static final Logger LOG = LoggerFactory.getLogger(RefusjonOmsorgsdagerArbeidsgiverRest.class);
+public class RefusjonOmsorgsdagerRest {
+    private static final Logger LOG = LoggerFactory.getLogger(RefusjonOmsorgsdagerRest.class);
 
-    public static final String BASE_PATH = "/refusjon-omsorgsdager-arbeidsgiver";
+    public static final String BASE_PATH = "/refusjon-omsorgsdager";
     private static final String SLÅ_OPP_ARBEIDSTAKER = "/arbeidstaker";
     private static final String INNLOGGET_BRUKER = "/innlogget-bruker";
 
@@ -43,12 +43,12 @@ public class RefusjonOmsorgsdagerArbeidsgiverRest {
     private InnloggetBrukerTjeneste innloggetBrukerTjeneste;
     private PersonTjeneste personTjeneste;
 
-    RefusjonOmsorgsdagerArbeidsgiverRest() {
+    RefusjonOmsorgsdagerRest() {
         // CDI
     }
 
     @Inject
-    public RefusjonOmsorgsdagerArbeidsgiverRest(ArbeidstakerTjeneste arbeidstakerTjeneste, PersonTjeneste personTjeneste, InnloggetBrukerTjeneste innloggetBrukerTjeneste) {
+    public RefusjonOmsorgsdagerRest(ArbeidstakerTjeneste arbeidstakerTjeneste, PersonTjeneste personTjeneste, InnloggetBrukerTjeneste innloggetBrukerTjeneste) {
         this.arbeidstakerTjeneste = arbeidstakerTjeneste;
         this.innloggetBrukerTjeneste = innloggetBrukerTjeneste;
         this.personTjeneste = personTjeneste;
