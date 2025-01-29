@@ -73,9 +73,13 @@ public class RefusjonOmsorgsdagerRest {
         if (arbeidsforhold.isEmpty() || personInfo == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        var dto = new SlåOppArbeidstakerResponseDto(personInfo.fornavn(),
-            personInfo.mellomnavn(),
-            personInfo.etternavn(),
+
+        var dto = new SlåOppArbeidstakerResponseDto(
+            new SlåOppArbeidstakerResponseDto.Personinformasjon(
+                personInfo.fornavn(),
+                personInfo.mellomnavn(),
+                personInfo.etternavn()
+            ),
             arbeidsforhold);
         return Response.ok(dto).build();
     }
