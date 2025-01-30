@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,11 +56,12 @@ class RefusjonOmsorgsdagerServiceTest {
     @Test
     void slå_opp_arbeidstaker_skal_returnere_ok_response_når_arbeidstaker_finnes() {
         var fødselsnummer = PersonIdent.fra("12345678910");
+        var aktørId = AktørIdEntitet.dummy();
         var førsteFraværsdag = LocalDate.now();
         var arbeidsforhold = List.of(new ArbeidsforholdDto("999999999", "ARB-1"));
-        var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto(new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", "12345"), arbeidsforhold);
+        var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto(new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()), arbeidsforhold);
 
-        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, null, LocalDate.now(), null));
+        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag)).thenReturn(arbeidsforhold);
 
         var response = service.hentArbeidstaker(fødselsnummer);
