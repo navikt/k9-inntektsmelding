@@ -20,6 +20,7 @@ public class FpDokgenTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
     private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
     private FpDokgenKlient fpDokgenKlient;
+    private K9DokgenKlient k9DokgenKlient;
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
 
@@ -28,8 +29,9 @@ public class FpDokgenTjeneste {
     }
 
     @Inject
-    public FpDokgenTjeneste(FpDokgenKlient fpDokgenKlient, PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
+    public FpDokgenTjeneste(FpDokgenKlient fpDokgenKlient, K9DokgenKlient k9DokgenKlient, PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
         this.fpDokgenKlient = fpDokgenKlient;
+        this.k9DokgenKlient = k9DokgenKlient;
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
     }
@@ -51,7 +53,7 @@ public class FpDokgenTjeneste {
     private byte[] genererPdf(InntektsmeldingPdfData imDokumentData, int inntektsmeldingId) {
         try {
             byte[] pdf;
-            pdf = fpDokgenKlient.genererPdf(imDokumentData);
+            pdf = k9DokgenKlient.genererPdf(imDokumentData);
             LOG.info("Pdf av inntektsmelding med id {} ble generert.", inntektsmeldingId);
             return pdf;
         } catch (Exception e) {
