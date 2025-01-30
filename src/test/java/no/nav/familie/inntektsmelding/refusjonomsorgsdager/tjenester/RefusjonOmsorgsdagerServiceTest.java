@@ -56,7 +56,7 @@ class RefusjonOmsorgsdagerServiceTest {
         var fødselsnummer = PersonIdent.fra("12345678910");
         var førsteFraværsdag = LocalDate.now();
         var arbeidsforhold = List.of(new ArbeidsforholdDto("999999999", "ARB-1"));
-        var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto(new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910"), arbeidsforhold);
+        var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto(new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", "12345"), arbeidsforhold);
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, null, LocalDate.now(), null));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag)).thenReturn(arbeidsforhold);

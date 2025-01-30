@@ -7,6 +7,7 @@ public record SlåOppArbeidstakerResponseDto(Personinformasjon personinformasjon
         String fornavn,
         String mellomnavn,
         String etternavn,
-        String fødselsnummer) {
+        String fødselsnummer,
+        String aktørId) {
     }
 }

@@ -51,7 +51,8 @@ public class RefusjonOmsorgsdagerService {
                 personInfo.fornavn(),
                 personInfo.mellomnavn(),
                 personInfo.etternavn(),
-                personInfo.fødselsnummer().getIdent()
+                personInfo.fødselsnummer().getIdent(),
+                personInfo.aktørId().getAktørId()
             ),
             arbeidsforhold
         );

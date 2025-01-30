@@ -42,7 +42,7 @@ class RefusjonOmsorgsdagerRestTest {
         var fnr = PersonIdent.fra("12345678910");
         var dto = new SlåOppArbeidstakerRequestDto(fnr, Ytelsetype.OMSORGSPENGER);
         var arbeidsforhold = List.of(new ArbeidsforholdDto("999999999", "ARB-1"));
-        var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto(new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "10107400090"), arbeidsforhold);
+        var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto(new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "10107400090", "12345"), arbeidsforhold);
 
         when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr)).thenReturn(arbeidstakerInfo);
 
