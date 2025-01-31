@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.joark.JoarkTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -21,7 +21,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private InntektsmeldingXMLTjeneste inntektsmeldingXMLTjeneste;
-    private FpDokgenTjeneste fpDokgenTjeneste;
+    private K9DokgenTjeneste k9DokgenTjeneste;
     private JoarkTjeneste joarkTjeneste;
 
     SendTilJoarkTask() {
@@ -31,11 +31,11 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
     @Inject
     public SendTilJoarkTask(InntektsmeldingTjeneste inntektsmeldingTjeneste,
                             InntektsmeldingXMLTjeneste inntektsmeldingXMLTjeneste,
-                            FpDokgenTjeneste fpDokgenTjeneste,
+                            K9DokgenTjeneste k9DokgenTjeneste,
                             JoarkTjeneste joarkTjeneste) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.inntektsmeldingXMLTjeneste = inntektsmeldingXMLTjeneste;
-        this.fpDokgenTjeneste = fpDokgenTjeneste;
+        this.k9DokgenTjeneste = k9DokgenTjeneste;
         this.joarkTjeneste = joarkTjeneste;
     }
 
@@ -48,7 +48,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
         var inntektsmelding = inntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingId);
         var xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
 
-        var pdf = fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);
+        var pdf = k9DokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);
 
         LOG.debug("Genererte XML: {} og pdf av inntektsmeldingen, journalfører på sak: {}", xml, fagsysteSaksnummer);
         joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf, fagsysteSaksnummer);

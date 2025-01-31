@@ -25,7 +25,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
-import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
@@ -67,7 +67,7 @@ class InntektsmeldingTjenesteTest {
     @Mock
     private InntektTjeneste inntektTjeneste;
     @Mock
-    private FpDokgenTjeneste fpDokgenTjeneste;
+    private K9DokgenTjeneste k9DokgenTjeneste;
     @Mock
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
     @Mock
@@ -89,7 +89,7 @@ class InntektsmeldingTjenesteTest {
     @BeforeEach
     void setUp() {
         inntektsmeldingTjeneste = new InntektsmeldingTjeneste(forespørselBehandlingTjeneste, inntektsmeldingRepository, personTjeneste,
-            organisasjonTjeneste, inntektTjeneste, fpDokgenTjeneste, prosessTaskTjeneste, arbeidstakerTjeneste);
+            organisasjonTjeneste, inntektTjeneste, k9DokgenTjeneste, prosessTaskTjeneste, arbeidstakerTjeneste);
     }
 
     @Test

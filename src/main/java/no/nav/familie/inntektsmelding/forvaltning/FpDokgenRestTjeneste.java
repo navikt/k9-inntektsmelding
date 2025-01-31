@@ -32,7 +32,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
-import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
@@ -53,7 +53,7 @@ public class FpDokgenRestTjeneste {
     public static final String BASE_PATH = "/inntektsmelding-pdf";
     private static final Logger LOG = LoggerFactory.getLogger(FpDokgenRestTjeneste.class);
     private static final boolean IS_PROD = Environment.current().isProd();
-    private FpDokgenTjeneste fpDokgenTjeneste;
+    private K9DokgenTjeneste k9DokgenTjeneste;
     private Tilgang tilgang;
 
     private InntektsmeldingRepository inntektsmeldingRepository;
@@ -63,8 +63,8 @@ public class FpDokgenRestTjeneste {
     }
 
     @Inject
-    public FpDokgenRestTjeneste(FpDokgenTjeneste fpDokgenTjeneste, Tilgang tilgang, InntektsmeldingRepository inntektsmeldingRepository) {
-        this.fpDokgenTjeneste = fpDokgenTjeneste;
+    public FpDokgenRestTjeneste(K9DokgenTjeneste k9DokgenTjeneste, Tilgang tilgang, InntektsmeldingRepository inntektsmeldingRepository) {
+        this.k9DokgenTjeneste = k9DokgenTjeneste;
         this.tilgang = tilgang;
         this.inntektsmeldingRepository = inntektsmeldingRepository;
     }
@@ -112,7 +112,7 @@ public class FpDokgenRestTjeneste {
             inntektsmeldingEntitet = builder.build();
         }
 
-        var pdf = fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet);
+        var pdf = k9DokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet);
 
         var responseBuilder = Response.ok(pdf);
         responseBuilder.type("application/pdf");

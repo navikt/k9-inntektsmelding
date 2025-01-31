@@ -16,19 +16,19 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
-public class FpDokgenTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
+public class K9DokgenTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(K9DokgenTjeneste.class);
     private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
     private K9DokgenKlient k9DokgenKlient;
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
 
-    FpDokgenTjeneste() {
+    K9DokgenTjeneste() {
         //CDI
     }
 
     @Inject
-    public FpDokgenTjeneste(K9DokgenKlient k9DokgenKlient, PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
+    public K9DokgenTjeneste(K9DokgenKlient k9DokgenKlient, PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
         this.k9DokgenKlient = k9DokgenKlient;
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
