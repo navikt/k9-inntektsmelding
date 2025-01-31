@@ -38,7 +38,7 @@ public class K9DokgenKlient {
                           String templatePath,
                           String templateType) {
         this.restClient = restClient;
-        this.restConfig = RestConfig.forClient(FpDokgenKlient.class);
+        this.restConfig = RestConfig.forClient(K9DokgenKlient.class);
         this.templatePath = templatePath;
         this.templateType = templateType;
     }
