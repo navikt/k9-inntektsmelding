@@ -45,25 +45,25 @@ import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
-@Path(FpDokgenRestTjeneste.BASE_PATH)
+@Path(K9DokgenRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 @AutentisertMedAzure
 /*Denne tjenesten er ment brukt til testformål, og eventuelt for å gjenskape feilsituasjoner i produksjon*/
-public class FpDokgenRestTjeneste {
+public class K9DokgenRestTjeneste {
     public static final String BASE_PATH = "/inntektsmelding-pdf";
-    private static final Logger LOG = LoggerFactory.getLogger(FpDokgenRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(K9DokgenRestTjeneste.class);
     private static final boolean IS_PROD = Environment.current().isProd();
     private K9DokgenTjeneste k9DokgenTjeneste;
     private Tilgang tilgang;
 
     private InntektsmeldingRepository inntektsmeldingRepository;
 
-    public FpDokgenRestTjeneste() {
+    public K9DokgenRestTjeneste() {
         //CDI
     }
 
     @Inject
-    public FpDokgenRestTjeneste(K9DokgenTjeneste k9DokgenTjeneste, Tilgang tilgang, InntektsmeldingRepository inntektsmeldingRepository) {
+    public K9DokgenRestTjeneste(K9DokgenTjeneste k9DokgenTjeneste, Tilgang tilgang, InntektsmeldingRepository inntektsmeldingRepository) {
         this.k9DokgenTjeneste = k9DokgenTjeneste;
         this.tilgang = tilgang;
         this.inntektsmeldingRepository = inntektsmeldingRepository;
