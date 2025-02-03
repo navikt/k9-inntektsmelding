@@ -47,6 +47,13 @@
                 <type>pom</type>
             </dependency>
             <dependency>
+                <groupId>no.nav.k9.prosesstask</groupId>
+                <artifactId>prosesstask-root</artifactId>
+                <version>2.7.5</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>person-klient</artifactId>
                 <version>${felles.version}</version>
@@ -81,12 +88,16 @@
             <artifactId>felles-auth-filter</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.vedtak.prosesstask</groupId>
-            <artifactId>prosesstask-kontekst</artifactId>
+            <groupId>no.nav.k9.prosesstask</groupId>
+            <artifactId>prosesstask</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.vedtak.prosesstask</groupId>
+            <groupId>no.nav.k9.prosesstask</groupId>
             <artifactId>prosesstask-rest-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.k9.prosesstask</groupId>
+            <artifactId>prosesstask-legacy</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
