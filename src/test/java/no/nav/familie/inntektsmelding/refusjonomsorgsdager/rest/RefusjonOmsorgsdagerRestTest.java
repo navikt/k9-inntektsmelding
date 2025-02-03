@@ -80,10 +80,14 @@ class RefusjonOmsorgsdagerRestTest {
         var organisasjonsnummer = "999999999";
         var skjæringstidspunkt = LocalDate.parse("2025-01-01");
 
-        var inntektsopplysninger = new Inntektsopplysninger(
+        var inntektsopplysninger = new HentInntektsopplysningerResponseDto(
             new BigDecimal(100000),
-            organisasjonsnummer,
-            List.of(new Inntektsopplysninger.InntektMåned(new BigDecimal(100000), YearMonth.of(2025, 1), MånedslønnStatus.BRUKT_I_GJENNOMSNITT))
+            List.of(new HentInntektsopplysningerResponseDto.MånedsinntektDto(
+                LocalDate.of(2025, 1, 1),
+                LocalDate.of(2025, 2, 1),
+                new BigDecimal(100000),
+                MånedslønnStatus.BRUKT_I_GJENNOMSNITT
+            ))
         );
         when(refusjonOmsorgsdagerServiceMock.hentInntektsopplysninger(personIdent, organisasjonsnummer, skjæringstidspunkt)).thenReturn(inntektsopplysninger);
 
