@@ -17,32 +17,31 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @Dependent
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED,
-    endpointProperty = "fpdokgen.url",
-    endpointDefault = "http://fpdokgen.teamforeldrepenger",
-    application = FpApplication.FPDOKGEN)
-public class FpDokgenKlient {
+    endpointProperty = "k9dokgen.url",
+    endpointDefault = "http://k9-dokgen",
+    application = FpApplication.NONFP)
+public class K9DokgenKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final String templatePath;
     private final String templateType;
 
     @Inject
-    public FpDokgenKlient(
-        @KonfigVerdi(value = "pdf.template.path", defaultVerdi = "/template/fpinntektsmelding-inntektsmelding/PDFINNTEKTSMELDING") String tempatePath,
+    public K9DokgenKlient(
+        @KonfigVerdi(value = "pdf.template.path", defaultVerdi = "/template/inntektsmelding/PDFINNTEKTSMELDING") String tempatePath,
         @KonfigVerdi(value = "pdf.template.type", defaultVerdi = "/create-pdf-format-variation") String templateType
     ) {
         this(RestClient.client(), tempatePath, templateType);
     }
 
-    public FpDokgenKlient(RestClient restClient,
+    public K9DokgenKlient(RestClient restClient,
                           String templatePath,
                           String templateType) {
         this.restClient = restClient;
-        this.restConfig = RestConfig.forClient(FpDokgenKlient.class);
+        this.restConfig = RestConfig.forClient(K9DokgenKlient.class);
         this.templatePath = templatePath;
         this.templateType = templateType;
     }
-
 
     public byte[] genererPdf(InntektsmeldingPdfData dokumentdata) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + templatePath + templateType);

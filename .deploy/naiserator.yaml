@@ -84,8 +84,8 @@ spec:
           namespace: fager
         - application: altinn-rettigheter-proxy
           namespace: arbeidsgiver
-        - application: fpdokgen
-          namespace: teamforeldrepenger
+        - application: k9-dokgen
+          namespace: k9saksbehandling
           cluster: {{environment}}-gcp
       external:
         - host: pdl-api.{{environment}}-fss-pub.nais.io

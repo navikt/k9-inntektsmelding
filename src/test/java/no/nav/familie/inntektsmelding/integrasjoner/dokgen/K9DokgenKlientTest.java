@@ -11,15 +11,15 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 
-class FpDokgenKlientTest {
+class K9DokgenKlientTest {
 
     RestClient restClient = mock(RestClient.class);
 
     @Test
     void skal_generere_pdf() throws URISyntaxException {
-        FpDokgenKlient fpDokgenKlient = new FpDokgenKlient(restClient, "/path", "/path");
+        K9DokgenKlient k9DokgenKlient = new K9DokgenKlient(restClient, "/path", "/path");
         when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
-        var bytes = fpDokgenKlient.genererPdf(new InntektsmeldingPdfData());
+        var bytes = k9DokgenKlient.genererPdf(new InntektsmeldingPdfData());
         assertThat(bytes).isNotEmpty();
     }
 }

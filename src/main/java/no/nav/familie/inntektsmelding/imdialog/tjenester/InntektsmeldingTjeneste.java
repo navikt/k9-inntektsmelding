@@ -22,7 +22,7 @@ import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SlåOppArbeidstakerResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
-import no.nav.familie.inntektsmelding.integrasjoner.dokgen.FpDokgenTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -48,7 +48,7 @@ public class InntektsmeldingTjeneste {
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private InntektTjeneste inntektTjeneste;
-    private FpDokgenTjeneste fpDokgenTjeneste;
+    private K9DokgenTjeneste k9DokgenTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
 
@@ -61,7 +61,7 @@ public class InntektsmeldingTjeneste {
                                    PersonTjeneste personTjeneste,
                                    OrganisasjonTjeneste organisasjonTjeneste,
                                    InntektTjeneste inntektTjeneste,
-                                   FpDokgenTjeneste fpDokgenTjeneste,
+                                   K9DokgenTjeneste k9DokgenTjeneste,
                                    ProsessTaskTjeneste prosessTaskTjeneste,
                                    ArbeidstakerTjeneste arbeidstakerTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
@@ -69,7 +69,7 @@ public class InntektsmeldingTjeneste {
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.inntektTjeneste = inntektTjeneste;
-        this.fpDokgenTjeneste = fpDokgenTjeneste;
+        this.k9DokgenTjeneste = k9DokgenTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.arbeidstakerTjeneste = arbeidstakerTjeneste;
     }
@@ -219,7 +219,7 @@ public class InntektsmeldingTjeneste {
 
     public byte[] hentPDF(long id) {
         var inntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(id);
-        return fpDokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet);
+        return k9DokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet);
     }
 
     private InntektsmeldingDialogDto.InnsenderDto lagInnmelderDto(Ytelsetype ytelsetype) {
