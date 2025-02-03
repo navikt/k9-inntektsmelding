@@ -5,6 +5,10 @@ import java.time.LocalDate;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
+
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponseDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +66,7 @@ public class RefusjonOmsorgsdagerService {
         return innloggetBrukerTjeneste.hentInnloggetBruker(Ytelsetype.OMSORGSPENGER, organisasjonsnummer);
     }
 
-    public Inntektsopplysninger hentInntektsopplysninger(PersonIdent fødselsnummer, String organisasjonsnummer, LocalDate skjæringstidspunkt) {
+    public HentInntektsopplysningerResponseDto hentInntektsopplysninger(PersonIdent fødselsnummer, String organisasjonsnummer, LocalDate skjæringstidspunkt) {
         var person = personTjeneste.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER);
         var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(
             fødselsnummer,
@@ -71,11 +75,20 @@ public class RefusjonOmsorgsdagerService {
         if (arbeidsforhold.isEmpty() || person == null) {
             return null;
         }
-        return inntektTjeneste.hentInntekt(
+        var inntektRespons = inntektTjeneste.hentInntekt(
             person.aktørId(),
             skjæringstidspunkt,
             LocalDate.now(),
             organisasjonsnummer
         );
+        var inntekter  = inntektRespons.måneder()
+            .stream()
+            .map(i -> new HentInntektsopplysningerResponseDto.MånedsinntektDto(i.månedÅr().atDay(1),
+                i.månedÅr().atEndOfMonth(),
+                i.beløp(),
+                i.status()))
+            .toList();
+
+        return new HentInntektsopplysningerResponseDto(inntektRespons.gjennomsnitt(), inntekter);
     }
 }

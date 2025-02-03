@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponseDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -113,7 +114,7 @@ class RefusjonOmsorgsdagerServiceTest {
 
         var response = service.hentInntektsopplysninger(fødselsnummer, "999999999", LocalDate.now());
 
-        assertEquals(new Inntektsopplysninger(new BigDecimal(10000), organisasjonsnummer, List.of()), response);
+        assertEquals(new HentInntektsopplysningerResponseDto(new BigDecimal(10000), List.of()), response);
     }
 
     @Test
