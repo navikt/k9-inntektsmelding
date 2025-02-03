@@ -3,14 +3,11 @@ package no.nav.familie.inntektsmelding.forespørsel.modell;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,41 +110,6 @@ public class ForespørselRepository {
         var query = entityManager.createQuery("FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)
             .setParameter("saksnr", fagsakSaksnummer.saksnr());
         return query.getResultList();
-    }
-
-    public Optional<ForespørselEntitet> finnGjeldendeForespørsel(AktørIdEntitet aktørId,
-                                                                 Ytelsetype ytelsetype,
-                                                                 OrganisasjonsnummerDto organisasjonsnummer,
-                                                                 LocalDate stp,
-                                                                 SaksnummerDto fagsakSaksnummer,
-                                                                 LocalDate førsteUttaksdato) {
-        var arbeidsgiverIdent = organisasjonsnummer.orgnr();
-        var query = entityManager.createQuery("FROM ForespørselEntitet where status in(:fpStatuser) "
-                    + "and aktørId = :brukerAktørId "
-                    + "and fagsystemSaksnummer = :fagsakNr "
-                    + "and organisasjonsnummer = :arbeidsgiverIdent "
-                    + "and skjæringstidspunkt = :skjæringstidspunkt "
-                    + "and førsteUttaksdato = :førsteUttaksdato "
-                    + "and ytelseType = :ytelsetype",
-                ForespørselEntitet.class)
-            .setParameter("fpStatuser", Set.of(ForespørselStatus.UNDER_BEHANDLING, ForespørselStatus.FERDIG))
-            .setParameter("brukerAktørId", aktørId)
-            .setParameter("fagsakNr", fagsakSaksnummer.saksnr())
-            .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
-            .setParameter("skjæringstidspunkt", stp)
-            .setParameter("førsteUttaksdato", førsteUttaksdato)
-            .setParameter("ytelsetype", ytelsetype);
-
-        var resultList = query.getResultList();
-        if (resultList.isEmpty()) {
-            return Optional.empty();
-        } else if (resultList.size() > 1) {
-            throw new IllegalStateException(
-                "Forventet å finne kun en forespørsel for gitt sak {}, orgnr {}, skjæringstidspunkt {} og første uttaksdato" + fagsakSaksnummer
-                    + organisasjonsnummer + stp + førsteUttaksdato);
-        } else {
-            return Optional.of(resultList.getFirst());
-        }
     }
 
     public List<ForespørselEntitet> finnÅpenForespørsel(SaksnummerDto fagsystemSaksnummer) {
