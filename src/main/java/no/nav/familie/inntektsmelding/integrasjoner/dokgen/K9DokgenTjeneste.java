@@ -12,32 +12,26 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
-public class FpDokgenTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(FpDokgenTjeneste.class);
+public class K9DokgenTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(K9DokgenTjeneste.class);
     private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
-    private FpDokgenKlient fpDokgenKlient;
     private K9DokgenKlient k9DokgenKlient;
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
-    private boolean brukK9Dokgen;
 
-    FpDokgenTjeneste() {
+    K9DokgenTjeneste() {
         //CDI
     }
 
     @Inject
-    public FpDokgenTjeneste(FpDokgenKlient fpDokgenKlient, K9DokgenKlient k9DokgenKlient, PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste,
-                            @KonfigVerdi(value = "BRUK_K9DOKGEN", defaultVerdi = "false") boolean brukK9Dokgen) {
-        this.fpDokgenKlient = fpDokgenKlient;
+    public K9DokgenTjeneste(K9DokgenKlient k9DokgenKlient, PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
         this.k9DokgenKlient = k9DokgenKlient;
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
-        this.brukK9Dokgen = brukK9Dokgen;
     }
 
     public byte[] mapDataOgGenererPdf(InntektsmeldingEntitet inntektsmelding) {
@@ -56,12 +50,7 @@ public class FpDokgenTjeneste {
 
     private byte[] genererPdf(InntektsmeldingPdfData imDokumentData, int inntektsmeldingId) {
         try {
-            byte[] pdf;
-            if (brukK9Dokgen) {
-                pdf = k9DokgenKlient.genererPdf(imDokumentData);
-            } else {
-                pdf = fpDokgenKlient.genererPdf(imDokumentData);
-            }
+            byte[] pdf = k9DokgenKlient.genererPdf(imDokumentData);
             LOG.info("Pdf av inntektsmelding med id {} ble generert.", inntektsmeldingId);
             return pdf;
         } catch (Exception e) {
