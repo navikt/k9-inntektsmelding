@@ -43,7 +43,6 @@ public class K9DokgenKlient {
         this.templateType = templateType;
     }
 
-
     public byte[] genererPdf(InntektsmeldingPdfData dokumentdata) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + templatePath + templateType);
         var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
