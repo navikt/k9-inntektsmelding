@@ -1,20 +1,18 @@
-package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester;
+package no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
-
 import jakarta.inject.Inject;
-
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
 
 @ApplicationScoped
 public class ArbeidstakerTjeneste {

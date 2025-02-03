@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester;
+package no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.tjenester;
+package no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.AaregRestKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdagerarbeidsgiver.rest.ArbeidsforholdDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
 
 @ApplicationScoped
 public class ArbeidsforholdTjeneste {
