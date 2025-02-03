@@ -17,7 +17,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @Dependent
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED,
-    endpointProperty = "k9-dokgen.url",
+    endpointProperty = "k9dokgen.url",
     endpointDefault = "http://k9-dokgen",
     application = FpApplication.NONFP)
 public class K9DokgenKlient {
