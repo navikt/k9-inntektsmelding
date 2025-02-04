@@ -7,7 +7,6 @@ import jakarta.xml.bind.JAXBElement;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
@@ -44,14 +43,14 @@ public class InntektsmeldingXMLMapper {
         if (OrganisasjonsnummerValidator.erGyldig(inntektsmelding.getArbeidsgiverIdent())) {
             var arbeidsgiver = new Arbeidsgiver();
             arbeidsgiver.setVirksomhetsnummer(inntektsmelding.getArbeidsgiverIdent());
-            arbeidsgiver.setKontaktinformasjon(lagKontaktperson(inntektsmelding));
+            arbeidsgiver.setKontaktinformasjon(lagKontaktinformasjon(inntektsmelding));
             var agOrg = of.createSkjemainnholdArbeidsgiver(arbeidsgiver);
             skjemainnhold.setArbeidsgiver(agOrg);
         } else if (inntektsmelding.getArbeidsgiverIdent().length() == 13) {
             var arbeidsgiver = new ArbeidsgiverPrivat();
             var identArbeidsgiver = aktørIdFnrMap.get(new AktørIdEntitet(inntektsmelding.getArbeidsgiverIdent()));
             arbeidsgiver.setArbeidsgiverFnr(identArbeidsgiver.getIdent());
-            arbeidsgiver.setKontaktinformasjon(lagKontaktperson(inntektsmelding));
+            arbeidsgiver.setKontaktinformasjon(lagKontaktinformasjon(inntektsmelding));
             var agPriv = of.createSkjemainnholdArbeidsgiverPrivat(arbeidsgiver);
             skjemainnhold.setArbeidsgiverPrivat(agPriv);
         }
@@ -93,11 +92,7 @@ public class InntektsmeldingXMLMapper {
     // TODO Vi bør ta en diskusjon på hva denne skal være
     private static Avsendersystem lagAvsendersysem(InntektsmeldingEntitet inntektsmelding) {
         var as = new Avsendersystem();
-        if (Kildesystem.FPSAK.equals(inntektsmelding.getKildesystem())) {
-            as.setSystemnavn(Systemnavn.OVERSTYRING_FPSAK.name());
-        } else {
-            as.setSystemnavn(Systemnavn.NAV_NO.name());
-        }
+        as.setSystemnavn(Systemnavn.NAV_NO.name());
         as.setSystemversjon("1.0");
         as.setInnsendingstidspunkt(of.createAvsendersystemInnsendingstidspunkt(inntektsmelding.getOpprettetTidspunkt()));
         return as;
@@ -165,17 +160,11 @@ public class InntektsmeldingXMLMapper {
         return of.createSkjemainnholdArbeidsforhold(arbeidsforhold);
     }
 
-    private static Kontaktinformasjon lagKontaktperson(InntektsmeldingEntitet inntektsmelding) {
+    private static Kontaktinformasjon lagKontaktinformasjon(InntektsmeldingEntitet inntektsmelding) {
         var ki = new Kontaktinformasjon();
-        // Ved overstyring av inntektsmelding setter vi saksbehandlers informasjon her
-        if (Kildesystem.FPSAK.equals(inntektsmelding.getKildesystem())) {
-            ki.setTelefonnummer(inntektsmelding.getOpprettetAv());
-            ki.setKontaktinformasjonNavn(inntektsmelding.getOpprettetAv());
-        } else {
-            var kontaktPerson = inntektsmelding.getKontaktperson();
-            ki.setTelefonnummer(kontaktPerson.getTelefonnummer());
-            ki.setKontaktinformasjonNavn(kontaktPerson.getNavn());
-        }
+        var kontaktPerson = inntektsmelding.getKontaktperson();
+        ki.setTelefonnummer(kontaktPerson.getTelefonnummer());
+        ki.setKontaktinformasjonNavn(kontaktPerson.getNavn());
         return ki;
     }
 
@@ -216,7 +205,6 @@ public class InntektsmeldingXMLMapper {
 
     // OBS OBS: Disse sendes inn i XML og skal ikke omdøpes!
     enum Systemnavn {
-        OVERSTYRING_FPSAK,
         NAV_NO
     }
 }
