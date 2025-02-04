@@ -17,18 +17,19 @@ class ForespørselTekster {
     private static final String BESKJED_FRA_SAKSBEHANDLER_TEKST = "Vi har ennå ikke mottatt inntektsmelding for %s. For at vi skal kunne behandle søknaden om %s, må inntektsmeldingen sendes inn så raskt som mulig.";
     private static final String VARSEL_FRA_SAKSBEHANDLER_TEKST = "%s - orgnr %s: Vi har ennå ikke mottatt inntektsmelding. For at vi skal kunne behandle søknaden om %s, må inntektsmeldingen sendes inn så raskt som mulig.";
 
-    private static final String TILLEGGSINFORMASJON_UTFØRT_EKSTERN = "Utført i Altinn eller i bedriftens lønns- og personalsystem";
-    private static final String TILLEGGSINFORMASJON_UTGÅTT = "Du trenger ikke lenger å sende denne inntektsmeldingen";
+    private static final String TILLEGGSINFORMASJON_UTFØRT_EKSTERN = "Utført i Altinn eller i bedriftens lønns- og personalsystem for første fraværsdag %s";
+    private static final String TILLEGGSINFORMASJON_UTGÅTT = "Du trenger ikke lenger sende inntektsmelding for første fraværsdag %s";
+    private static final String TILLEGGSINFORMASJON_ORDINÆR = "For første fraværsdag %s";
 
     private ForespørselTekster() {
         // Skjuler default
     }
 
-    public static String lagTilleggsInformasjon(LukkeÅrsak årsak) {
+    public static String lagTilleggsInformasjon(LukkeÅrsak årsak, LocalDate førsteFraværsdag) {
         return switch (årsak) {
-            case EKSTERN_INNSENDING -> TILLEGGSINFORMASJON_UTFØRT_EKSTERN;
-            case UTGÅTT -> TILLEGGSINFORMASJON_UTGÅTT;
-            default -> null;
+            case EKSTERN_INNSENDING -> String.format(TILLEGGSINFORMASJON_UTFØRT_EKSTERN, førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+            case UTGÅTT -> String.format(TILLEGGSINFORMASJON_UTGÅTT, førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+            case ORDINÆR_INNSENDING -> String.format(TILLEGGSINFORMASJON_ORDINÆR, førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
         };
     }
 

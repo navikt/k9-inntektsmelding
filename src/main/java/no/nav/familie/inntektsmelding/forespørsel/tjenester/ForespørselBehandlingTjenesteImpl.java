@@ -131,7 +131,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         var erArbeidsgiverInitiertInntektsmelding = foresporsel.getOppgaveId().isEmpty();
         arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(), erArbeidsgiverInitiertInntektsmelding); // Oppdaterer status i arbeidsgiver-notifikasjon
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
-            ForespørselTekster.lagTilleggsInformasjon(årsak));
+            ForespørselTekster.lagTilleggsInformasjon(årsak, foresporsel.getSkjæringstidspunkt()));
         forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
         return foresporsel;
     }
@@ -264,7 +264,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         }
 
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
-            ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT));
+            ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT, eksisterendeForespørsel.getSkjæringstidspunkt()));
         forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
         var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
