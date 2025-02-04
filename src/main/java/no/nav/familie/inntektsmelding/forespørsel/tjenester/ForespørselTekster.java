@@ -54,12 +54,11 @@ class ForespørselTekster {
 
     public static Merkelapp finnMerkelapp(Ytelsetype ytelsetype) {
         return switch (ytelsetype) {
-            case FORELDREPENGER -> Merkelapp.INNTEKTSMELDING_FP;
             case PLEIEPENGER_SYKT_BARN -> Merkelapp.INNTEKTSMELDING_PSB;
             case OMSORGSPENGER -> Merkelapp.INNTEKTSMELDING_OMP;
-            case SVANGERSKAPSPENGER -> Merkelapp.INNTEKTSMELDING_SVP;
             case PLEIEPENGER_NÆRSTÅENDE -> Merkelapp.INNTEKTSMELDING_PILS;
             case OPPLÆRINGSPENGER -> Merkelapp.INNTEKTSMELDING_OPP;
+            case FORELDREPENGER, SVANGERSKAPSPENGER -> throw new IllegalArgumentException("Ukjent ytelsetype");
         };
     }
 
