@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselRest;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogRest;
-import no.nav.familie.inntektsmelding.overstyring.InntektsmeldingFpsakRest;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.RefusjonOmsorgsdagerRest;
 import no.nav.familie.inntektsmelding.server.auth.AutentiseringFilter;
 import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
@@ -56,7 +55,6 @@ public class ApiConfig extends ResourceConfig {
     private Set<Class<?>> getApplicationClasses() {
         return Set.of(ForespørselRest.class,
             InntektsmeldingDialogRest.class,
-            InntektsmeldingFpsakRest.class,
             RefusjonOmsorgsdagerRest.class,
             ArbeidsgiverinitiertDialogRest.class);
     }

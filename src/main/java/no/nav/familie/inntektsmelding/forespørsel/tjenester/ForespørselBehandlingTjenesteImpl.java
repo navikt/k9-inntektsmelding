@@ -30,7 +30,6 @@ import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
-import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -64,51 +63,6 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://arbeidsgiver.intern.dev.nav.no/fp-im-dialog");
-    }
-
-    @Override
-    public ForespørselResultat håndterInnkommendeForespørsel(LocalDate skjæringstidspunkt,
-                                                             Ytelsetype ytelsetype,
-                                                             AktørIdEntitet aktørId,
-                                                             OrganisasjonsnummerDto organisasjonsnummer,
-                                                             SaksnummerDto fagsakSaksnummer,
-                                                             LocalDate førsteUttaksdato) {
-        var finnesForespørsel = forespørselTjeneste.finnGjeldendeForespørsel(skjæringstidspunkt,
-            ytelsetype,
-            aktørId,
-            organisasjonsnummer,
-            fagsakSaksnummer,
-            førsteUttaksdato);
-
-        if (finnesForespørsel.isPresent()) {
-            LOG.info("Finnes allerede forespørsel for saksnummer: {} med orgnummer: {} med skjæringstidspunkt: {} og første uttaksdato: {}",
-                fagsakSaksnummer,
-                organisasjonsnummer,
-                skjæringstidspunkt,
-                førsteUttaksdato);
-            return ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE;
-        }
-
-        settFerdigeForespørslerForTidligereStpTilUtgått(skjæringstidspunkt, fagsakSaksnummer, organisasjonsnummer);
-        opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, førsteUttaksdato, null);
-
-        return ForespørselResultat.FORESPØRSEL_OPPRETTET;
-    }
-
-    private void settFerdigeForespørslerForTidligereStpTilUtgått(LocalDate skjæringstidspunktFraRequest,
-                                                                 SaksnummerDto fagsakSaksnummer,
-                                                                 OrganisasjonsnummerDto organisasjonsnummerFraRequest) {
-        LOG.info("ForespørselBehandlingTjenesteImpl: settFerdigeForespørslerForTidligereStpTilUtgått for saksnummer: {}, orgnummer: {} med stp: {}",
-            fagsakSaksnummer,
-            organisasjonsnummerFraRequest,
-            skjæringstidspunktFraRequest);
-
-        //Vi sjekker kun mot FERDIGE forespørsler da fpsak allerede har lukket forespørsler som er UNDER_BEHANDLING
-        forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer).stream()
-            .filter(forespørselEntitet -> organisasjonsnummerFraRequest.orgnr().equals(forespørselEntitet.getOrganisasjonsnummer()))
-            .filter(forespørselEntitet -> !skjæringstidspunktFraRequest.equals(forespørselEntitet.getSkjæringstidspunkt()))
-            .filter(forespørselEntitet -> ForespørselStatus.FERDIG.equals(forespørselEntitet.getStatus()))
-            .forEach(forespørselEntitet -> settForespørselTilUtgått(forespørselEntitet, false));
     }
 
     @Override
