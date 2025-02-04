@@ -213,8 +213,9 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
     @Override
     public void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel, boolean skalOppdatereArbeidsgiverNotifikasjon) {
         if (skalOppdatereArbeidsgiverNotifikasjon) {
-            eksisterendeForespørsel.getOppgaveId().map( oppgaveId -> arbeidsgiverNotifikasjon.oppgaveUtgått(oppgaveId, OffsetDateTime.now()));
-            arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), false); // Oppdaterer status i arbeidsgiver-notifikasjon
+            eksisterendeForespørsel.getOppgaveId().map(oppgaveId -> arbeidsgiverNotifikasjon.oppgaveUtgått(oppgaveId, OffsetDateTime.now()));
+            arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
+                false); // Oppdaterer status i arbeidsgiver-notifikasjon
         }
 
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
@@ -251,8 +252,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
                                    SaksnummerDto fagsakSaksnummer,
                                    OrganisasjonsnummerDto organisasjonsnummer,
                                    LocalDate skjæringstidspunkt,
-                                   LocalDate førsteUttaksdato,
-                                   String tilleggsinfo) {
+                                   LocalDate førsteUttaksdato) {
         var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
             organisasjonsnummer,
             skjæringstidspunkt,
@@ -277,9 +277,7 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
             ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato()),
             skjemaUri);
 
-        if (tilleggsinfo != null) {
-            arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(arbeidsgiverNotifikasjonSakId, tilleggsinfo);
-        }
+        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(arbeidsgiverNotifikasjonSakId, ForespørselTekster.lagTilleggsInformasjonOrdinær(skjæringstidspunkt));
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
 

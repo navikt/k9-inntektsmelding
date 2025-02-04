@@ -25,6 +25,10 @@ class ForespørselTekster {
         // Skjuler default
     }
 
+    public static String lagTilleggsInformasjonOrdinær(LocalDate førsteFraværsdag) {
+        return String.format(TILLEGGSINFORMASJON_ORDINÆR, førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+    }
+
     public static String lagTilleggsInformasjon(LukkeÅrsak årsak, LocalDate førsteFraværsdag) {
         return switch (årsak) {
             case EKSTERN_INNSENDING -> String.format(TILLEGGSINFORMASJON_UTFØRT_EKSTERN, førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
