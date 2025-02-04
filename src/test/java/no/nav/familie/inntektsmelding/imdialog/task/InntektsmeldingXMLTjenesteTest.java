@@ -51,7 +51,7 @@ class InntektsmeldingXMLTjenesteTest {
         var inntektsmelding = InntektsmeldingEntitet.builder()
             .medArbeidsgiverIdent("999999999")
             .medStartDato(LocalDate.of(2024, 6, 1))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(35000))
             .medAktørId(aktørIdSøker)
             .medMånedRefusjon(BigDecimal.valueOf(35000))
@@ -68,7 +68,7 @@ class InntektsmeldingXMLTjenesteTest {
 
         // Assert
         // Kjører replace slik at vi kan lagre XML i mer lesbart format under
-        assertThat(xml).isEqualTo(forventetXmlFp().replaceAll("[\r\n\t]", ""));
+        assertThat(xml).isEqualTo(forventetXmlPSB().replaceAll("[\r\n\t]", ""));
     }
 
     @Test
@@ -85,7 +85,7 @@ class InntektsmeldingXMLTjenesteTest {
         var inntektsmelding = InntektsmeldingEntitet.builder()
             .medArbeidsgiverIdent("999999999")
             .medStartDato(LocalDate.of(2024, 6, 1))
-            .medYtelsetype(Ytelsetype.SVANGERSKAPSPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_NÆRSTÅENDE)
             .medMånedInntekt(BigDecimal.valueOf(35000))
             .medAktørId(aktørIdSøker)
             .medMånedRefusjon(BigDecimal.valueOf(35000))
@@ -102,15 +102,15 @@ class InntektsmeldingXMLTjenesteTest {
 
         // Assert
         // Kjører replace slik at vi kan lagre XML i mer lesbart format under
-        assertThat(xml).isEqualTo(forventetXmlSVP().replaceAll("[\r\n\t]", ""));
+        assertThat(xml).isEqualTo(forventetXmlPN().replaceAll("[\r\n\t]", ""));
     }
 
-    private String forventetXmlFp() {
+    private String forventetXmlPSB() {
         return """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <melding xmlns="http://seres.no/xsd/NAV/Inntektsmelding_M/20181211">
             	<Skjemainnhold>
-            		<ytelse>Foreldrepenger</ytelse>
+            		<ytelse>PleiepengerBarn</ytelse>
             		<aarsakTilInnsending>Ny</aarsakTilInnsending>
             		<arbeidsgiver>
             			<virksomhetsnummer>999999999</virksomhetsnummer>
@@ -132,7 +132,6 @@ class InntektsmeldingXMLTjenesteTest {
             			<refusjonsopphoersdato>9999-12-31</refusjonsopphoersdato>
             			<endringIRefusjonListe/>
             		</refusjon>
-            		<startdatoForeldrepengeperiode>2024-06-01</startdatoForeldrepengeperiode>
             		<opphoerAvNaturalytelseListe>
             			<opphoerAvNaturalytelse>
             				<naturalytelseType>aksjerGrunnfondsbevisTilUnderkurs</naturalytelseType>
@@ -150,12 +149,12 @@ class InntektsmeldingXMLTjenesteTest {
             </melding>
             """;
     }
-    private String forventetXmlSVP() {
+    private String forventetXmlPN() {
         return """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <melding xmlns="http://seres.no/xsd/NAV/Inntektsmelding_M/20181211">
             	<Skjemainnhold>
-            		<ytelse>Svangerskapspenger</ytelse>
+            		<ytelse>PleiepengerNaerstaaende</ytelse>
             		<aarsakTilInnsending>Ny</aarsakTilInnsending>
             		<arbeidsgiver>
             			<virksomhetsnummer>999999999</virksomhetsnummer>
