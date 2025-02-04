@@ -89,7 +89,6 @@ public class InntektsmeldingXMLMapper {
         skjemainnhold.setStartdatoForeldrepengeperiode(of.createSkjemainnholdStartdatoForeldrepengeperiode(inntektsmelding.getStartDato()));
     }
 
-    // TODO Vi bør ta en diskusjon på hva denne skal være
     private static Avsendersystem lagAvsendersysem(InntektsmeldingEntitet inntektsmelding) {
         var as = new Avsendersystem();
         as.setSystemnavn(Systemnavn.NAV_NO.name());
