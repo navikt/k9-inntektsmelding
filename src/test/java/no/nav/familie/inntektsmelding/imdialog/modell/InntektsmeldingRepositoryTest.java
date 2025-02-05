@@ -34,7 +34,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var førLagring = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medStartDato(LocalDate.now())
             .medArbeidsgiverIdent("999999999")
@@ -63,7 +63,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var førLagring = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -106,7 +106,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var førLagring = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -148,7 +148,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var im1 = InntektsmeldingEntitet.builder()
             .medAktørId(aktørId)
             .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -160,7 +160,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var im2 = InntektsmeldingEntitet.builder()
             .medAktørId(aktørId)
             .medKontaktperson(new KontaktpersonEntitet("Andre", "999999999"))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -174,7 +174,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         inntektsmeldingRepository.lagreInntektsmelding(im1);
         inntektsmeldingRepository.lagreInntektsmelding(im2);
 
-        var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(aktørId, arbeidsgiverIdent, startDato, Ytelsetype.FORELDREPENGER);
+        var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(aktørId, arbeidsgiverIdent, startDato, Ytelsetype.PLEIEPENGER_SYKT_BARN);
 
         // Assert
         assertThat(etterLagring).isPresent();
@@ -191,7 +191,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var im1 = InntektsmeldingEntitet.builder()
             .medAktørId(aktørId)
             .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -204,7 +204,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var im2 = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("1234567891111"))
             .medKontaktperson(new KontaktpersonEntitet("Andre", "999999999"))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -217,7 +217,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var im3 = InntektsmeldingEntitet.builder()
             .medAktørId(aktørId)
             .medKontaktperson(new KontaktpersonEntitet("Tredje", "999999999"))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -230,7 +230,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var im4 = InntektsmeldingEntitet.builder()
             .medAktørId(aktørId)
             .medKontaktperson(new KontaktpersonEntitet("Fjerde", "999999999"))
-            .medYtelsetype(Ytelsetype.SVANGERSKAPSPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_NÆRSTÅENDE)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -246,7 +246,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         inntektsmeldingRepository.lagreInntektsmelding(im3);
         inntektsmeldingRepository.lagreInntektsmelding(im4);
 
-        var etterLagring = inntektsmeldingRepository.hentInntektsmeldinger(aktørId, arbeidsgiverIdent, startDato, Ytelsetype.FORELDREPENGER);
+        var etterLagring = inntektsmeldingRepository.hentInntektsmeldinger(aktørId, arbeidsgiverIdent, startDato, Ytelsetype.PLEIEPENGER_SYKT_BARN);
 
         // Assert
         assertThat(etterLagring).hasSize(2);
