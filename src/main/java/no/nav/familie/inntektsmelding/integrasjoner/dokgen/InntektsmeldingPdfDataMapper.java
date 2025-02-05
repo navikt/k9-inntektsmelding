@@ -23,6 +23,7 @@ public class InntektsmeldingPdfDataMapper {
     private InntektsmeldingPdfDataMapper() {
         throw new IllegalStateException("InntektsmeldingPdfDataMapper: Utility class");
     }
+
     public static InntektsmeldingPdfData mapInntektsmeldingData(InntektsmeldingEntitet inntektsmelding,
                                                                 String arbeidsgiverNavn,
                                                                 PersonInfo personInfo,
@@ -64,11 +65,7 @@ public class InntektsmeldingPdfDataMapper {
     }
 
     private static Kontaktperson mapKontaktperson(InntektsmeldingEntitet inntektsmelding) {
-        if (Kildesystem.FPSAK.equals(inntektsmelding.getKildesystem())) {
-            return new Kontaktperson(inntektsmelding.getOpprettetAv(), inntektsmelding.getOpprettetAv());
-        } else {
-            return new Kontaktperson(inntektsmelding.getKontaktperson().getNavn(), inntektsmelding.getKontaktperson().getTelefonnummer());
-        }
+        return new Kontaktperson(inntektsmelding.getKontaktperson().getNavn(), inntektsmelding.getKontaktperson().getTelefonnummer());
     }
 
     private static boolean erIngenGjenopptatteNaturalYtelser(List<BortaltNaturalytelseEntitet> naturalYtelser) {

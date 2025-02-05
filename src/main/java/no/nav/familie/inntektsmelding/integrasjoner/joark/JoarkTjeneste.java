@@ -86,8 +86,7 @@ public class JoarkTjeneste {
             .medDokumenter(lagDokumenter(xmlAvInntektsmelding, pdf));
 
         if (fagsystemSaksnummer != null) {
-            opprettJournalpostRequestBuilder
-                .medSak(sak(fagsystemSaksnummer, inntektsmeldingEntitet.getYtelsetype()));
+            opprettJournalpostRequestBuilder.medSak(sak(fagsystemSaksnummer));
         }
         return opprettJournalpostRequestBuilder.build();
     }
@@ -107,15 +106,8 @@ public class JoarkTjeneste {
         return Collections.singletonList(builder.build());
     }
 
-    private Sak sak(String saksnummer, Ytelsetype ytelsetype) {
-        return new Sak(saksnummer, utledFagsystemKode(ytelsetype).getOffisiellKode(), Sak.Sakstype.FAGSAK);
-    }
-
-    private Fagsystem utledFagsystemKode(Ytelsetype ytelsetype) {
-        return switch (ytelsetype) {
-            case FORELDREPENGER, SVANGERSKAPSPENGER -> Fagsystem.FPSAK;
-            case PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OMSORGSPENGER, OPPLÆRINGSPENGER -> Fagsystem.K9SAK;
-        };
+    private Sak sak(String saksnummer) {
+        return new Sak(saksnummer, Fagsystem.K9SAK.getOffisiellKode(), Sak.Sakstype.FAGSAK);
     }
 
     private String mapTema(Ytelsetype ytelsetype) {
