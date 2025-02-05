@@ -46,23 +46,23 @@ class ForespørselTeksterTest {
     void legVarselTekstMedOrgnvOgNavn() {
         var testOrgNavn = "test org";
         var testOrgNr = "1234321";
-        var varselTekst = ForespørselTekster.lagVarselTekst(Ytelsetype.FORELDREPENGER, new Organisasjon(testOrgNavn, testOrgNr));
+        var varselTekst = ForespørselTekster.lagVarselTekst(Ytelsetype.PLEIEPENGER_SYKT_BARN, new Organisasjon(testOrgNavn, testOrgNr));
 
         assertThat(varselTekst).isNotEmpty()
             .startsWith(testOrgNavn.toUpperCase())
             .contains(testOrgNr)
-            .contains(Ytelsetype.FORELDREPENGER.name().toLowerCase());
+            .contains("pleiepenger sykt barn");
     }
 
     @Test
     void legPåminnelseTekstMedOrgnvOgNavn() {
         var testOrgNavn = "org test org";
         var testOrgNr = "6531342";
-        var varselTekst = ForespørselTekster.lagPåminnelseTekst(Ytelsetype.SVANGERSKAPSPENGER, new Organisasjon(testOrgNavn, testOrgNr));
+        var varselTekst = ForespørselTekster.lagPåminnelseTekst(Ytelsetype.PLEIEPENGER_NÆRSTÅENDE, new Organisasjon(testOrgNavn, testOrgNr));
 
         assertThat(varselTekst).isNotEmpty()
             .startsWith(testOrgNavn.toUpperCase())
             .contains(testOrgNr)
-            .contains(Ytelsetype.SVANGERSKAPSPENGER.name().toLowerCase());
+            .contains("pleiepenger i livets sluttfase");
     }
 }
