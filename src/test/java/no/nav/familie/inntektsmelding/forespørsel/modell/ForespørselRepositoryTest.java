@@ -25,7 +25,7 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_teste_at_forespørsel_lagres_uten_første_uttak() {
         var uuid = forespørselRepository.lagreForespørsel(LocalDate.now(),
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "9999999999999",
             "999999999",
             "123",
@@ -37,7 +37,7 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
         assertThat(hentet.getSkjæringstidspunkt()).isEqualTo(LocalDate.now());
         assertThat(hentet.getOrganisasjonsnummer()).isEqualTo("999999999");
         assertThat(hentet.getAktørId().getAktørId()).isEqualTo("9999999999999");
-        assertThat(hentet.getYtelseType()).isEqualTo(Ytelsetype.FORELDREPENGER);
+        assertThat(hentet.getYtelseType()).isEqualTo(Ytelsetype.PLEIEPENGER_SYKT_BARN);
         assertThat(hentet.getFagsystemSaksnummer()).isEqualTo("123");
         assertThat(hentet.getFørsteUttaksdato()).isEmpty();
     }
@@ -45,7 +45,7 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_teste_at_forespørsel_lagres_med_første_uttaksdato() {
         var uuid = forespørselRepository.lagreForespørsel(LocalDate.now(),
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "9999999999999",
             "999999999",
             "123",
@@ -57,7 +57,7 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
         assertThat(hentet.getSkjæringstidspunkt()).isEqualTo(LocalDate.now());
         assertThat(hentet.getOrganisasjonsnummer()).isEqualTo("999999999");
         assertThat(hentet.getAktørId().getAktørId()).isEqualTo("9999999999999");
-        assertThat(hentet.getYtelseType()).isEqualTo(Ytelsetype.FORELDREPENGER);
+        assertThat(hentet.getYtelseType()).isEqualTo(Ytelsetype.PLEIEPENGER_SYKT_BARN);
         assertThat(hentet.getFagsystemSaksnummer()).isEqualTo("123");
         assertThat(hentet.getFørsteUttaksdato()).isPresent();
         assertThat(hentet.getFørsteUttaksdato()).contains(LocalDate.now());
