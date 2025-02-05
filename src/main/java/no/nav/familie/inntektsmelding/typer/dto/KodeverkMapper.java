@@ -37,8 +37,6 @@ public class KodeverkMapper {
 
     public static Ytelsetype mapYtelsetype(YtelseTypeDto dto) {
         return switch (dto) {
-            case FORELDREPENGER -> Ytelsetype.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> Ytelsetype.SVANGERSKAPSPENGER;
             case OMSORGSPENGER -> Ytelsetype.OMSORGSPENGER;
             case OPPLÆRINGSPENGER -> Ytelsetype.OPPLÆRINGSPENGER;
             case PLEIEPENGER_SYKT_BARN -> Ytelsetype.PLEIEPENGER_SYKT_BARN;
@@ -48,8 +46,6 @@ public class KodeverkMapper {
 
     public static YtelseTypeDto mapYtelsetype(Ytelsetype ytelsetype) {
         return switch (ytelsetype) {
-            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
             case OMSORGSPENGER -> YtelseTypeDto.OMSORGSPENGER;
             case OPPLÆRINGSPENGER -> YtelseTypeDto.OPPLÆRINGSPENGER;
             case PLEIEPENGER_SYKT_BARN -> YtelseTypeDto.PLEIEPENGER_SYKT_BARN;

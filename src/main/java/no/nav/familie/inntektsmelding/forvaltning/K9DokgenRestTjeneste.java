@@ -148,8 +148,6 @@ public class K9DokgenRestTjeneste {
 
     private Ytelsetype mapYtelseType(String ytelsetype) {
         return switch (ytelsetype.toLowerCase()) {
-            case "foreldrepenger" -> Ytelsetype.FORELDREPENGER;
-            case "svangerskapspenger" -> Ytelsetype.SVANGERSKAPSPENGER;
             case "pleiepenger sykt barn" -> Ytelsetype.PLEIEPENGER_SYKT_BARN;
             case "pleiepenger i livets sluttfase" -> Ytelsetype.PLEIEPENGER_NÆRSTÅENDE;
             case "opplæringspenger" -> Ytelsetype.OPPLÆRINGSPENGER;

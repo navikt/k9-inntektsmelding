@@ -58,16 +58,13 @@ class ForespørselTekster {
             case OMSORGSPENGER -> Merkelapp.INNTEKTSMELDING_OMP;
             case PLEIEPENGER_NÆRSTÅENDE -> Merkelapp.INNTEKTSMELDING_PILS;
             case OPPLÆRINGSPENGER -> Merkelapp.INNTEKTSMELDING_OPP;
-            case FORELDREPENGER, SVANGERSKAPSPENGER -> throw new IllegalArgumentException("Ukjent ytelsetype");
         };
     }
 
     public static String mapYtelsestypeNavn(Ytelsetype ytelsetype) {
         return switch (ytelsetype) {
-            case FORELDREPENGER -> "foreldrepenger";
             case PLEIEPENGER_SYKT_BARN -> "pleiepenger sykt barn";
             case OMSORGSPENGER -> "omsorgspenger";
-            case SVANGERSKAPSPENGER -> "svangerskapspenger";
             case PLEIEPENGER_NÆRSTÅENDE -> "pleiepenger i livets sluttfase";
             case OPPLÆRINGSPENGER -> "opplæringspenger";
         };

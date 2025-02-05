@@ -152,8 +152,6 @@ public class InntektsmeldingXMLMapper {
 
     private static String mapTilYtelsetype(Ytelsetype ytelsetype) {
         return switch (ytelsetype) {
-            case FORELDREPENGER -> "Foreldrepenger";
-            case SVANGERSKAPSPENGER -> "Svangerskapspenger";
             case OPPLÆRINGSPENGER -> "Opplaeringspenger";
             case OMSORGSPENGER -> "Omsorgspenger";
             case PLEIEPENGER_SYKT_BARN -> "PleiepengerBarn";
