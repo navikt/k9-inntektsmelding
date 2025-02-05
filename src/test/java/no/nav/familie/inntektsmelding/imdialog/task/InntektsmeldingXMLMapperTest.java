@@ -87,7 +87,7 @@ class InntektsmeldingXMLMapperTest {
             .medArbeidsgiverIdent(DUMMY_ARBEIDSGIVER_IDENT)
             .medAktørId(aktørId)
             .medKildesystem(kildesystem)
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .build();
     }
 
