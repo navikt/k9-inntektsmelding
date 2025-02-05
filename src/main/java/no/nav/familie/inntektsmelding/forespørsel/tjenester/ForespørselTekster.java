@@ -33,7 +33,7 @@ class ForespørselTekster {
         return switch (årsak) {
             case EKSTERN_INNSENDING -> String.format(TILLEGGSINFORMASJON_UTFØRT_EKSTERN, førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
             case UTGÅTT -> String.format(TILLEGGSINFORMASJON_UTGÅTT, førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
-            case ORDINÆR_INNSENDING -> String.format(TILLEGGSINFORMASJON_ORDINÆR, førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+            case ORDINÆR_INNSENDING -> lagTilleggsInformasjonOrdinær(førsteFraværsdag);
         };
     }
 
