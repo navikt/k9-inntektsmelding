@@ -111,7 +111,7 @@ class AaregRestKlientTest {
         var ident = "12345678901";
 
         when(restClient.sendReturnUnhandled(any(RestRequest.class)))
-            .thenThrow(new IntegrasjonException("FP-12345", "404 feil"));
+            .thenThrow(new IntegrasjonException("K9-12345", "404 feil"));
 
         // Act
         var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now());
@@ -126,7 +126,7 @@ class AaregRestKlientTest {
         var ident = "12345678901";
 
         when(restClient.sendReturnUnhandled(any(RestRequest.class)))
-            .thenThrow(new IntegrasjonException("FP-w00t", "Ukjent feil"));
+            .thenThrow(new IntegrasjonException("K9-w00t", "Ukjent feil"));
 
         assertThrows(IntegrasjonException.class, () -> aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now()));
     }
