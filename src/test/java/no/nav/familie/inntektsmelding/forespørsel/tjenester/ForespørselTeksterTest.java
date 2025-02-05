@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,20 +27,28 @@ class ForespørselTeksterTest {
 
     @Test
     void lagTilleggsInformasjon_EksternInnsending() {
-        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.EKSTERN_INNSENDING);
-        assertEquals("Utført i Altinn eller i bedriftens lønns- og personalsystem", statusTekst);
+        LocalDate førsteFraværsdag = LocalDate.now();
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.EKSTERN_INNSENDING, førsteFraværsdag);
+        var forventetTekst = String.format("Utført i Altinn eller i bedriftens lønns- og personalsystem for første fraværsdag %s",
+                                           førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+        assertEquals(forventetTekst, statusTekst);
     }
 
     @Test
     void lagTilleggsInformasjon_OrdinærInnsending() {
-        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.ORDINÆR_INNSENDING);
-        assertEquals(null, statusTekst);
+        LocalDate førsteFraværsdag = LocalDate.now();
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.ORDINÆR_INNSENDING, førsteFraværsdag);
+        var forventetTekst = String.format("For første fraværsdag %s", førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+        assertEquals(forventetTekst, statusTekst);
     }
 
     @Test
     void lagTilleggsInformasjon_Utgått() {
-        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT);
-        assertEquals("Du trenger ikke lenger å sende denne inntektsmeldingen", statusTekst);
+        LocalDate førsteFraværsdag = LocalDate.now();
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT, førsteFraværsdag);
+        var forventetTekst = String.format("Du trenger ikke lenger sende inntektsmelding for første fraværsdag %s",
+                                           førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+        assertEquals(forventetTekst, statusTekst);
     }
 
     @Test
