@@ -119,13 +119,11 @@ public class JoarkTjeneste {
 
     private String mapBehandlingTema(Ytelsetype ytelsetype) {
         return switch (ytelsetype) {
-            case FORELDREPENGER -> Behandlingtema.FORELDREPENGER.getOffisiellKode();
-            case SVANGERSKAPSPENGER -> Behandlingtema.SVANGERSKAPSPENGER.getOffisiellKode();
             case PLEIEPENGER_SYKT_BARN -> Behandlingtema.PLEIEPENGER_SYKT_BARN.getOffisiellKode();
             case PLEIEPENGER_NÆRSTÅENDE -> Behandlingtema.PLEIEPENGER_LIVETS_SLUTTFASE.getOffisiellKode();
             case OMSORGSPENGER -> Behandlingtema.OMSORGSPENGER.getOffisiellKode();
-            case OPPLÆRINGSPENGER ->
-                throw new IllegalArgumentException("Finner ikke behandlingtema for ytelsetype " + ytelsetype); // TODO Hva skal inn her?
+            case FORELDREPENGER, SVANGERSKAPSPENGER -> throw new IllegalArgumentException("Finner ikke behandlingtema for ytelsetype " + ytelsetype);
+            case OPPLÆRINGSPENGER -> throw new IllegalArgumentException("Finner ikke behandlingtema for ytelsetype " + ytelsetype); // TODO Hva skal inn her?
         };
     }
 
