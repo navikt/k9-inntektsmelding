@@ -218,6 +218,18 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
     }
 
     @Test
+    void skal_ikke_opprette_ny_forespørsel_dersom_det_eksisterer_en_for_samme_stp() {
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
+            SKJÆRINGSTIDSPUNKT);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+
+        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.OPPRETT));
+        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
+
+        verifyNoInteractions(prosessTaskTjeneste);
+    }
+
+    @Test
     void skal_opprette_forespørsel_dersom_det_ikke_eksisterer_en_for_stp() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
 
@@ -235,18 +247,6 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         assertThat(taskdata.getAktørId()).isEqualTo(AKTØR_ID);
         assertThat(taskdata.getPropertyValue(OpprettForespørselTask.ORGNR)).isEqualTo(BRREG_ORGNUMMER);
         assertThat(taskdata.getPropertyValue(OpprettForespørselTask.STP)).isEqualTo(SKJÆRINGSTIDSPUNKT.toString());
-    }
-
-    @Test
-    void skal_ikke_opprette_ny_forespørsel_dersom_det_eksisterer_en_for_samme_stp() {
-        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            SKJÆRINGSTIDSPUNKT);
-        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
-
-        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.OPPRETT));
-        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
-
-        verifyNoInteractions(prosessTaskTjeneste);
     }
 
     @Test
