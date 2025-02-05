@@ -57,7 +57,8 @@ jobs:
     if: |
       github.ref_name == 'master'
         && always()
-        && needs.verdikjede-tester.outputs.pleiepenger == 'success'
+        && needs.verdikjede-tester.outputs.beregning == 'success'
+        && needs.verdikjede-tester.outputs.pleiepenger-pleietrengende == 'success'
         && needs.verdikjede-tester.outputs.livetssluttfase == 'success'
     needs: [ build-app, verdikjede-tester ]
     uses: navikt/sif-gha-workflows/.github/workflows/maven-deploy.yml@main
