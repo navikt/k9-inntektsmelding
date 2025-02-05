@@ -40,8 +40,7 @@ public interface ForespørselBehandlingTjeneste {
                             SaksnummerDto fagsakSaksnummer,
                             OrganisasjonsnummerDto organisasjonsnummer,
                             LocalDate skjæringstidspunkt,
-                            LocalDate førsteUttaksdato,
-                            String tilleggsinfo);
+                            LocalDate førsteUttaksdato);
 
     UUID opprettForespørselForArbeidsgiverInitiertIm(Ytelsetype ytelsetype,
                                                      AktørIdEntitet aktørId,
