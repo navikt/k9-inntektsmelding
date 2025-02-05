@@ -39,7 +39,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
-import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -402,7 +401,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
 
     @Test
     void skal_gi_riktig_resultat_om_det_ikke_finnes_en_åpen_forespørsel() {
-        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.FORELDREPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.PLEIEPENGER_SYKT_BARN, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         forespørselRepository.ferdigstillForespørsel(SAK_ID);
@@ -415,7 +414,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_siste_opprinnelig_forespørsel_og_før_ny_start_dato_for_aktør() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT,
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             AKTØR_ID,
             BRREG_ORGNUMMER,
             SAKSNUMMMER,
@@ -424,7 +423,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         forespørselRepository.ferdigstillForespørsel(SAK_ID);
 
         var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusMonths(4),
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             AKTØR_ID,
             BRREG_ORGNUMMER,
             "SAKSNUMMMER2",
@@ -434,7 +433,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
 
         var datoEtterStartDato = LocalDate.now().plusMonths(1);
         var forespørselUuidEtterStartDato = forespørselRepository.lagreForespørsel(datoEtterStartDato,
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             AKTØR_ID,
             BRREG_ORGNUMMER,
             "SAKSNUMMMER3",
@@ -443,7 +442,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         forespørselRepository.ferdigstillForespørsel("3");
 
         var resultat = forespørselBehandlingTjeneste.finnOpprinneligForespørsel(new AktørIdEntitet(AKTØR_ID),
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             LocalDate.now());
 
         clearHibernateCache();
@@ -454,10 +453,10 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
     @Test
     void skal_returnere_liste_av_inntektsmeldingdto_for_forespørsler() {
 
-        var forespørsel1sak1 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 1, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.FORELDREPENGER, SAK_ID, LocalDate.of(2025, 1, 1));
-        var forespørsel1sak2 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 2, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.FORELDREPENGER, SAK_ID_2 , LocalDate.of(2025, 2, 1));
-        var forespørsel2sak1 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 3, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.FORELDREPENGER, SAK_ID, LocalDate.of(2025, 3, 1));
-        var forespørsel2sak2 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 4, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.FORELDREPENGER, SAK_ID_2, LocalDate.of(2025, 4, 1));
+        var forespørsel1sak1 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 1, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.PLEIEPENGER_SYKT_BARN, SAK_ID, LocalDate.of(2025, 1, 1));
+        var forespørsel1sak2 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 2, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.PLEIEPENGER_SYKT_BARN, SAK_ID_2 , LocalDate.of(2025, 2, 1));
+        var forespørsel2sak1 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 3, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.PLEIEPENGER_SYKT_BARN, SAK_ID, LocalDate.of(2025, 3, 1));
+        var forespørsel2sak2 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 4, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.PLEIEPENGER_SYKT_BARN, SAK_ID_2, LocalDate.of(2025, 4, 1));
 
         getEntityManager().persist(forespørsel1sak1);
         getEntityManager().persist(forespørsel1sak2);
