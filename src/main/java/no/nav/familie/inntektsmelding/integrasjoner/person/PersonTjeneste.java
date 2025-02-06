@@ -129,8 +129,9 @@ public class PersonTjeneste {
         }
     }
 
+    // TODO: utled riktig ytlese for ytelser i k9. Krever at vi går bort fra fp-felles og bruker k9-felles
     private static Persondata.Ytelse utledYtelse() {
-        return Persondata.Ytelse.PLEIEPENGER; // Blir dette egentlig riktig?
+        return Persondata.Ytelse.PLEIEPENGER;
     }
 
 }
