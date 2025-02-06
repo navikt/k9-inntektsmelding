@@ -74,7 +74,7 @@ public class InntektTjeneste {
         var månedsinntekter = inntekter.stream().map(i -> mapInntektMedStatus(i, dagensDato)).toList();
         var antallMndMedRapportertInntekt = månedsinntekter.stream().filter(m -> m.beløp() != null).count();
         if (antallMndMedRapportertInntekt > 3) {
-            throw new TekniskException("FPINNTEKTSMELDING_INNTEKTKSKOMPONENT_1",
+            throw new TekniskException("K9INNTEKTSMELDING_INNTEKTKSKOMPONENT_1",
                 String.format("Har mappet flere enn 3 måneder med inntekt, ugyldig tilstand. Mappede månedsinntekter var %s", månedsinntekter));
         }
         var totalLønn = månedsinntekter.stream()
@@ -152,7 +152,7 @@ public class InntektTjeneste {
 
     private List<Månedsinntekt> oversettRespons(HentInntektListeBolkResponse response, AktørIdEntitet aktørId, String organisasjonsnummer) {
         if (response.getSikkerhetsavvikListe() != null && !response.getSikkerhetsavvikListe().isEmpty()) {
-            throw new IntegrasjonException("FP-535194",
+            throw new IntegrasjonException("K9-535194",
                 String.format("Fikk følgende sikkerhetsavvik ved kall til inntektstjenesten: %s.", byggSikkerhetsavvikString(response)));
         }
 

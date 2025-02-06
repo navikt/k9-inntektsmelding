@@ -9,8 +9,6 @@ class MerkelappTest {
 
     @Test
     void getBeskrivelse() {
-        assertThat(Merkelapp.INNTEKTSMELDING_FP.getBeskrivelse()).isEqualTo("Inntektsmelding foreldrepenger");
-        assertThat(Merkelapp.INNTEKTSMELDING_SVP.getBeskrivelse()).isEqualTo("Inntektsmelding svangerskapspenger");
         assertThat(Merkelapp.INNTEKTSMELDING_OMP.getBeskrivelse()).isEqualTo("Inntektsmelding omsorgspenger");
         assertThat(Merkelapp.INNTEKTSMELDING_OPP.getBeskrivelse()).isEqualTo("Inntektsmelding opplæringspenger");
         assertThat(Merkelapp.INNTEKTSMELDING_PILS.getBeskrivelse()).isEqualTo("Inntektsmelding pleiepenger i livets sluttfase");
@@ -19,12 +17,12 @@ class MerkelappTest {
 
     @Test
     void values() {
-        assertThat(Merkelapp.values()).hasSize(6);
+        assertThat(Merkelapp.values()).hasSize(4);
     }
 
     @Test
     void valueOf() {
-        assertThat(Merkelapp.valueOf("INNTEKTSMELDING_FP")).isInstanceOf(Merkelapp.class).isEqualTo(Merkelapp.INNTEKTSMELDING_FP);
+        assertThat(Merkelapp.valueOf("INNTEKTSMELDING_PSB")).isInstanceOf(Merkelapp.class).isEqualTo(Merkelapp.INNTEKTSMELDING_PSB);
     }
 
     @Test

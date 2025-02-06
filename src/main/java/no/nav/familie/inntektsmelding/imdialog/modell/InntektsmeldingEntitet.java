@@ -291,12 +291,12 @@ public class InntektsmeldingEntitet {
 
         private void validerRefusjonsperioder() {
             if (!kladd.getRefusjonsendringer().isEmpty() && kladd.getMånedRefusjon() == null) {
-                throw new TekniskException("FPINNTEKTSMELDING_REFUSJON_1",
+                throw new TekniskException("K9INNTEKTSMELDING_REFUSJON_1",
                     String.format("Kan ikke ha refusjonsendringer når det ikke er oppgitt refusjon. Endringer var %s",
                         kladd.getRefusjonsendringer()));
             }
             if (kladd.getRefusjonsendringer().stream().anyMatch(r -> !r.getFom().isAfter(kladd.getStartDato()))) {
-                throw new TekniskException("FPINNTEKTSMELDING_REFUSJON_2",
+                throw new TekniskException("K9INNTEKTSMELDING_REFUSJON_2",
                     String.format(
                         "Kan ikke ha refusjonsendring som gjelder fra startdato eller før, ugyldig tilstand. Endringer var %s og startdato var %s",
                         kladd.getRefusjonsendringer(),
@@ -305,7 +305,7 @@ public class InntektsmeldingEntitet {
             if (kladd.getOpphørsdatoRefusjon() != null && kladd.getRefusjonsendringer()
                 .stream()
                 .anyMatch(r -> r.getFom().isAfter(kladd.getOpphørsdatoRefusjon()))) {
-                throw new TekniskException("FPINNTEKTSMELDING_REFUSJON_3",
+                throw new TekniskException("K9INNTEKTSMELDING_REFUSJON_3",
                     String.format("Kan ikke ha refusjonsendring etter opphørsdato, ugyldig tilstand. Endringer var %s og opphøsdato var %s",
                         kladd.getRefusjonsendringer(),
                         kladd.getOpphørsdatoRefusjon()));

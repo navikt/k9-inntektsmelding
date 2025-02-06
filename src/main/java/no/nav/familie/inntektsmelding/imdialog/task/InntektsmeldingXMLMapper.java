@@ -61,7 +61,6 @@ public class InntektsmeldingXMLMapper {
         skjemainnhold.setAvsendersystem(lagAvsendersysem(inntektsmelding));
 
         skjemainnhold.setYtelse(mapTilYtelsetype(inntektsmelding.getYtelsetype()));
-        mapYtelsespesifikkeFelter(skjemainnhold, inntektsmelding);
         skjemainnhold.setRefusjon(lagRefusjonXml(inntektsmelding));
 
         var naturalYtelser = NaturalYtelseMapper.mapNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser());
@@ -71,22 +70,6 @@ public class InntektsmeldingXMLMapper {
         var imXml = new InntektsmeldingM();
         imXml.setSkjemainnhold(skjemainnhold);
         return imXml;
-    }
-
-    private static void mapYtelsespesifikkeFelter(Skjemainnhold skjemainnhold, InntektsmeldingEntitet inntektsmelding) {
-        switch (inntektsmelding.getYtelsetype()) {
-            case FORELDREPENGER -> settFPStartdato(skjemainnhold, inntektsmelding);
-            case PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OPPLÆRINGSPENGER, SVANGERSKAPSPENGER -> {
-                // Det er ingen ytelsespesifikke felter for disse ytelsene
-            }
-            // Følgende ytelser mangler implementasjon, må undersøke hva som skal settes for disse
-            case OMSORGSPENGER ->
-                throw new IllegalStateException("Kan ikke mappe ytelsesspesifikke felter for ytelse " + inntektsmelding.getYtelsetype());
-        }
-    }
-
-    private static void settFPStartdato(Skjemainnhold skjemainnhold, InntektsmeldingEntitet inntektsmelding) {
-        skjemainnhold.setStartdatoForeldrepengeperiode(of.createSkjemainnholdStartdatoForeldrepengeperiode(inntektsmelding.getStartDato()));
     }
 
     private static Avsendersystem lagAvsendersysem(InntektsmeldingEntitet inntektsmelding) {
@@ -169,8 +152,6 @@ public class InntektsmeldingXMLMapper {
 
     private static String mapTilYtelsetype(Ytelsetype ytelsetype) {
         return switch (ytelsetype) {
-            case FORELDREPENGER -> "Foreldrepenger";
-            case SVANGERSKAPSPENGER -> "Svangerskapspenger";
             case OPPLÆRINGSPENGER -> "Opplaeringspenger";
             case OMSORGSPENGER -> "Omsorgspenger";
             case PLEIEPENGER_SYKT_BARN -> "PleiepengerBarn";

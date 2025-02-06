@@ -49,7 +49,7 @@ public class K9DokgenKlient {
         var pdf = restClient.sendReturnByteArray(request);
 
         if (pdf == null || pdf.length == 0) {
-            throw new TekniskException("FPIM", "Fikk tomt svar ved kall til dokgen for generering av pdf for inntektsmelding");
+            throw new TekniskException("K9IM", "Fikk tomt svar ved kall til dokgen for generering av pdf for inntektsmelding");
         }
         return pdf;
     }
