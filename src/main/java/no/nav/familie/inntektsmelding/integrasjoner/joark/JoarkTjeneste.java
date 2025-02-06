@@ -35,6 +35,7 @@ public class JoarkTjeneste {
     private static final String KANAL = "NAV_NO";
     // TODO Dette er brevkode for altinn skjema. Trenger vi egen?
     private static final String BREVKODE_IM = "4936";
+    private static final String TEMA_K9 = "OMS";
 
     private DokArkiv joarkKlient;
     private OrganisasjonTjeneste organisasjonTjeneste;
@@ -79,7 +80,7 @@ public class JoarkTjeneste {
             .medBruker(lagBruker(inntektsmeldingEntitet.getAktørId()))
             .medBehandlingstema(mapBehandlingTema(inntektsmeldingEntitet.getYtelsetype()))
             .medDatoMottatt(inntektsmeldingEntitet.getOpprettetTidspunkt().toLocalDate())
-            .medTema(mapTema(inntektsmeldingEntitet.getYtelsetype()))
+            .medTema(TEMA_K9)
             .medEksternReferanseId(UUID.randomUUID().toString())
             .medJournalfoerendeEnhet(JOURNALFØRENDE_ENHET)
             .medKanal(KANAL)
@@ -108,12 +109,6 @@ public class JoarkTjeneste {
 
     private Sak sak(String saksnummer) {
         return new Sak(saksnummer, Fagsystem.K9SAK.getOffisiellKode(), Sak.Sakstype.FAGSAK);
-    }
-
-    private String mapTema(Ytelsetype ytelsetype) {
-        return switch (ytelsetype) {
-            case PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OMSORGSPENGER, OPPLÆRINGSPENGER -> "OMS";
-        };
     }
 
     private String mapBehandlingTema(Ytelsetype ytelsetype) {
