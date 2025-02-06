@@ -14,8 +14,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <felles.version>7.4.7</felles.version>
-        <prosesstask.version>5.1.1</prosesstask.version>
+        <fp-felles.version>7.4.7</fp-felles.version>
         <fp-kontrakter.version>9.2.2</fp-kontrakter.version>
     </properties>
 
@@ -31,14 +30,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles</artifactId>
-                <version>${felles.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.vedtak.prosesstask</groupId>
-                <artifactId>prosesstask-root</artifactId>
-                <version>${prosesstask.version}</version>
+                <version>${fp-felles.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -52,17 +44,17 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>person-klient</artifactId>
-                <version>${felles.version}</version>
+                <version>${fp-felles.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>ereg-klient</artifactId>
-                <version>${felles.version}</version>
+                <version>${fp-felles.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
                 <artifactId>dokarkiv-klient</artifactId>
-                <version>${felles.version}</version>
+                <version>${fp-felles.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.kontrakter</groupId>
