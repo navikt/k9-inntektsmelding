@@ -129,7 +129,7 @@ public class MetrikkerTjeneste {
     }
 
     private static void loggFeil(Exception e, String metodekall) {
-        String msg = String.format("FPINNTEKTSMELDING_METRIKKER_1: Feil ved generering av metrikker i metode %s, fikk feilmelding %s", metodekall, e);
+        String msg = String.format("K9INNTEKTSMELDING_METRIKKER_1: Feil ved generering av metrikker i metode %s, fikk feilmelding %s", metodekall, e);
         LOG.warn(msg);
     }
 

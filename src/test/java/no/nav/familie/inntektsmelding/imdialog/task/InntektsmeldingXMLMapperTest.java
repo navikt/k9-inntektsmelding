@@ -70,17 +70,6 @@ class InntektsmeldingXMLMapperTest {
         assertThat(resultat.getSkjemainnhold().getGjenopptakelseNaturalytelseListe().getValue().getNaturalytelseDetaljer()).isEmpty();
     }
 
-    @Test
-    void test_overstyrt_inntektsmelding() {
-        var aktøridFnrMap = Map.of(DUMMY_AKTØRID, PersonIdent.fra(DUMMY_FNR));
-
-        var inntektsmelding = lagInntektsmeldingEntitet(DUMMY_AKTØRID, List.of(), Kildesystem.FPSAK);
-
-        var resultat = InntektsmeldingXMLMapper.map(inntektsmelding, aktøridFnrMap);
-
-        assertThat(resultat.getSkjemainnhold().getAvsendersystem().getSystemnavn()).isEqualTo("OVERSTYRING_FPSAK");
-    }
-
 
     private static void assertNaturalytelse(NaturalytelseDetaljer naturalytelseDetaljer,
                                             LocalDate forventetFom,
@@ -98,7 +87,7 @@ class InntektsmeldingXMLMapperTest {
             .medArbeidsgiverIdent(DUMMY_ARBEIDSGIVER_IDENT)
             .medAktørId(aktørId)
             .medKildesystem(kildesystem)
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .build();
     }
 

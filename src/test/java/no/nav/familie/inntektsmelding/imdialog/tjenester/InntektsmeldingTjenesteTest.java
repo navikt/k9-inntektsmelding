@@ -99,7 +99,7 @@ class InntektsmeldingTjenesteTest {
         var forespørsel = new ForespørselEntitet("999999999",
             LocalDate.now(),
             new AktørIdEntitet("9999999999999"),
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
             null);
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
@@ -125,7 +125,7 @@ class InntektsmeldingTjenesteTest {
 
         // Assert
         assertThat(imDialogDto.skjæringstidspunkt()).isEqualTo(forespørsel.getSkjæringstidspunkt());
-        assertThat(imDialogDto.ytelse()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
+        assertThat(imDialogDto.ytelse()).isEqualTo(YtelseTypeDto.PLEIEPENGER_SYKT_BARN);
 
         assertThat(imDialogDto.person().aktørId()).isEqualTo(forespørsel.getAktørId().getAktørId());
         assertThat(imDialogDto.person().fornavn()).isEqualTo("Navn");
@@ -167,7 +167,7 @@ class InntektsmeldingTjenesteTest {
         var forespørsel = new ForespørselEntitet("999999999",
             LocalDate.now(),
             new AktørIdEntitet("9999999999999"),
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
             LocalDate.now().plusDays(10));
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
@@ -190,7 +190,7 @@ class InntektsmeldingTjenesteTest {
 
         // Assert
         assertThat(imDialogDto.skjæringstidspunkt()).isEqualTo(forespørsel.getSkjæringstidspunkt());
-        assertThat(imDialogDto.ytelse()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
+        assertThat(imDialogDto.ytelse()).isEqualTo(YtelseTypeDto.PLEIEPENGER_SYKT_BARN);
 
         assertThat(imDialogDto.person().aktørId()).isEqualTo(forespørsel.getAktørId().getAktørId());
         assertThat(imDialogDto.person().fornavn()).isEqualTo("Navn");
@@ -214,14 +214,14 @@ class InntektsmeldingTjenesteTest {
         var forespørsel = new ForespørselEntitet("999999999",
             LocalDate.now(),
             new AktørIdEntitet("9999999999999"),
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
             null);
         forespørsel.setStatus(ForespørselStatus.UTGÅTT);
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
         var innsendingDto = new SendInntektsmeldingRequestDto(uuid,
             new AktørIdDto("9999999999999"),
-            YtelseTypeDto.FORELDREPENGER,
+            YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Navn", "123"),
             LocalDate.now(),
@@ -242,10 +242,10 @@ class InntektsmeldingTjenesteTest {
         // Arrange
         var aktørId = new AktørIdEntitet("9999999999999");
 
-        when(forespørselBehandlingTjeneste.finnOpprinneligForespørsel(aktørId, Ytelsetype.FORELDREPENGER, LocalDate.now())).thenReturn(Optional.empty());
+        when(forespørselBehandlingTjeneste.finnOpprinneligForespørsel(aktørId, Ytelsetype.PLEIEPENGER_SYKT_BARN, LocalDate.now())).thenReturn(Optional.empty());
         var innsendingDto = new SendInntektsmeldingRequestDto(null,
             new AktørIdDto("9999999999999"),
-            YtelseTypeDto.FORELDREPENGER,
+            YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Navn", "123"),
             LocalDate.now(),
@@ -267,14 +267,14 @@ class InntektsmeldingTjenesteTest {
         var fnr = new PersonIdent("11111111111");
         var førsteFraværsdag = LocalDate.now();
         var aktørId = new AktørIdEntitet("9999999999999");
-        when(personTjeneste.hentPersonFraIdent(fnr, Ytelsetype.FORELDREPENGER)).thenReturn(
+        when(personTjeneste.hentPersonFraIdent(fnr, Ytelsetype.PLEIEPENGER_SYKT_BARN)).thenReturn(
             new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null));
         var orgnr = "999999999";
         when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag)).thenReturn(List.of(new ArbeidsforholdDto(orgnr,
             "ARB-001")));
         when(organisasjonTjeneste.finnOrganisasjon(orgnr)).thenReturn(new Organisasjon("Bedriften", orgnr));
         // Act
-        var response = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(fnr, Ytelsetype.FORELDREPENGER, LocalDate.now()).orElse(null);
+        var response = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(fnr, Ytelsetype.PLEIEPENGER_SYKT_BARN, LocalDate.now()).orElse(null);
 
         // Assert
         assertThat(response).isNotNull();
@@ -289,7 +289,7 @@ class InntektsmeldingTjenesteTest {
     void skal_gi_arbeidsgiverinitiertdto_hvis_ingen_matchende_forespørsler_finnes() {
         // Arrange
         var fødselsnummer = new PersonIdent("11111111111");
-        var ytelsetype = Ytelsetype.FORELDREPENGER;
+        var ytelsetype = Ytelsetype.PLEIEPENGER_SYKT_BARN;
         var førsteFraværsdag = LocalDate.now();
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var aktørId = new AktørIdEntitet("9999999999999");
@@ -331,7 +331,7 @@ class InntektsmeldingTjenesteTest {
     void skal_gi_opplysningerDto_hvis_matchende_forespørsel_finnes() {
         // Arrange
         var fødselsnummer = new PersonIdent("11111111111");
-        var ytelsetype = Ytelsetype.FORELDREPENGER;
+        var ytelsetype = Ytelsetype.PLEIEPENGER_SYKT_BARN;
         var førsteFraværsdag = LocalDate.now();
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var aktørId = new AktørIdEntitet("9999999999999");

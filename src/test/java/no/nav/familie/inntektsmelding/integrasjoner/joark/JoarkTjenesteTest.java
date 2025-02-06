@@ -70,7 +70,7 @@ class JoarkTjenesteTest {
         var inntektsmelding = InntektsmeldingEntitet.builder()
             .medArbeidsgiverIdent(arbeidsgiverIdent)
             .medStartDato(LocalDate.of(2024, 6, 1))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medMånedRefusjon(BigDecimal.valueOf(35000))
             .medMånedInntekt(BigDecimal.valueOf(35000))
@@ -99,7 +99,7 @@ class JoarkTjenesteTest {
         var opprettJournalpostRequest = argumentCaptor.getValue();
         assertThat(opprettJournalpostRequest.sak()).isNotNull();
         assertThat(opprettJournalpostRequest.sak().fagsakId()).isEqualTo(fagsystemSaksnummer);
-        assertThat(opprettJournalpostRequest.sak().fagsaksystem()).isEqualTo(Fagsystem.FPSAK.getOffisiellKode());
+        assertThat(opprettJournalpostRequest.sak().fagsaksystem()).isEqualTo(Fagsystem.K9SAK.getOffisiellKode());
         assertThat(opprettJournalpostRequest.sak().sakstype()).isEqualTo(Sak.Sakstype.FAGSAK);
         assertThat(opprettJournalpostRequest.bruker().id()).isEqualTo(aktør);
     }
@@ -118,7 +118,7 @@ class JoarkTjenesteTest {
         var inntektsmelding = InntektsmeldingEntitet.builder()
             .medArbeidsgiverIdent(aktørIdArbeidsgiver)
             .medStartDato(LocalDate.of(2024, 6, 1))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(35000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medMånedRefusjon(BigDecimal.valueOf(35000))
@@ -129,7 +129,7 @@ class JoarkTjenesteTest {
             .build();
 
         // Kan foreløpig ikke teste med spesifikk request i mock siden eksternreferanse genereres on the fly
-        when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørIdArbeidsgiver), Ytelsetype.FORELDREPENGER)).thenReturn(
+        when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørIdArbeidsgiver), Ytelsetype.PLEIEPENGER_SYKT_BARN)).thenReturn(
             new PersonInfo("Navn", null, "Navnesen", new PersonIdent("9999999999999"), aktørIdSøker, LocalDate.now(), null));
         when(klient.opprettJournalpost(any(), anyBoolean())).thenReturn(new OpprettJournalpostResponse("9999", false, Collections.emptyList()));
         // Act

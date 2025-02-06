@@ -7,7 +7,6 @@ import jakarta.xml.bind.JAXBElement;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
@@ -44,14 +43,14 @@ public class InntektsmeldingXMLMapper {
         if (OrganisasjonsnummerValidator.erGyldig(inntektsmelding.getArbeidsgiverIdent())) {
             var arbeidsgiver = new Arbeidsgiver();
             arbeidsgiver.setVirksomhetsnummer(inntektsmelding.getArbeidsgiverIdent());
-            arbeidsgiver.setKontaktinformasjon(lagKontaktperson(inntektsmelding));
+            arbeidsgiver.setKontaktinformasjon(lagKontaktinformasjon(inntektsmelding));
             var agOrg = of.createSkjemainnholdArbeidsgiver(arbeidsgiver);
             skjemainnhold.setArbeidsgiver(agOrg);
         } else if (inntektsmelding.getArbeidsgiverIdent().length() == 13) {
             var arbeidsgiver = new ArbeidsgiverPrivat();
             var identArbeidsgiver = aktørIdFnrMap.get(new AktørIdEntitet(inntektsmelding.getArbeidsgiverIdent()));
             arbeidsgiver.setArbeidsgiverFnr(identArbeidsgiver.getIdent());
-            arbeidsgiver.setKontaktinformasjon(lagKontaktperson(inntektsmelding));
+            arbeidsgiver.setKontaktinformasjon(lagKontaktinformasjon(inntektsmelding));
             var agPriv = of.createSkjemainnholdArbeidsgiverPrivat(arbeidsgiver);
             skjemainnhold.setArbeidsgiverPrivat(agPriv);
         }
@@ -62,7 +61,6 @@ public class InntektsmeldingXMLMapper {
         skjemainnhold.setAvsendersystem(lagAvsendersysem(inntektsmelding));
 
         skjemainnhold.setYtelse(mapTilYtelsetype(inntektsmelding.getYtelsetype()));
-        mapYtelsespesifikkeFelter(skjemainnhold, inntektsmelding);
         skjemainnhold.setRefusjon(lagRefusjonXml(inntektsmelding));
 
         var naturalYtelser = NaturalYtelseMapper.mapNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser());
@@ -74,30 +72,9 @@ public class InntektsmeldingXMLMapper {
         return imXml;
     }
 
-    private static void mapYtelsespesifikkeFelter(Skjemainnhold skjemainnhold, InntektsmeldingEntitet inntektsmelding) {
-        switch (inntektsmelding.getYtelsetype()) {
-            case FORELDREPENGER -> settFPStartdato(skjemainnhold, inntektsmelding);
-            case PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OPPLÆRINGSPENGER, SVANGERSKAPSPENGER -> {
-                // Det er ingen ytelsespesifikke felter for disse ytelsene
-            }
-            // Følgende ytelser mangler implementasjon, må undersøke hva som skal settes for disse
-            case OMSORGSPENGER ->
-                throw new IllegalStateException("Kan ikke mappe ytelsesspesifikke felter for ytelse " + inntektsmelding.getYtelsetype());
-        }
-    }
-
-    private static void settFPStartdato(Skjemainnhold skjemainnhold, InntektsmeldingEntitet inntektsmelding) {
-        skjemainnhold.setStartdatoForeldrepengeperiode(of.createSkjemainnholdStartdatoForeldrepengeperiode(inntektsmelding.getStartDato()));
-    }
-
-    // TODO Vi bør ta en diskusjon på hva denne skal være
     private static Avsendersystem lagAvsendersysem(InntektsmeldingEntitet inntektsmelding) {
         var as = new Avsendersystem();
-        if (Kildesystem.FPSAK.equals(inntektsmelding.getKildesystem())) {
-            as.setSystemnavn(Systemnavn.OVERSTYRING_FPSAK.name());
-        } else {
-            as.setSystemnavn(Systemnavn.NAV_NO.name());
-        }
+        as.setSystemnavn(Systemnavn.NAV_NO.name());
         as.setSystemversjon("1.0");
         as.setInnsendingstidspunkt(of.createAvsendersystemInnsendingstidspunkt(inntektsmelding.getOpprettetTidspunkt()));
         return as;
@@ -165,24 +142,16 @@ public class InntektsmeldingXMLMapper {
         return of.createSkjemainnholdArbeidsforhold(arbeidsforhold);
     }
 
-    private static Kontaktinformasjon lagKontaktperson(InntektsmeldingEntitet inntektsmelding) {
+    private static Kontaktinformasjon lagKontaktinformasjon(InntektsmeldingEntitet inntektsmelding) {
         var ki = new Kontaktinformasjon();
-        // Ved overstyring av inntektsmelding setter vi saksbehandlers informasjon her
-        if (Kildesystem.FPSAK.equals(inntektsmelding.getKildesystem())) {
-            ki.setTelefonnummer(inntektsmelding.getOpprettetAv());
-            ki.setKontaktinformasjonNavn(inntektsmelding.getOpprettetAv());
-        } else {
-            var kontaktPerson = inntektsmelding.getKontaktperson();
-            ki.setTelefonnummer(kontaktPerson.getTelefonnummer());
-            ki.setKontaktinformasjonNavn(kontaktPerson.getNavn());
-        }
+        var kontaktPerson = inntektsmelding.getKontaktperson();
+        ki.setTelefonnummer(kontaktPerson.getTelefonnummer());
+        ki.setKontaktinformasjonNavn(kontaktPerson.getNavn());
         return ki;
     }
 
     private static String mapTilYtelsetype(Ytelsetype ytelsetype) {
         return switch (ytelsetype) {
-            case FORELDREPENGER -> "Foreldrepenger";
-            case SVANGERSKAPSPENGER -> "Svangerskapspenger";
             case OPPLÆRINGSPENGER -> "Opplaeringspenger";
             case OMSORGSPENGER -> "Omsorgspenger";
             case PLEIEPENGER_SYKT_BARN -> "PleiepengerBarn";
@@ -216,7 +185,6 @@ public class InntektsmeldingXMLMapper {
 
     // OBS OBS: Disse sendes inn i XML og skal ikke omdøpes!
     enum Systemnavn {
-        OVERSTYRING_FPSAK,
         NAV_NO
     }
 }

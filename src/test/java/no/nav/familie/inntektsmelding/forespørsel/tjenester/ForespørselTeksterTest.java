@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,43 +27,51 @@ class ForespørselTeksterTest {
 
     @Test
     void lagTilleggsInformasjon_EksternInnsending() {
-        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.EKSTERN_INNSENDING);
-        assertEquals("Utført i Altinn eller i bedriftens lønns- og personalsystem", statusTekst);
+        LocalDate førsteFraværsdag = LocalDate.now();
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.EKSTERN_INNSENDING, førsteFraværsdag);
+        var forventetTekst = String.format("Utført i Altinn eller i bedriftens lønns- og personalsystem for første fraværsdag %s",
+                                           førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+        assertEquals(forventetTekst, statusTekst);
     }
 
     @Test
     void lagTilleggsInformasjon_OrdinærInnsending() {
-        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.ORDINÆR_INNSENDING);
-        assertEquals(null, statusTekst);
+        LocalDate førsteFraværsdag = LocalDate.now();
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.ORDINÆR_INNSENDING, førsteFraværsdag);
+        var forventetTekst = String.format("For første fraværsdag %s", førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+        assertEquals(forventetTekst, statusTekst);
     }
 
     @Test
     void lagTilleggsInformasjon_Utgått() {
-        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT);
-        assertEquals("Du trenger ikke lenger å sende denne inntektsmeldingen", statusTekst);
+        LocalDate førsteFraværsdag = LocalDate.now();
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT, førsteFraværsdag);
+        var forventetTekst = String.format("Du trenger ikke lenger sende inntektsmelding for første fraværsdag %s",
+                                           førsteFraværsdag.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+        assertEquals(forventetTekst, statusTekst);
     }
 
     @Test
     void legVarselTekstMedOrgnvOgNavn() {
         var testOrgNavn = "test org";
         var testOrgNr = "1234321";
-        var varselTekst = ForespørselTekster.lagVarselTekst(Ytelsetype.FORELDREPENGER, new Organisasjon(testOrgNavn, testOrgNr));
+        var varselTekst = ForespørselTekster.lagVarselTekst(Ytelsetype.PLEIEPENGER_SYKT_BARN, new Organisasjon(testOrgNavn, testOrgNr));
 
         assertThat(varselTekst).isNotEmpty()
             .startsWith(testOrgNavn.toUpperCase())
             .contains(testOrgNr)
-            .contains(Ytelsetype.FORELDREPENGER.name().toLowerCase());
+            .contains("pleiepenger sykt barn");
     }
 
     @Test
     void legPåminnelseTekstMedOrgnvOgNavn() {
         var testOrgNavn = "org test org";
         var testOrgNr = "6531342";
-        var varselTekst = ForespørselTekster.lagPåminnelseTekst(Ytelsetype.SVANGERSKAPSPENGER, new Organisasjon(testOrgNavn, testOrgNr));
+        var varselTekst = ForespørselTekster.lagPåminnelseTekst(Ytelsetype.PLEIEPENGER_NÆRSTÅENDE, new Organisasjon(testOrgNavn, testOrgNr));
 
         assertThat(varselTekst).isNotEmpty()
             .startsWith(testOrgNavn.toUpperCase())
             .contains(testOrgNr)
-            .contains(Ytelsetype.SVANGERSKAPSPENGER.name().toLowerCase());
+            .contains("pleiepenger i livets sluttfase");
     }
 }

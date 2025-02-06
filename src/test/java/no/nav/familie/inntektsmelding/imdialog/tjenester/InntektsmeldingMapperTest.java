@@ -35,7 +35,7 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_teste_mapping_uten_ref_og_naturalytelse() {
         // Arrange
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(), new AktørIdDto("9999999999999"), YtelseTypeDto.FORELDREPENGER,
+        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(), new AktørIdDto("9999999999999"), YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"), new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"), LocalDate.now(),
             BigDecimal.valueOf(5000), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 
@@ -60,7 +60,7 @@ class InntektsmeldingMapperTest {
         // Arrange
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
-            YtelseTypeDto.FORELDREPENGER,
+            YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
             LocalDate.now(),
@@ -91,7 +91,7 @@ class InntektsmeldingMapperTest {
         // Arrange
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
-            YtelseTypeDto.FORELDREPENGER,
+            YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
             LocalDate.now(),
@@ -125,7 +125,7 @@ class InntektsmeldingMapperTest {
         // Arrange
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
-            YtelseTypeDto.FORELDREPENGER,
+            YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
             LocalDate.now(),
@@ -176,7 +176,7 @@ class InntektsmeldingMapperTest {
         var imEntitet = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(5000))
             .medMånedRefusjon(BigDecimal.valueOf(5000))
             .medRefusjonOpphørsdato(LocalDate.now().plusDays(5))
@@ -243,7 +243,7 @@ class InntektsmeldingMapperTest {
         var imEntitet = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(5000))
             .medMånedRefusjon(BigDecimal.valueOf(5000))
             .medRefusjonOpphørsdato(LocalDate.now().plusDays(10))
@@ -313,7 +313,7 @@ class InntektsmeldingMapperTest {
         var imEntitet = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(5000))
             .medMånedRefusjon(BigDecimal.valueOf(5000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)

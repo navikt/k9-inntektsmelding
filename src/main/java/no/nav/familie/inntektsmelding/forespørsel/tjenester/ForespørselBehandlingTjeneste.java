@@ -9,20 +9,12 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.rest.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 public interface ForespørselBehandlingTjeneste {
-
-    ForespørselResultat håndterInnkommendeForespørsel(LocalDate skjæringstidspunkt,
-                                                      Ytelsetype ytelsetype,
-                                                      AktørIdEntitet aktørId,
-                                                      OrganisasjonsnummerDto organisasjonsnummer,
-                                                      SaksnummerDto fagsakSaksnummer,
-                                                      LocalDate førsteUttaksdato);
 
     ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
                                               AktørIdEntitet aktorId,
@@ -48,8 +40,7 @@ public interface ForespørselBehandlingTjeneste {
                             SaksnummerDto fagsakSaksnummer,
                             OrganisasjonsnummerDto organisasjonsnummer,
                             LocalDate skjæringstidspunkt,
-                            LocalDate førsteUttaksdato,
-                            String tilleggsinfo);
+                            LocalDate førsteUttaksdato);
 
     UUID opprettForespørselForArbeidsgiverInitiertIm(Ytelsetype ytelsetype,
                                                      AktørIdEntitet aktørId,

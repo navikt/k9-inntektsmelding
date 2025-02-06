@@ -75,7 +75,7 @@ class InntektsmeldingPdfDataMapperTest {
         assertThat(pdfData.getKontaktperson().telefonnummer()).isEqualTo(ORG_NUMMER);
         assertThat(pdfData.getMånedInntekt()).isEqualTo(INNTEKT);
         assertThat(pdfData.getNavnSøker()).isEqualTo(FORNAVN + " " + MELLOMNAVN + " " + ETTERNAVN);
-        assertThat(pdfData.getYtelsetype()).isEqualTo(Ytelsetype.FORELDREPENGER);
+        assertThat(pdfData.getYtelsetype()).isEqualTo(Ytelsetype.PLEIEPENGER_SYKT_BARN);
         assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(formaterDatoOgTidNorsk(OPPRETTETT_TIDSPUNKT));
         assertThat(pdfData.getStartDato()).isEqualTo(formaterDatoMedNavnPåUkedag(START_DATO));
         assertThat(pdfData.getPersonnummer()).isEqualTo(formaterPersonnummer(personIdent.getIdent()));
@@ -233,7 +233,7 @@ class InntektsmeldingPdfDataMapperTest {
         return InntektsmeldingEntitet.builder()
             .medAktørId(AKTØRID_SØKER)
             .medKontaktperson(new KontaktpersonEntitet(NAVN, ORG_NUMMER))
-            .medYtelsetype(Ytelsetype.FORELDREPENGER)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(INNTEKT)
             .medStartDato(START_DATO)
             .medMånedRefusjon(REFUSJON_BELØP)

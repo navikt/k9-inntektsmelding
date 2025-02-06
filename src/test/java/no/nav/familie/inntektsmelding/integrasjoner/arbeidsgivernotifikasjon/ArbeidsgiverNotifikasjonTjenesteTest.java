@@ -37,7 +37,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var expectedVirksomhetsnummer = "2342342334";
         var expectedTittel = "Inntektsmelding for person";
         var expectedLenke = "https://inntektsmelding-innsendings-dialog.com";
-        var expectedMerkelapp = Merkelapp.INNTEKTSMELDING_FP;
+        var expectedMerkelapp = Merkelapp.INNTEKTSMELDING_PSB;
 
         var requestCaptor = ArgumentCaptor.forClass(NySakMutationRequest.class);
 
@@ -77,10 +77,10 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
         var expectedGrupperingsid = "id-som-knytter-sak-til-notifikasjon";
         var expectedVirksomhetsnummer = "2342342334";
         var expectedNotifikasjonsTekst = "Du har en ny oppgave i AG-portalen";
-        var expectedEksternvarselTekst = "En ansatt har søkt foreldrepenger";
-        var expectedPåminnelseTekst = "Påmminnelse: En ansatt har søkt foreldrepenger";
+        var expectedEksternvarselTekst = "En ansatt har søkt pleiepenger sykt barn";
+        var expectedPåminnelseTekst = "Påmminnelse: En ansatt har søkt pleiepenger sykt barn";
         var expectedNotifikasjonsLenke = "https://arbeidsgiver-portal.com";
-        var expectedNotifikasjonsMerkelapp = Merkelapp.INNTEKTSMELDING_FP;
+        var expectedNotifikasjonsMerkelapp = Merkelapp.INNTEKTSMELDING_PSB;
 
         var requestCaptor = ArgumentCaptor.forClass(NyOppgaveMutationRequest.class);
 

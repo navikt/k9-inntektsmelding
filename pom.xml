@@ -10,14 +10,10 @@
     </parent>
 
     <groupId>no.nav.familie.inntektsmelding</groupId>
-    <artifactId>ft-inntektsmelding</artifactId>
+    <artifactId>k9-inntektsmelding</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
-        <sonar.projectName>ft-inntektsmelding</sonar.projectName>
-        <sonar.projectKey>navikt_ft-inntektsmelding</sonar.projectKey>
-
         <felles.version>7.4.7</felles.version>
         <prosesstask.version>5.1.1</prosesstask.version>
         <fp-kontrakter.version>9.2.2</fp-kontrakter.version>
@@ -338,9 +334,9 @@
 
     <distributionManagement>
         <repository>
-            <id>ft-inntektsmelding</id>
+            <id>k9-inntektsmelding</id>
             <name>Github navikt Maven Packages</name>
-            <url>https://maven.pkg.github.com/navikt/ft-inntektsmelding</url>
+            <url>https://maven.pkg.github.com/navikt/k9-inntektsmelding</url>
         </repository>
     </distributionManagement>
 </project>

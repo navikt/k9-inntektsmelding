@@ -13,21 +13,19 @@ on:
         options:
           - dev
           - prod
-      namespace:
-        required: true
-        type: choice
-        description: 'k9'
-        options:
-          - k9saksbehandling
 
 jobs:
   deploy:
-    name: Deploy dev
+    name: Deploy
     permissions:
+      contents: write
       id-token: write
-    uses: navikt/ft-inntektsmelding/.github/workflows/deploy.yml@master
+    uses: navikt/sif-gha-workflows/.github/workflows/maven-deploy.yml@main
     with:
+      gar: true
       image: ${{ inputs.image }}
       cluster: ${{ inputs.environment }}-gcp
-      namespace: ${{ inputs.namespace }}
+      naiserator_file: .deploy/naiserator.yaml
+      input_vars_file: .deploy/${{ inputs.environment }}-gcp.json
+      namespace: k9saksbehandling
     secrets: inherit

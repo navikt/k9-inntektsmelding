@@ -44,7 +44,7 @@ public class InntektskomponentKlient {
         try {
             response = restClient.send(request, HentInntektListeBolkResponse.class);
         } catch (RuntimeException e) {
-            throw new IntegrasjonException("FP-824246",
+            throw new IntegrasjonException("K9-824246",
                 "Feil ved kall til inntektstjenesten. Meld til #team_registre og #produksjonshendelser hvis dette skjer over lengre tidsperiode.", e);
         }
         return response;

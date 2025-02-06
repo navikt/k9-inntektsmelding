@@ -2,7 +2,6 @@ package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -28,12 +27,10 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
-import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -61,38 +58,6 @@ public class ForespørselRest {
     public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, Tilgang tilgang) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.tilgang = tilgang;
-    }
-
-    @POST
-    @Path("/opprett")
-    @Tilgangskontrollert
-    public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request) {
-        sjekkErSystemkall();
-
-        if (request.organisasjonsnumre() != null){
-            if (request.organisasjonsnumre().isEmpty()) {
-                return Response.status(Response.Status.NO_CONTENT).build();
-            }
-
-            LOG.info("Mottok forespørsel om inntektsmeldingoppgave på fagsakSaksnummer {} for orgnumrene: {} ", request.fagsakSaksnummer(), request.organisasjonsnumre());
-            List<OpprettForespørselResponsNy.OrganisasjonsnummerMedStatus> organisasjonsnumreMedStatus = new ArrayList<>();
-            request.organisasjonsnumre().forEach(organisasjonsnummer -> {
-                var bleForespørselOpprettet = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(request.skjæringstidspunkt(),
-                    KodeverkMapper.mapYtelsetype(request.ytelsetype()),
-                    new AktørIdEntitet(request.aktørId().id()),
-                    new OrganisasjonsnummerDto(organisasjonsnummer.orgnr()),
-                    request.fagsakSaksnummer(),
-                    request.førsteUttaksdato());
-
-                if (ForespørselResultat.FORESPØRSEL_OPPRETTET.equals(bleForespørselOpprettet)) {
-                    MetrikkerTjeneste.loggForespørselOpprettet(KodeverkMapper.mapYtelsetype(request.ytelsetype()));
-                }
-                organisasjonsnumreMedStatus.add(new OpprettForespørselResponsNy.OrganisasjonsnummerMedStatus(organisasjonsnummer, bleForespørselOpprettet));
-            });
-            return Response.ok(new OpprettForespørselResponsNy(organisasjonsnumreMedStatus)).build();
-        } else {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
     }
 
     @POST

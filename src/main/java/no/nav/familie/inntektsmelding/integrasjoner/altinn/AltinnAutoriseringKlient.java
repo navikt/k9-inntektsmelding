@@ -90,7 +90,7 @@ public class AltinnAutoriseringKlient {
         try {
             return restClient.sendReturnList(request, AltinnReportee.class);
         } catch (RuntimeException e) {
-            throw new IntegrasjonException("FP-965432",
+            throw new IntegrasjonException("K9-965432",
                 "Feil ved kall til altinn-rettigheter-proxy. Meld til #team_fager hvis dette skjer over lengre tidsperiode.", e);
         }
     }

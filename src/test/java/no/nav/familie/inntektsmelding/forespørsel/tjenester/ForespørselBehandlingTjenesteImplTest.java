@@ -39,7 +39,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
-import no.nav.familie.inntektsmelding.typer.dto.ForespørselResultat;
 import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -83,152 +82,6 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
             personTjeneste,
             prosessTaskTjeneste,
             organisasjonTjeneste);
-    }
-
-    @Test
-    void skal_opprette_forespørsel_og_sette_sak_og_oppgave() {
-        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
-        when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("test org", BRREG_ORGNUMMER));
-
-        var resultat = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
-            YTELSETYPE,
-            new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            new SaksnummerDto(SAKSNUMMMER),
-            SKJÆRINGSTIDSPUNKT);
-
-        clearHibernateCache();
-
-        var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER));
-
-        assertThat(resultat).isEqualTo(ForespørselResultat.FORESPØRSEL_OPPRETTET);
-        assertThat(lagret).hasSize(1);
-        assertThat(lagret.getFirst().getArbeidsgiverNotifikasjonSakId()).isEqualTo(SAK_ID);
-        assertThat(lagret.getFirst().getOppgaveId()).isEqualTo(Optional.of(OPPGAVE_ID));
-    }
-
-    @Test
-    void eksisterende_forespørsel_på_samme_stp_skal_gi_nei() {
-        forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER, SKJÆRINGSTIDSPUNKT);
-
-        getEntityManager().clear();
-
-        var resultat = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
-            YTELSETYPE,
-            new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            new SaksnummerDto(SAKSNUMMMER),
-            SKJÆRINGSTIDSPUNKT);
-
-        clearHibernateCache();
-
-        var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER));
-        assertThat(resultat).isEqualTo(ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE);
-        assertThat(lagret).hasSize(1);
-    }
-
-    @Test
-    void skal_ikke_opprette_forespørsel_når_finnes_allerede_for_stp_og_første_uttaksdato() {
-        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
-        when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("test org", BRREG_ORGNUMMER));
-
-        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
-            YTELSETYPE,
-            new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            new SaksnummerDto(SAKSNUMMMER),
-            FØRSTE_UTTAKSDATO);
-
-        clearHibernateCache();
-
-        var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER)).getFirst();
-        var fpEntitet = forespørselBehandlingTjeneste.ferdigstillForespørsel(lagret.getUuid(),
-            lagret.getAktørId(),
-            new OrganisasjonsnummerDto(lagret.getOrganisasjonsnummer()),
-            lagret.getFørsteUttaksdato().orElse(lagret.getSkjæringstidspunkt()),
-            LukkeÅrsak.EKSTERN_INNSENDING);
-
-        assertThat(fpEntitet.getStatus()).isEqualTo(ForespørselStatus.FERDIG);
-
-        var resultat2 = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
-            YTELSETYPE,
-            new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            new SaksnummerDto(SAKSNUMMMER),
-            FØRSTE_UTTAKSDATO);
-
-        assertThat(resultat2).isEqualTo(ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE);
-    }
-
-    @Test
-    void skal_opprette_forespørsel_når_finnes_allerede_for_samme_stp_og_ulik_uttaksdato() {
-        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
-        when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("test org", BRREG_ORGNUMMER));
-
-        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
-            YTELSETYPE,
-            new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            new SaksnummerDto(SAKSNUMMMER),
-            FØRSTE_UTTAKSDATO);
-
-        clearHibernateCache();
-
-        var lagret = forespørselRepository.hentForespørsler(new SaksnummerDto(SAKSNUMMMER)).getFirst();
-
-        var fpEntitet = forespørselBehandlingTjeneste.ferdigstillForespørsel(lagret.getUuid(),
-            lagret.getAktørId(),
-            new OrganisasjonsnummerDto(lagret.getOrganisasjonsnummer()),
-            lagret.getFørsteUttaksdato().orElse(lagret.getSkjæringstidspunkt()),
-            LukkeÅrsak.EKSTERN_INNSENDING);
-
-        assertThat(fpEntitet.getStatus()).isEqualTo(ForespørselStatus.FERDIG);
-
-        var resultat2 = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
-            YTELSETYPE,
-            new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            new SaksnummerDto(SAKSNUMMMER),
-            FØRSTE_UTTAKSDATO.plusDays(1));
-
-        assertThat(resultat2).isEqualTo(ForespørselResultat.FORESPØRSEL_OPPRETTET);
-    }
-
-    @Test
-    void skal_opprette_ny_forespørsel_med_nytt_stp_og_sette_mottatte_forespørsel_med_tidligere_stp_til_utgått() {
-        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
-        when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("test org", BRREG_ORGNUMMER));
-        var saksnummerDto = new SaksnummerDto(SAKSNUMMMER);
-
-        forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT,
-            YTELSETYPE,
-            new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            saksnummerDto,
-            FØRSTE_UTTAKSDATO);
-
-        var lagret = forespørselRepository.hentForespørsler(saksnummerDto).getFirst();
-
-        var fpEntitet = forespørselBehandlingTjeneste.ferdigstillForespørsel(lagret.getUuid(),
-            lagret.getAktørId(),
-            new OrganisasjonsnummerDto(lagret.getOrganisasjonsnummer()),
-            lagret.getFørsteUttaksdato().orElse(lagret.getSkjæringstidspunkt()),
-            LukkeÅrsak.ORDINÆR_INNSENDING);
-
-        assertThat(fpEntitet.getStatus()).isEqualTo(ForespørselStatus.FERDIG);
-
-        var resultat2 = forespørselBehandlingTjeneste.håndterInnkommendeForespørsel(SKJÆRINGSTIDSPUNKT.plusMonths(2),
-            YTELSETYPE,
-            new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            new SaksnummerDto(SAKSNUMMMER),
-            FØRSTE_UTTAKSDATO);
-
-        var forrigeForespørsel = forespørselRepository.hentForespørsel(lagret.getUuid());
-
-        clearHibernateCache();
-        assertThat(forrigeForespørsel.map(ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
-        assertThat(resultat2).isEqualTo(ForespørselResultat.FORESPØRSEL_OPPRETTET);
     }
 
     @Test
@@ -364,6 +217,18 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
     }
 
     @Test
+    void skal_ikke_opprette_ny_forespørsel_dersom_det_eksisterer_en_for_samme_stp() {
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
+            SKJÆRINGSTIDSPUNKT);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+
+        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.OPPRETT));
+        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
+
+        verifyNoInteractions(prosessTaskTjeneste);
+    }
+
+    @Test
     void skal_opprette_forespørsel_dersom_det_ikke_eksisterer_en_for_stp() {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
 
@@ -381,18 +246,6 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         assertThat(taskdata.getAktørId()).isEqualTo(AKTØR_ID);
         assertThat(taskdata.getPropertyValue(OpprettForespørselTask.ORGNR)).isEqualTo(BRREG_ORGNUMMER);
         assertThat(taskdata.getPropertyValue(OpprettForespørselTask.STP)).isEqualTo(SKJÆRINGSTIDSPUNKT.toString());
-    }
-
-    @Test
-    void skal_ikke_opprette_ny_forespørsel_dersom_det_eksisterer_en_for_samme_stp() {
-        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            SKJÆRINGSTIDSPUNKT);
-        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
-
-        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.OPPRETT));
-        forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
-
-        verifyNoInteractions(prosessTaskTjeneste);
     }
 
     @Test
@@ -517,9 +370,9 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
 
     @Test
     void skal_opprette_ny_beskjed() {
-        String varseltekst = "TEST A/S - orgnr 974760673: Vi har ennå ikke mottatt inntektsmelding. For at vi skal kunne behandle søknaden om foreldrepenger, må inntektsmeldingen sendes inn så raskt som mulig.";
-        String beskjedtekst = "Vi har ennå ikke mottatt inntektsmelding for Navn Navnesen. For at vi skal kunne behandle søknaden om foreldrepenger, må inntektsmeldingen sendes inn så raskt som mulig.";
-        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.FORELDREPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
+        String varseltekst = "TEST A/S - orgnr 974760673: Vi har ennå ikke mottatt inntektsmelding. For at vi skal kunne behandle søknaden om pleiepenger sykt barn, må inntektsmeldingen sendes inn så raskt som mulig.";
+        String beskjedtekst = "Vi har ennå ikke mottatt inntektsmelding for Navn Navnesen. For at vi skal kunne behandle søknaden om pleiepenger sykt barn, må inntektsmeldingen sendes inn så raskt som mulig.";
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.PLEIEPENGER_SYKT_BARN, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         var uri = URI.create(String.format("https://arbeidsgiver.intern.dev.nav.no/fp-im-dialog/%s", forespørselUuid.toString()));
@@ -533,22 +386,22 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
             null);
 
         when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("Test A/S", BRREG_ORGNUMMER));
-        when(arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_FP, forespørselUuid.toString(), BRREG_ORGNUMMER, beskjedtekst, varseltekst,
+        when(arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_PSB, forespørselUuid.toString(), BRREG_ORGNUMMER, beskjedtekst, varseltekst,
             uri)).thenReturn("beskjedId");
-        when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(AKTØR_ID), Ytelsetype.FORELDREPENGER)).thenReturn(personInfo);
+        when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(AKTØR_ID), Ytelsetype.PLEIEPENGER_SYKT_BARN)).thenReturn(personInfo);
 
         var resultat = forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER));
 
         clearHibernateCache();
 
         assertThat(resultat).isEqualTo(NyBeskjedResultat.NY_BESKJED_SENDT);
-        verify(arbeidsgiverNotifikasjon, Mockito.times(1)).opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_FP, forespørselUuid.toString(), BRREG_ORGNUMMER, beskjedtekst, varseltekst,
+        verify(arbeidsgiverNotifikasjon, Mockito.times(1)).opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_PSB, forespørselUuid.toString(), BRREG_ORGNUMMER, beskjedtekst, varseltekst,
             uri);
     }
 
     @Test
     void skal_gi_riktig_resultat_om_det_ikke_finnes_en_åpen_forespørsel() {
-        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.FORELDREPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.PLEIEPENGER_SYKT_BARN, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
             SKJÆRINGSTIDSPUNKT);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
         forespørselRepository.ferdigstillForespørsel(SAK_ID);
@@ -561,7 +414,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_siste_opprinnelig_forespørsel_og_før_ny_start_dato_for_aktør() {
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT,
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             AKTØR_ID,
             BRREG_ORGNUMMER,
             SAKSNUMMMER,
@@ -570,7 +423,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         forespørselRepository.ferdigstillForespørsel(SAK_ID);
 
         var forespørselUuid2 = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT.plusMonths(4),
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             AKTØR_ID,
             BRREG_ORGNUMMER,
             "SAKSNUMMMER2",
@@ -580,7 +433,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
 
         var datoEtterStartDato = LocalDate.now().plusMonths(1);
         var forespørselUuidEtterStartDato = forespørselRepository.lagreForespørsel(datoEtterStartDato,
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             AKTØR_ID,
             BRREG_ORGNUMMER,
             "SAKSNUMMMER3",
@@ -589,7 +442,7 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         forespørselRepository.ferdigstillForespørsel("3");
 
         var resultat = forespørselBehandlingTjeneste.finnOpprinneligForespørsel(new AktørIdEntitet(AKTØR_ID),
-            Ytelsetype.FORELDREPENGER,
+            Ytelsetype.PLEIEPENGER_SYKT_BARN,
             LocalDate.now());
 
         clearHibernateCache();
@@ -597,15 +450,13 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         assertThat(resultat.map(ForespørselEntitet::getUuid)).isEqualTo(Optional.of(forespørselUuid2));
     }
 
-
-
     @Test
     void skal_returnere_liste_av_inntektsmeldingdto_for_forespørsler() {
 
-        var forespørsel1sak1 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 1, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.FORELDREPENGER, SAK_ID, LocalDate.of(2025, 1, 1));
-        var forespørsel1sak2 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 2, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.FORELDREPENGER, SAK_ID_2 , LocalDate.of(2025, 2, 1));
-        var forespørsel2sak1 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 3, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.FORELDREPENGER, SAK_ID, LocalDate.of(2025, 3, 1));
-        var forespørsel2sak2 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 4, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.FORELDREPENGER, SAK_ID_2, LocalDate.of(2025, 4, 1));
+        var forespørsel1sak1 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 1, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.PLEIEPENGER_SYKT_BARN, SAK_ID, LocalDate.of(2025, 1, 1));
+        var forespørsel1sak2 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 2, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.PLEIEPENGER_SYKT_BARN, SAK_ID_2 , LocalDate.of(2025, 2, 1));
+        var forespørsel2sak1 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 3, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.PLEIEPENGER_SYKT_BARN, SAK_ID, LocalDate.of(2025, 3, 1));
+        var forespørsel2sak2 = new ForespørselEntitet(BRREG_ORGNUMMER, LocalDate.of(2025, 4, 1), new AktørIdEntitet(AKTØR_ID), Ytelsetype.PLEIEPENGER_SYKT_BARN, SAK_ID_2, LocalDate.of(2025, 4, 1));
 
         getEntityManager().persist(forespørsel1sak1);
         getEntityManager().persist(forespørsel1sak2);

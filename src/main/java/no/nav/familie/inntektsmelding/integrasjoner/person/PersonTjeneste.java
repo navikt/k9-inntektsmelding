@@ -57,7 +57,7 @@ public class PersonTjeneste {
             () -> new IllegalStateException("Finner ikke personnummer for id " + aktørId));
 
         LOG.info("Henter personobjekt");
-        var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
+        var person = pdlKlient.hentPerson(utledYtelse(), request, projection);
 
         var navn = person.getNavn().getFirst();
         return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId, mapFødselsdato(person), null);
@@ -72,7 +72,7 @@ public class PersonTjeneste {
             .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
 
         var aktørId = finnAktørIdForIdent(personIdent);
-        var person = pdlKlient.hentPerson(utledYtelse(ytelseType), request, projection);
+        var person = pdlKlient.hentPerson(utledYtelse(), request, projection);
         var navn = person.getNavn().getFirst();
 
         return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId.orElse(null), mapFødselsdato(person),
@@ -129,12 +129,9 @@ public class PersonTjeneste {
         }
     }
 
-    private static Persondata.Ytelse utledYtelse(Ytelsetype ytelseType) {
-        if (Ytelsetype.SVANGERSKAPSPENGER.equals(ytelseType)) {
-            return Persondata.Ytelse.SVANGERSKAPSPENGER;
-        } else {
-            return Persondata.Ytelse.FORELDREPENGER;
-        }
+    // TODO: utled riktig ytlese for ytelser i k9. Krever at vi går bort fra fp-felles og bruker k9-felles
+    private static Persondata.Ytelse utledYtelse() {
+        return Persondata.Ytelse.PLEIEPENGER;
     }
 
 }

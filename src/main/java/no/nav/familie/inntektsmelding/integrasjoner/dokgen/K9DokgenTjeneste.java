@@ -56,7 +56,7 @@ public class K9DokgenTjeneste {
         } catch (Exception e) {
             imDokumentData.anonymiser();
             SECURE_LOG.warn("Klarte ikke å generere pdf av inntektsmelding: {}", DefaultJsonMapper.toJson(imDokumentData));
-            throw new TekniskException("FPINNTEKTSMELDING_1",
+            throw new TekniskException("K9INNTEKTSMELDING_1",
                 String.format("Klarte ikke å generere pdf for inntektsmelding med id %s", inntektsmeldingId), e);
         }
     }

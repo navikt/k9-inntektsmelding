@@ -58,7 +58,7 @@ public class AaregRestKlient {
             }
 
             if (response.statusCode() >= 400) {
-                throw new IntegrasjonException("FP-12345", "Feil ved henting av arbeidsforhold for person: " + response.body());
+                throw new IntegrasjonException("K9-12345", "Feil ved henting av arbeidsforhold for person: " + response.body());
             }
 
             var arbeidsforhold = DefaultJsonMapper.fromJson(response.body(), ArbeidsforholdDto[].class);
