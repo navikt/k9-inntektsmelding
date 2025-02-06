@@ -4,7 +4,8 @@ public enum Behandlingtema {
 
     PLEIEPENGER_SYKT_BARN("ab0320"),
     PLEIEPENGER_LIVETS_SLUTTFASE("ab0094"),
-    OMSORGSPENGER("ab0149");
+    OMSORGSPENGER("ab0149"),
+    OPPLÆRINGSPENGER("ab0141");
 
     private final String offisiellKode;
 
