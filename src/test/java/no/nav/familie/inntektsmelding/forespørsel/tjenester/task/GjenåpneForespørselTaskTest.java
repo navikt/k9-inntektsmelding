@@ -63,7 +63,7 @@ class GjenåpneForespørselTaskTest {
     }
 
     @Test
-    void skal_ikke_gjenåpne_dersom_status_ikke_er_under_behandling() {
+    void skal_ikke_gjenåpne_dersom_status_er_under_behandling() {
         var task = new GjenåpneForespørselTask(forespørselBehandlingTjeneste, inntektsmeldingTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
         taskdata.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørselUuid.toString());
@@ -78,7 +78,7 @@ class GjenåpneForespørselTaskTest {
     }
 
     @Test
-    void skal_ikke_gjenåpne_dersom_status_ikke_er_ferdig() {
+    void skal_ikke_gjenåpne_dersom_status_er_ferdig() {
         var task = new GjenåpneForespørselTask(forespørselBehandlingTjeneste, inntektsmeldingTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
         taskdata.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørselUuid.toString());
@@ -93,7 +93,7 @@ class GjenåpneForespørselTaskTest {
     }
 
     @Test
-    void skal_ikke_gjenåpne_dersom_vi_ikke_finner_im() {
+    void skal_kaste_feil_dersom_vi_ikke_finner_im() {
         var task = new GjenåpneForespørselTask(forespørselBehandlingTjeneste, inntektsmeldingTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
         taskdata.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørselUuid.toString());
