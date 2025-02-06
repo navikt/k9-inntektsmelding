@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>no.nav.familie.inntektsmelding</groupId>
-    <artifactId>ft-inntektsmelding</artifactId>
+    <artifactId>k9-inntektsmelding</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
