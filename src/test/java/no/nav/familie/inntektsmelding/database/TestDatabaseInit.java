@@ -65,9 +65,9 @@ public final class TestDatabaseInit {
 
     private static void settJdniOppslag(DataSource dataSource) {
         try {
-            new EnvEntry("jdbc/defaultDS", dataSource); // NOSONAR
+            new EnvEntry("jdbc/defaultDS", dataSource);
         } catch (NamingException e) {
-            throw new IllegalStateException("Feil under registrering av JDNI-entry for default datasource", e); // NOSONAR
+            throw new IllegalStateException("Feil under registrering av JDNI-entry for default datasource", e);
         }
     }
 
