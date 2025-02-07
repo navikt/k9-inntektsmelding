@@ -15,7 +15,7 @@ import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
 public class RestApiTester {
 
-    static final List<Class<?>> UNNTATT = List.of(ProsessTaskRestTjeneste.class);
+    static final List<Class<?>> UNNTATT = List.of(ProsessTaskRestTjeneste.class, no.nav.k9.prosesstask.rest.ProsessTaskRestTjeneste.class);
 
     static Collection<Method> finnAlleRestMetoder() {
         List<Method> liste = new ArrayList<>();
