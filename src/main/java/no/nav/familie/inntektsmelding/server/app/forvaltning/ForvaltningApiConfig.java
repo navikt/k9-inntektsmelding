@@ -44,7 +44,7 @@ public class ForvaltningApiConfig extends ResourceConfig {
     public ForvaltningApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
         // Sikkerhet
-        register(AutentiseringFilter.class);
+        //register(AutentiseringFilter.class);
         registerOpenApi();
 
         // REST
@@ -86,8 +86,8 @@ public class ForvaltningApiConfig extends ResourceConfig {
     private Set<Class<?>> getApplicationClasses() {
         var classes = new HashSet<Class<?>>();
         classes.add(no.nav.k9.prosesstask.rest.ProsessTaskRestTjeneste.class);
-        classes.add(K9DokgenRestTjeneste.class);
-        classes.add(OppgaverForvaltningRestTjeneste.class);
+        //classes.add(K9DokgenRestTjeneste.class);
+        //classes.add(OppgaverForvaltningRestTjeneste.class);
         if (Environment.current().isLocal()) {
             classes.add(ForespørselVtpRest.class);
         }
