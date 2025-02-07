@@ -1,6 +1,5 @@
 package no.nav.familie.inntektsmelding.server.app.forvaltning;
 
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,9 +20,9 @@ import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
+
 import no.nav.familie.inntektsmelding.forvaltning.K9DokgenRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.OppgaverForvaltningRestTjeneste;
-import no.nav.familie.inntektsmelding.forvaltning.ProsessTaskRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.rest.ForespørselVtpRest;
 import no.nav.familie.inntektsmelding.server.auth.AutentiseringFilter;
 import no.nav.familie.inntektsmelding.server.exceptions.ConstraintViolationMapper;
@@ -86,7 +85,7 @@ public class ForvaltningApiConfig extends ResourceConfig {
 
     private Set<Class<?>> getApplicationClasses() {
         var classes = new HashSet<Class<?>>();
-        classes.add(ProsessTaskRestTjeneste.class);
+        classes.add(no.nav.k9.prosesstask.rest.ProsessTaskRestTjeneste.class);
         classes.add(K9DokgenRestTjeneste.class);
         classes.add(OppgaverForvaltningRestTjeneste.class);
         if (Environment.current().isLocal()) {
