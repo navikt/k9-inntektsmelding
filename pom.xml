@@ -15,6 +15,7 @@
 
     <properties>
         <fp-felles.version>7.4.7</fp-felles.version>
+        <k9-felles.version>4.4.8</k9-felles.version>
         <fp-kontrakter.version>9.2.2</fp-kontrakter.version>
     </properties>
 
@@ -31,6 +32,13 @@
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles</artifactId>
                 <version>${fp-felles.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.k9.felles</groupId>
+                <artifactId>k9-felles-root</artifactId>
+                <version>${k9-felles.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -62,6 +70,16 @@
                 <version>${fp-kontrakter.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.k9.felles</groupId>
+                <artifactId>k9-felles-db</artifactId>
+                <version>${k9-felles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.k9.felles.oidc-token</groupId>
+                <artifactId>k9-sikkerhet-azure-cc</artifactId>
+                <version>${k9-felles.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -107,7 +125,14 @@
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>inntektsmelding-v1</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>no.nav.k9.felles</groupId>
+            <artifactId>k9-felles-db</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.k9.felles.oidc-token</groupId>
+            <artifactId>k9-sikkerhet-azure-cc</artifactId>
+        </dependency>
 
         <!-- CDI -->
         <dependency>
@@ -216,10 +241,6 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-db</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-server</artifactId>
         </dependency>
 
@@ -238,6 +259,12 @@
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-testutilities</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>no.nav.foreldrepenger.felles</groupId>
+                    <artifactId>felles-db</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Testcontainer og sec update -->
