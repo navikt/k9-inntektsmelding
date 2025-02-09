@@ -85,11 +85,6 @@
             <artifactId>prosesstask-rest-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.k9.prosesstask</groupId>
-            <artifactId>prosesstask-rest-api</artifactId>
-            <version>2.7.5</version>
-        </dependency>
-        <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
             <artifactId>felles-integrasjon-rest-klient</artifactId>
         </dependency>
