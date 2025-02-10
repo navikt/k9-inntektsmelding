@@ -83,7 +83,7 @@ public class ProsessTaskRestTjeneste {
     }
 
     @POST
-    @Path("/launch/{prosessTaskId}/{prosessTaskStatus}")
+    @Path("/launch")
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Restarter en eksisterende prosesstask.", summary =
         "En allerede FERDIG prosesstask kan ikke restartes. En prosesstask har normalt et gitt antall forsøk den kan kjøres automatisk. "
@@ -94,8 +94,7 @@ public class ProsessTaskRestTjeneste {
     })
     @Tilgangskontrollert
     public ProsessTaskRestartResultatDto restartProsessTask(
-        @Parameter(description = "Informasjon for restart en eksisterende prosesstask") @Valid @BeanParam
-        ProsessTaskRestartInputDto restartInputDto) {
+        @Parameter(description = "Informasjon for restart en eksisterende prosesstask") @Valid ProsessTaskRestartInputDto restartInputDto) {
         sjekkAtKallerHarRollenDrift();
         // kjøres manuelt for å avhjelpe feilsituasjon, da er det veldig greit at det blir logget!
         LOG.info("Restarter prossess task {}", restartInputDto.getProsessTaskId());
