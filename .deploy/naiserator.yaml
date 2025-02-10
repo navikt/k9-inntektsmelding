@@ -66,6 +66,10 @@ spec:
         extra:
           - "NAVident"
           - "azp_name"
+        groups:
+          { { #each groups as |group|}}
+          - id: "{{group}}"
+          {{/each } }
   accessPolicy:
     inbound:
       rules:
@@ -98,3 +102,6 @@ spec:
       {{else}}
         - host: dokarkiv.{{environment}}-fss-pub.nais.io
       {{/if}}
+  env:
+    - name: gruppe.oid.drift
+      value: {{driftGruppeOid}}

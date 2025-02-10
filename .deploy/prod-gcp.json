@@ -13,6 +13,8 @@
   "ingresses": [
     "https://k9-inntektsmelding.intern.nav.no"
   ],
+  "groups": [
+  ],
   "dbTier": "db-custom-1-3840",
   "dbDiskAutoresize": "true",
   "dbHighAvailability": "true",
@@ -26,5 +28,6 @@
         "swagger"
       ]
     }
-  ]
+  ],
+  "driftGruppeOid": "TODO"
 }
