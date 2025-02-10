@@ -104,4 +104,4 @@ spec:
       {{/if}}
   env:
     - name: gruppe.oid.drift
-      value: "{{driftGruppeOid}}"
+      value: {{driftGruppeOid}}
