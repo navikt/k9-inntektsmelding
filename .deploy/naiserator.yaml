@@ -67,9 +67,9 @@ spec:
           - "NAVident"
           - "azp_name"
         groups:
-          { { #each groups as |group|}}
+          {{#each groups as |group|}}
           - id: "{{group}}"
-          {{/each } }
+          {{/each}}
   accessPolicy:
     inbound:
       rules:
