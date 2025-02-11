@@ -12,8 +12,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -332,41 +330,6 @@ class ForespørselBehandlingTjenesteImpl implements ForespørselBehandlingTjenes
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, fagerSakId);
 
         return uuid;
-    }
-
-    @Override
-    public NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto fagsakSaksnummer,
-                                                                OrganisasjonsnummerDto organisasjonsnummer) {
-        var forespørsel = forespørselTjeneste.finnÅpenForespørslelForFagsak(fagsakSaksnummer, organisasjonsnummer)
-            .orElse(null);
-
-        if (forespørsel == null) {
-            return NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE;
-        }
-
-        var msg = String.format("Oppretter ny beskjed med ekstern varsling, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
-            organisasjonsnummer,
-            forespørsel.getSkjæringstidspunkt(),
-            fagsakSaksnummer.saksnr(),
-            forespørsel.getYtelseType());
-        LOG.info(msg);
-        var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
-        var forespørselUuid = forespørsel.getUuid();
-        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
-        var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr());
-        var person = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId(), forespørsel.getYtelseType());
-        var varselTekst = ForespørselTekster.lagVarselFraSaksbehandlerTekst(forespørsel.getYtelseType(), organisasjon);
-        var beskjedTekst = ForespørselTekster.lagBeskjedFraSaksbehandlerTekst(forespørsel.getYtelseType(), person.mapFulltNavn());
-
-        arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(),
-            merkelapp,
-            forespørselUuid.toString(),
-            organisasjonsnummer.orgnr(),
-            beskjedTekst,
-            varselTekst,
-            skjemaUri);
-
-        return NyBeskjedResultat.NY_BESKJED_SENDT;
     }
 
     @Override

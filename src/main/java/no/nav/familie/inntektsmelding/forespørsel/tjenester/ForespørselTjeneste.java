@@ -60,10 +60,6 @@ public class ForespørselTjeneste {
         return forespørselRepository.finnÅpenForespørsel(fagsakSaksnummer);
     }
 
-    public Optional<ForespørselEntitet> finnÅpenForespørslelForFagsak(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnr) {
-        return forespørselRepository.finnÅpenForespørsel(fagsakSaksnummer, orgnr);
-    }
-
     public Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUuid) {
         return forespørselRepository.hentForespørsel(forespørselUuid);
     }
