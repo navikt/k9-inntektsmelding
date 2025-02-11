@@ -60,8 +60,8 @@ spec:
     enabled: true
   azure:
     application:
-      allowAllUsers: true
       enabled: true
+      allowAllUsers: false
       claims:
         extra:
           - "NAVident"
