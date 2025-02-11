@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -118,29 +117,6 @@ public class ForespørselRepository {
             .setParameter("saksnummer", fagsystemSaksnummer.saksnr())
             .setParameter("status", ForespørselStatus.UNDER_BEHANDLING);
         return query.getResultList();
-    }
-
-    public Optional<ForespørselEntitet> finnÅpenForespørsel(SaksnummerDto fagsakSaksnummer,
-                                                            OrganisasjonsnummerDto organisasjonsnummer) {
-        var arbeidsgiverIdent = organisasjonsnummer.orgnr();
-        var query = entityManager.createQuery("FROM ForespørselEntitet where status = :fpStatus "
-                    + "and fagsystemSaksnummer = :fagsakNr "
-                    + "and organisasjonsnummer = :arbeidsgiverIdent ",
-                ForespørselEntitet.class)
-            .setParameter("fpStatus", ForespørselStatus.UNDER_BEHANDLING)
-            .setParameter("fagsakNr", fagsakSaksnummer.saksnr())
-            .setParameter("arbeidsgiverIdent", arbeidsgiverIdent);
-
-        var resultList = query.getResultList();
-        if (resultList.isEmpty()) {
-            return Optional.empty();
-        } else if (resultList.size() > 1) {
-            throw new IllegalStateException(
-                "Forventet å finne kun en åpen forespørsel for gitt sak {} og orgnr {}" + fagsakSaksnummer
-                    + organisasjonsnummer);
-        } else {
-            return Optional.of(resultList.getFirst());
-        }
     }
 
     public List<ForespørselEntitet> finnForespørslerForAktørId(AktørIdEntitet aktørId, Ytelsetype ytelsetype) {

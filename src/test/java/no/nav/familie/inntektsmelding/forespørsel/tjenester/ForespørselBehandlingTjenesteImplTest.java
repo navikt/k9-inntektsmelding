@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -30,8 +29,6 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForesp�
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
-import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
@@ -39,7 +36,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
-import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -366,49 +362,6 @@ class ForespørselBehandlingTjenesteImplTest extends EntityManagerAwareTest {
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
         verify(arbeidsgiverNotifikasjon, Mockito.times(1)).slettSak(SAK_ID);
-    }
-
-    @Test
-    void skal_opprette_ny_beskjed() {
-        String varseltekst = "TEST A/S - orgnr 974760673: Vi har ennå ikke mottatt inntektsmelding. For at vi skal kunne behandle søknaden om pleiepenger sykt barn, må inntektsmeldingen sendes inn så raskt som mulig.";
-        String beskjedtekst = "Vi har ennå ikke mottatt inntektsmelding for Navn Navnesen. For at vi skal kunne behandle søknaden om pleiepenger sykt barn, må inntektsmeldingen sendes inn så raskt som mulig.";
-        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.PLEIEPENGER_SYKT_BARN, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            SKJÆRINGSTIDSPUNKT);
-        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
-        var uri = URI.create(String.format("https://arbeidsgiver.intern.dev.nav.no/fp-im-dialog/%s", forespørselUuid.toString()));
-
-        var personInfo = new PersonInfo("Navn",
-            null,
-            "Navnesen",
-            new PersonIdent("01019100000"),
-            new AktørIdEntitet(AKTØR_ID),
-            LocalDate.of(1991, 1, 1).minusYears(30),
-            null);
-
-        when(organisasjonTjeneste.finnOrganisasjon(BRREG_ORGNUMMER)).thenReturn(new Organisasjon("Test A/S", BRREG_ORGNUMMER));
-        when(arbeidsgiverNotifikasjon.opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_PSB, forespørselUuid.toString(), BRREG_ORGNUMMER, beskjedtekst, varseltekst,
-            uri)).thenReturn("beskjedId");
-        when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(AKTØR_ID), Ytelsetype.PLEIEPENGER_SYKT_BARN)).thenReturn(personInfo);
-
-        var resultat = forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER));
-
-        clearHibernateCache();
-
-        assertThat(resultat).isEqualTo(NyBeskjedResultat.NY_BESKJED_SENDT);
-        verify(arbeidsgiverNotifikasjon, Mockito.times(1)).opprettNyBeskjedMedEksternVarsling(forespørselUuid.toString(), Merkelapp.INNTEKTSMELDING_PSB, forespørselUuid.toString(), BRREG_ORGNUMMER, beskjedtekst, varseltekst,
-            uri);
-    }
-
-    @Test
-    void skal_gi_riktig_resultat_om_det_ikke_finnes_en_åpen_forespørsel() {
-        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.PLEIEPENGER_SYKT_BARN, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER,
-            SKJÆRINGSTIDSPUNKT);
-        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
-        forespørselRepository.ferdigstillForespørsel(SAK_ID);
-
-        var resultat = forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER));
-        clearHibernateCache();
-        assertThat(resultat).isEqualTo(NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE);
     }
 
     @Test
