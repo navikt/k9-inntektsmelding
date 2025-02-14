@@ -42,12 +42,16 @@ public class ForespørselBehandlingTjeneste {
 
     private static final no.nav.foreldrepenger.konfig.Environment ENV = Environment.current();
 
-    private final ForespørselTjeneste forespørselTjeneste;
-    private final ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
-    private final PersonTjeneste personTjeneste;
-    private final ProsessTaskTjeneste prosessTaskTjeneste;
-    private final OrganisasjonTjeneste organisasjonTjeneste;
-    private final String inntektsmeldingSkjemaLenke;
+    private ForespørselTjeneste forespørselTjeneste;
+    private ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
+    private PersonTjeneste personTjeneste;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
+    private OrganisasjonTjeneste organisasjonTjeneste;
+    private String inntektsmeldingSkjemaLenke;
+
+    ForespørselBehandlingTjeneste() {
+        // CDI
+    }
 
     @Inject
     public ForespørselBehandlingTjeneste(ForespørselTjeneste forespørselTjeneste,
