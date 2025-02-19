@@ -228,7 +228,8 @@ class InntektsmeldingTjenesteTest {
             BigDecimal.valueOf(10000),
             List.of(),
             List.of(),
-            List.of());
+            List.of(),
+            null);
 
         // Act
         var ex = assertThrows(IllegalStateException.class, () -> inntektsmeldingTjeneste.mottaInntektsmelding(innsendingDto));
@@ -252,7 +253,8 @@ class InntektsmeldingTjenesteTest {
             BigDecimal.valueOf(10000),
             List.of(),
             List.of(),
-            List.of());
+            List.of(),
+            null);
 
         // Act
         var ex = assertThrows(IllegalStateException.class, () -> inntektsmeldingTjeneste.mottaArbeidsgiverInitiertInntektsmelding(innsendingDto));
