@@ -1,0 +1,71 @@
+package no.nav.familie.inntektsmelding.imdialog.modell;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Entity(name = "DelvisFraværsPeriodeEntitet")
+@Table(name = "DELVIS_FRAVAERS_PERIODE")
+public class DelvisFraværsPeriodeEntitet {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
+    private Long id;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "omsorgspenger_id", nullable = false, updatable = false)
+    private OmsorgspengerEntitet omsorgspenger;
+
+    @Column(name = "dato", nullable = false)
+    private LocalDate dato;
+
+    @Column(name = "normal_arbeidstid", nullable = false)
+    private BigDecimal normalArbeidstid;
+
+    @Column(name = "antall_fravaers_timer", nullable = false)
+    private BigDecimal antallFraværsTimer;
+
+    public DelvisFraværsPeriodeEntitet() {
+        // Hibernate
+    }
+
+    public DelvisFraværsPeriodeEntitet(LocalDate dato, BigDecimal normalArbeidstid, BigDecimal antallFraværsTimer) {
+        this.dato = dato;
+        this.normalArbeidstid = normalArbeidstid;
+        this.antallFraværsTimer = antallFraværsTimer;
+    }
+
+    public LocalDate getDato() {
+        return dato;
+    }
+
+    public BigDecimal getNormalArbeidstid() {
+        return normalArbeidstid;
+    }
+
+    public BigDecimal getAntallFraværsTimer() {
+        return antallFraværsTimer;
+    }
+
+    void setOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
+        this.omsorgspenger = omsorgspenger;
+    }
+
+    @Override
+    public String toString() {
+        return "DelvisFraværsPeriodeEntitet{" +
+            "dato=" + dato +
+            ", normalArbeidstid=" + normalArbeidstid +
+            ", antallFraværsTimer=" + antallFraværsTimer +
+            '}';
+    }
+
+}

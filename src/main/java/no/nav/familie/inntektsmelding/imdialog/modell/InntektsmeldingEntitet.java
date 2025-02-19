@@ -80,6 +80,10 @@ public class InntektsmeldingEntitet {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private List<EndringsårsakEntitet> endringsårsaker = new ArrayList<>();
 
+    // Er dette riktig annotering?
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
+    private OmsorgspengerEntitet omsorgspenger;
+
     public InntektsmeldingEntitet() {
         // Hibernate
     }
@@ -281,6 +285,13 @@ public class InntektsmeldingEntitet {
 
         public Builder medKildesystem(Kildesystem kildesystem) {
             kladd.kildesystem = kildesystem;
+            return this;
+        }
+
+        // Kan dette bare være en void?
+        public Builder medOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
+            omsorgspenger.setInntektsmelding(kladd);
+            kladd.omsorgspenger = omsorgspenger;
             return this;
         }
 
