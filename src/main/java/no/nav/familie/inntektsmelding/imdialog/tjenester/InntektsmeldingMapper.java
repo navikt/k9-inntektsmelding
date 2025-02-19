@@ -10,9 +10,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
@@ -21,7 +25,6 @@ import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
-import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
 
@@ -35,7 +38,7 @@ public class InntektsmeldingMapper {
         // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne lista.
         var refusjonPrMnd = finnFørsteRefusjon(dto.refusjon(), dto.startdato()).orElse(null);
         var opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(dto.refusjon(), dto.startdato()).orElse(Tid.TIDENES_ENDE);
-        return InntektsmeldingEntitet.builder()
+        var inntektsmeldingBuilder = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet(dto.aktorId().id()))
             .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
             .medMånedInntekt(dto.inntekt())
@@ -47,8 +50,13 @@ public class InntektsmeldingMapper {
             .medKontaktperson(mapKontaktPerson(dto))
             .medEndringsårsaker(mapEndringsårsaker(dto.endringAvInntektÅrsaker()))
             .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(dto.bortfaltNaturalytelsePerioder()))
-            .medRefusjonsendringer(mapRefusjonsendringer(dto.startdato(), opphørsdato, dto.refusjon()))
-            .build();
+            .medRefusjonsendringer(mapRefusjonsendringer(dto.startdato(), opphørsdato, dto.refusjon()));
+
+        if (dto.omsorgspenger() != null) {
+            inntektsmeldingBuilder.medOmsorgspenger(mapOmsorgspenger(dto.omsorgspenger()));
+        }
+
+        return inntektsmeldingBuilder.build();
     }
 
     private static Optional<BigDecimal> finnFørsteRefusjon(List<SendInntektsmeldingRequestDto.Refusjon> refusjon, LocalDate startdato) {
@@ -87,10 +95,10 @@ public class InntektsmeldingMapper {
             )
         ).toList();
         var endringsårsaker = entitet.getEndringsårsaker().stream().map(e ->
-            new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(KodeverkMapper.mapEndringsårsak(e.getÅrsak()),
-                e.getFom().orElse(null),
-                e.getTom().orElse(null),
-                e.getBleKjentFom().orElse(null)))
+                new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(KodeverkMapper.mapEndringsårsak(e.getÅrsak()),
+                    e.getFom().orElse(null),
+                    e.getTom().orElse(null),
+                    e.getBleKjentFom().orElse(null)))
             .toList();
 
         return new InntektsmeldingResponseDto(
@@ -99,14 +107,15 @@ public class InntektsmeldingMapper {
             new AktørIdDto(entitet.getAktørId().getAktørId()),
             KodeverkMapper.mapYtelsetype(entitet.getYtelsetype()),
             new ArbeidsgiverDto(entitet.getArbeidsgiverIdent()),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(entitet.getKontaktperson().getNavn(), entitet.getKontaktperson().getTelefonnummer()),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(entitet.getKontaktperson().getNavn(),
+                entitet.getKontaktperson().getTelefonnummer()),
             entitet.getStartDato(),
             entitet.getMånedInntekt(),
             entitet.getOpprettetTidspunkt(),
             refusjoner,
             bortfalteNaturalytelser,
             endringsårsaker
-            );
+        );
     }
 
     private static List<SendInntektsmeldingRequestDto.Refusjon> mapRefusjonerTilDto(InntektsmeldingEntitet entitet) {
@@ -118,7 +127,10 @@ public class InntektsmeldingMapper {
         if (entitet.getOpphørsdatoRefusjon() != null && !entitet.getOpphørsdatoRefusjon().equals(Tid.TIDENES_ENDE)) {
             refusjoner.add(new SendInntektsmeldingRequestDto.Refusjon(entitet.getOpphørsdatoRefusjon().plusDays(1), BigDecimal.ZERO));
         }
-        entitet.getRefusjonsendringer().stream().map(i -> new SendInntektsmeldingRequestDto.Refusjon(i.getFom(), i.getRefusjonPrMnd())).forEach(refusjoner::add);
+        entitet.getRefusjonsendringer()
+            .stream()
+            .map(i -> new SendInntektsmeldingRequestDto.Refusjon(i.getFom(), i.getRefusjonPrMnd()))
+            .forEach(refusjoner::add);
         return refusjoner.stream().sorted(Comparator.comparing(SendInntektsmeldingRequestDto.Refusjon::fom)).toList();
     }
 
@@ -131,13 +143,15 @@ public class InntektsmeldingMapper {
     }
 
     private static Optional<SendInntektsmeldingRequestDto.Refusjon> finnSisteEndring(List<SendInntektsmeldingRequestDto.Refusjon> refusjonsendringRequestDtos,
-                                                                           LocalDate startdato) {
+                                                                                     LocalDate startdato) {
         return refusjonsendringRequestDtos.stream()
             .filter(r -> !r.fom().equals(startdato))
             .max(Comparator.comparing(SendInntektsmeldingRequestDto.Refusjon::fom));
     }
 
-    private static List<RefusjonsendringEntitet> mapRefusjonsendringer(LocalDate startdato, LocalDate opphørsdato, List<SendInntektsmeldingRequestDto.Refusjon> refusjonsendringRequestDto) {
+    private static List<RefusjonsendringEntitet> mapRefusjonsendringer(LocalDate startdato,
+                                                                       LocalDate opphørsdato,
+                                                                       List<SendInntektsmeldingRequestDto.Refusjon> refusjonsendringRequestDto) {
         // Opphør og start ligger på egne felter, så disse skal ikke mappes som endringer.
         // Merk at opphørsdato er dagen før endring som opphører refusjon, derfor må vi legge til en dag.
         return refusjonsendringRequestDto.stream()
@@ -149,7 +163,7 @@ public class InntektsmeldingMapper {
 
     private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto> dto) {
         return dto.stream()
-            .map(d -> new BortaltNaturalytelseEntitet.Builder().medPeriode(d.fom(), d.tom() != null ? d.tom() : Tid.TIDENES_ENDE )
+            .map(d -> new BortaltNaturalytelseEntitet.Builder().medPeriode(d.fom(), d.tom() != null ? d.tom() : Tid.TIDENES_ENDE)
                 .medMånedBeløp(d.beløp())
                 .medType(KodeverkMapper.mapNaturalytelseTilEntitet(d.naturalytelsetype()))
                 .build())
@@ -158,5 +172,28 @@ public class InntektsmeldingMapper {
 
     private static KontaktpersonEntitet mapKontaktPerson(SendInntektsmeldingRequestDto dto) {
         return new KontaktpersonEntitet(dto.kontaktperson().navn(), dto.kontaktperson().telefonnummer());
+    }
+
+    private static OmsorgspengerEntitet mapOmsorgspenger(SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto) {
+        var omsorgspengerBuilder = new OmsorgspengerEntitet.Builder();
+        omsorgspengerBuilder.medHarUtbetaltPliktigeDager(dto.harUtbetaltPliktigeDager());
+        omsorgspengerBuilder.medFraværsPerioder(mapFraværsPerioder(dto.fraværsPerioder()));
+        omsorgspengerBuilder.medDelvisFraværsPerioder(mapDelvisFraværsPerioder(dto.delvisFraværsPerioder()));
+
+        return omsorgspengerBuilder.build();
+    }
+
+    private static List<FraværsPeriodeEntitet> mapFraværsPerioder(List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværsPeriodeRequestDto> dto) {
+        return dto.stream()
+            .map(fraværsPeriode -> new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(fraværsPeriode.fom(), fraværsPeriode.tom())))
+            .toList();
+    }
+
+    private static List<DelvisFraværsPeriodeEntitet> mapDelvisFraværsPerioder(List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto> dto) {
+        return dto.stream()
+            .map(delvisFraværsPeriode -> new DelvisFraværsPeriodeEntitet(delvisFraværsPeriode.dato(),
+                delvisFraværsPeriode.normalArbeidstid(),
+                delvisFraværsPeriode.antallFraværsTimer()))
+            .toList();
     }
 }
