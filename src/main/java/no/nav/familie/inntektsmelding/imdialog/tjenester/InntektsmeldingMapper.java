@@ -114,8 +114,30 @@ public class InntektsmeldingMapper {
             entitet.getOpprettetTidspunkt(),
             refusjoner,
             bortfalteNaturalytelser,
-            endringsårsaker
+            endringsårsaker,
+            mapOmsorgspenger(entitet)
         );
+    }
+
+    private static SendInntektsmeldingRequestDto.OmsorgspengerRequestDto mapOmsorgspenger(InntektsmeldingEntitet entitet) {
+        if (entitet.getOmsorgspenger() == null) {
+            return null;
+        }
+
+        var omsorgspengerEntitet = entitet.getOmsorgspenger();
+        var omsorgspenger = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(
+            omsorgspengerEntitet.isHarUtbetaltPliktigeDager(),
+            omsorgspengerEntitet.getFraværsPerioder()
+                .stream()
+                .map(fravær -> new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværsPeriodeRequestDto(fravær.getPeriode().getFom(), fravær.getPeriode().getTom()))
+                .toList(),
+            omsorgspengerEntitet.getDelvisFraværsPerioder()
+                .stream()
+                .map(delvisFravær -> new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto(delvisFravær.getDato(), delvisFravær.getNormalArbeidstid(), delvisFravær.getAntallFraværsTimer()))
+                .toList()
+        );
+
+        return omsorgspenger;
     }
 
     private static List<SendInntektsmeldingRequestDto.Refusjon> mapRefusjonerTilDto(InntektsmeldingEntitet entitet) {
