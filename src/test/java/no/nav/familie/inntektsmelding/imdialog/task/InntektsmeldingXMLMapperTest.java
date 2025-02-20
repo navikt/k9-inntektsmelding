@@ -7,6 +7,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.xml.bind.JAXBElement;
+
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 
 import org.junit.jupiter.api.Test;
@@ -19,6 +25,7 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.NaturalytelseDetaljer;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.Omsorgspenger;
 
 class InntektsmeldingXMLMapperTest {
 
@@ -70,6 +77,64 @@ class InntektsmeldingXMLMapperTest {
         assertThat(resultat.getSkjemainnhold().getGjenopptakelseNaturalytelseListe().getValue().getNaturalytelseDetaljer()).isEmpty();
     }
 
+    @Test
+    void test_omsorgspenger() {
+        var forventetBeløp = BigDecimal.valueOf(1000L);
+        var forventetFom = NOW;
+
+        var forventetFraværsPeriodeFom = NOW;
+        var forventetFraværsPeriodeTom = NOW.plusDays(1);
+        var forventetFraværsPeriodeFom2 = NOW.plusWeeks(1);
+        var forventetFraværsPeriodeTom2 = NOW.plusWeeks(1).plusDays(1);
+
+        var forventetDelvisFraværDato = NOW;
+        var forventetDelvisFraværDato2 = NOW.plusDays(1);
+        var forventetAntallTimer = BigDecimal.valueOf(3);
+        var forventetAntallTimer2 = BigDecimal.valueOf(4);
+
+        var aktøridFnrMap = Map.of(DUMMY_AKTØRID, PersonIdent.fra(DUMMY_FNR));
+        var forventetNaturalytelseType = NaturalytelseType.BIL;
+
+        var omsorgspenger = new OmsorgspengerEntitet.Builder();
+        omsorgspenger.medHarUtbetaltPliktigeDager(true);
+        omsorgspenger.medFraværsPerioder(List.of(new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom, forventetFraværsPeriodeTom)),
+            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom2, forventetFraværsPeriodeTom2))));
+        omsorgspenger.medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato, BigDecimal.valueOf(7), forventetAntallTimer),
+            new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato2, BigDecimal.valueOf(7), forventetAntallTimer2)));
+
+
+        var inntektsmelding = lagInntektsmeldingEntitet(DUMMY_AKTØRID, Kildesystem.ARBEIDSGIVERPORTAL, omsorgspenger.build());
+
+        var resultat = InntektsmeldingXMLMapper.map(inntektsmelding, aktøridFnrMap);
+
+        var omsorgspengerXML = resultat.getSkjemainnhold().getOmsorgspenger();
+        assertThat(omsorgspengerXML.getValue()).isNotNull();
+        assertFravær(omsorgspengerXML, forventetFraværsPeriodeFom, forventetFraværsPeriodeTom, forventetFraværsPeriodeFom2, forventetFraværsPeriodeTom2);
+        assertDelvisFravær(omsorgspengerXML, forventetDelvisFraværDato, forventetAntallTimer, forventetDelvisFraværDato2, forventetAntallTimer2);
+    }
+
+    private static void assertFravær(JAXBElement<Omsorgspenger> omsorgspengerXML,
+                                  LocalDate forventetFraværsPeriodeFom,
+                                  LocalDate forventetFraværsPeriodeTom,
+                                  LocalDate forventetFraværsPeriodeFom2,
+                                  LocalDate forventetFraværsPeriodeTom2) {
+        assertThat((omsorgspengerXML.getValue().getFravaersPerioder().getValue().getFravaerPeriode().getFirst().getFom().getValue())).isEqualTo(forventetFraværsPeriodeFom);
+        assertThat((omsorgspengerXML.getValue().getFravaersPerioder().getValue().getFravaerPeriode().getFirst().getTom().getValue())).isEqualTo(forventetFraværsPeriodeTom);
+        assertThat((omsorgspengerXML.getValue().getFravaersPerioder().getValue().getFravaerPeriode().getLast().getFom().getValue())).isEqualTo(forventetFraværsPeriodeFom2);
+        assertThat((omsorgspengerXML.getValue().getFravaersPerioder().getValue().getFravaerPeriode().getLast().getTom().getValue())).isEqualTo(forventetFraværsPeriodeTom2);
+    }
+
+    private static void assertDelvisFravær(JAXBElement<Omsorgspenger> omsorgspengerXML,
+                                  LocalDate forventetDelvisFraværDato,
+                                  BigDecimal forventetAntallTimer,
+                                  LocalDate forventetDelvisFraværDato2,
+                                  BigDecimal forventetAntallTimer2) {
+        assertThat(omsorgspengerXML.getValue().getDelvisFravaersListe().getValue().getDelvisFravaer().getFirst().getDato().getValue()).isEqualTo(forventetDelvisFraværDato);
+        assertThat(omsorgspengerXML.getValue().getDelvisFravaersListe().getValue().getDelvisFravaer().getFirst().getTimer().getValue()).isEqualTo(forventetAntallTimer);
+        assertThat(omsorgspengerXML.getValue().getDelvisFravaersListe().getValue().getDelvisFravaer().getLast().getDato().getValue()).isEqualTo(forventetDelvisFraværDato2);
+        assertThat(omsorgspengerXML.getValue().getDelvisFravaersListe().getValue().getDelvisFravaer().getLast().getTimer().getValue()).isEqualTo(forventetAntallTimer2);
+    }
+
 
     private static void assertNaturalytelse(NaturalytelseDetaljer naturalytelseDetaljer,
                                             LocalDate forventetFom,
@@ -81,13 +146,26 @@ class InntektsmeldingXMLMapperTest {
     }
 
     private static InntektsmeldingEntitet lagInntektsmeldingEntitet(AktørIdEntitet aktørId,
-                                                                    List<BortaltNaturalytelseEntitet> bortfaltNaturalytelseEntitet, Kildesystem kildesystem) {
+                                                                    List<BortaltNaturalytelseEntitet> bortfaltNaturalytelseEntitet,
+                                                                    Kildesystem kildesystem) {
         return InntektsmeldingEntitet.builder()
             .medBortfaltNaturalytelser(bortfaltNaturalytelseEntitet)
             .medArbeidsgiverIdent(DUMMY_ARBEIDSGIVER_IDENT)
             .medAktørId(aktørId)
             .medKildesystem(kildesystem)
             .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .build();
+    }
+
+    private static InntektsmeldingEntitet lagInntektsmeldingEntitet(AktørIdEntitet aktørId,
+                                                                    Kildesystem kildesystem,
+                                                                    OmsorgspengerEntitet omsorgspenger) {
+        return InntektsmeldingEntitet.builder()
+            .medArbeidsgiverIdent(DUMMY_ARBEIDSGIVER_IDENT)
+            .medAktørId(aktørId)
+            .medKildesystem(kildesystem)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .medOmsorgspenger(omsorgspenger)
             .build();
     }
 
