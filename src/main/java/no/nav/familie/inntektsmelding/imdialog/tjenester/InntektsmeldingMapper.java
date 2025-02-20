@@ -83,10 +83,10 @@ public class InntektsmeldingMapper {
             .build();
     }
 
-    public static InntektsmeldingResponseDto mapFraEntitet(InntektsmeldingEntitet entitet, UUID forespørselUuid) {
-        var refusjoner = mapRefusjonerTilDto(entitet);
+    public static InntektsmeldingResponseDto mapFraEntitet(InntektsmeldingEntitet imEntitet, UUID forespørselUuid) {
+        var refusjoner = mapRefusjonerTilDto(imEntitet);
 
-        var bortfalteNaturalytelser = entitet.getBorfalteNaturalYtelser().stream().map(i ->
+        var bortfalteNaturalytelser = imEntitet.getBorfalteNaturalYtelser().stream().map(i ->
             new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
                 i.getPeriode().getFom(),
                 Objects.equals(i.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : i.getPeriode().getTom(),
@@ -94,7 +94,7 @@ public class InntektsmeldingMapper {
                 i.getMånedBeløp()
             )
         ).toList();
-        var endringsårsaker = entitet.getEndringsårsaker().stream().map(e ->
+        var endringsårsaker = imEntitet.getEndringsårsaker().stream().map(e ->
                 new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(KodeverkMapper.mapEndringsårsak(e.getÅrsak()),
                     e.getFom().orElse(null),
                     e.getTom().orElse(null),
@@ -102,29 +102,29 @@ public class InntektsmeldingMapper {
             .toList();
 
         return new InntektsmeldingResponseDto(
-            entitet.getId(),
+            imEntitet.getId(),
             forespørselUuid,
-            new AktørIdDto(entitet.getAktørId().getAktørId()),
-            KodeverkMapper.mapYtelsetype(entitet.getYtelsetype()),
-            new ArbeidsgiverDto(entitet.getArbeidsgiverIdent()),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(entitet.getKontaktperson().getNavn(),
-                entitet.getKontaktperson().getTelefonnummer()),
-            entitet.getStartDato(),
-            entitet.getMånedInntekt(),
-            entitet.getOpprettetTidspunkt(),
+            new AktørIdDto(imEntitet.getAktørId().getAktørId()),
+            KodeverkMapper.mapYtelsetype(imEntitet.getYtelsetype()),
+            new ArbeidsgiverDto(imEntitet.getArbeidsgiverIdent()),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(imEntitet.getKontaktperson().getNavn(),
+                imEntitet.getKontaktperson().getTelefonnummer()),
+            imEntitet.getStartDato(),
+            imEntitet.getMånedInntekt(),
+            imEntitet.getOpprettetTidspunkt(),
             refusjoner,
             bortfalteNaturalytelser,
             endringsårsaker,
-            mapOmsorgspenger(entitet)
+            mapOmsorgspenger(imEntitet)
         );
     }
 
-    private static SendInntektsmeldingRequestDto.OmsorgspengerRequestDto mapOmsorgspenger(InntektsmeldingEntitet entitet) {
-        if (entitet.getOmsorgspenger() == null) {
+    private static SendInntektsmeldingRequestDto.OmsorgspengerRequestDto mapOmsorgspenger(InntektsmeldingEntitet imEntitet) {
+        if (imEntitet.getOmsorgspenger() == null) {
             return null;
         }
 
-        var omsorgspengerEntitet = entitet.getOmsorgspenger();
+        var omsorgspengerEntitet = imEntitet.getOmsorgspenger();
         var omsorgspenger = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(
             omsorgspengerEntitet.isHarUtbetaltPliktigeDager(),
             omsorgspengerEntitet.getFraværsPerioder()
