@@ -71,6 +71,10 @@ public class OmsorgspengerEntitet {
         delvisFraværsPerioder.add(delvisFraværsPeriode);
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public static class Builder {
         private final OmsorgspengerEntitet kladd = new OmsorgspengerEntitet();
 
@@ -80,12 +84,16 @@ public class OmsorgspengerEntitet {
         }
 
         public Builder medFraværsPerioder(List<FraværsPeriodeEntitet> fraværsPerioder) {
-            fraværsPerioder.forEach(kladd::leggTilFraværsPeriode);
+            if (fraværsPerioder != null) {
+                fraværsPerioder.forEach(kladd::leggTilFraværsPeriode);
+            }
             return this;
         }
 
         public Builder medDelvisFraværsPerioder(List<DelvisFraværsPeriodeEntitet> delvisFraværsPerioder) {
-            delvisFraværsPerioder.forEach(kladd::leggTilDelvisFraværsPeriode);
+            if (delvisFraværsPerioder != null) {
+                delvisFraværsPerioder.forEach(kladd::leggTilDelvisFraværsPeriode);
+            }
             return this;
         }
 

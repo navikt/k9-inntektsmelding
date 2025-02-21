@@ -14,8 +14,11 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
@@ -182,6 +185,92 @@ class InntektsmeldingMapperTest {
     }
 
     @Test
+    void skal_teste_mapping_med_omsorgspenger_og_fraværsperiode() {
+        // Arrange
+        var forventetFraværsFom = LocalDate.now();
+        var forventetFraværsTom = LocalDate.now().plusDays(5);
+        var omsorgspenger = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true,
+            List.of(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværsPeriodeRequestDto(forventetFraværsFom, forventetFraværsTom)),
+            null);
+
+        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+            new AktørIdDto("9999999999999"),
+            YtelseTypeDto.OMSORGSPENGER,
+            new ArbeidsgiverDto("999999999"),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            LocalDate.now(),
+            BigDecimal.valueOf(5000),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            omsorgspenger);
+
+        // Act
+        var entitet = InntektsmeldingMapper.mapTilEntitet(request);
+
+        // Assert
+        assertThat(entitet.getAktørId().getAktørId()).isEqualTo(request.aktorId().id());
+        assertThat(entitet.getArbeidsgiverIdent()).isEqualTo(request.arbeidsgiverIdent().ident());
+        assertThat(entitet.getMånedInntekt()).isEqualByComparingTo(request.inntekt());
+        assertThat(entitet.getStartDato()).isEqualTo(request.startdato());
+        assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetype(request.ytelse()));
+        assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
+        assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
+        assertThat(entitet.getBorfalteNaturalYtelser()).isEmpty();
+        assertThat(entitet.getMånedRefusjon()).isNull();
+        assertThat(entitet.getOpphørsdatoRefusjon()).isNull();
+        assertThat(entitet.getOmsorgspenger().isHarUtbetaltPliktigeDager()).isTrue();
+        assertThat(entitet.getOmsorgspenger().getFraværsPerioder()).hasSize(1);
+        assertThat(entitet.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getFom()).isEqualTo(forventetFraværsFom);
+        assertThat(entitet.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getTom()).isEqualTo(forventetFraværsTom);
+        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder()).isEmpty();
+    }
+
+    @Test
+    void skal_teste_mapping_med_omsorgspenger_og_delvis_fraværsperiode() {
+        // Arrange
+        var forventetDelvisFraværsDato = LocalDate.now();
+        var forventetNormalArbeidstid = BigDecimal.valueOf(7);
+        var forventetAntallFraværsTimer = BigDecimal.valueOf(3);
+        var omsorgspenger = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true,
+            null,
+            List.of(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto(forventetDelvisFraværsDato, forventetNormalArbeidstid, forventetAntallFraværsTimer)));
+
+        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+            new AktørIdDto("9999999999999"),
+            YtelseTypeDto.OMSORGSPENGER,
+            new ArbeidsgiverDto("999999999"),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            LocalDate.now(),
+            BigDecimal.valueOf(5000),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            omsorgspenger);
+
+        // Act
+        var entitet = InntektsmeldingMapper.mapTilEntitet(request);
+
+        // Assert
+        assertThat(entitet.getAktørId().getAktørId()).isEqualTo(request.aktorId().id());
+        assertThat(entitet.getArbeidsgiverIdent()).isEqualTo(request.arbeidsgiverIdent().ident());
+        assertThat(entitet.getMånedInntekt()).isEqualByComparingTo(request.inntekt());
+        assertThat(entitet.getStartDato()).isEqualTo(request.startdato());
+        assertThat(entitet.getYtelsetype()).isEqualTo(KodeverkMapper.mapYtelsetype(request.ytelse()));
+        assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
+        assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
+        assertThat(entitet.getBorfalteNaturalYtelser()).isEmpty();
+        assertThat(entitet.getMånedRefusjon()).isNull();
+        assertThat(entitet.getOpphørsdatoRefusjon()).isNull();
+        assertThat(entitet.getOmsorgspenger().isHarUtbetaltPliktigeDager()).isTrue();
+        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder()).hasSize(1);
+        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
+        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getNormalArbeidstid()).isEqualTo(forventetNormalArbeidstid);
+        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getAntallFraværsTimer()).isEqualTo(forventetAntallFraværsTimer);
+        assertThat(entitet.getOmsorgspenger().getFraværsPerioder()).isEmpty();
+    }
+
+    @Test
     void skal_teste_mapping_tilbake_til_dto_refusjon_og_opphør() {
         // Arrange
         var imEntitet = InntektsmeldingEntitet.builder()
@@ -246,6 +335,7 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
         assertThat(imDto.endringAvInntektÅrsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
         assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
+        assertThat(imDto.omsorgspenger()).isNull();
     }
 
     @Test
@@ -316,8 +406,9 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
         assertThat(imDto.endringAvInntektÅrsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
         assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
-
+        assertThat(imDto.omsorgspenger()).isNull();
     }
+
     @Test
     void skal_teste_mapping_tilbake_til_dto_refusjon_ikke_opphør_eller_endring() {
         // Arrange
@@ -381,6 +472,88 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
         assertThat(imDto.endringAvInntektÅrsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
         assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
+        assertThat(imDto.omsorgspenger()).isNull();
+    }
 
+    @Test
+    void skal_teste_mapping_tilbake_til_dto_omsorgspenger() {
+        // Arrange
+        var imEntitet = InntektsmeldingEntitet.builder()
+            .medAktørId(new AktørIdEntitet("9999999999999"))
+            .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
+            .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(5000))
+            .medMånedRefusjon(BigDecimal.valueOf(5000))
+            .medRefusjonOpphørsdato(LocalDate.now().plusDays(10))
+            .medStartDato(LocalDate.now())
+            .medArbeidsgiverIdent("999999999")
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(LocalDate.now().plusDays(5), BigDecimal.valueOf(4000))))
+            .medBortfaltNaturalytelser(List.of(
+                    BortaltNaturalytelseEntitet.builder()
+                        .medPeriode(LocalDate.now(), Tid.TIDENES_ENDE)
+                        .medType(NaturalytelseType.LOSJI)
+                        .medMånedBeløp(new BigDecimal(20))
+                        .build(),
+                    BortaltNaturalytelseEntitet.builder()
+                        .medPeriode(LocalDate.now(), LocalDate.now().plusMonths(1))
+                        .medType(NaturalytelseType.BIL)
+                        .medMånedBeløp(new BigDecimal(77))
+                        .build()
+                )
+            )
+            .medEndringsårsaker(List.of(
+                EndringsårsakEntitet.builder()
+                    .medFom(LocalDate.now())
+                    .medTom(LocalDate.now().plusDays(10))
+                    .medÅrsak(Endringsårsak.FERIE)
+                    .build(),
+                EndringsårsakEntitet.builder()
+                    .medBleKjentFra(LocalDate.now())
+                    .medÅrsak(Endringsårsak.TARIFFENDRING)
+                    .build()
+            ))
+            .medOmsorgspenger(OmsorgspengerEntitet.builder()
+                .medHarUtbetaltPliktigeDager(true)
+                .medFraværsPerioder(List.of(new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now().plusDays(5)))))
+                .medDelvisFraværsPerioder(null)
+                .build()
+            )
+            .build();
+
+        var forespørselUuid = UUID.randomUUID();
+
+        // Act
+        var imDto = InntektsmeldingMapper.mapFraEntitet(imEntitet, forespørselUuid);
+
+        // Assert
+        assertThat(imDto.aktorId().id()).isEqualTo(imEntitet.getAktørId().getAktørId());
+        assertThat(imDto.arbeidsgiverIdent().ident()).isEqualTo(imEntitet.getArbeidsgiverIdent());
+        assertThat(imDto.inntekt()).isEqualByComparingTo(imEntitet.getMånedInntekt());
+        assertThat(imDto.startdato()).isEqualTo(imEntitet.getStartDato());
+        assertThat(KodeverkMapper.mapYtelsetype(imDto.ytelse())).isEqualTo(imEntitet.getYtelsetype());
+        assertThat(BigDecimal.valueOf(5000)).isEqualByComparingTo(imEntitet.getMånedRefusjon());
+        assertThat(imDto.kontaktperson().navn()).isEqualTo(imEntitet.getKontaktperson().getNavn());
+        assertThat(imDto.kontaktperson().telefonnummer()).isEqualTo(imEntitet.getKontaktperson().getTelefonnummer());
+        assertThat(imDto.bortfaltNaturalytelsePerioder()).hasSize(2);
+        assertThat(imDto.bortfaltNaturalytelsePerioder().get(0).tom()).isNull();
+        assertThat(imDto.bortfaltNaturalytelsePerioder().get(0).fom()).isEqualTo(imEntitet.getBorfalteNaturalYtelser().get(0).getPeriode().getFom());
+        assertThat(imDto.refusjon()).hasSize(3);
+        assertThat(imDto.refusjon().get(0).fom()).isEqualTo(imEntitet.getStartDato());
+        assertThat(imDto.refusjon().get(0).beløp()).isEqualByComparingTo(imEntitet.getMånedRefusjon());
+        assertThat(imDto.refusjon().get(1).fom()).isEqualTo(LocalDate.now().plusDays(5));
+        assertThat(imDto.refusjon().get(1).beløp()).isEqualByComparingTo(BigDecimal.valueOf(4000));
+        assertThat(imDto.refusjon().get(2).fom()).isEqualTo(LocalDate.now().plusDays(11));
+        assertThat(imDto.refusjon().get(2).beløp()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(imDto.opprettetTidspunkt()).isEqualTo(imEntitet.getOpprettetTidspunkt());
+        assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
+        assertThat(imDto.endringAvInntektÅrsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
+        assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
+        assertThat(imDto.omsorgspenger()).isNotNull();
+        assertThat(imDto.omsorgspenger().harUtbetaltPliktigeDager()).isTrue();
+        assertThat(imDto.omsorgspenger().fraværsPerioder()).hasSize(1);
+        assertThat(imDto.omsorgspenger().fraværsPerioder().getFirst().fom()).isEqualTo(imEntitet.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getFom());
+        assertThat(imDto.omsorgspenger().fraværsPerioder().getFirst().tom()).isEqualTo(imEntitet.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getTom());
+        assertThat(imDto.omsorgspenger().delvisFraværsPerioder()).isEmpty();
     }
 }

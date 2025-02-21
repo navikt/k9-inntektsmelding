@@ -197,21 +197,26 @@ public class InntektsmeldingMapper {
     }
 
     private static OmsorgspengerEntitet mapOmsorgspenger(SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto) {
-        var omsorgspengerBuilder = new OmsorgspengerEntitet.Builder();
-        omsorgspengerBuilder.medHarUtbetaltPliktigeDager(dto.harUtbetaltPliktigeDager());
-        omsorgspengerBuilder.medFraværsPerioder(mapFraværsPerioder(dto.fraværsPerioder()));
-        omsorgspengerBuilder.medDelvisFraværsPerioder(mapDelvisFraværsPerioder(dto.delvisFraværsPerioder()));
-
-        return omsorgspengerBuilder.build();
+        return OmsorgspengerEntitet.builder()
+            .medHarUtbetaltPliktigeDager(dto.harUtbetaltPliktigeDager())
+            .medFraværsPerioder(mapFraværsPerioder(dto.fraværsPerioder()))
+            .medDelvisFraværsPerioder(mapDelvisFraværsPerioder(dto.delvisFraværsPerioder()))
+            .build();
     }
 
     private static List<FraværsPeriodeEntitet> mapFraværsPerioder(List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværsPeriodeRequestDto> dto) {
+        if (dto == null) {
+            return null;
+        }
         return dto.stream()
             .map(fraværsPeriode -> new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(fraværsPeriode.fom(), fraværsPeriode.tom())))
             .toList();
     }
 
     private static List<DelvisFraværsPeriodeEntitet> mapDelvisFraværsPerioder(List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto> dto) {
+        if (dto == null) {
+            return null;
+        }
         return dto.stream()
             .map(delvisFraværsPeriode -> new DelvisFraværsPeriodeEntitet(delvisFraværsPeriode.dato(),
                 delvisFraværsPeriode.normalArbeidstid(),
