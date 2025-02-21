@@ -33,6 +33,7 @@ public class InntektsmeldingPdfData {
     private boolean ingenGjenopptattNaturalytelse;
     private List<Endringsarsak> endringsarsaker = new ArrayList<>();
     private int antallRefusjonsperioder;
+    private Omsorgspenger omsorgspenger;
 
     public String getAvsenderSystem() {
         return avsenderSystem;
@@ -94,6 +95,14 @@ public class InntektsmeldingPdfData {
         return endringsarsaker;
     }
 
+    public int getAntallRefusjonsperioder() {
+        return antallRefusjonsperioder;
+    }
+
+    public Omsorgspenger getOmsorgspenger() {
+        return omsorgspenger;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -103,20 +112,30 @@ public class InntektsmeldingPdfData {
             return false;
         }
         InntektsmeldingPdfData that = (InntektsmeldingPdfData) o;
-        return ingenBortfaltNaturalytelse == that.ingenBortfaltNaturalytelse && ingenGjenopptattNaturalytelse == that.ingenGjenopptattNaturalytelse
-            && Objects.equals(avsenderSystem, that.avsenderSystem) && Objects.equals(navnSøker, that.navnSøker) && Objects.equals(personnummer, that.personnummer) && ytelsetype == that.ytelsetype
-            && Objects.equals(arbeidsgiverIdent,
-            that.arbeidsgiverIdent) && Objects.equals(arbeidsgiverNavn, that.arbeidsgiverNavn) && Objects.equals(kontaktperson, that.kontaktperson)
-            && Objects.equals(startDato, that.startDato) && Objects.equals(månedInntekt, that.månedInntekt) && Objects.equals(opprettetTidspunkt,
-            that.opprettetTidspunkt) && Objects.equals(refusjonsendringer, that.refusjonsendringer) && Objects.equals(naturalytelser,
-            that.naturalytelser) && Objects.equals(endringsarsaker, that.endringsarsaker) && Objects.equals(antallRefusjonsperioder, that.antallRefusjonsperioder);
+        return ingenBortfaltNaturalytelse == that.ingenBortfaltNaturalytelse
+            && ingenGjenopptattNaturalytelse == that.ingenGjenopptattNaturalytelse
+            && Objects.equals(avsenderSystem, that.avsenderSystem)
+            && Objects.equals(navnSøker, that.navnSøker)
+            && Objects.equals(personnummer, that.personnummer)
+            && ytelsetype == that.ytelsetype
+            && Objects.equals(arbeidsgiverIdent, that.arbeidsgiverIdent)
+            && Objects.equals(arbeidsgiverNavn, that.arbeidsgiverNavn)
+            && Objects.equals(kontaktperson, that.kontaktperson)
+            && Objects.equals(startDato, that.startDato)
+            && Objects.equals(månedInntekt, that.månedInntekt)
+            && Objects.equals(opprettetTidspunkt, that.opprettetTidspunkt)
+            && Objects.equals(refusjonsendringer, that.refusjonsendringer)
+            && Objects.equals(naturalytelser, that.naturalytelser)
+            && Objects.equals(endringsarsaker, that.endringsarsaker)
+            && Objects.equals(antallRefusjonsperioder, that.antallRefusjonsperioder)
+            && Objects.equals(omsorgspenger, that.omsorgspenger);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(avsenderSystem, navnSøker, personnummer, ytelsetype, arbeidsgiverIdent, arbeidsgiverNavn, kontaktperson,
             startDato, månedInntekt, opprettetTidspunkt, refusjonsendringer, naturalytelser,
-            ingenBortfaltNaturalytelse, ingenGjenopptattNaturalytelse, endringsarsaker, antallRefusjonsperioder);
+            ingenBortfaltNaturalytelse, ingenGjenopptattNaturalytelse, endringsarsaker, antallRefusjonsperioder, omsorgspenger);
     }
 
     public static String formaterPersonnummer(String personnummer) {
@@ -154,10 +173,6 @@ public class InntektsmeldingPdfData {
     public void anonymiser() {
         this.personnummer = personnummer.substring(0, 4) + "** *****";
         this.arbeidsgiverIdent = arbeidsgiverIdent.substring(0, 4) + "** *****";
-    }
-
-    public int getAntallRefusjonsperioder() {
-        return antallRefusjonsperioder;
     }
 
     public static class Builder {
@@ -244,6 +259,11 @@ public class InntektsmeldingPdfData {
 
         public Builder medAntallRefusjonsperioder(int antallRefusjonsperioder) {
             this.kladd.antallRefusjonsperioder = antallRefusjonsperioder;
+            return this;
+        }
+
+        public Builder medOmsorgspenger(Omsorgspenger omsorgspenger) {
+            this.kladd.omsorgspenger = omsorgspenger;
             return this;
         }
 
