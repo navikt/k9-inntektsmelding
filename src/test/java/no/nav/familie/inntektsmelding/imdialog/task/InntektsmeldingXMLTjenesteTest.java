@@ -122,16 +122,13 @@ class InntektsmeldingXMLTjenesteTest {
             .build();
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
         var fnrSøker = new PersonIdent("11111111111");
-        var omsorgspenger = new OmsorgspengerEntitet.Builder();
-        omsorgspenger.medHarUtbetaltPliktigeDager(true);
-        omsorgspenger.medFraværsPerioder(List.of(new FraværsPeriodeEntitet(
-            PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 10))
-        )));
-        omsorgspenger.medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(
-            LocalDate.of(2024, 6, 1),
-            BigDecimal.valueOf(7),
-            BigDecimal.valueOf(3)
-        )));
+        var omsorgspenger = OmsorgspengerEntitet.builder()
+            .medHarUtbetaltPliktigeDager(true)
+            .medFraværsPerioder(List.of(new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2024, 6, 1),
+                LocalDate.of(2024, 6, 10)))))
+            .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(LocalDate.of(2024, 6, 1),
+                BigDecimal.valueOf(7),
+                BigDecimal.valueOf(3))));
 
         var inntektsmelding = InntektsmeldingEntitet.builder()
             .medArbeidsgiverIdent("999999999")

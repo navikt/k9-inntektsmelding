@@ -79,9 +79,6 @@ class InntektsmeldingXMLMapperTest {
 
     @Test
     void test_omsorgspenger() {
-        var forventetBeløp = BigDecimal.valueOf(1000L);
-        var forventetFom = NOW;
-
         var forventetFraværsPeriodeFom = NOW;
         var forventetFraværsPeriodeTom = NOW.plusDays(1);
         var forventetFraværsPeriodeFom2 = NOW.plusWeeks(1);
@@ -93,14 +90,13 @@ class InntektsmeldingXMLMapperTest {
         var forventetAntallTimer2 = BigDecimal.valueOf(4);
 
         var aktøridFnrMap = Map.of(DUMMY_AKTØRID, PersonIdent.fra(DUMMY_FNR));
-        var forventetNaturalytelseType = NaturalytelseType.BIL;
 
-        var omsorgspenger = new OmsorgspengerEntitet.Builder();
-        omsorgspenger.medHarUtbetaltPliktigeDager(true);
-        omsorgspenger.medFraværsPerioder(List.of(new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom, forventetFraværsPeriodeTom)),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom2, forventetFraværsPeriodeTom2))));
-        omsorgspenger.medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato, BigDecimal.valueOf(7), forventetAntallTimer),
-            new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato2, BigDecimal.valueOf(7), forventetAntallTimer2)));
+        var omsorgspenger = OmsorgspengerEntitet.builder()
+            .medHarUtbetaltPliktigeDager(true)
+            .medFraværsPerioder(List.of(new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom, forventetFraværsPeriodeTom)),
+                new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom2, forventetFraværsPeriodeTom2))))
+            .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato, BigDecimal.valueOf(7), forventetAntallTimer),
+                new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato2, BigDecimal.valueOf(7), forventetAntallTimer2)));
 
 
         var inntektsmelding = lagInntektsmeldingEntitet(DUMMY_AKTØRID, Kildesystem.ARBEIDSGIVERPORTAL, omsorgspenger.build());
