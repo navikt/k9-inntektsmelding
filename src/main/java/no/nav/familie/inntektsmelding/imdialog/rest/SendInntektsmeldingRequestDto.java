@@ -67,9 +67,9 @@ public record SendInntektsmeldingRequestDto(@Valid UUID foresporselUuid,
         }
 
         @AssertTrue(message = "Må ha enten fraværsPerioder eller delvisFraværsPerioder")
-        public boolean isFraværsPerioderOrDelvisFraværsPerioder() {
-            if (fraværsPerioder.isEmpty()) {
-                return !delvisFraværsPerioder.isEmpty();
+        private boolean isValidFraværsPerioderOrDelvisFraværsPerioder() {
+            if (fraværsPerioder == null || fraværsPerioder.isEmpty()) {
+                return !(delvisFraværsPerioder == null || delvisFraværsPerioder.isEmpty());
             }
             return true;
         }
