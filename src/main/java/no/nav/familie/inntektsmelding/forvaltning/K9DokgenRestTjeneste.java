@@ -38,6 +38,7 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -87,7 +88,7 @@ public class K9DokgenRestTjeneste {
         } else {
             //For testformål
             var builder = InntektsmeldingEntitet.builder()
-                .medAktørId(AktørIdEntitet.dummy())
+                .medAktørId(new AktørIdEntitet(inntektsmeldingRequest.aktørId.id()))
                 .medKontaktperson(new KontaktpersonEntitet(inntektsmeldingRequest.kontaktpersonNavn, inntektsmeldingRequest.kontaktpersonTlf))
                 .medMånedInntekt(inntektsmeldingRequest.maanedInntekt())
                 .medYtelsetype(mapYtelseType(inntektsmeldingRequest.ytelsetype()))
@@ -156,11 +157,18 @@ public class K9DokgenRestTjeneste {
         };
     }
 
-    public record InntektsmeldingRequest(Long inntektsmeldingId, String ytelsetype, String arbeidsgiverIdent, String kontaktpersonNavn,
-                                         String kontaktpersonTlf, LocalDate startdatoPermisjon, LocalDate opphoersdatoRefusjon,
+    public record InntektsmeldingRequest(Long inntektsmeldingId,
+                                         AktørIdDto aktørId,
+                                         String ytelsetype,
+                                         String arbeidsgiverIdent,
+                                         String kontaktpersonNavn,
+                                         String kontaktpersonTlf,
+                                         LocalDate startdatoPermisjon,
+                                         LocalDate opphoersdatoRefusjon,
                                          @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedRefusjon,
                                          @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedInntekt,
-                                         List<EndringRefusjonDto> refusjonsendringer, List<BortfaltNaturalytelseDto> naturalytelser,
+                                         List<EndringRefusjonDto> refusjonsendringer,
+                                         List<BortfaltNaturalytelseDto> naturalytelser,
                                          List<EndringsårsakerDto> endringsårsaker) {
     }
 
@@ -168,11 +176,16 @@ public class K9DokgenRestTjeneste {
                                      @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloep) {
     }
 
-    public record BortfaltNaturalytelseDto(@NotNull LocalDate fom, LocalDate tom, NaturalytelseType type,
+    public record BortfaltNaturalytelseDto(@NotNull LocalDate fom,
+                                           LocalDate tom,
+                                           NaturalytelseType type,
                                            @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedBortfaltNaturalytelse) {
     }
 
-    public record EndringsårsakerDto(@NotNull EndringsårsakDto aarsak, LocalDate fom, LocalDate tom, LocalDate bleKjentFom) {
+    public record EndringsårsakerDto(@NotNull EndringsårsakDto aarsak,
+                                     LocalDate fom,
+                                     LocalDate tom,
+                                     LocalDate bleKjentFom) {
     }
 
     private void sjekkAtKallerHarRollenDrift() {
