@@ -44,7 +44,7 @@ public class OmsorgspengerRequestDtoTest {
     @Test
     public void testValidDelvisFraværsPerioder() {
         List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto> delvisFraværsPerioder = new ArrayList<>();
-        delvisFraværsPerioder.add(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto(LocalDate.now(), new BigDecimal("7.5"), new BigDecimal("2.5")));
+        delvisFraværsPerioder.add(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto(LocalDate.now(), new BigDecimal("2.5")));
 
         SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true, new ArrayList<>(), delvisFraværsPerioder);
 

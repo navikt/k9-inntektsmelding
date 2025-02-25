@@ -234,7 +234,7 @@ class InntektsmeldingMapperTest {
         var forventetAntallFraværsTimer = BigDecimal.valueOf(3);
         var omsorgspenger = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true,
             null,
-            List.of(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto(forventetDelvisFraværsDato, forventetNormalArbeidstid, forventetAntallFraværsTimer)));
+            List.of(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto(forventetDelvisFraværsDato, forventetAntallFraværsTimer)));
 
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
@@ -265,8 +265,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getOmsorgspenger().isHarUtbetaltPliktigeDager()).isTrue();
         assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder()).hasSize(1);
         assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
-        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getNormalArbeidstid()).isEqualTo(forventetNormalArbeidstid);
-        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getAntallFraværsTimer()).isEqualTo(forventetAntallFraværsTimer);
+        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getTimer()).isEqualTo(forventetAntallFraværsTimer);
         assertThat(entitet.getOmsorgspenger().getFraværsPerioder()).isEmpty();
     }
 

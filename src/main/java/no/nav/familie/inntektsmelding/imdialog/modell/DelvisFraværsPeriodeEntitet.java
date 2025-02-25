@@ -27,32 +27,24 @@ public class DelvisFraværsPeriodeEntitet {
     @Column(name = "dato", nullable = false)
     private LocalDate dato;
 
-    @Column(name = "normal_arbeidstid", nullable = false)
-    private BigDecimal normalArbeidstid;
-
     @Column(name = "antall_fravaers_timer", nullable = false)
-    private BigDecimal antallFraværsTimer;
+    private BigDecimal timer;
 
     public DelvisFraværsPeriodeEntitet() {
         // Hibernate
     }
 
-    public DelvisFraværsPeriodeEntitet(LocalDate dato, BigDecimal normalArbeidstid, BigDecimal antallFraværsTimer) {
+    public DelvisFraværsPeriodeEntitet(LocalDate dato, BigDecimal timer) {
         this.dato = dato;
-        this.normalArbeidstid = normalArbeidstid;
-        this.antallFraværsTimer = antallFraværsTimer;
+        this.timer = timer;
     }
 
     public LocalDate getDato() {
         return dato;
     }
 
-    public BigDecimal getNormalArbeidstid() {
-        return normalArbeidstid;
-    }
-
-    public BigDecimal getAntallFraværsTimer() {
-        return antallFraværsTimer;
+    public BigDecimal getTimer() {
+        return timer;
     }
 
     void setOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
@@ -63,8 +55,7 @@ public class DelvisFraværsPeriodeEntitet {
     public String toString() {
         return "DelvisFraværsPeriodeEntitet{" +
             "dato=" + dato +
-            ", normalArbeidstid=" + normalArbeidstid +
-            ", antallFraværsTimer=" + antallFraværsTimer +
+            ", timer=" + timer +
             '}';
     }
 

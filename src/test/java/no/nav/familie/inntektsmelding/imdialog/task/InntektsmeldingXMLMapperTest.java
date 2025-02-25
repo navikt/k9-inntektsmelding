@@ -86,8 +86,8 @@ class InntektsmeldingXMLMapperTest {
 
         var forventetDelvisFraværDato = NOW;
         var forventetDelvisFraværDato2 = NOW.plusDays(1);
-        var forventetAntallTimer = BigDecimal.valueOf(3);
-        var forventetAntallTimer2 = BigDecimal.valueOf(4);
+        var forventetTimer = BigDecimal.valueOf(3);
+        var forventetTimer2 = BigDecimal.valueOf(4);
 
         var aktøridFnrMap = Map.of(DUMMY_AKTØRID, PersonIdent.fra(DUMMY_FNR));
 
@@ -95,8 +95,8 @@ class InntektsmeldingXMLMapperTest {
             .medHarUtbetaltPliktigeDager(true)
             .medFraværsPerioder(List.of(new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom, forventetFraværsPeriodeTom)),
                 new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom2, forventetFraværsPeriodeTom2))))
-            .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato, BigDecimal.valueOf(7), forventetAntallTimer),
-                new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato2, BigDecimal.valueOf(7), forventetAntallTimer2)));
+            .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato, forventetTimer),
+                new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato2, forventetTimer2)));
 
 
         var inntektsmelding = lagInntektsmeldingEntitet(DUMMY_AKTØRID, Kildesystem.ARBEIDSGIVERPORTAL, omsorgspenger.build());
@@ -106,7 +106,7 @@ class InntektsmeldingXMLMapperTest {
         var omsorgspengerXML = resultat.getSkjemainnhold().getOmsorgspenger();
         assertThat(omsorgspengerXML.getValue()).isNotNull();
         assertFravær(omsorgspengerXML, forventetFraværsPeriodeFom, forventetFraværsPeriodeTom, forventetFraværsPeriodeFom2, forventetFraværsPeriodeTom2);
-        assertDelvisFravær(omsorgspengerXML, forventetDelvisFraværDato, forventetAntallTimer, forventetDelvisFraværDato2, forventetAntallTimer2);
+        assertDelvisFravær(omsorgspengerXML, forventetDelvisFraværDato, forventetTimer, forventetDelvisFraværDato2, forventetTimer2);
     }
 
     private static void assertFravær(JAXBElement<Omsorgspenger> omsorgspengerXML,
@@ -122,13 +122,13 @@ class InntektsmeldingXMLMapperTest {
 
     private static void assertDelvisFravær(JAXBElement<Omsorgspenger> omsorgspengerXML,
                                   LocalDate forventetDelvisFraværDato,
-                                  BigDecimal forventetAntallTimer,
+                                  BigDecimal forventetTimer,
                                   LocalDate forventetDelvisFraværDato2,
-                                  BigDecimal forventetAntallTimer2) {
+                                  BigDecimal forventetTimer2) {
         assertThat(omsorgspengerXML.getValue().getDelvisFravaersListe().getValue().getDelvisFravaer().getFirst().getDato().getValue()).isEqualTo(forventetDelvisFraværDato);
-        assertThat(omsorgspengerXML.getValue().getDelvisFravaersListe().getValue().getDelvisFravaer().getFirst().getTimer().getValue()).isEqualTo(forventetAntallTimer);
+        assertThat(omsorgspengerXML.getValue().getDelvisFravaersListe().getValue().getDelvisFravaer().getFirst().getTimer().getValue()).isEqualTo(forventetTimer);
         assertThat(omsorgspengerXML.getValue().getDelvisFravaersListe().getValue().getDelvisFravaer().getLast().getDato().getValue()).isEqualTo(forventetDelvisFraværDato2);
-        assertThat(omsorgspengerXML.getValue().getDelvisFravaersListe().getValue().getDelvisFravaer().getLast().getTimer().getValue()).isEqualTo(forventetAntallTimer2);
+        assertThat(omsorgspengerXML.getValue().getDelvisFravaersListe().getValue().getDelvisFravaer().getLast().getTimer().getValue()).isEqualTo(forventetTimer2);
     }
 
 

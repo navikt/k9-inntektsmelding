@@ -107,7 +107,7 @@ public class InntektsmeldingXMLMapper {
     private static DelvisFravaer lagDelvisFravaer(DelvisFraværsPeriodeEntitet delvisFravær) {
         var delvisFravaer = new DelvisFravaer();
         delvisFravaer.setDato(of.createDelvisFravaerDato(delvisFravær.getDato()));
-        delvisFravaer.setTimer(of.createDelvisFravaerTimer(delvisFravær.getAntallFraværsTimer()));
+        delvisFravaer.setTimer(of.createDelvisFravaerTimer(delvisFravær.getTimer()));
         return delvisFravaer;
     }
 

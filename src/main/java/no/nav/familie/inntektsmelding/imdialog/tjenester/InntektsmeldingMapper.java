@@ -133,7 +133,7 @@ public class InntektsmeldingMapper {
                 .toList(),
             omsorgspengerEntitet.getDelvisFraværsPerioder()
                 .stream()
-                .map(delvisFravær -> new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto(delvisFravær.getDato(), delvisFravær.getNormalArbeidstid(), delvisFravær.getAntallFraværsTimer()))
+                .map(delvisFravær -> new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto(delvisFravær.getDato(), delvisFravær.getTimer()))
                 .toList()
         );
 
@@ -218,9 +218,7 @@ public class InntektsmeldingMapper {
             return null;
         }
         return dto.stream()
-            .map(delvisFraværsPeriode -> new DelvisFraværsPeriodeEntitet(delvisFraværsPeriode.dato(),
-                delvisFraværsPeriode.normalArbeidstid(),
-                delvisFraværsPeriode.antallFraværsTimer()))
+            .map(delvisFraværsPeriode -> new DelvisFraværsPeriodeEntitet(delvisFraværsPeriode.dato(), delvisFraværsPeriode.timer()))
             .toList();
     }
 }

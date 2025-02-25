@@ -127,7 +127,6 @@ class InntektsmeldingXMLTjenesteTest {
             .medFraværsPerioder(List.of(new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2024, 6, 1),
                 LocalDate.of(2024, 6, 10)))))
             .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(LocalDate.of(2024, 6, 1),
-                BigDecimal.valueOf(7),
                 BigDecimal.valueOf(3))));
 
         var inntektsmelding = InntektsmeldingEntitet.builder()

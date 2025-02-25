@@ -62,8 +62,7 @@ public record SendInntektsmeldingRequestDto(@Valid UUID foresporselUuid,
         }
 
         public record DelvisFraværsPeriodeRequestDto(@NotNull LocalDate dato,
-                                                     @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal normalArbeidstid,
-                                                     @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal antallFraværsTimer) {
+                                                     @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal timer) {
         }
 
         @AssertTrue(message = "Må ha enten fraværsPerioder eller delvisFraværsPerioder")

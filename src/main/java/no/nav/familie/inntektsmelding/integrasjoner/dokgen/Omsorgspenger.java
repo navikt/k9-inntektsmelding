@@ -24,7 +24,6 @@ public record Omsorgspenger(@NotNull Boolean harUtbetaltPliktigeDager,
 
     @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public record DelvisFraværsPeriode(@NotNull LocalDate dato,
-                                       @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal normalArbeidstid,
-                                       @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal antallFraværsTimer) {
+                                       @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal timer) {
     }
 }

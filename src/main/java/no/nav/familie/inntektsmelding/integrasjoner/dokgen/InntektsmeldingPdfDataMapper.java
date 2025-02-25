@@ -69,7 +69,7 @@ public class InntektsmeldingPdfDataMapper {
 
         var delvisFraværsPerioder = omsorgspenger.getDelvisFraværsPerioder()
             .stream()
-            .map(dfp -> new Omsorgspenger.DelvisFraværsPeriode(dfp.getDato(), dfp.getNormalArbeidstid(), dfp.getAntallFraværsTimer()))
+            .map(dfp -> new Omsorgspenger.DelvisFraværsPeriode(dfp.getDato(), dfp.getTimer()))
             .toList();
 
         return new Omsorgspenger(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværsPerioder, delvisFraværsPerioder);
