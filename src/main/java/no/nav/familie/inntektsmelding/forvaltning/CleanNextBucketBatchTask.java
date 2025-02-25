@@ -26,6 +26,6 @@ public class CleanNextBucketBatchTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var antallSlettet = taskTjeneste.tømNestePartisjon();
-        LOG.info("Tømmer neste partisjon med ferdige tasks, slettet {}", antallSlettet);
+        LOG.info("Tømmer neste partisjon med ferdige tasks, slettet {}", antallSlettet); //TODO sjekk om denne faktisk logger antall slettede. Tror truncate alltid returnerer 0.
     }
 }
