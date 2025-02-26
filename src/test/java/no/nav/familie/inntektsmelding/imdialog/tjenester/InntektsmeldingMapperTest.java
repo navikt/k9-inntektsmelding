@@ -230,7 +230,6 @@ class InntektsmeldingMapperTest {
     void skal_teste_mapping_med_omsorgspenger_og_delvis_fraværsperiode() {
         // Arrange
         var forventetDelvisFraværsDato = LocalDate.now();
-        var forventetNormalArbeidstid = BigDecimal.valueOf(7);
         var forventetAntallFraværsTimer = BigDecimal.valueOf(3);
         var omsorgspenger = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true,
             null,
@@ -334,7 +333,6 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
         assertThat(imDto.endringAvInntektÅrsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
         assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
-        assertThat(imDto.omsorgspenger()).isNull();
     }
 
     @Test
@@ -405,7 +403,6 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
         assertThat(imDto.endringAvInntektÅrsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
         assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
-        assertThat(imDto.omsorgspenger()).isNull();
     }
 
     @Test
@@ -471,7 +468,6 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.endringAvInntektÅrsaker()).hasSize(2);
         assertThat(imDto.endringAvInntektÅrsaker().get(0).årsak()).isEqualTo(EndringsårsakDto.FERIE);
         assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
-        assertThat(imDto.omsorgspenger()).isNull();
     }
 
     @Test
@@ -520,10 +516,8 @@ class InntektsmeldingMapperTest {
             )
             .build();
 
-        var forespørselUuid = UUID.randomUUID();
-
         // Act
-        var imDto = InntektsmeldingMapper.mapFraEntitet(imEntitet, forespørselUuid);
+        var imDto = InntektsmeldingMapper.mapFraEntitetTilOms(imEntitet);
 
         // Assert
         assertThat(imDto.aktorId().id()).isEqualTo(imEntitet.getAktørId().getAktørId());

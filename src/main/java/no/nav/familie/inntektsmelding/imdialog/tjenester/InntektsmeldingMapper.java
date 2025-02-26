@@ -18,6 +18,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
+import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingForOmsorgspengerRefusjonResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
@@ -107,8 +108,40 @@ public class InntektsmeldingMapper {
             new AktørIdDto(imEntitet.getAktørId().getAktørId()),
             KodeverkMapper.mapYtelsetype(imEntitet.getYtelsetype()),
             new ArbeidsgiverDto(imEntitet.getArbeidsgiverIdent()),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(imEntitet.getKontaktperson().getNavn(),
-                imEntitet.getKontaktperson().getTelefonnummer()),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(imEntitet.getKontaktperson().getNavn(), imEntitet.getKontaktperson().getTelefonnummer()),
+            imEntitet.getStartDato(),
+            imEntitet.getMånedInntekt(),
+            imEntitet.getOpprettetTidspunkt(),
+            refusjoner,
+            bortfalteNaturalytelser,
+            endringsårsaker
+        );
+    }
+
+    public static InntektsmeldingForOmsorgspengerRefusjonResponseDto mapFraEntitetTilOms(InntektsmeldingEntitet imEntitet) {
+        var refusjoner = mapRefusjonerTilDto(imEntitet);
+
+        var bortfalteNaturalytelser = imEntitet.getBorfalteNaturalYtelser().stream().map(i ->
+            new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
+                i.getPeriode().getFom(),
+                Objects.equals(i.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : i.getPeriode().getTom(),
+                NaturalytelsetypeDto.valueOf(i.getType().toString()),
+                i.getMånedBeløp()
+            )
+        ).toList();
+        var endringsårsaker = imEntitet.getEndringsårsaker().stream().map(e ->
+                new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(KodeverkMapper.mapEndringsårsak(e.getÅrsak()),
+                    e.getFom().orElse(null),
+                    e.getTom().orElse(null),
+                    e.getBleKjentFom().orElse(null)))
+            .toList();
+
+        return new InntektsmeldingForOmsorgspengerRefusjonResponseDto(
+            imEntitet.getId(),
+            new AktørIdDto(imEntitet.getAktørId().getAktørId()),
+            KodeverkMapper.mapYtelsetype(imEntitet.getYtelsetype()),
+            new ArbeidsgiverDto(imEntitet.getArbeidsgiverIdent()),
+            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(imEntitet.getKontaktperson().getNavn(), imEntitet.getKontaktperson().getTelefonnummer()),
             imEntitet.getStartDato(),
             imEntitet.getMånedInntekt(),
             imEntitet.getOpprettetTidspunkt(),

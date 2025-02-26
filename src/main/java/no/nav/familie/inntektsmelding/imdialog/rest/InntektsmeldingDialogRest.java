@@ -87,7 +87,7 @@ public class InntektsmeldingDialogRest {
         if (sendInntektsmeldingRequestDto.foresporselUuid() == null) {
             tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident()));
             LOG.info("Mottok arbeisgiverinitert inntektsmelding for aktørId {}", sendInntektsmeldingRequestDto.aktorId());
-           return Response.ok(inntektsmeldingTjeneste.mottaArbeidsgiverInitiertInntektsmelding(sendInntektsmeldingRequestDto)).build();
+           return Response.ok(inntektsmeldingTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(sendInntektsmeldingRequestDto)).build();
         } else {
             tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
             LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequestDto.foresporselUuid());

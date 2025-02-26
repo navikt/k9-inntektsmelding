@@ -12,12 +12,12 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingForOmsorgspengerRefusjonResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SlåOppArbeidstakerResponseDto;
@@ -33,7 +33,6 @@ import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -85,7 +84,7 @@ public class InntektsmeldingTjeneste {
         var aktorId = new AktørIdEntitet(mottattInntektsmeldingDto.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto);
-        var imId = lagreOgLagJournalførTask(entitet, forespørselEntitet);
+        var imId = lagreOgLagJournalførTask(entitet, forespørselEntitet.getFagsystemSaksnummer());
         var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(mottattInntektsmeldingDto.foresporselUuid(), aktorId, orgnummer,
             mottattInntektsmeldingDto.startdato(), LukkeÅrsak.ORDINÆR_INNSENDING);
 
@@ -98,50 +97,35 @@ public class InntektsmeldingTjeneste {
         return InntektsmeldingMapper.mapFraEntitet(imEntitet, mottattInntektsmeldingDto.foresporselUuid());
     }
 
-    public InntektsmeldingResponseDto mottaArbeidsgiverInitiertInntektsmelding(SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+    public InntektsmeldingForOmsorgspengerRefusjonResponseDto mottaInntektsmeldingForOmsorgspengerRefusjon(SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         var imEnitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequestDto);
-        var aktørId = new AktørIdEntitet(sendInntektsmeldingRequestDto.aktorId().id());
-        var ytelseType = KodeverkMapper.mapYtelsetype(sendInntektsmeldingRequestDto.ytelse());
-        var organisasjonsnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident());
-
-
-        var opprinneligForespørsel = forespørselBehandlingTjeneste.finnOpprinneligForespørsel(aktørId, ytelseType, sendInntektsmeldingRequestDto.startdato())
-            .orElseThrow(() -> new IllegalStateException("Ingen forespørsler funnet for aktørId ved arbeidsgiverintiert innntektsmelding: " + aktørId));
-
-        var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForArbeidsgiverInitiertIm(ytelseType,
-            aktørId,
-            new SaksnummerDto(opprinneligForespørsel.getFagsystemSaksnummer()),
-            organisasjonsnummer,
-            opprinneligForespørsel.getSkjæringstidspunkt(),
-            sendInntektsmeldingRequestDto.startdato());
-
-        var forespørselEnitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
-            .orElseThrow(() -> new IllegalStateException("Mangler forespørsel entitet"));
-
-        var imId = lagreOgLagJournalførTask(imEnitet, forespørselEnitet);
-
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer,
-            sendInntektsmeldingRequestDto.startdato(), LukkeÅrsak.ORDINÆR_INNSENDING);
-
+        var imId = lagreOgLagJournalførTask(imEnitet, null);
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
 
         // Metrikker i prometheus
-        MetrikkerTjeneste.logginnsendtArbeidsgiverinitiertIm(imEntitet);
+        MetrikkerTjeneste.logginnsendtImOmsorgspengerRefusjon(imEntitet);
 
-        return InntektsmeldingMapper.mapFraEntitet(imEntitet, forespørselUuid);
+        return InntektsmeldingMapper.mapFraEntitetTilOms(imEntitet);
     }
 
-    private Long lagreOgLagJournalførTask(InntektsmeldingEntitet entitet, ForespørselEntitet forespørsel) {
-        LOG.info("Lagrer inntektsmelding for forespørsel {}", forespørsel.getUuid());
-        var imId = inntektsmeldingRepository.lagreInntektsmelding(entitet);
-        opprettTaskForSendTilJoark(imId, forespørsel.getFagsystemSaksnummer());
+    private Long lagreOgLagJournalførTask(InntektsmeldingEntitet inntektsmeldingEntitet, String fagsystemSaksnummer) {
+        var ytelseType = inntektsmeldingEntitet.getYtelsetype();
+        LOG.info("Lagrer inntektsmelding for for ytelse {} og forespørsel {}", ytelseType, fagsystemSaksnummer);
+
+        var imId = inntektsmeldingRepository.lagreInntektsmelding(inntektsmeldingEntitet);
+        opprettTaskForSendTilJoark(imId, ytelseType, fagsystemSaksnummer);
         return imId;
     }
 
-    private void opprettTaskForSendTilJoark(Long imId, String fagsystemSaksnummer) {
+    private void opprettTaskForSendTilJoark(Long imId, Ytelsetype ytelsetype, String fagsystemSaksnummer) {
         var task = ProsessTaskData.forProsessTask(SendTilJoarkTask.class);
-        task.setSaksnummer(fagsystemSaksnummer);
+
+        if (fagsystemSaksnummer != null) {
+            task.setSaksnummer(fagsystemSaksnummer);
+        }
+
         task.setProperty(SendTilJoarkTask.KEY_INNTEKTSMELDING_ID, imId.toString());
+        task.setProperty(SendTilJoarkTask.KEY_YTELSE_TYPE, ytelsetype.toString());
         prosessTaskTjeneste.lagre(task);
         LOG.info("Opprettet task for oversending til joark");
     }

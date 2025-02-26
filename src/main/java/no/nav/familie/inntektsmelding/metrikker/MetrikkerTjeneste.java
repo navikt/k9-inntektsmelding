@@ -37,8 +37,8 @@ public class MetrikkerTjeneste {
     // Hvor mange dager er det mellom opprettelse og løsning av oppgaven når inntektsmelding sendes inn via vårt eget skjema
     private static final DistributionSummary OPPGAVE_VARIGHET_INTERN_TELLER = Metrics.summary(APP_NAME + ".oppgaver.varighet.intern");
 
-    // Måler innsending av arbeidsgiverinitiert inntektsmelding
-    private static final String ARBEIDSGIVERINITIERT_INNSENDING = APP_NAME + "arbeidsgiverinitiert.innsending";
+    // Måler innsending av inntektsmelding for omorgspenger refusjon
+    private static final String OMORGSPENGER_REFUSJON_INNSENDING = APP_NAME + "omsorgspenger.refusjon.innsending";
 
     // Måler opprettelse av oppgaver per ytelse
     private static final String COUNTER_FORESPØRRSEL = APP_NAME + ".oppgaver.opprettet";
@@ -133,14 +133,14 @@ public class MetrikkerTjeneste {
         LOG.warn(msg);
     }
 
-    public static void logginnsendtArbeidsgiverinitiertIm(InntektsmeldingEntitet imEntitet) {
+    public static void logginnsendtImOmsorgspengerRefusjon(InntektsmeldingEntitet imEntitet) {
 
         try {
             var tags = new ArrayList<Tag>();
             tags.add(new ImmutableTag(TAG_YTELSE, imEntitet.getYtelsetype().name()));
-            Metrics.counter(ARBEIDSGIVERINITIERT_INNSENDING, tags).increment();
+            Metrics.counter(OMORGSPENGER_REFUSJON_INNSENDING, tags).increment();
         } catch (Exception e) {
-            loggFeil(e, "logginnsendtArbeidsgiverinitiertIm");
+            loggFeil(e, "logginnsendtImOmsorgspengerRefusjon");
         }
     }
 }

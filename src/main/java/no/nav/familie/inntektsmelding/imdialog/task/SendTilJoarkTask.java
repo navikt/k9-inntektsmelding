@@ -18,6 +18,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class SendTilJoarkTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SendTilJoarkTask.class);
     public static final String KEY_INNTEKTSMELDING_ID = "inntektsmeldingId";
+    public static final String KEY_YTELSE_TYPE = "ytelseType";
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private InntektsmeldingXMLTjeneste inntektsmeldingXMLTjeneste;
@@ -42,15 +43,15 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var inntektsmeldingId = Integer.parseInt(prosessTaskData.getPropertyValue(KEY_INNTEKTSMELDING_ID));
+        var ytelseType = prosessTaskData.getPropertyValue(KEY_YTELSE_TYPE);
         var fagsysteSaksnummer = prosessTaskData.getSaksnummer();
-        LOG.info("Starter task for oversending til joark for saksnummer {}", fagsysteSaksnummer);
+
+        LOG.info("Starter task for oversending til joark for ytelse {} saksnummer {}", ytelseType, fagsysteSaksnummer);
 
         var inntektsmelding = inntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingId);
         var xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
-
         var pdf = k9DokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);
 
-        LOG.debug("Genererte XML: {} og pdf av inntektsmeldingen, journalfører på sak: {}", xml, fagsysteSaksnummer);
         joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf, fagsysteSaksnummer);
         LOG.info("Sluttfører task oversendJoark");
     }
