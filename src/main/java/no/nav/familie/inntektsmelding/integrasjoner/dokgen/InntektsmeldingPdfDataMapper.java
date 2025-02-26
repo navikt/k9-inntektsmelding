@@ -64,12 +64,12 @@ public class InntektsmeldingPdfDataMapper {
     private static Omsorgspenger mapOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
         var fraværsPerioder = omsorgspenger.getFraværsPerioder()
             .stream()
-            .map(fp -> new Omsorgspenger.FraværsPeriode(fp.getPeriode().getFom(), fp.getPeriode().getTom()))
+            .map(fp -> new Omsorgspenger.FraværsPeriode(fp.getPeriode().getFom().toString(), fp.getPeriode().getTom().toString()))
             .toList();
 
         var delvisFraværsPerioder = omsorgspenger.getDelvisFraværsPerioder()
             .stream()
-            .map(dfp -> new Omsorgspenger.DelvisFraværsPeriode(dfp.getDato(), dfp.getTimer()))
+            .map(dfp -> new Omsorgspenger.DelvisFraværsPeriode(dfp.getDato().toString(), dfp.getTimer()))
             .toList();
 
         return new Omsorgspenger(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværsPerioder, delvisFraværsPerioder);
