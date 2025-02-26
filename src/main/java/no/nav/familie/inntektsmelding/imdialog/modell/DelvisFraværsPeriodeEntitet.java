@@ -27,7 +27,7 @@ public class DelvisFraværsPeriodeEntitet {
     @Column(name = "dato", nullable = false)
     private LocalDate dato;
 
-    @Column(name = "antall_fravaers_timer", nullable = false)
+    @Column(name = "timer", nullable = false)
     private BigDecimal timer;
 
     public DelvisFraværsPeriodeEntitet() {

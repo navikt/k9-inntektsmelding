@@ -10,7 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity(name = "FraværsPeriodeEntitet")
-@Table(name = "FRABVAERS_PERIODE")
+@Table(name = "FRAVAERS_PERIODE")
 public class FraværsPeriodeEntitet {
 
     @Id
