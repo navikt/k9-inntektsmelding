@@ -22,9 +22,8 @@ public class OmsorgspengerEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
     private Long id;
 
-    // Er dette riktig annotering?
-    @OneToOne
-    @JoinColumn(name = "inntektsmelding_id", referencedColumnName = "id")
+    @OneToOne(optional = false)
+    @JoinColumn(name = "inntektsmelding_id", nullable = false, updatable = false)
     private InntektsmeldingEntitet inntektsmelding;
 
     @Column(name = "har_utbetalt_pliktige_dager", nullable = false)
