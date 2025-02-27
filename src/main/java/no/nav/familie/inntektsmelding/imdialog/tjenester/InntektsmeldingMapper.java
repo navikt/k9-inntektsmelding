@@ -109,7 +109,7 @@ public class InntektsmeldingMapper {
         var refusjoner = mapRefusjonerTilDto(imEntitet);
         var bortfalteNaturalytelser = mapTilBortfaltNaturalytelseRequestDto(imEntitet);
         var endringsårsaker = mapTilEndringsårsakerRequestDto(imEntitet);
-        var omsorgspenger = mapOmsorgspenger(imEntitet);
+        var omsorgspenger = mapTilOmsorgspengerRequestDto(imEntitet);
 
         return new InntektsmeldingForOmsorgspengerRefusjonResponseDto(
             imEntitet.getId(),
@@ -153,7 +153,7 @@ public class InntektsmeldingMapper {
         return endringsårsaker;
     }
 
-    private static SendInntektsmeldingRequestDto.OmsorgspengerRequestDto mapOmsorgspenger(InntektsmeldingEntitet imEntitet) {
+    private static SendInntektsmeldingRequestDto.OmsorgspengerRequestDto mapTilOmsorgspengerRequestDto(InntektsmeldingEntitet imEntitet) {
         if (imEntitet.getOmsorgspenger() == null) {
             return null;
         }
