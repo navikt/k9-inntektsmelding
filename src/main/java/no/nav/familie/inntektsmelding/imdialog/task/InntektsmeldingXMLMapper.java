@@ -103,7 +103,6 @@ public class InntektsmeldingXMLMapper {
         return of.createSkjemainnholdOmsorgspenger(omsorgspenger);
     }
 
-    // Note: dersom vi skal beholde normalArbeidsTid må vi mappe det ut her
     private static DelvisFravaer lagDelvisFravaer(DelvisFraværsPeriodeEntitet delvisFravær) {
         var delvisFravaer = new DelvisFravaer();
         delvisFravaer.setDato(of.createDelvisFravaerDato(delvisFravær.getDato()));

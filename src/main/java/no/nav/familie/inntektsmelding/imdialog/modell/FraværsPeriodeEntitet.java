@@ -24,7 +24,6 @@ public class FraværsPeriodeEntitet {
     @Embedded
     private PeriodeEntitet periode;
 
-    // here are the getters and builders
     public FraværsPeriodeEntitet() {
         // Hibernate
     }

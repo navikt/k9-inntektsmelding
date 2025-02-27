@@ -97,7 +97,6 @@ public class OmsorgspengerEntitet {
         }
 
         public OmsorgspengerEntitet build() {
-            // Trenger vi validering her?
             return kladd;
         }
     }

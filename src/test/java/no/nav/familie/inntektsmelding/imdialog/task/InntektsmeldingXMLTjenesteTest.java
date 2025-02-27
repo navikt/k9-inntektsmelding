@@ -78,7 +78,7 @@ class InntektsmeldingXMLTjenesteTest {
     }
 
     @Test
-    void skal_teste_xml_generering_pn() {
+    void skal_teste_xml_generering_ppn() {
         // Arrange
         var opprettetTidspunkt = LocalDateTime.of(2024, 6, 30, 12, 12, 30);
         var naturalytelse = BortaltNaturalytelseEntitet.builder()
