@@ -86,21 +86,8 @@ public class InntektsmeldingMapper {
 
     public static InntektsmeldingResponseDto mapFraEntitet(InntektsmeldingEntitet imEntitet, UUID forespørselUuid) {
         var refusjoner = mapRefusjonerTilDto(imEntitet);
-
-        var bortfalteNaturalytelser = imEntitet.getBorfalteNaturalYtelser().stream().map(i ->
-            new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
-                i.getPeriode().getFom(),
-                Objects.equals(i.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : i.getPeriode().getTom(),
-                NaturalytelsetypeDto.valueOf(i.getType().toString()),
-                i.getMånedBeløp()
-            )
-        ).toList();
-        var endringsårsaker = imEntitet.getEndringsårsaker().stream().map(e ->
-                new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(KodeverkMapper.mapEndringsårsak(e.getÅrsak()),
-                    e.getFom().orElse(null),
-                    e.getTom().orElse(null),
-                    e.getBleKjentFom().orElse(null)))
-            .toList();
+        var bortfalteNaturalytelser = mapTilBortfaltNaturalytelseRequestDto(imEntitet);
+        var endringsårsaker = mapTilEndringsårsakerRequestDto(imEntitet);
 
         return new InntektsmeldingResponseDto(
             imEntitet.getId(),
@@ -120,21 +107,9 @@ public class InntektsmeldingMapper {
 
     public static InntektsmeldingForOmsorgspengerRefusjonResponseDto mapFraEntitetTilOms(InntektsmeldingEntitet imEntitet) {
         var refusjoner = mapRefusjonerTilDto(imEntitet);
-
-        var bortfalteNaturalytelser = imEntitet.getBorfalteNaturalYtelser().stream().map(i ->
-            new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
-                i.getPeriode().getFom(),
-                Objects.equals(i.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : i.getPeriode().getTom(),
-                NaturalytelsetypeDto.valueOf(i.getType().toString()),
-                i.getMånedBeløp()
-            )
-        ).toList();
-        var endringsårsaker = imEntitet.getEndringsårsaker().stream().map(e ->
-                new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(KodeverkMapper.mapEndringsårsak(e.getÅrsak()),
-                    e.getFom().orElse(null),
-                    e.getTom().orElse(null),
-                    e.getBleKjentFom().orElse(null)))
-            .toList();
+        var bortfalteNaturalytelser = mapTilBortfaltNaturalytelseRequestDto(imEntitet);
+        var endringsårsaker = mapTilEndringsårsakerRequestDto(imEntitet);
+        var omsorgspenger = mapOmsorgspenger(imEntitet);
 
         return new InntektsmeldingForOmsorgspengerRefusjonResponseDto(
             imEntitet.getId(),
@@ -148,8 +123,34 @@ public class InntektsmeldingMapper {
             refusjoner,
             bortfalteNaturalytelser,
             endringsårsaker,
-            mapOmsorgspenger(imEntitet)
+            omsorgspenger
         );
+    }
+
+    private static List<SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto> mapTilBortfaltNaturalytelseRequestDto(InntektsmeldingEntitet imEntitet) {
+        var bortfalteNaturalytelser = imEntitet.getBorfalteNaturalYtelser()
+            .stream()
+            .map(bortfaltNaturalytelse ->
+                new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
+                    bortfaltNaturalytelse.getPeriode().getFom(),
+                    Objects.equals(bortfaltNaturalytelse.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : bortfaltNaturalytelse.getPeriode().getTom(),
+                    NaturalytelsetypeDto.valueOf(bortfaltNaturalytelse.getType().toString()),
+                    bortfaltNaturalytelse.getMånedBeløp()
+                )
+            ).toList();
+        return bortfalteNaturalytelser;
+    }
+
+    private static List<SendInntektsmeldingRequestDto.EndringsårsakerRequestDto> mapTilEndringsårsakerRequestDto(InntektsmeldingEntitet imEntitet) {
+        var endringsårsaker = imEntitet.getEndringsårsaker()
+            .stream()
+            .map(endringsårsak ->
+                new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(KodeverkMapper.mapEndringsårsak(endringsårsak.getÅrsak()),
+                    endringsårsak.getFom().orElse(null),
+                    endringsårsak.getTom().orElse(null),
+                    endringsårsak.getBleKjentFom().orElse(null)))
+            .toList();
+        return endringsårsaker;
     }
 
     private static SendInntektsmeldingRequestDto.OmsorgspengerRequestDto mapOmsorgspenger(InntektsmeldingEntitet imEntitet) {
