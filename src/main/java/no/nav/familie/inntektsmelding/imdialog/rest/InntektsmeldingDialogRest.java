@@ -38,6 +38,7 @@ public class InntektsmeldingDialogRest {
     private static final String HENT_OPPLYSNINGER = "/opplysninger";
     private static final String HENT_INNTEKTSMELDINGER_FOR_OPPGAVE = "/inntektsmeldinger";
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
+    private static final String SEND_INNTEKTSMELDING_OMS_REFUSJON = "/send-inntektsmelding/omsorgspenger-refusjon";
     private static final String LAST_NED_PDF = "/last-ned-pdf";
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
@@ -83,16 +84,20 @@ public class InntektsmeldingDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
     public Response sendInntektsmelding(@NotNull @Valid SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
+        LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequestDto.foresporselUuid());
+        return Response.ok(inntektsmeldingTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto)).build();
+    }
 
-        if (sendInntektsmeldingRequestDto.foresporselUuid() == null) {
-            tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident()));
-            LOG.info("Mottok arbeisgiverinitert inntektsmelding for aktørId {}", sendInntektsmeldingRequestDto.aktorId());
-           return Response.ok(inntektsmeldingTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(sendInntektsmeldingRequestDto)).build();
-        } else {
-            tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
-            LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequestDto.foresporselUuid());
-            return Response.ok(inntektsmeldingTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto)).build();
-        }
+    @POST
+    @Path(SEND_INNTEKTSMELDING_OMS_REFUSJON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response sendInntektsmeldingForOmsorgspengerRefusjon(@NotNull @Valid SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident()));
+        LOG.info("Mottok inntektsmelding for omsorgspenger refusjon for aktørId {}", sendInntektsmeldingRequestDto.aktorId());
+        return Response.ok(inntektsmeldingTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(sendInntektsmeldingRequestDto)).build();
+
     }
 
     @GET
