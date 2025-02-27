@@ -141,11 +141,12 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_lagre_inntektsmelding_med_omsorgspenger() {
+        // Arrange
         var forventetFraværsPeriode1 = PeriodeEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now().plusDays(10));
         var forventetFraværsPeriode2 = PeriodeEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(2), LocalDate.now().minusMonths(1));
         var forventetDelvisFraværsDato = LocalDate.now().plusDays(11);
         var forventetDelvisFraværsTimer = BigDecimal.valueOf(4);
-        // Arrange
+
         var omsorgspenger = OmsorgspengerEntitet.builder()
             .medHarUtbetaltPliktigeDager(true)
             .medFraværsPerioder(List.of(new FraværsPeriodeEntitet(forventetFraværsPeriode1), new FraværsPeriodeEntitet(forventetFraværsPeriode2)))
@@ -155,7 +156,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var førLagring = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
-            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .medYtelsetype(Ytelsetype.OMSORGSPENGER)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -188,6 +189,54 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         assertThat(etterLagring.get().getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getTom()).isEqualTo(forventetFraværsPeriode1.getTom());
         assertThat(etterLagring.get().getOmsorgspenger().getFraværsPerioder().getLast().getPeriode().getFom()).isEqualTo(forventetFraværsPeriode2.getFom());
         assertThat(etterLagring.get().getOmsorgspenger().getFraværsPerioder().getLast().getPeriode().getTom()).isEqualTo(forventetFraværsPeriode2.getTom());
+        assertThat(etterLagring.get().getOmsorgspenger().getDelvisFraværsPerioder()).hasSize(1);
+        assertThat(etterLagring.get().getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
+    }
+
+    @Test
+    void skal_lagre_inntektsmelding_med_omsorgspenger_med_kun_delvis_fravær() {
+        // Arrange
+        var forventetDelvisFraværsDato = LocalDate.now().plusDays(11);
+        var forventetDelvisFraværsTimer = BigDecimal.valueOf(4);
+
+        var omsorgspenger = OmsorgspengerEntitet.builder()
+            .medHarUtbetaltPliktigeDager(true)
+            .medFraværsPerioder(null)
+            .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(forventetDelvisFraværsDato, forventetDelvisFraværsTimer)))
+            .build();
+
+        var førLagring = InntektsmeldingEntitet.builder()
+            .medAktørId(new AktørIdEntitet("9999999999999"))
+            .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
+            .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(LocalDate.now())
+            .medArbeidsgiverIdent("999999999")
+            .medOmsorgspenger(omsorgspenger)
+            .build();
+
+        // Act
+        inntektsmeldingRepository.lagreInntektsmelding(førLagring);
+        var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(førLagring.getAktørId(), førLagring.getArbeidsgiverIdent(),
+            førLagring.getStartDato(), førLagring.getYtelsetype());
+
+        // Assert
+        assertThat(etterLagring).isPresent();
+        assertThat(etterLagring.get().getKontaktperson().getTelefonnummer()).isEqualTo(førLagring.getKontaktperson().getTelefonnummer());
+        assertThat(etterLagring.get().getKontaktperson().getNavn()).isEqualTo(førLagring.getKontaktperson().getNavn());
+        assertThat(etterLagring.get().getMånedInntekt()).isEqualByComparingTo(førLagring.getMånedInntekt());
+        assertThat(etterLagring.get().getArbeidsgiverIdent()).isEqualTo(førLagring.getArbeidsgiverIdent());
+        assertThat(etterLagring.get().getAktørId()).isEqualTo(førLagring.getAktørId());
+        assertThat(etterLagring.get().getStartDato()).isEqualTo(førLagring.getStartDato());
+        assertThat(etterLagring.get().getYtelsetype()).isEqualTo(førLagring.getYtelsetype());
+        assertThat(etterLagring.get().getOpphørsdatoRefusjon()).isEqualTo(førLagring.getOpphørsdatoRefusjon());
+        assertThat(etterLagring.get().getMånedRefusjon()).isEqualByComparingTo(førLagring.getMånedRefusjon());
+        assertThat(etterLagring.get().getEndringsårsaker()).hasSize(0);
+
+        assertThat(etterLagring.get().getOmsorgspenger().isHarUtbetaltPliktigeDager()).isTrue();
+        assertThat(etterLagring.get().getOmsorgspenger().getFraværsPerioder()).hasSize(0);
         assertThat(etterLagring.get().getOmsorgspenger().getDelvisFraværsPerioder()).hasSize(1);
         assertThat(etterLagring.get().getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
     }
