@@ -27,10 +27,14 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
@@ -110,6 +114,11 @@ public class K9DokgenRestTjeneste {
             if (inntektsmeldingRequest.naturalytelser() != null) {
                 builder.medBortfaltNaturalytelser(mapBortfalteNaturalytelser(inntektsmeldingRequest.naturalytelser));
             }
+
+            if (inntektsmeldingRequest.omsorgspenger() != null) {
+                builder.medOmsorgspenger(mapOmsorgspenger(inntektsmeldingRequest.omsorgspenger()));
+            }
+
             inntektsmeldingEntitet = builder.build();
         }
 
@@ -147,6 +156,32 @@ public class K9DokgenRestTjeneste {
             .toList();
     }
 
+    private static OmsorgspengerEntitet mapOmsorgspenger(OmsorgspengerRequestDto dto) {
+        return OmsorgspengerEntitet.builder()
+            .medHarUtbetaltPliktigeDager(dto.harUtbetaltPliktigeDager())
+            .medFraværsPerioder(mapFraværsPerioder(dto.fraværsPerioder()))
+            .medDelvisFraværsPerioder(mapDelvisFraværsPerioder(dto.delvisFraværsPerioder()))
+            .build();
+    }
+
+    private static List<FraværsPeriodeEntitet> mapFraværsPerioder(List<FraværsPeriodeRequestDto> dto) {
+        if (dto == null) {
+            return null;
+        }
+        return dto.stream()
+            .map(fraværsPeriode -> new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(fraværsPeriode.fom(), fraværsPeriode.tom())))
+            .toList();
+    }
+
+    private static List<DelvisFraværsPeriodeEntitet> mapDelvisFraværsPerioder(List<DelvisFraværsPeriodeRequestDto> dto) {
+        if (dto == null) {
+            return null;
+        }
+        return dto.stream()
+            .map(delvisFraværsPeriode -> new DelvisFraværsPeriodeEntitet(delvisFraværsPeriode.dato(), delvisFraværsPeriode.timer()))
+            .toList();
+    }
+
     private Ytelsetype mapYtelseType(String ytelsetype) {
         return switch (ytelsetype.toLowerCase()) {
             case "pleiepenger sykt barn" -> Ytelsetype.PLEIEPENGER_SYKT_BARN;
@@ -169,7 +204,9 @@ public class K9DokgenRestTjeneste {
                                          @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal maanedInntekt,
                                          List<EndringRefusjonDto> refusjonsendringer,
                                          List<BortfaltNaturalytelseDto> naturalytelser,
-                                         List<EndringsårsakerDto> endringsårsaker) {
+                                         List<EndringsårsakerDto> endringsårsaker,
+                                         OmsorgspengerRequestDto omsorgspenger
+                                         ) {
     }
 
     public record EndringRefusjonDto(@NotNull LocalDate fom,
@@ -186,6 +223,21 @@ public class K9DokgenRestTjeneste {
                                      LocalDate fom,
                                      LocalDate tom,
                                      LocalDate bleKjentFom) {
+    }
+
+
+    public record OmsorgspengerRequestDto(@NotNull Boolean harUtbetaltPliktigeDager,
+                                          List<@Valid FraværsPeriodeRequestDto> fraværsPerioder,
+                                          List<@Valid DelvisFraværsPeriodeRequestDto> delvisFraværsPerioder) {
+    }
+
+    public record FraværsPeriodeRequestDto(@NotNull LocalDate fom,
+                                           @NotNull LocalDate tom) {
+
+    }
+
+    public record DelvisFraværsPeriodeRequestDto(@NotNull LocalDate dato,
+                                                 @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal timer) {
     }
 
     private void sjekkAtKallerHarRollenDrift() {
