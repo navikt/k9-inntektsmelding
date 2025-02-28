@@ -5,7 +5,10 @@ import java.util.Map;
 
 import jakarta.xml.bind.JAXBElement;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -16,15 +19,20 @@ import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsgiver;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.ArbeidsgiverPrivat;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Avsendersystem;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.DelvisFravaer;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.DelvisFravaersListe;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.EndringIRefusjon;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.EndringIRefusjonsListe;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.FravaersPeriodeListe;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.GjenopptakelseNaturalytelseListe;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Inntekt;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.InntektsmeldingM;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Kontaktinformasjon;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.NaturalytelseDetaljer;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.ObjectFactory;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.Omsorgspenger;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.OpphoerAvNaturalytelseListe;
+import no.seres.xsd.nav.inntektsmelding_m._20181211.Periode;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Refusjon;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Skjemainnhold;
 
@@ -67,9 +75,46 @@ public class InntektsmeldingXMLMapper {
         skjemainnhold.setOpphoerAvNaturalytelseListe(lagBortfaltNaturalytelse(naturalYtelser));
         skjemainnhold.setGjenopptakelseNaturalytelseListe(lagGjennopptattNaturalytelse(naturalYtelser));
 
+        if (inntektsmelding.getOmsorgspenger() != null) {
+            skjemainnhold.setOmsorgspenger(lagOmsorgspenger(inntektsmelding.getOmsorgspenger()));
+        }
+
         var imXml = new InntektsmeldingM();
         imXml.setSkjemainnhold(skjemainnhold);
         return imXml;
+    }
+
+    private static JAXBElement<Omsorgspenger> lagOmsorgspenger(OmsorgspengerEntitet omsorgspengerEntitet) {
+        var omsorgspenger = new Omsorgspenger();
+        omsorgspenger.setHarUtbetaltPliktigeDager(of.createOmsorgspengerHarUtbetaltPliktigeDager(omsorgspengerEntitet.isHarUtbetaltPliktigeDager()));
+
+        FravaersPeriodeListe fraværListeObjekt = new FravaersPeriodeListe();
+        var fraværListe = fraværListeObjekt.getFravaerPeriode();
+        omsorgspengerEntitet.getFraværsPerioder()
+            .forEach(fravær -> fraværListe.add(lagPeriode(fravær)));
+        omsorgspenger.setFravaersPerioder(of.createOmsorgspengerFravaersPerioder(fraværListeObjekt));
+
+        DelvisFravaersListe delvisFraværListeObjekt = new DelvisFravaersListe();
+        var delvisFraværListe = delvisFraværListeObjekt.getDelvisFravaer();
+        omsorgspengerEntitet.getDelvisFraværsPerioder()
+            .forEach(delvisFravær -> delvisFraværListe.add(lagDelvisFravaer(delvisFravær)));
+        omsorgspenger.setDelvisFravaersListe(of.createOmsorgspengerDelvisFravaersListe(delvisFraværListeObjekt));
+
+        return of.createSkjemainnholdOmsorgspenger(omsorgspenger);
+    }
+
+    private static DelvisFravaer lagDelvisFravaer(DelvisFraværsPeriodeEntitet delvisFravær) {
+        var delvisFravaer = new DelvisFravaer();
+        delvisFravaer.setDato(of.createDelvisFravaerDato(delvisFravær.getDato()));
+        delvisFravaer.setTimer(of.createDelvisFravaerTimer(delvisFravær.getTimer()));
+        return delvisFravaer;
+    }
+
+    private static Periode lagPeriode(FraværsPeriodeEntitet fravær) {
+        Periode periode = of.createPeriode();
+        periode.setFom(of.createPeriodeFom(fravær.getPeriode().getFom()));
+        periode.setTom(of.createPeriodeTom(fravær.getPeriode().getTom()));
+        return periode;
     }
 
     private static Avsendersystem lagAvsendersysem(InntektsmeldingEntitet inntektsmelding) {

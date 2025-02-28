@@ -228,37 +228,14 @@ class InntektsmeldingTjenesteTest {
             BigDecimal.valueOf(10000),
             List.of(),
             List.of(),
-            List.of());
+            List.of(),
+            null);
 
         // Act
         var ex = assertThrows(IllegalStateException.class, () -> inntektsmeldingTjeneste.mottaInntektsmelding(innsendingDto));
 
         // Assert
         assertThat(ex.getMessage()).contains("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
-    }
-
-    @Test
-    void skal_feile_om_opprinnelig_forespørsel_ikke_finnes() {
-        // Arrange
-        var aktørId = new AktørIdEntitet("9999999999999");
-
-        when(forespørselBehandlingTjeneste.finnOpprinneligForespørsel(aktørId, Ytelsetype.PLEIEPENGER_SYKT_BARN, LocalDate.now())).thenReturn(Optional.empty());
-        var innsendingDto = new SendInntektsmeldingRequestDto(null,
-            new AktørIdDto("9999999999999"),
-            YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
-            new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Navn", "123"),
-            LocalDate.now(),
-            BigDecimal.valueOf(10000),
-            List.of(),
-            List.of(),
-            List.of());
-
-        // Act
-        var ex = assertThrows(IllegalStateException.class, () -> inntektsmeldingTjeneste.mottaArbeidsgiverInitiertInntektsmelding(innsendingDto));
-
-        // Assert
-        assertThat(ex.getMessage()).contains("Ingen forespørsler funnet for aktørId ved arbeidsgiverintiert innntektsmelding");
     }
 
     @Test

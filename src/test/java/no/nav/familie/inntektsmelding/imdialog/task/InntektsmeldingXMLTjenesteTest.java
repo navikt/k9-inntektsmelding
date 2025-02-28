@@ -7,6 +7,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
+
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,7 +78,7 @@ class InntektsmeldingXMLTjenesteTest {
     }
 
     @Test
-    void skal_teste_xml_generering_svp() {
+    void skal_teste_xml_generering_ppn() {
         // Arrange
         var opprettetTidspunkt = LocalDateTime.of(2024, 6, 30, 12, 12, 30);
         var naturalytelse = BortaltNaturalytelseEntitet.builder()
@@ -103,6 +109,48 @@ class InntektsmeldingXMLTjenesteTest {
         // Assert
         // Kjører replace slik at vi kan lagre XML i mer lesbart format under
         assertThat(xml).isEqualTo(forventetXmlPN().replaceAll("[\r\n\t]", ""));
+    }
+
+    @Test
+    void skal_teste_xml_generering_oms() {
+        // Arrange
+        var opprettetTidspunkt = LocalDateTime.of(2024, 6, 30, 12, 12, 30);
+        var naturalytelse = BortaltNaturalytelseEntitet.builder()
+            .medPeriode(LocalDate.of(2024, 6, 10), Tid.TIDENES_ENDE)
+            .medType(NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS)
+            .medMånedBeløp(BigDecimal.valueOf(2000))
+            .build();
+        var aktørIdSøker = new AktørIdEntitet("1234567891234");
+        var fnrSøker = new PersonIdent("11111111111");
+        var omsorgspenger = OmsorgspengerEntitet.builder()
+            .medHarUtbetaltPliktigeDager(true)
+            .medFraværsPerioder(List.of(new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2024, 6, 1),
+                LocalDate.of(2024, 6, 10)))))
+            .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(LocalDate.of(2024, 6, 1),
+                BigDecimal.valueOf(3))));
+
+        var inntektsmelding = InntektsmeldingEntitet.builder()
+            .medArbeidsgiverIdent("999999999")
+            .medStartDato(LocalDate.of(2024, 6, 1))
+            .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(35000))
+            .medAktørId(aktørIdSøker)
+            .medMånedRefusjon(BigDecimal.valueOf(35000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medOpprettetTidspunkt(opprettetTidspunkt)
+            .medKontaktperson(new KontaktpersonEntitet("Test Testen", "111111111"))
+            .medBortfaltNaturalytelser(Collections.singletonList(naturalytelse))
+            .medOmsorgspenger(omsorgspenger.build())
+            .build();
+
+        when(personTjeneste.finnPersonIdentForAktørId(aktørIdSøker)).thenReturn(fnrSøker);
+
+        // Act
+        var xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
+
+        // Assert
+        // Kjører replace slik at vi kan lagre XML i mer lesbart format under
+        assertThat(xml).isEqualTo(forventetXmlOMS().replaceAll("[\r\n\t]", ""));
     }
 
     private String forventetXmlPSB() {
@@ -149,6 +197,7 @@ class InntektsmeldingXMLTjenesteTest {
             </melding>
             """;
     }
+
     private String forventetXmlPN() {
         return """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -194,4 +243,63 @@ class InntektsmeldingXMLTjenesteTest {
             """;
     }
 
+    private String forventetXmlOMS() {
+        return """
+            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            <melding xmlns="http://seres.no/xsd/NAV/Inntektsmelding_M/20181211">
+            	<Skjemainnhold>
+            		<ytelse>Omsorgspenger</ytelse>
+            		<aarsakTilInnsending>Ny</aarsakTilInnsending>
+            		<arbeidsgiver>
+            			<virksomhetsnummer>999999999</virksomhetsnummer>
+            			<kontaktinformasjon>
+            				<kontaktinformasjonNavn>Test Testen</kontaktinformasjonNavn>
+            				<telefonnummer>111111111</telefonnummer>
+            			</kontaktinformasjon>
+            		</arbeidsgiver>
+            		<arbeidstakerFnr>11111111111</arbeidstakerFnr>
+            		<naerRelasjon>false</naerRelasjon>
+            		<arbeidsforhold>
+            			<foersteFravaersdag>2024-06-01</foersteFravaersdag>
+            			<beregnetInntekt>
+            				<beloep>35000</beloep>
+            			</beregnetInntekt>
+            		</arbeidsforhold>
+            		<refusjon>
+            			<refusjonsbeloepPrMnd>35000</refusjonsbeloepPrMnd>
+            			<refusjonsopphoersdato>9999-12-31</refusjonsopphoersdato>
+            			<endringIRefusjonListe/>
+            		</refusjon>
+            		<opphoerAvNaturalytelseListe>
+            			<opphoerAvNaturalytelse>
+            				<naturalytelseType>aksjerGrunnfondsbevisTilUnderkurs</naturalytelseType>
+            				<fom>2024-06-10</fom>
+            				<beloepPrMnd>2000</beloepPrMnd>
+            			</opphoerAvNaturalytelse>
+            		</opphoerAvNaturalytelseListe>
+            		<gjenopptakelseNaturalytelseListe/>
+            		<avsendersystem>
+            			<systemnavn>NAV_NO</systemnavn>
+            			<systemversjon>1.0</systemversjon>
+            			<innsendingstidspunkt>2024-06-30T12:12:30</innsendingstidspunkt>
+            		</avsendersystem>
+            		<omsorgspenger>
+            			<harUtbetaltPliktigeDager>true</harUtbetaltPliktigeDager>
+            			<fravaersPerioder>
+            				<fravaerPeriode>
+            					<fom>2024-06-01</fom>
+            					<tom>2024-06-10</tom>
+            				</fravaerPeriode>
+            			</fravaersPerioder>
+            			<delvisFravaersListe>
+            				<delvisFravaer>
+            					<dato>2024-06-01</dato>
+            					<timer>3</timer>
+            				</delvisFravaer>
+            			</delvisFravaersListe>
+            		</omsorgspenger>
+            	</Skjemainnhold>
+            </melding>
+            """;
+    }
 }

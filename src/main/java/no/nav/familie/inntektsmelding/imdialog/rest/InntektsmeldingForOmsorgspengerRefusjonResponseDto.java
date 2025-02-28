@@ -1,6 +1,9 @@
 package no.nav.familie.inntektsmelding.imdialog.rest;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
@@ -8,20 +11,15 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record InntektsmeldingResponseDto(
+public record InntektsmeldingForOmsorgspengerRefusjonResponseDto(
     @NotNull Long id,
-    @NotNull @Valid UUID foresporselUuid,
     @NotNull @Valid AktørIdDto aktorId,
     @NotNull @Valid YtelseTypeDto ytelse,
     @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
@@ -31,6 +29,7 @@ public record InntektsmeldingResponseDto(
     @NotNull LocalDateTime opprettetTidspunkt,
     @NotNull List<SendInntektsmeldingRequestDto.@Valid Refusjon> refusjon,
     @NotNull List<SendInntektsmeldingRequestDto.@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder,
-    @NotNull List<SendInntektsmeldingRequestDto.@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker
+    @NotNull List<SendInntektsmeldingRequestDto.@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker,
+    @Valid SendInntektsmeldingRequestDto.OmsorgspengerRequestDto omsorgspenger
 ) {
 }
