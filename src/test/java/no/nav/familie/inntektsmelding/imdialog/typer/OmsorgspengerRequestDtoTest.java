@@ -32,8 +32,8 @@ public class OmsorgspengerRequestDtoTest {
 
     @Test
     public void testValidFraværsPerioder() {
-        List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværsPeriodeRequestDto> fraværsPerioder = new ArrayList<>();
-        fraværsPerioder.add(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværsPeriodeRequestDto(LocalDate.now(), LocalDate.now().plusDays(1)));
+        List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto> fraværsPerioder = new ArrayList<>();
+        fraværsPerioder.add(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto(LocalDate.now(), LocalDate.now().plusDays(1)));
 
         SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true, fraværsPerioder, new ArrayList<>());
 
@@ -43,8 +43,8 @@ public class OmsorgspengerRequestDtoTest {
 
     @Test
     public void testValidDelvisFraværsPerioder() {
-        List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto> delvisFraværsPerioder = new ArrayList<>();
-        delvisFraværsPerioder.add(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto(LocalDate.now(), new BigDecimal("2.5")));
+        List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto> delvisFraværsPerioder = new ArrayList<>();
+        delvisFraværsPerioder.add(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(LocalDate.now(), new BigDecimal("2.5")));
 
         SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true, new ArrayList<>(), delvisFraværsPerioder);
 

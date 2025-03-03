@@ -53,22 +53,22 @@ public record SendInntektsmeldingRequestDto(@Valid UUID foresporselUuid,
     }
 
     public record OmsorgspengerRequestDto(@NotNull Boolean harUtbetaltPliktigeDager,
-                                          List<@Valid FraværsPeriodeRequestDto> fraværsPerioder,
-                                          List<@Valid DelvisFraværsPeriodeRequestDto> delvisFraværsPerioder) {
+                                          List<@Valid FraværHeleDagerRequestDto> fraværHeleDager,
+                                          List<@Valid FraværDelerAvDagenRequestDto> fraværDelerAvDagen) {
 
-        public record FraværsPeriodeRequestDto(@NotNull LocalDate fom,
-                                               @NotNull LocalDate tom) {
+        public record FraværHeleDagerRequestDto(@NotNull LocalDate fom,
+                                                @NotNull LocalDate tom) {
 
         }
 
-        public record DelvisFraværsPeriodeRequestDto(@NotNull LocalDate dato,
-                                                     @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal timer) {
+        public record FraværDelerAvDagenRequestDto(@NotNull LocalDate dato,
+                                                   @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal timer) {
         }
 
-        @AssertTrue(message = "Må ha enten fraværsPerioder eller delvisFraværsPerioder")
+        @AssertTrue(message = "Må ha enten fraværHeleDager eller fraværDelerAvDagen")
         private boolean isValidFraværsPerioderOrDelvisFraværsPerioder() {
-            if (fraværsPerioder == null || fraværsPerioder.isEmpty()) {
-                return !(delvisFraværsPerioder == null || delvisFraværsPerioder.isEmpty());
+            if (fraværHeleDager == null || fraværHeleDager.isEmpty()) {
+                return !(fraværDelerAvDagen == null || fraværDelerAvDagen.isEmpty());
             }
             return true;
         }
