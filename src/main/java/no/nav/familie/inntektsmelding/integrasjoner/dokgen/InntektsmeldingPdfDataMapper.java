@@ -4,6 +4,7 @@ import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.Inntektsmeldin
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -62,14 +63,15 @@ public class InntektsmeldingPdfDataMapper {
     }
 
     private static Omsorgspenger mapOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
+        var datoFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         var fraværsPerioder = omsorgspenger.getFraværsPerioder()
             .stream()
-            .map(fp -> new Omsorgspenger.FraværsPeriode(fp.getPeriode().getFom().toString(), fp.getPeriode().getTom().toString()))
+            .map(fp -> new Omsorgspenger.FraværsPeriode(fp.getPeriode().getFom().format(datoFormat), fp.getPeriode().getTom().format(datoFormat)))
             .toList();
 
         var delvisFraværsPerioder = omsorgspenger.getDelvisFraværsPerioder()
             .stream()
-            .map(dfp -> new Omsorgspenger.DelvisFraværsPeriode(dfp.getDato().toString(), dfp.getTimer()))
+            .map(dfp -> new Omsorgspenger.DelvisFraværsPeriode(dfp.getDato().format(datoFormat), dfp.getTimer()))
             .toList();
 
         return new Omsorgspenger(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværsPerioder, delvisFraværsPerioder);
