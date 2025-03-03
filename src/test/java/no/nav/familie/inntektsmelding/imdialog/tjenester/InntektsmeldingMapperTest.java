@@ -190,7 +190,7 @@ class InntektsmeldingMapperTest {
         var forventetFraværsFom = LocalDate.now();
         var forventetFraværsTom = LocalDate.now().plusDays(5);
         var omsorgspenger = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true,
-            List.of(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværsPeriodeRequestDto(forventetFraværsFom, forventetFraværsTom)),
+            List.of(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto(forventetFraværsFom, forventetFraværsTom)),
             null);
 
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
@@ -233,7 +233,7 @@ class InntektsmeldingMapperTest {
         var forventetAntallFraværsTimer = BigDecimal.valueOf(3);
         var omsorgspenger = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true,
             null,
-            List.of(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto(forventetDelvisFraværsDato, forventetAntallFraværsTimer)));
+            List.of(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(forventetDelvisFraværsDato, forventetAntallFraværsTimer)));
 
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
@@ -544,9 +544,9 @@ class InntektsmeldingMapperTest {
         assertThat(imDto.endringAvInntektÅrsaker().get(1).årsak()).isEqualTo(EndringsårsakDto.TARIFFENDRING);
         assertThat(imDto.omsorgspenger()).isNotNull();
         assertThat(imDto.omsorgspenger().harUtbetaltPliktigeDager()).isTrue();
-        assertThat(imDto.omsorgspenger().fraværsPerioder()).hasSize(1);
-        assertThat(imDto.omsorgspenger().fraværsPerioder().getFirst().fom()).isEqualTo(imEntitet.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getFom());
-        assertThat(imDto.omsorgspenger().fraværsPerioder().getFirst().tom()).isEqualTo(imEntitet.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getTom());
-        assertThat(imDto.omsorgspenger().delvisFraværsPerioder()).isEmpty();
+        assertThat(imDto.omsorgspenger().fraværHeleDager()).hasSize(1);
+        assertThat(imDto.omsorgspenger().fraværHeleDager().getFirst().fom()).isEqualTo(imEntitet.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getFom());
+        assertThat(imDto.omsorgspenger().fraværHeleDager().getFirst().tom()).isEqualTo(imEntitet.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getTom());
+        assertThat(imDto.omsorgspenger().fraværDelerAvDagen()).isEmpty();
     }
 }

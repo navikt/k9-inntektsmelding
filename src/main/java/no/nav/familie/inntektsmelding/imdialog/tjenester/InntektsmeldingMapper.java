@@ -163,11 +163,11 @@ public class InntektsmeldingMapper {
             omsorgspengerEntitet.isHarUtbetaltPliktigeDager(),
             omsorgspengerEntitet.getFraværsPerioder()
                 .stream()
-                .map(fravær -> new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværsPeriodeRequestDto(fravær.getPeriode().getFom(), fravær.getPeriode().getTom()))
+                .map(fravær -> new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto(fravær.getPeriode().getFom(), fravær.getPeriode().getTom()))
                 .toList(),
             omsorgspengerEntitet.getDelvisFraværsPerioder()
                 .stream()
-                .map(delvisFravær -> new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto(delvisFravær.getDato(), delvisFravær.getTimer()))
+                .map(delvisFravær -> new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(delvisFravær.getDato(), delvisFravær.getTimer()))
                 .toList()
         );
 
@@ -233,12 +233,12 @@ public class InntektsmeldingMapper {
     private static OmsorgspengerEntitet mapOmsorgspenger(SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto) {
         return OmsorgspengerEntitet.builder()
             .medHarUtbetaltPliktigeDager(dto.harUtbetaltPliktigeDager())
-            .medFraværsPerioder(mapFraværsPerioder(dto.fraværsPerioder()))
-            .medDelvisFraværsPerioder(mapDelvisFraværsPerioder(dto.delvisFraværsPerioder()))
+            .medFraværsPerioder(mapFraværsPerioder(dto.fraværHeleDager()))
+            .medDelvisFraværsPerioder(mapDelvisFraværsPerioder(dto.fraværDelerAvDagen()))
             .build();
     }
 
-    private static List<FraværsPeriodeEntitet> mapFraværsPerioder(List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværsPeriodeRequestDto> dto) {
+    private static List<FraværsPeriodeEntitet> mapFraværsPerioder(List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto> dto) {
         if (dto == null) {
             return null;
         }
@@ -247,7 +247,7 @@ public class InntektsmeldingMapper {
             .toList();
     }
 
-    private static List<DelvisFraværsPeriodeEntitet> mapDelvisFraværsPerioder(List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.DelvisFraværsPeriodeRequestDto> dto) {
+    private static List<DelvisFraværsPeriodeEntitet> mapDelvisFraværsPerioder(List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto> dto) {
         if (dto == null) {
             return null;
         }
