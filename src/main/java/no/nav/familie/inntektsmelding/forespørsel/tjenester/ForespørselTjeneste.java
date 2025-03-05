@@ -41,9 +41,10 @@ public class ForespørselTjeneste {
     public UUID opprettForespørselArbeidsgiverinitiert(LocalDate skjæringstidspunkt,
                                                        Ytelsetype ytelseType,
                                                        AktørIdEntitet brukerAktørId,
-                                                       OrganisasjonsnummerDto orgnr) {
+                                                       OrganisasjonsnummerDto orgnr,
+                                                       LocalDate førsteUttaksdato) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            null, skjæringstidspunkt);
+            null, førsteUttaksdato);
     }
 
     public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {

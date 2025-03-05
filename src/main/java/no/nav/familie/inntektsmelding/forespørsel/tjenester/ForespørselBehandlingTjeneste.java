@@ -308,7 +308,8 @@ public class ForespørselBehandlingTjeneste {
         var uuid = forespørselTjeneste.opprettForespørselArbeidsgiverinitiert(skjæringstidspunkt,
             ytelsetype,
             aktørId,
-            organisasjonsnummer);
+            organisasjonsnummer,
+            skjæringstidspunkt);
 
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
