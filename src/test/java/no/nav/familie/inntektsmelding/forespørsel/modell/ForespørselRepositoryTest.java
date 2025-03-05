@@ -38,7 +38,7 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
         assertThat(hentet.getOrganisasjonsnummer()).isEqualTo("999999999");
         assertThat(hentet.getAktørId().getAktørId()).isEqualTo("9999999999999");
         assertThat(hentet.getYtelseType()).isEqualTo(Ytelsetype.PLEIEPENGER_SYKT_BARN);
-        assertThat(hentet.getFagsystemSaksnummer()).isEqualTo("123");
+        assertThat(hentet.getFagsystemSaksnummer().get()).isEqualTo("123");
         assertThat(hentet.getFørsteUttaksdato()).isEmpty();
     }
 
@@ -58,7 +58,7 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
         assertThat(hentet.getOrganisasjonsnummer()).isEqualTo("999999999");
         assertThat(hentet.getAktørId().getAktørId()).isEqualTo("9999999999999");
         assertThat(hentet.getYtelseType()).isEqualTo(Ytelsetype.PLEIEPENGER_SYKT_BARN);
-        assertThat(hentet.getFagsystemSaksnummer()).isEqualTo("123");
+        assertThat(hentet.getFagsystemSaksnummer().get()).isEqualTo("123");
         assertThat(hentet.getFørsteUttaksdato()).isPresent();
         assertThat(hentet.getFørsteUttaksdato()).contains(LocalDate.now());
     }

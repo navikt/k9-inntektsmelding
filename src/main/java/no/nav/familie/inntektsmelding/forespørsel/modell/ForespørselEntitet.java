@@ -62,7 +62,7 @@ public class ForespørselEntitet {
     @Column(name = "ytelse_type", nullable = false, updatable = false)
     private Ytelsetype ytelseType;
 
-    @Column(name = "fagsystem_saksnummer", nullable = false, updatable = false)
+    @Column(name = "fagsystem_saksnummer", updatable = false)
     private String fagsystemSaksnummer;
 
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
@@ -142,8 +142,8 @@ public class ForespørselEntitet {
         return ytelseType;
     }
 
-    public String getFagsystemSaksnummer() {
-        return fagsystemSaksnummer;
+    public Optional<String> getFagsystemSaksnummer() {
+        return Optional.ofNullable(fagsystemSaksnummer);
     }
 
     public LocalDateTime getOpprettetTidspunkt() {
