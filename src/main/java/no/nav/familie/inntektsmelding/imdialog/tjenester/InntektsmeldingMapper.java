@@ -105,7 +105,7 @@ public class InntektsmeldingMapper {
         );
     }
 
-    public static InntektsmeldingForOmsorgspengerRefusjonResponseDto mapFraEntitetTilOms(InntektsmeldingEntitet imEntitet) {
+    public static InntektsmeldingForOmsorgspengerRefusjonResponseDto mapFraEntitetTilOms(InntektsmeldingEntitet imEntitet, UUID forespørselUuid) {
         var refusjoner = mapRefusjonerTilDto(imEntitet);
         var bortfalteNaturalytelser = mapTilBortfaltNaturalytelseRequestDto(imEntitet);
         var endringsårsaker = mapTilEndringsårsakerRequestDto(imEntitet);
@@ -113,6 +113,7 @@ public class InntektsmeldingMapper {
 
         return new InntektsmeldingForOmsorgspengerRefusjonResponseDto(
             imEntitet.getId(),
+            forespørselUuid,
             new AktørIdDto(imEntitet.getAktørId().getAktørId()),
             KodeverkMapper.mapYtelsetype(imEntitet.getYtelsetype()),
             new ArbeidsgiverDto(imEntitet.getArbeidsgiverIdent()),

@@ -98,14 +98,30 @@ public class InntektsmeldingTjeneste {
     }
 
     public InntektsmeldingForOmsorgspengerRefusjonResponseDto mottaInntektsmeldingForOmsorgspengerRefusjon(SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+        var aktørId = new AktørIdEntitet(sendInntektsmeldingRequestDto.aktorId().id());
+        var ytelseType = KodeverkMapper.mapYtelsetype(sendInntektsmeldingRequestDto.ytelse());
+        var organisasjonsnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident());
+
+        var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForArbeidsgiverInitiertIm(ytelseType,
+            aktørId,
+            organisasjonsnummer,
+            sendInntektsmeldingRequestDto.startdato());
+
+        var forespørselEnitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
+            .orElseThrow(() -> new IllegalStateException("Mangler forespørsel entitet"));
+
         var imEnitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequestDto);
         var imId = lagreOgLagJournalførTask(imEnitet, null);
+
+        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer,
+            sendInntektsmeldingRequestDto.startdato(), LukkeÅrsak.ORDINÆR_INNSENDING);
+
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
 
         // Metrikker i prometheus
         MetrikkerTjeneste.logginnsendtImOmsorgspengerRefusjon(imEntitet);
 
-        return InntektsmeldingMapper.mapFraEntitetTilOms(imEntitet);
+        return InntektsmeldingMapper.mapFraEntitetTilOms(imEntitet, forespørselUuid);
     }
 
     private Long lagreOgLagJournalførTask(InntektsmeldingEntitet inntektsmeldingEntitet, String fagsystemSaksnummer) {

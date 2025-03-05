@@ -64,7 +64,7 @@ public class ForespørselBehandlingTjeneste {
         this.personTjeneste = personTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
-        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://arbeidsgiver.intern.dev.nav.no/fp-im-dialog");
+        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://arbeidsgiver.intern.dev.nav.no/k9-im-dialog");
     }
 
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
@@ -297,23 +297,18 @@ public class ForespørselBehandlingTjeneste {
 
     public UUID opprettForespørselForArbeidsgiverInitiertIm(Ytelsetype ytelsetype,
                                                             AktørIdEntitet aktørId,
-                                                            SaksnummerDto fagsakSaksnummer,
                                                             OrganisasjonsnummerDto organisasjonsnummer,
-                                                            LocalDate skjæringstidspunkt,
-                                                            LocalDate førsteUttaksdato) {
-        var msg = String.format("Oppretter forespørsel for arbeidsgiverinitiert, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+                                                            LocalDate skjæringstidspunkt) {
+        var msg = String.format("Oppretter forespørsel for arbeidsgiverinitiert, orgnr: %s, stp: %s, ytelse: %s",
             organisasjonsnummer,
             skjæringstidspunkt,
-            fagsakSaksnummer.saksnr(),
             ytelsetype);
         LOG.info(msg);
 
-        var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt,
+        var uuid = forespørselTjeneste.opprettForespørselArbeidsgiverinitiert(skjæringstidspunkt,
             ytelsetype,
             aktørId,
-            organisasjonsnummer,
-            fagsakSaksnummer,
-            førsteUttaksdato);
+            organisasjonsnummer);
 
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);

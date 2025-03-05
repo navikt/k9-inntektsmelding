@@ -87,21 +87,20 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         when(personTjeneste.hentPersonInfoFraAktørId(any(), any())).thenReturn(new PersonInfo("12345678910", "test", "test", new PersonIdent("12345678910"), aktørIdent, LocalDate.now(), null));
         when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), any(), any(), any())).thenReturn(SAK_ID);
 
-        var saksnummerDto = new SaksnummerDto(SAKSNUMMMER);
 
         var uuid = forespørselBehandlingTjeneste.opprettForespørselForArbeidsgiverInitiertIm(YTELSETYPE,
             new AktørIdEntitet(AKTØR_ID),
-            saksnummerDto,
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            SKJÆRINGSTIDSPUNKT,
-            FØRSTE_UTTAKSDATO);
+            SKJÆRINGSTIDSPUNKT);
 
         var lagret = forespørselRepository.hentForespørsel(uuid).orElseThrow();
 
         clearHibernateCache();
         assertThat(lagret.getStatus()).isEqualTo(ForespørselStatus.UNDER_BEHANDLING);
         assertThat(lagret.getOppgaveId()).isEmpty();
-        assertThat(lagret.getFørsteUttaksdato().orElse(null)).isEqualTo(FØRSTE_UTTAKSDATO);
+        assertThat(lagret.getSkjæringstidspunkt()).isEqualTo(SKJÆRINGSTIDSPUNKT);
+        assertThat(lagret.getOrganisasjonsnummer()).isEqualTo(BRREG_ORGNUMMER);
+        assertThat(lagret.getFørsteUttaksdato().orElse(null)).isEqualTo(SKJÆRINGSTIDSPUNKT);
     }
 
     @Test

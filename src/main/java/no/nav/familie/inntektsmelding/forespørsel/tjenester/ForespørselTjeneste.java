@@ -38,6 +38,14 @@ public class ForespørselTjeneste {
             fagsakSaksnummer.saksnr(), førsteUttaksdato);
     }
 
+    public UUID opprettForespørselArbeidsgiverinitiert(LocalDate skjæringstidspunkt,
+                                                       Ytelsetype ytelseType,
+                                                       AktørIdEntitet brukerAktørId,
+                                                       OrganisasjonsnummerDto orgnr) {
+        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
+            null, skjæringstidspunkt);
+    }
+
     public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {
         forespørselRepository.oppdaterOppgaveId(forespørselUUID, oppgaveId);
     }

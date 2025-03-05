@@ -516,8 +516,10 @@ class InntektsmeldingMapperTest {
             )
             .build();
 
+        var forespørselUuid = UUID.randomUUID();
+
         // Act
-        var imDto = InntektsmeldingMapper.mapFraEntitetTilOms(imEntitet);
+        var imDto = InntektsmeldingMapper.mapFraEntitetTilOms(imEntitet, forespørselUuid);
 
         // Assert
         assertThat(imDto.aktorId().id()).isEqualTo(imEntitet.getAktørId().getAktørId());

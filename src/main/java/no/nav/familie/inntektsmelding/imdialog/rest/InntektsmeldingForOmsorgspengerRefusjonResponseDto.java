@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
@@ -20,6 +21,7 @@ import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record InntektsmeldingForOmsorgspengerRefusjonResponseDto(
     @NotNull Long id,
+    @NotNull @Valid UUID foresporselUuid,
     @NotNull @Valid AktørIdDto aktorId,
     @NotNull @Valid YtelseTypeDto ytelse,
     @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
