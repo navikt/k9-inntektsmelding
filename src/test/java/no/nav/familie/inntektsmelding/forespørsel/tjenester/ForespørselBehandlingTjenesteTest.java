@@ -88,7 +88,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), any(), any(), any())).thenReturn(SAK_ID);
 
 
-        var uuid = forespørselBehandlingTjeneste.opprettForespørselForArbeidsgiverInitiertIm(YTELSETYPE,
+        var uuid = forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(YTELSETYPE,
             new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
             SKJÆRINGSTIDSPUNKT);

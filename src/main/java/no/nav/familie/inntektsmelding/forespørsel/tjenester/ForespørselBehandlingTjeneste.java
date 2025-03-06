@@ -295,17 +295,17 @@ public class ForespørselBehandlingTjeneste {
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
     }
 
-    public UUID opprettForespørselForArbeidsgiverInitiertIm(Ytelsetype ytelsetype,
-                                                            AktørIdEntitet aktørId,
-                                                            OrganisasjonsnummerDto organisasjonsnummer,
-                                                            LocalDate skjæringstidspunkt) {
+    public UUID opprettForespørselForOmsorgspengerRefusjonIm(Ytelsetype ytelsetype,
+                                                             AktørIdEntitet aktørId,
+                                                             OrganisasjonsnummerDto organisasjonsnummer,
+                                                             LocalDate skjæringstidspunkt) {
         var msg = String.format("Oppretter forespørsel for arbeidsgiverinitiert, orgnr: %s, stp: %s, ytelse: %s",
             organisasjonsnummer,
             skjæringstidspunkt,
             ytelsetype);
         LOG.info(msg);
 
-        var uuid = forespørselTjeneste.opprettForespørselArbeidsgiverinitiert(skjæringstidspunkt,
+        var uuid = forespørselTjeneste.opprettForespørselOmsorgspengerRefusjon(skjæringstidspunkt,
             ytelsetype,
             aktørId,
             organisasjonsnummer,

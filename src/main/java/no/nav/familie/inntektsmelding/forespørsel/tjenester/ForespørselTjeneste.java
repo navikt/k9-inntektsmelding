@@ -38,11 +38,11 @@ public class ForespørselTjeneste {
             fagsakSaksnummer.saksnr(), førsteUttaksdato);
     }
 
-    public UUID opprettForespørselArbeidsgiverinitiert(LocalDate skjæringstidspunkt,
-                                                       Ytelsetype ytelseType,
-                                                       AktørIdEntitet brukerAktørId,
-                                                       OrganisasjonsnummerDto orgnr,
-                                                       LocalDate førsteUttaksdato) {
+    public UUID opprettForespørselOmsorgspengerRefusjon(LocalDate skjæringstidspunkt,
+                                                        Ytelsetype ytelseType,
+                                                        AktørIdEntitet brukerAktørId,
+                                                        OrganisasjonsnummerDto orgnr,
+                                                        LocalDate førsteUttaksdato) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
             null, førsteUttaksdato);
     }
