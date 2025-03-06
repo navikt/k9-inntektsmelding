@@ -98,11 +98,15 @@ public class InntektsmeldingTjeneste {
     }
 
     public InntektsmeldingResponseDto mottaInntektsmeldingForOmsorgspengerRefusjon(SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
-        var aktørId = new AktørIdEntitet(sendInntektsmeldingRequestDto.aktorId().id());
         var ytelseType = KodeverkMapper.mapYtelsetype(sendInntektsmeldingRequestDto.ytelse());
+        if (ytelseType != Ytelsetype.OMSORGSPENGER) {
+            throw new IllegalArgumentException("Feil ytelseType for inntektsmelding for omsorgspenger refusjon, ytelsetype var " + ytelseType);
+        }
+
+        var aktørId = new AktørIdEntitet(sendInntektsmeldingRequestDto.aktorId().id());
         var organisasjonsnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident());
 
-        var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(ytelseType,
+        var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(
             aktørId,
             organisasjonsnummer,
             sendInntektsmeldingRequestDto.startdato());

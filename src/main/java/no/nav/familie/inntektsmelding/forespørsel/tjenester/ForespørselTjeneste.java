@@ -39,11 +39,10 @@ public class ForespørselTjeneste {
     }
 
     public UUID opprettForespørselOmsorgspengerRefusjon(LocalDate skjæringstidspunkt,
-                                                        Ytelsetype ytelseType,
                                                         AktørIdEntitet brukerAktørId,
                                                         OrganisasjonsnummerDto orgnr,
                                                         LocalDate førsteUttaksdato) {
-        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
+        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, Ytelsetype.OMSORGSPENGER, brukerAktørId.getAktørId(), orgnr.orgnr(),
             null, førsteUttaksdato);
     }
 

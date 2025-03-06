@@ -295,24 +295,22 @@ public class ForespørselBehandlingTjeneste {
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
     }
 
-    public UUID opprettForespørselForOmsorgspengerRefusjonIm(Ytelsetype ytelsetype,
-                                                             AktørIdEntitet aktørId,
+    public UUID opprettForespørselForOmsorgspengerRefusjonIm(AktørIdEntitet aktørId,
                                                              OrganisasjonsnummerDto organisasjonsnummer,
                                                              LocalDate skjæringstidspunkt) {
         var msg = String.format("Oppretter forespørsel for omsorgspenger refusjon, orgnr: %s, stp: %s, ytelse: %s",
             organisasjonsnummer,
             skjæringstidspunkt,
-            ytelsetype);
+            Ytelsetype.OMSORGSPENGER);
         LOG.info(msg);
 
         var uuid = forespørselTjeneste.opprettForespørselOmsorgspengerRefusjon(skjæringstidspunkt,
-            ytelsetype,
             aktørId,
             organisasjonsnummer,
             skjæringstidspunkt);
 
-        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
-        var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, Ytelsetype.OMSORGSPENGER);
+        var merkelapp = ForespørselTekster.finnMerkelapp(Ytelsetype.OMSORGSPENGER);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
         var fagerSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             merkelapp,
