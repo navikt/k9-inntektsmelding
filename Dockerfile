@@ -1,5 +1,4 @@
-# Denne containeren kjører med en non-root bruker
-FROM ghcr.io/navikt/fp-baseimages/distroless:21
+FROM ghcr.io/navikt/sif-baseimages/java-21:2025.02.27.1645Z
 
 LABEL org.opencontainers.image.source=https://github.com/navikt/k9-inntektsmelding
 
