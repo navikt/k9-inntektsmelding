@@ -299,7 +299,7 @@ public class ForespørselBehandlingTjeneste {
                                                              AktørIdEntitet aktørId,
                                                              OrganisasjonsnummerDto organisasjonsnummer,
                                                              LocalDate skjæringstidspunkt) {
-        var msg = String.format("Oppretter forespørsel for arbeidsgiverinitiert, orgnr: %s, stp: %s, ytelse: %s",
+        var msg = String.format("Oppretter forespørsel for omsorgspenger refusjon, orgnr: %s, stp: %s, ytelse: %s",
             organisasjonsnummer,
             skjæringstidspunkt,
             ytelsetype);
