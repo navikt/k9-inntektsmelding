@@ -130,7 +130,7 @@ public class InntektsmeldingTjeneste {
 
     private Long lagreOgLagJournalførTask(InntektsmeldingEntitet inntektsmeldingEntitet, ForespørselEntitet forespørsel) {
         var ytelseType = inntektsmeldingEntitet.getYtelsetype();
-        LOG.info("Lagrer inntektsmelding for for ytelse {} og forespørsel {}", ytelseType, forespørsel.getUuid());
+        LOG.info("Lagrer inntektsmelding for for ytelse {} og fagsak saksnummer {}", ytelseType, forespørsel.getFagsystemSaksnummer().orElse(null));
 
         var imId = inntektsmeldingRepository.lagreInntektsmelding(inntektsmeldingEntitet);
         opprettTaskForSendTilJoark(imId, ytelseType, forespørsel);
