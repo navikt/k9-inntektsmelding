@@ -115,5 +115,4 @@ public class InntektsmeldingDialogRest {
         responseBuilder.header("Content-Disposition", "attachment; filename=inntektsmelding.pdf");
         return responseBuilder.build();
     }
-
 }
