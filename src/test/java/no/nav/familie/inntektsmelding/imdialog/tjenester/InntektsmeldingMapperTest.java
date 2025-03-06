@@ -64,6 +64,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getBorfalteNaturalYtelser()).isEmpty();
         assertThat(entitet.getMånedRefusjon()).isNull();
         assertThat(entitet.getOpphørsdatoRefusjon()).isNull();
+        assertThat(entitet.getOmsorgspenger()).isNull();
     }
 
     @Test
@@ -96,6 +97,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getKontaktperson().getNavn()).isEqualTo(request.kontaktperson().navn());
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
         assertThat(entitet.getRefusjonsendringer()).isEmpty();
+        assertThat(entitet.getOmsorgspenger()).isNull();
     }
 
     @Test
@@ -131,6 +133,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getRefusjonsendringer()).hasSize(1);
         assertThat(entitet.getRefusjonsendringer().getFirst().getFom()).isEqualTo(LocalDate.now().plusDays(5));
         assertThat(entitet.getRefusjonsendringer().getFirst().getRefusjonPrMnd()).isEqualByComparingTo(BigDecimal.valueOf(4000));
+        assertThat(entitet.getOmsorgspenger()).isNull();
     }
 
     @Test
@@ -182,6 +185,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getBorfalteNaturalYtelser().getFirst().getPeriode().getTom()).isEqualTo(request.bortfaltNaturalytelsePerioder()
             .getFirst()
             .tom());
+        assertThat(entitet.getOmsorgspenger()).isNull();
     }
 
     @Test
@@ -516,8 +520,10 @@ class InntektsmeldingMapperTest {
             )
             .build();
 
+        var forespørselUuid = UUID.randomUUID();
+
         // Act
-        var imDto = InntektsmeldingMapper.mapFraEntitetTilOms(imEntitet);
+        var imDto = InntektsmeldingMapper.mapFraEntitet(imEntitet, forespørselUuid);
 
         // Assert
         assertThat(imDto.aktorId().id()).isEqualTo(imEntitet.getAktørId().getAktørId());

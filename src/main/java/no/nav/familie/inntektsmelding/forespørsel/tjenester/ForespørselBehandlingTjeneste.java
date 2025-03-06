@@ -64,7 +64,7 @@ public class ForespørselBehandlingTjeneste {
         this.personTjeneste = personTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
-        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://arbeidsgiver.intern.dev.nav.no/fp-im-dialog");
+        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
     }
 
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
@@ -221,7 +221,7 @@ public class ForespørselBehandlingTjeneste {
         var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
             eksisterendeForespørsel.getOrganisasjonsnummer(),
             eksisterendeForespørsel.getSkjæringstidspunkt(),
-            eksisterendeForespørsel.getFagsystemSaksnummer(),
+            eksisterendeForespørsel.getFagsystemSaksnummer().orElse(null),
             eksisterendeForespørsel.getYtelseType());
         LOG.info(msg);
     }
@@ -237,7 +237,7 @@ public class ForespørselBehandlingTjeneste {
         var msg = String.format("Gjenåpner forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
             eksisterendeForespørsel.getOrganisasjonsnummer(),
             eksisterendeForespørsel.getSkjæringstidspunkt(),
-            eksisterendeForespørsel.getFagsystemSaksnummer(),
+            eksisterendeForespørsel.getFagsystemSaksnummer().orElse(null),
             eksisterendeForespørsel.getYtelseType());
         LOG.info(msg);
     }
@@ -295,28 +295,22 @@ public class ForespørselBehandlingTjeneste {
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
     }
 
-    public UUID opprettForespørselForArbeidsgiverInitiertIm(Ytelsetype ytelsetype,
-                                                            AktørIdEntitet aktørId,
-                                                            SaksnummerDto fagsakSaksnummer,
-                                                            OrganisasjonsnummerDto organisasjonsnummer,
-                                                            LocalDate skjæringstidspunkt,
-                                                            LocalDate førsteUttaksdato) {
-        var msg = String.format("Oppretter forespørsel for arbeidsgiverinitiert, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+    public UUID opprettForespørselForOmsorgspengerRefusjonIm(AktørIdEntitet aktørId,
+                                                             OrganisasjonsnummerDto organisasjonsnummer,
+                                                             LocalDate skjæringstidspunkt) {
+        var msg = String.format("Oppretter forespørsel for omsorgspenger refusjon, orgnr: %s, stp: %s, ytelse: %s",
             organisasjonsnummer,
             skjæringstidspunkt,
-            fagsakSaksnummer.saksnr(),
-            ytelsetype);
+            Ytelsetype.OMSORGSPENGER);
         LOG.info(msg);
 
-        var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt,
-            ytelsetype,
+        var uuid = forespørselTjeneste.opprettForespørselOmsorgspengerRefusjon(skjæringstidspunkt,
             aktørId,
             organisasjonsnummer,
-            fagsakSaksnummer,
-            førsteUttaksdato);
+            skjæringstidspunkt);
 
-        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
-        var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, Ytelsetype.OMSORGSPENGER);
+        var merkelapp = ForespørselTekster.finnMerkelapp(Ytelsetype.OMSORGSPENGER);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
         var fagerSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             merkelapp,

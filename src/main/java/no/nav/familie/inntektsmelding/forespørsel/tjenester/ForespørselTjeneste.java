@@ -38,6 +38,14 @@ public class ForespørselTjeneste {
             fagsakSaksnummer.saksnr(), førsteUttaksdato);
     }
 
+    public UUID opprettForespørselOmsorgspengerRefusjon(LocalDate skjæringstidspunkt,
+                                                        AktørIdEntitet brukerAktørId,
+                                                        OrganisasjonsnummerDto orgnr,
+                                                        LocalDate førsteUttaksdato) {
+        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, Ytelsetype.OMSORGSPENGER, brukerAktørId.getAktørId(), orgnr.orgnr(),
+            null, førsteUttaksdato);
+    }
+
     public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {
         forespørselRepository.oppdaterOppgaveId(forespørselUUID, oppgaveId);
     }

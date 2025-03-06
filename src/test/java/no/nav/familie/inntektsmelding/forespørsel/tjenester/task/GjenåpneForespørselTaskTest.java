@@ -41,7 +41,8 @@ class GjenåpneForespørselTaskTest {
         LocalDateTime.now(),
         List.of(mock(SendInntektsmeldingRequestDto.Refusjon.class)),
         List.of(mock(SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto.class)),
-        List.of(mock(SendInntektsmeldingRequestDto.EndringsårsakerRequestDto.class))
+        List.of(mock(SendInntektsmeldingRequestDto.EndringsårsakerRequestDto.class)),
+        null
     );
 
     private final ForespørselBehandlingTjeneste forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
