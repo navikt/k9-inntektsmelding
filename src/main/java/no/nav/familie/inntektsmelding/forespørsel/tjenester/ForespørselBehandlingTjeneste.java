@@ -64,7 +64,7 @@ public class ForespørselBehandlingTjeneste {
         this.personTjeneste = personTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
-        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://arbeidsgiver.intern.dev.nav.no/k9-im-dialog");
+        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
     }
 
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
