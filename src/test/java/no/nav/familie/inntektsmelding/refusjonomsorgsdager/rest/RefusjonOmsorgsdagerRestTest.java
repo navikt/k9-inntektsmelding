@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 
 import jakarta.ws.rs.core.Response;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.RefusjonOmsorgsdagerService;
@@ -41,7 +39,7 @@ class RefusjonOmsorgsdagerRestTest {
     void slå_opp_arbeidstaker_skal_returnere_ok_response_når_arbeidstaker_finnes() {
         var fnr = PersonIdent.fra("12345678910");
         var dto = new SlåOppArbeidstakerRequestDto(fnr, Ytelsetype.OMSORGSPENGER);
-        var arbeidsforhold = List.of(new ArbeidsforholdDto("999999999", "ARB-1"));
+        var arbeidsforhold = List.of(new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto("999999999", "ARB-1", "Arbeidsgiver AS"));
         var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto(new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "10107400090", "12345"), arbeidsforhold);
 
         when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr)).thenReturn(arbeidstakerInfo);
