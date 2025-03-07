@@ -53,7 +53,7 @@ public class ArbeidsgiverinitiertDialogRest {
         if (erProd) {
             throw new IllegalStateException("Ugyldig kall på restpunkt som ikke er lansert");
         }
-        LOG.info("Henter arbeidsforhold for søker {}", request.fødselsnummer());
+        LOG.info("Henter arbeidsforhold for søker");
         var dto = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag());
         return dto.map(d ->Response.ok(d).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
@@ -66,7 +66,7 @@ public class ArbeidsgiverinitiertDialogRest {
         if (erProd) {
             throw new IllegalStateException("Ugyldig kall på restpunkt som ikke er lansert");
         }
-        LOG.info("Henter opplysninger for søker {}", request.fødselsnummer());
+        LOG.info("Henter opplysninger for søker");
         var dto = inntektsmeldingTjeneste.lagArbeidsgiverinitiertDialogDto(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag(), request.organisasjonsnummer());
         return Response.ok(dto).build();
     }

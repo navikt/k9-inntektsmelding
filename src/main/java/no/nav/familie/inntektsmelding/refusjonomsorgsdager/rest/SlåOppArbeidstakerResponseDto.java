@@ -10,4 +10,6 @@ public record SlåOppArbeidstakerResponseDto(Personinformasjon personinformasjon
         String fødselsnummer,
         String aktørId) {
     }
+    public record ArbeidsforholdDto(String organisasjonsnummer, String arbeidsforholdId, String organisasjonsnavn) {
+    }
 }

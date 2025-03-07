@@ -10,9 +10,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponseDto;
-import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,13 +18,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
+import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
+import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponseDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponseDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @ExtendWith(MockitoExtension.class)
 class RefusjonOmsorgsdagerServiceTest {
@@ -42,6 +43,9 @@ class RefusjonOmsorgsdagerServiceTest {
     @Mock
     private InnloggetBrukerTjeneste innloggetBrukerTjenesteMock;
 
+    @Mock
+    private OrganisasjonTjeneste organisasjonTjenesteMock;
+
     private RefusjonOmsorgsdagerService service;
 
     @BeforeEach
@@ -50,24 +54,30 @@ class RefusjonOmsorgsdagerServiceTest {
             arbeidstakerTjenesteMock,
             personTjenesteMock,
             inntektTjenesteMock,
-            innloggetBrukerTjenesteMock
+            innloggetBrukerTjenesteMock,
+            organisasjonTjenesteMock
         );
     }
 
     @Test
     void slå_opp_arbeidstaker_skal_returnere_ok_response_når_arbeidstaker_finnes() {
         var fødselsnummer = PersonIdent.fra("12345678910");
+        var orgnummer = "999999999";
         var aktørId = AktørIdEntitet.dummy();
         var førsteFraværsdag = LocalDate.now();
-        var arbeidsforhold = List.of(new ArbeidsforholdDto("999999999", "ARB-1"));
-        var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto(new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()), arbeidsforhold);
+        var arbeidsforhold = List.of(new ArbeidsforholdDto(orgnummer, "ARB-1"));
+
+        var forventetArbeidstakerInfo = new SlåOppArbeidstakerResponseDto(
+            new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()),
+            List.of(new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(orgnummer, "ARB-1", "Arbeidsgiver AS")));
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag)).thenReturn(arbeidsforhold);
+        when(organisasjonTjenesteMock.finnOrganisasjon(orgnummer)).thenReturn(new Organisasjon( "Arbeidsgiver AS", orgnummer));
 
         var response = service.hentArbeidstaker(fødselsnummer);
 
-        assertEquals(arbeidstakerInfo, response);
+        assertEquals(forventetArbeidstakerInfo, response);
         verify(arbeidstakerTjenesteMock).finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag);
     }
 

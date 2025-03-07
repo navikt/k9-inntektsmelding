@@ -5,18 +5,15 @@ import java.time.LocalDate;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
-
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponseDto;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
+import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponseDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponseDto;
 
@@ -26,14 +23,16 @@ public class RefusjonOmsorgsdagerService {
     private PersonTjeneste personTjeneste;
     private InntektTjeneste inntektTjeneste;
     private InnloggetBrukerTjeneste innloggetBrukerTjeneste;
+    private OrganisasjonTjeneste organisasjonTjeneste;
     private final static Logger LOG = LoggerFactory.getLogger(RefusjonOmsorgsdagerService.class);
 
     @Inject
-    public RefusjonOmsorgsdagerService(ArbeidstakerTjeneste arbeidstakerTjeneste, PersonTjeneste personTjeneste, InntektTjeneste inntektTjeneste, InnloggetBrukerTjeneste innloggetBrukerTjeneste) {
+    public RefusjonOmsorgsdagerService(ArbeidstakerTjeneste arbeidstakerTjeneste, PersonTjeneste personTjeneste, InntektTjeneste inntektTjeneste, InnloggetBrukerTjeneste innloggetBrukerTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
         this.arbeidstakerTjeneste = arbeidstakerTjeneste;
         this.personTjeneste = personTjeneste;
         this.inntektTjeneste = inntektTjeneste;
         this.innloggetBrukerTjeneste = innloggetBrukerTjeneste;
+        this.organisasjonTjeneste = organisasjonTjeneste;
     }
 
     public RefusjonOmsorgsdagerService() {
@@ -41,10 +40,17 @@ public class RefusjonOmsorgsdagerService {
     }
 
     public SlåOppArbeidstakerResponseDto hentArbeidstaker(PersonIdent fødselsnummer) {
-        LOG.info("Slår opp arbeidstaker med fødselsnummer {}", fødselsnummer);
+        LOG.info("Slår opp arbeidstaker");
 
-        var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer,
-            LocalDate.now());
+        var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now());
+        var arbeidsforholdMedOrgnavn = arbeidsforhold.stream()
+            .map(arbeidsforholdDto -> new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(
+                arbeidsforholdDto.organisasjonsnummer(),
+                arbeidsforholdDto.arbeidsforholdId(),
+                organisasjonTjeneste.finnOrganisasjon(arbeidsforholdDto.organisasjonsnummer()).navn()
+            ))
+            .toList();
+
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER);
         if (arbeidsforhold.isEmpty() || personInfo == null) {
             return null;
@@ -58,7 +64,7 @@ public class RefusjonOmsorgsdagerService {
                 personInfo.fødselsnummer().getIdent(),
                 personInfo.aktørId().getAktørId()
             ),
-            arbeidsforhold
+            arbeidsforholdMedOrgnavn
         );
     }
 
