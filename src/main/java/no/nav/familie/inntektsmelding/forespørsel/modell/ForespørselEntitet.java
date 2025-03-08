@@ -62,8 +62,8 @@ public class ForespørselEntitet {
     @Column(name = "ytelse_type", nullable = false, updatable = false)
     private Ytelsetype ytelseType;
 
-    @Column(name = "fagsystem_saksnummer", updatable = false)
-    private String fagsystemSaksnummer;
+    @Column(name = "saksnummer", updatable = false)
+    private String saksnummer;
 
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
     private final LocalDateTime opprettetTidspunkt = LocalDateTime.now();
@@ -75,14 +75,14 @@ public class ForespørselEntitet {
                               LocalDate skjæringstidspunkt,
                               AktørIdEntitet aktørId,
                               Ytelsetype ytelseType,
-                              String fagsystemSaksnummer,
+                              String saksnummer,
                               LocalDate førsteUttaksdato) {
         this.uuid = UUID.randomUUID();
         this.organisasjonsnummer = organisasjonsnummer;
         this.skjæringstidspunkt = skjæringstidspunkt;
         this.aktørId = aktørId;
         this.ytelseType = ytelseType;
-        this.fagsystemSaksnummer = fagsystemSaksnummer;
+        this.saksnummer = saksnummer;
         this.førsteUttaksdato = førsteUttaksdato;
     }
 
@@ -142,8 +142,8 @@ public class ForespørselEntitet {
         return ytelseType;
     }
 
-    public Optional<String> getFagsystemSaksnummer() {
-        return Optional.ofNullable(fagsystemSaksnummer);
+    public Optional<String> getSaksnummer() {
+        return Optional.ofNullable(saksnummer);
     }
 
     public LocalDateTime getOpprettetTidspunkt() {
@@ -158,8 +158,8 @@ public class ForespørselEntitet {
     public String toString() {
         return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + maskerId(organisasjonsnummer)
             + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelseType=" + ytelseType
-            + ", fagsystemSaksnummer="
-            + fagsystemSaksnummer + '}';
+            + ", saksnummer="
+            + saksnummer + '}';
     }
 
     private String maskerId(String id) {

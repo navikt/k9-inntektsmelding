@@ -32,10 +32,10 @@ public class ForespørselTjeneste {
                                    Ytelsetype ytelseType,
                                    AktørIdEntitet brukerAktørId,
                                    OrganisasjonsnummerDto orgnr,
-                                   SaksnummerDto fagsakSaksnummer,
+                                   SaksnummerDto saksnummer,
                                    LocalDate førsteUttaksdato) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            fagsakSaksnummer.saksnr(), førsteUttaksdato);
+            saksnummer.saksnr(), førsteUttaksdato);
     }
 
     public UUID opprettForespørselOmsorgspengerRefusjon(LocalDate skjæringstidspunkt,
@@ -64,8 +64,8 @@ public class ForespørselTjeneste {
         forespørselRepository.settForespørselTilUtgått(arbeidsgiverNotifikasjonSakId);
     }
 
-    public List<ForespørselEntitet> finnÅpneForespørslerForFagsak(SaksnummerDto fagsakSaksnummer) {
-        return forespørselRepository.finnÅpenForespørsel(fagsakSaksnummer);
+    public List<ForespørselEntitet> finnÅpneForespørslerForFagsak(SaksnummerDto saksnummer) {
+        return forespørselRepository.finnÅpenForespørsel(saksnummer);
     }
 
     public Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUuid) {
@@ -76,8 +76,8 @@ public class ForespørselTjeneste {
         return forespørselRepository.finnForespørslerForAktørId(aktørId, ytelsetype);
     }
 
-    public List<ForespørselEntitet> finnForespørslerForFagsak(SaksnummerDto fagsakSaksnummer) {
-        return forespørselRepository.hentForespørsler(fagsakSaksnummer);
+    public List<ForespørselEntitet> finnForespørslerForFagsak(SaksnummerDto saksnummer) {
+        return forespørselRepository.hentForespørsler(saksnummer);
     }
 
     public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {

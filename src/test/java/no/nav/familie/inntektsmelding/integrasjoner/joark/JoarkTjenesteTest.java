@@ -87,8 +87,8 @@ class JoarkTjenesteTest {
         when(klient.opprettJournalpost(any(), anyBoolean())).thenReturn(new OpprettJournalpostResponse("9999", false, Collections.emptyList()));
 
         // Act
-        var fagsystemSaksnummer = "23423423";
-        var journalpostId = joarkTjeneste.journalførInntektsmelding("XML", inntektsmelding, PDFSIGNATURE, fagsystemSaksnummer);
+        var saksnummer = "23423423";
+        var journalpostId = joarkTjeneste.journalførInntektsmelding("XML", inntektsmelding, PDFSIGNATURE, saksnummer);
 
         // Assert
         assertThat(journalpostId).isEqualTo("9999");
@@ -98,7 +98,7 @@ class JoarkTjenesteTest {
 
         var opprettJournalpostRequest = argumentCaptor.getValue();
         assertThat(opprettJournalpostRequest.sak()).isNotNull();
-        assertThat(opprettJournalpostRequest.sak().fagsakId()).isEqualTo(fagsystemSaksnummer);
+        assertThat(opprettJournalpostRequest.sak().fagsakId()).isEqualTo(saksnummer);
         assertThat(opprettJournalpostRequest.sak().fagsaksystem()).isEqualTo(Fagsystem.K9SAK.getOffisiellKode());
         assertThat(opprettJournalpostRequest.sak().sakstype()).isEqualTo(Sak.Sakstype.FAGSAK);
         assertThat(opprettJournalpostRequest.bruker().id()).isEqualTo(aktør);

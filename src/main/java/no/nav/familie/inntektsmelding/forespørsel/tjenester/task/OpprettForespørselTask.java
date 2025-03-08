@@ -46,32 +46,32 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         Ytelsetype ytelsetype = Ytelsetype.valueOf(prosessTaskData.getPropertyValue(YTELSETYPE));
         AktørIdEntitet aktørId = new AktørIdEntitet(prosessTaskData.getAktørId());
-        SaksnummerDto fagsakSaksnummer = new SaksnummerDto(prosessTaskData.getSaksnummer());
+        SaksnummerDto saksnummer = new SaksnummerDto(prosessTaskData.getSaksnummer());
         OrganisasjonsnummerDto organisasjonsnummer = new OrganisasjonsnummerDto(prosessTaskData.getPropertyValue(ORGNR));
         LocalDate skjæringstidspunkt = LocalDate.parse(prosessTaskData.getPropertyValue(STP));
 
-        List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt);
+        List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(saksnummer, organisasjonsnummer, skjæringstidspunkt);
 
         if (eksisterendeForespørsler.stream().anyMatch(eksisterende -> !eksisterende.getStatus().equals(ForespørselStatus.UTGÅTT))) {
             LOG.info("Forespørsel finnes allerede, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
-                organisasjonsnummer.orgnr(), skjæringstidspunkt, fagsakSaksnummer.saksnr(), ytelsetype);
+                organisasjonsnummer.orgnr(), skjæringstidspunkt, saksnummer.saksnr(), ytelsetype);
             return;
         }
 
         // K9 trenger ikke førsteUttaksdato, setter alltid null her
-        forespørselBehandlingTjeneste.opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjonsnummer, skjæringstidspunkt, null);
+        forespørselBehandlingTjeneste.opprettForespørsel(ytelsetype, aktørId, saksnummer, organisasjonsnummer, skjæringstidspunkt, null);
         MetrikkerTjeneste.loggForespørselOpprettet(ytelsetype);
     }
 
     public static ProsessTaskData lagTaskData(Ytelsetype ytelsetype,
                                               AktørIdEntitet aktørId,
-                                              SaksnummerDto fagsakSaksnummer,
+                                              SaksnummerDto saksnummer,
                                               OrganisasjonsnummerDto organisasjon,
                                               LocalDate skjæringstidspunkt) {
         var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
         taskdata.setProperty(YTELSETYPE, ytelsetype.name());
         taskdata.setAktørId(aktørId.getAktørId());
-        taskdata.setSaksnummer(fagsakSaksnummer.saksnr());
+        taskdata.setSaksnummer(saksnummer.saksnr());
         taskdata.setProperty(ORGNR, organisasjon.orgnr());
         taskdata.setProperty(STP, skjæringstidspunkt.toString());
         return taskdata;
