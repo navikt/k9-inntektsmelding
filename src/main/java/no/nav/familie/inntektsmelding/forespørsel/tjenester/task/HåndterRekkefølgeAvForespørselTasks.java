@@ -47,9 +47,9 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
     public ProsessTaskVeto vetoKjøring(ProsessTaskData prosessTaskData) {
 
         if (prosessTaskData.taskType().equals(OPPRETT)) {
-            var fagsakSaksnummer = prosessTaskData.getSaksnummer();
+            var saksnummer = prosessTaskData.getSaksnummer();
 
-            if (fagsakSaksnummer == null || fagsakSaksnummer.isBlank()) {
+            if (saksnummer == null || saksnummer.isBlank()) {
                 throw new IllegalArgumentException("Task av type " + OPPRETT.value() + " mangler saksnummer");
             }
 
@@ -57,14 +57,14 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
             Optional<ProsessTaskData> blokkerendeTask = prosessTaskRepository.finnAlle(List.of(ProsessTaskStatus.KLAR))
                 .stream()
                 .filter(task -> BLOKKERENDE.contains(task.taskType()))
-                .filter(task -> Objects.equals(task.getSaksnummer(), fagsakSaksnummer))
+                .filter(task -> Objects.equals(task.getSaksnummer(), saksnummer))
                 .filter(task -> !Objects.equals(task.getGruppe(), prosessTaskData.getGruppe()))
                 .filter(task -> task.getOpprettetTid().isBefore(prosessTaskData.getOpprettetTid()))
                 .max(Comparator.comparing(ProsessTaskData::getOpprettetTid));
 
             if (blokkerendeTask.isPresent()) {
                 LOG.info("Vetoer kjøring av prosesstask[{}] av {} for fagsak [{}], er blokkert av prosesstask[{}] for samme fagsak.",
-                    prosessTaskData.getId(), prosessTaskData.taskType(), fagsakSaksnummer, blokkerendeTask.get().getId());
+                    prosessTaskData.getId(), prosessTaskData.taskType(), saksnummer, blokkerendeTask.get().getId());
 
                 return new ProsessTaskVeto(true, prosessTaskData.getId(), blokkerendeTask.get().getId(),
                     "Må vente på annen task for samme fagsak som ble opprettet før denne.");

@@ -56,8 +56,8 @@ public class JoarkTjeneste {
     public String journalførInntektsmelding(String XMLAvInntektsmelding,
                                             InntektsmeldingEntitet inntektsmelding,
                                             byte[] pdf,
-                                            String fagsystemSaksnummer) {
-        var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding, pdf, fagsystemSaksnummer);
+                                            String saksnummer) {
+        var request = opprettRequest(XMLAvInntektsmelding, inntektsmelding, pdf, saksnummer);
         try {
             var response = joarkKlient.opprettJournalpost(request, false);
             // Kan nok fjerne loggingen etter en periode i dev, mest for feilsøking i starten.
@@ -71,7 +71,7 @@ public class JoarkTjeneste {
     private OpprettJournalpostRequest opprettRequest(String xmlAvInntektsmelding,
                                                      InntektsmeldingEntitet inntektsmeldingEntitet,
                                                      byte[] pdf,
-                                                     String fagsystemSaksnummer) {
+                                                     String saksnummer) {
         var erBedrift = inntektsmeldingEntitet.getArbeidsgiverIdent().length() == 9;
         var avsenderMottaker = erBedrift ? lagAvsenderBedrift(inntektsmeldingEntitet) : lagAvsenderPrivatperson(inntektsmeldingEntitet);
         var opprettJournalpostRequestBuilder = OpprettJournalpostRequest.nyInngående()
@@ -86,8 +86,8 @@ public class JoarkTjeneste {
             .medKanal(KANAL)
             .medDokumenter(lagDokumenter(xmlAvInntektsmelding, pdf));
 
-        if (fagsystemSaksnummer != null) {
-            opprettJournalpostRequestBuilder.medSak(sak(fagsystemSaksnummer));
+        if (saksnummer != null) {
+            opprettJournalpostRequestBuilder.medSak(sak(saksnummer));
         }
         return opprettJournalpostRequestBuilder.build();
     }

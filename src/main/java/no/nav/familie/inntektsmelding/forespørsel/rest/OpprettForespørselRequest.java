@@ -15,7 +15,7 @@ public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
                                         @Valid OrganisasjonsnummerDto orgnummer,
                                         @NotNull @Valid LocalDate skjæringstidspunkt,
                                         @NotNull @Valid YtelseTypeDto ytelsetype,
-                                        @NotNull @Valid SaksnummerDto fagsakSaksnummer,
+                                        @NotNull @Valid SaksnummerDto saksnummer,
                                         @Valid LocalDate førsteUttaksdato,
                                         @Valid List<OrganisasjonsnummerDto> organisasjonsnumre) {
 }

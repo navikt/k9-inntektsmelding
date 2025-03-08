@@ -130,7 +130,7 @@ public class InntektsmeldingTjeneste {
 
     private Long lagreOgLagJournalførTask(InntektsmeldingEntitet inntektsmeldingEntitet, ForespørselEntitet forespørsel) {
         var ytelseType = inntektsmeldingEntitet.getYtelsetype();
-        LOG.info("Lagrer inntektsmelding for for ytelse {} og fagsak saksnummer {}", ytelseType, forespørsel.getFagsystemSaksnummer().orElse(null));
+        LOG.info("Lagrer inntektsmelding for for ytelse {} og fagsak saksnummer {}", ytelseType, forespørsel.getSaksnummer().orElse(null));
 
         var imId = inntektsmeldingRepository.lagreInntektsmelding(inntektsmeldingEntitet);
         opprettTaskForSendTilJoark(imId, ytelseType, forespørsel);
@@ -140,7 +140,7 @@ public class InntektsmeldingTjeneste {
     private void opprettTaskForSendTilJoark(Long imId, Ytelsetype ytelsetype, ForespørselEntitet forespørsel) {
         var task = ProsessTaskData.forProsessTask(SendTilJoarkTask.class);
 
-        forespørsel.getFagsystemSaksnummer().ifPresent(task::setSaksnummer);
+        forespørsel.getSaksnummer().ifPresent(task::setSaksnummer);
         task.setProperty(SendTilJoarkTask.KEY_INNTEKTSMELDING_ID, imId.toString());
         task.setProperty(SendTilJoarkTask.KEY_YTELSE_TYPE, ytelsetype.toString());
         prosessTaskTjeneste.lagre(task);

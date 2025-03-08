@@ -57,9 +57,9 @@ class ForespørselRestTest {
             new OppdaterForespørselDto(stp2, orgnummer1, ForespørselAksjon.OPPRETT),
             new OppdaterForespørselDto(stp2, orgnummer2, ForespørselAksjon.OPPRETT));
 
-        var fagsakSaksnummer = new SaksnummerDto("SAK");
+        var saksnummer = new SaksnummerDto("SAK");
         var response = forespørselRest.oppdaterForespørsler(
-            new OppdaterForespørslerRequest(aktørId, forespørsler, YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
+            new OppdaterForespørslerRequest(aktørId, forespørsler, YtelseTypeDto.PLEIEPENGER_SYKT_BARN, saksnummer));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
     }
@@ -74,9 +74,9 @@ class ForespørselRestTest {
         var forespørsler = List.of(new OppdaterForespørselDto(stp1, orgnummer, ForespørselAksjon.OPPRETT),
             new OppdaterForespørselDto(stp1, orgnummer, ForespørselAksjon.OPPRETT));
 
-        var fagsakSaksnummer = new SaksnummerDto("SAK");
+        var saksnummer = new SaksnummerDto("SAK");
         var response = forespørselRest.oppdaterForespørsler(
-            new OppdaterForespørslerRequest(aktørId, forespørsler, YtelseTypeDto.PLEIEPENGER_SYKT_BARN, fagsakSaksnummer));
+            new OppdaterForespørslerRequest(aktørId, forespørsler, YtelseTypeDto.PLEIEPENGER_SYKT_BARN, saksnummer));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
     }

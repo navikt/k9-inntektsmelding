@@ -32,13 +32,13 @@ public class ForespørselRepository {
     }
 
 
-    public UUID lagreForespørsel(LocalDate skjæringstidspunkt, Ytelsetype ytelsetype, String aktørId, String orgnummer, String fagsakSaksnummer,
+    public UUID lagreForespørsel(LocalDate skjæringstidspunkt, Ytelsetype ytelsetype, String aktørId, String orgnummer, String saksnummer,
                                  LocalDate førsteUttaksdato) {
         var forespørselEntitet = new ForespørselEntitet(orgnummer,
             skjæringstidspunkt,
             new AktørIdEntitet(aktørId),
             ytelsetype,
-            fagsakSaksnummer,
+            saksnummer,
             førsteUttaksdato);
         LOG.info("ForespørselRepository: lagrer forespørsel entitet: {}", forespørselEntitet);
         entityManager.persist(forespørselEntitet);
@@ -105,16 +105,16 @@ public class ForespørselRepository {
     }
 
 
-    public List<ForespørselEntitet> hentForespørsler(SaksnummerDto fagsakSaksnummer) {
-        var query = entityManager.createQuery("FROM ForespørselEntitet f where fagsystemSaksnummer = :saksnr", ForespørselEntitet.class)
-            .setParameter("saksnr", fagsakSaksnummer.saksnr());
+    public List<ForespørselEntitet> hentForespørsler(SaksnummerDto saksnummer) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet f where saksnummer = :saksnummer", ForespørselEntitet.class)
+            .setParameter("saksnummer", saksnummer.saksnr());
         return query.getResultList();
     }
 
-    public List<ForespørselEntitet> finnÅpenForespørsel(SaksnummerDto fagsystemSaksnummer) {
-        var query = entityManager.createQuery("FROM ForespørselEntitet where status=:status " + "and fagsystemSaksnummer=:saksnummer",
+    public List<ForespørselEntitet> finnÅpenForespørsel(SaksnummerDto saksnummer) {
+        var query = entityManager.createQuery("FROM ForespørselEntitet where status=:status " + "and saksnummer=:saksnummer",
                 ForespørselEntitet.class)
-            .setParameter("saksnummer", fagsystemSaksnummer.saksnr())
+            .setParameter("saksnummer", saksnummer.saksnr())
             .setParameter("status", ForespørselStatus.UNDER_BEHANDLING);
         return query.getResultList();
     }
