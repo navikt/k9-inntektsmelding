@@ -218,12 +218,11 @@ public class ForespørselBehandlingTjeneste {
             ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT, eksisterendeForespørsel.getSkjæringstidspunkt()));
         forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
-        var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+        LOG.info("Setter forespørsel til utgått, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             eksisterendeForespørsel.getOrganisasjonsnummer(),
             eksisterendeForespørsel.getSkjæringstidspunkt(),
             eksisterendeForespørsel.getSaksnummer().orElse(null),
             eksisterendeForespørsel.getYtelseType());
-        LOG.info(msg);
     }
 
     public void gjenåpneForespørsel(ForespørselEntitet eksisterendeForespørsel) {
@@ -234,12 +233,11 @@ public class ForespørselBehandlingTjeneste {
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), null);
         forespørselTjeneste.ferdigstillForespørsel(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
-        var msg = String.format("Gjenåpner forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+        LOG.info("Gjenåpner forespørsel, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             eksisterendeForespørsel.getOrganisasjonsnummer(),
             eksisterendeForespørsel.getSkjæringstidspunkt(),
             eksisterendeForespørsel.getSaksnummer().orElse(null),
             eksisterendeForespørsel.getYtelseType());
-        LOG.info(msg);
     }
 
     public void opprettForespørsel(Ytelsetype ytelsetype,
@@ -248,12 +246,11 @@ public class ForespørselBehandlingTjeneste {
                                    OrganisasjonsnummerDto organisasjonsnummer,
                                    LocalDate skjæringstidspunkt,
                                    LocalDate førsteUttaksdato) {
-        var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+        LOG.info("Oppretter forespørsel, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             organisasjonsnummer,
             skjæringstidspunkt,
             saksnummer.saksnr(),
             ytelsetype);
-        LOG.info(msg);
 
         var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr());
 
@@ -298,11 +295,10 @@ public class ForespørselBehandlingTjeneste {
     public UUID opprettForespørselForOmsorgspengerRefusjonIm(AktørIdEntitet aktørId,
                                                              OrganisasjonsnummerDto organisasjonsnummer,
                                                              LocalDate skjæringstidspunkt) {
-        var msg = String.format("Oppretter forespørsel for omsorgspenger refusjon, orgnr: %s, stp: %s, ytelse: %s",
+        LOG.info("Oppretter forespørsel for omsorgspenger refusjon, orgnr: {}, stp: {}, ytelse: {}",
             organisasjonsnummer,
             skjæringstidspunkt,
             Ytelsetype.OMSORGSPENGER);
-        LOG.info(msg);
 
         var uuid = forespørselTjeneste.opprettForespørselOmsorgspengerRefusjon(skjæringstidspunkt,
             aktørId,
@@ -370,7 +366,7 @@ public class ForespørselBehandlingTjeneste {
             .toList();
 
         if (sakerSomSkalSlettes.size() != 1) {
-            var msg = String.format("Fant ikke akkurat 1 sak som skulle slettes. Fant istedet %s saker ", sakerSomSkalSlettes.size());
+            String msg = String.format("Fant ikke akkurat 1 sak som skulle slettes. Fant istedet %s saker ", sakerSomSkalSlettes.size());
             throw new IllegalStateException(msg);
         }
         var agPortalSakId = sakerSomSkalSlettes.getFirst().getArbeidsgiverNotifikasjonSakId();
