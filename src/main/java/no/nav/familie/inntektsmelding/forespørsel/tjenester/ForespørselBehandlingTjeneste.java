@@ -101,8 +101,8 @@ public class ForespørselBehandlingTjeneste {
     public void oppdaterForespørsler(Ytelsetype ytelsetype,
                                      AktørIdEntitet aktørId,
                                      List<OppdaterForespørselDto> forespørsler,
-                                     SaksnummerDto fagsakSaksnummer) {
-        final var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer);
+                                     SaksnummerDto saksnummer) {
+        final var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForFagsak(saksnummer);
         final var taskGruppe = new ProsessTaskGruppe();
 
         // Forespørsler som skal opprettes
@@ -110,7 +110,7 @@ public class ForespørselBehandlingTjeneste {
         for (OppdaterForespørselDto forespørselDto : skalOpprettes) {
             var opprettForespørselTask = OpprettForespørselTask.lagTaskData(ytelsetype,
                 aktørId,
-                fagsakSaksnummer,
+                saksnummer,
                 forespørselDto.orgnr(),
                 forespørselDto.skjæringstidspunkt());
             taskGruppe.addNesteParallell(opprettForespørselTask);
@@ -121,7 +121,7 @@ public class ForespørselBehandlingTjeneste {
         for (ForespørselEntitet forespørsel : skalSettesUtgått) {
             var settForespørselTilUtgåttTask = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
             settForespørselTilUtgåttTask.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørsel.getUuid().toString());
-            settForespørselTilUtgåttTask.setSaksnummer(fagsakSaksnummer.saksnr());
+            settForespørselTilUtgåttTask.setSaksnummer(saksnummer.saksnr());
             taskGruppe.addNesteParallell(settForespørselTilUtgåttTask);
         }
 
@@ -130,14 +130,14 @@ public class ForespørselBehandlingTjeneste {
         for (ForespørselEntitet forespørsel : skalGjenåpnes) {
             var gjenåpneForespørselTask = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
             gjenåpneForespørselTask.setProperty(GjenåpneForespørselTask.FORESPØRSEL_UUID, forespørsel.getUuid().toString());
-            gjenåpneForespørselTask.setSaksnummer(fagsakSaksnummer.saksnr());
+            gjenåpneForespørselTask.setSaksnummer(saksnummer.saksnr());
             taskGruppe.addNesteParallell(gjenåpneForespørselTask);
         }
 
         if (!taskGruppe.getTasks().isEmpty()) {
             prosessTaskTjeneste.lagre(taskGruppe);
         } else {
-            LOG.info("Ingen oppdatering er nødvendig for saksnr: {}", fagsakSaksnummer);
+            LOG.info("Ingen oppdatering er nødvendig for saksnummer: {}", saksnummer);
         }
     }
 
@@ -218,12 +218,11 @@ public class ForespørselBehandlingTjeneste {
             ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT, eksisterendeForespørsel.getSkjæringstidspunkt()));
         forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
-        var msg = String.format("Setter forespørsel til utgått, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+        LOG.info("Setter forespørsel til utgått, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             eksisterendeForespørsel.getOrganisasjonsnummer(),
             eksisterendeForespørsel.getSkjæringstidspunkt(),
-            eksisterendeForespørsel.getFagsystemSaksnummer().orElse(null),
+            eksisterendeForespørsel.getSaksnummer().orElse(null),
             eksisterendeForespørsel.getYtelseType());
-        LOG.info(msg);
     }
 
     public void gjenåpneForespørsel(ForespørselEntitet eksisterendeForespørsel) {
@@ -234,26 +233,24 @@ public class ForespørselBehandlingTjeneste {
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), null);
         forespørselTjeneste.ferdigstillForespørsel(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
-        var msg = String.format("Gjenåpner forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+        LOG.info("Gjenåpner forespørsel, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             eksisterendeForespørsel.getOrganisasjonsnummer(),
             eksisterendeForespørsel.getSkjæringstidspunkt(),
-            eksisterendeForespørsel.getFagsystemSaksnummer().orElse(null),
+            eksisterendeForespørsel.getSaksnummer().orElse(null),
             eksisterendeForespørsel.getYtelseType());
-        LOG.info(msg);
     }
 
     public void opprettForespørsel(Ytelsetype ytelsetype,
                                    AktørIdEntitet aktørId,
-                                   SaksnummerDto fagsakSaksnummer,
+                                   SaksnummerDto saksnummer,
                                    OrganisasjonsnummerDto organisasjonsnummer,
                                    LocalDate skjæringstidspunkt,
                                    LocalDate førsteUttaksdato) {
-        var msg = String.format("Oppretter forespørsel, orgnr: %s, stp: %s, saksnr: %s, ytelse: %s",
+        LOG.info("Oppretter forespørsel, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             organisasjonsnummer,
             skjæringstidspunkt,
-            fagsakSaksnummer.saksnr(),
+            saksnummer.saksnr(),
             ytelsetype);
-        LOG.info(msg);
 
         var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr());
 
@@ -261,7 +258,7 @@ public class ForespørselBehandlingTjeneste {
             ytelsetype,
             aktørId,
             organisasjonsnummer,
-            fagsakSaksnummer,
+            saksnummer,
             førsteUttaksdato);
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
@@ -298,11 +295,10 @@ public class ForespørselBehandlingTjeneste {
     public UUID opprettForespørselForOmsorgspengerRefusjonIm(AktørIdEntitet aktørId,
                                                              OrganisasjonsnummerDto organisasjonsnummer,
                                                              LocalDate skjæringstidspunkt) {
-        var msg = String.format("Oppretter forespørsel for omsorgspenger refusjon, orgnr: %s, stp: %s, ytelse: %s",
+        LOG.info("Oppretter forespørsel for omsorgspenger refusjon, orgnr: {}, stp: {}, ytelse: {}",
             organisasjonsnummer,
             skjæringstidspunkt,
             Ytelsetype.OMSORGSPENGER);
-        LOG.info(msg);
 
         var uuid = forespørselTjeneste.opprettForespørselOmsorgspengerRefusjon(skjæringstidspunkt,
             aktørId,
@@ -323,8 +319,8 @@ public class ForespørselBehandlingTjeneste {
         return uuid;
     }
 
-    public void lukkForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
-        var forespørsler = hentÅpneForespørslerForFagsak(fagsakSaksnummer, orgnummerDto, skjæringstidspunkt);
+    public void lukkForespørsel(SaksnummerDto saksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
+        var forespørsler = hentÅpneForespørslerForFagsak(saksnummer, orgnummerDto, skjæringstidspunkt);
 
         // Alle inntektsmeldinger sendt inn via arbeidsgiverportal blir lukket umiddelbart etter innsending fra #InntektsmeldingTjeneste,
         // så forespørsler som enda er åpne her blir løst ved innsending fra andre systemer
@@ -338,39 +334,39 @@ public class ForespørselBehandlingTjeneste {
         });
     }
 
-    public void settForespørselTilUtgått(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
-        var forespørsler = hentÅpneForespørslerForFagsak(fagsakSaksnummer, orgnummerDto, skjæringstidspunkt);
+    public void settForespørselTilUtgått(SaksnummerDto saksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
+        var forespørsler = hentÅpneForespørslerForFagsak(saksnummer, orgnummerDto, skjæringstidspunkt);
 
         forespørsler.forEach(it -> settForespørselTilUtgått(it, true));
     }
 
-    private List<ForespørselEntitet> hentÅpneForespørslerForFagsak(SaksnummerDto fagsakSaksnummer,
+    private List<ForespørselEntitet> hentÅpneForespørslerForFagsak(SaksnummerDto saksnummer,
                                                                    OrganisasjonsnummerDto orgnummerDto,
                                                                    LocalDate skjæringstidspunkt) {
-        return forespørselTjeneste.finnÅpneForespørslerForFagsak(fagsakSaksnummer).stream()
+        return forespørselTjeneste.finnÅpneForespørslerForFagsak(saksnummer).stream()
             .filter(f -> orgnummerDto == null || orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
             .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
             .toList();
     }
 
-    public List<ForespørselEntitet> hentForespørslerForFagsak(SaksnummerDto fagsakSaksnummer,
+    public List<ForespørselEntitet> hentForespørslerForFagsak(SaksnummerDto saksnummer,
                                                               OrganisasjonsnummerDto orgnummerDto,
                                                               LocalDate skjæringstidspunkt) {
-        return forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer).stream()
+        return forespørselTjeneste.finnForespørslerForFagsak(saksnummer).stream()
             .filter(f -> orgnummerDto == null || orgnummerDto.orgnr().equals(f.getOrganisasjonsnummer()))
             .filter(f -> skjæringstidspunkt == null || skjæringstidspunkt.equals(f.getSkjæringstidspunkt()))
             .toList();
     }
 
-    public void slettForespørsel(SaksnummerDto fagsakSaksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
-        var sakerSomSkalSlettes = forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer).stream()
+    public void slettForespørsel(SaksnummerDto saksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
+        var sakerSomSkalSlettes = forespørselTjeneste.finnForespørslerForFagsak(saksnummer).stream()
             .filter(f -> skjæringstidspunkt == null || f.getSkjæringstidspunkt().equals(skjæringstidspunkt))
             .filter(f -> orgnummerDto == null || f.getOrganisasjonsnummer().equals(orgnummerDto.orgnr()))
             .filter(f -> f.getStatus().equals(ForespørselStatus.UNDER_BEHANDLING))
             .toList();
 
         if (sakerSomSkalSlettes.size() != 1) {
-            var msg = String.format("Fant ikke akkurat 1 sak som skulle slettes. Fant istedet %s saker ", sakerSomSkalSlettes.size());
+            String msg = String.format("Fant ikke akkurat 1 sak som skulle slettes. Fant istedet %s saker ", sakerSomSkalSlettes.size());
             throw new IllegalStateException(msg);
         }
         var agPortalSakId = sakerSomSkalSlettes.getFirst().getArbeidsgiverNotifikasjonSakId();
@@ -378,8 +374,8 @@ public class ForespørselBehandlingTjeneste {
         forespørselTjeneste.settForespørselTilUtgått(agPortalSakId);
     }
 
-    public List<InntektsmeldingForespørselDto> finnForespørslerForFagsak(SaksnummerDto fagsakSaksnummer) {
-        return forespørselTjeneste.finnForespørslerForFagsak(fagsakSaksnummer).stream().map(forespoersel ->
+    public List<InntektsmeldingForespørselDto> finnForespørslerForFagsak(SaksnummerDto saksnummer) {
+        return forespørselTjeneste.finnForespørslerForFagsak(saksnummer).stream().map(forespoersel ->
                 new InntektsmeldingForespørselDto(
                     forespoersel.getUuid(),
                     forespoersel.getSkjæringstidspunkt(),

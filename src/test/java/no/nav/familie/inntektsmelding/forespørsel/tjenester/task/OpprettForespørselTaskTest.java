@@ -23,7 +23,7 @@ class OpprettForespørselTaskTest {
 
     private final Ytelsetype ytelsetype = Ytelsetype.PLEIEPENGER_SYKT_BARN;
     private final AktørIdEntitet aktørId = new AktørIdEntitet("1111111111111");
-    private final SaksnummerDto fagsakSaksnummer = new SaksnummerDto("456");
+    private final SaksnummerDto saksnummer = new SaksnummerDto("456");
     private final OrganisasjonsnummerDto organisasjon = new OrganisasjonsnummerDto("789");
     private final LocalDate skjæringstidspunkt = LocalDate.now();
 
@@ -35,13 +35,13 @@ class OpprettForespørselTaskTest {
         var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
         taskdata.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
         taskdata.setAktørId(aktørId.getAktørId());
-        taskdata.setSaksnummer(fagsakSaksnummer.saksnr());
+        taskdata.setSaksnummer(saksnummer.saksnr());
         taskdata.setProperty(OpprettForespørselTask.ORGNR, organisasjon.orgnr());
         taskdata.setProperty(OpprettForespørselTask.STP, skjæringstidspunkt.toString());
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste).opprettForespørsel(ytelsetype, aktørId, fagsakSaksnummer, organisasjon, skjæringstidspunkt, null);
+        verify(forespørselBehandlingTjeneste).opprettForespørsel(ytelsetype, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null);
     }
 
     @Test
@@ -50,12 +50,12 @@ class OpprettForespørselTaskTest {
         var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
         taskdata.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
         taskdata.setAktørId(aktørId.getAktørId());
-        taskdata.setSaksnummer(fagsakSaksnummer.saksnr());
+        taskdata.setSaksnummer(saksnummer.saksnr());
         taskdata.setProperty(OpprettForespørselTask.ORGNR, organisasjon.orgnr());
         taskdata.setProperty(OpprettForespørselTask.STP, skjæringstidspunkt.toString());
 
-        when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(fagsakSaksnummer, organisasjon, skjæringstidspunkt))
-            .thenReturn(List.of(new ForespørselEntitet(organisasjon.orgnr(), skjæringstidspunkt, aktørId, ytelsetype, fagsakSaksnummer.saksnr(), null
+        when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(saksnummer, organisasjon, skjæringstidspunkt))
+            .thenReturn(List.of(new ForespørselEntitet(organisasjon.orgnr(), skjæringstidspunkt, aktørId, ytelsetype, saksnummer.saksnr(), null
             )));
 
         task.doTask(taskdata);

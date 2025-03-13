@@ -61,10 +61,53 @@ public class ForespørselRest {
     }
 
     @POST
+    @Path("/oppdater/v2")
+    @Tilgangskontrollert
+    public Response oppdaterForespørslerV2(@Valid @NotNull OppdaterForespørslerRequestV2 request) {
+        LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på saksnummer {}", request.saksnummer());
+        sjekkErSystemkall();
+
+        boolean validertOk = validerOppdaterForespørslerRequest(request);
+        if (!validertOk) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        forespørselBehandlingTjeneste.oppdaterForespørsler(
+            KodeverkMapper.mapYtelsetype(request.ytelsetype()),
+            new AktørIdEntitet(request.aktørId().id()),
+            request.forespørsler(),
+            request.saksnummer()
+        );
+
+        return Response.ok().build();
+    }
+
+    private static boolean validerOppdaterForespørslerRequest(OppdaterForespørslerRequestV2 request) {
+        var unikeForespørsler = new ArrayList<>();
+        var dupliserteForespørsler = new ArrayList<>();
+
+        request.forespørsler().forEach(forespørsel -> {
+            var forespørselPair = Pair.of(forespørsel.skjæringstidspunkt(), forespørsel.orgnr());
+            if (!unikeForespørsler.contains(forespørselPair)) {
+                unikeForespørsler.add(forespørselPair);
+            } else {
+                dupliserteForespørsler.add(forespørselPair);
+            }
+        });
+
+        if (!dupliserteForespørsler.isEmpty()) {
+            LOG.warn("Kan ikke oppdatere med duplikate forespørsler: {}", dupliserteForespørsler);
+            return false;
+        }
+
+        return true;
+    }
+
+    @POST
     @Path("/oppdater")
     @Tilgangskontrollert
     public Response oppdaterForespørsler(@Valid @NotNull OppdaterForespørslerRequest request) {
-        LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på fagsakSaksnummer {}", request.fagsakSaksnummer());
+        LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på saksnummer {}", request.fagsakSaksnummer());
         sjekkErSystemkall();
 
         boolean validertOk = validerOppdaterForespørslerRequest(request);
@@ -107,7 +150,7 @@ public class ForespørselRest {
     @Path("/lukk")
     @Tilgangskontrollert
     public Response lukkForespørsel(@Valid @NotNull LukkForespørselRequest request) {
-        LOG.info("Lukk forespørsel for fagsakSaksnummer {} med orgnummer {} og skjæringstidspunkt {}",
+        LOG.info("Lukk forespørsel for saksnummer {} med orgnummer {} og skjæringstidspunkt {}",
             request.fagsakSaksnummer(),
             request.orgnummer(),
             request.skjæringstidspunkt());
@@ -122,7 +165,7 @@ public class ForespørselRest {
     @Path("/sett-til-utgatt")
     @Tilgangskontrollert
     public Response settForespørselTilUtgått(@Valid @NotNull LukkForespørselRequest request) {
-        LOG.info("Setter forespørsel for fagsakSaksnummer {} til utgått", request.fagsakSaksnummer());
+        LOG.info("Setter forespørsel for saksnummer {} til utgått", request.fagsakSaksnummer());
 
         sjekkErSystemkall();
 
@@ -134,7 +177,7 @@ public class ForespørselRest {
     @Path("/sak")
     @Tilgangskontrollert
     public Response hentForespørslerForSak(@Valid @NotNull @Pattern(regexp = SaksnummerDto.REGEXP) @Size(max = 19) @QueryParam("saksnummer") String saksnummer) {
-        LOG.info("Henter forespørsler for fagsakSaksnummer {}", saksnummer);
+        LOG.info("Henter forespørsler for saksnummer {}", saksnummer);
 
         sjekkErSystemkall();
 
