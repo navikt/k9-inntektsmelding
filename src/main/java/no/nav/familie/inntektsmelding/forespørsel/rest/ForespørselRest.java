@@ -107,7 +107,7 @@ public class ForespørselRest {
     @Path("/oppdater")
     @Tilgangskontrollert
     public Response oppdaterForespørsler(@Valid @NotNull OppdaterForespørslerRequest request) {
-        LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på saksnummer {}", request.fagsakSaksnummer());
+        LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på saksnummer {}", request.saksnummer());
         sjekkErSystemkall();
 
         boolean validertOk = validerOppdaterForespørslerRequest(request);
@@ -119,7 +119,7 @@ public class ForespørselRest {
             KodeverkMapper.mapYtelsetype(request.ytelsetype()),
             new AktørIdEntitet(request.aktørId().id()),
             request.forespørsler(),
-            request.fagsakSaksnummer()
+            request.saksnummer()
         );
 
         return Response.ok().build();
@@ -151,13 +151,13 @@ public class ForespørselRest {
     @Tilgangskontrollert
     public Response lukkForespørsel(@Valid @NotNull LukkForespørselRequest request) {
         LOG.info("Lukk forespørsel for saksnummer {} med orgnummer {} og skjæringstidspunkt {}",
-            request.fagsakSaksnummer(),
+            request.saksnummer(),
             request.orgnummer(),
             request.skjæringstidspunkt());
 
         sjekkErSystemkall();
 
-        forespørselBehandlingTjeneste.lukkForespørsel(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        forespørselBehandlingTjeneste.lukkForespørsel(request.saksnummer(), request.orgnummer(), request.skjæringstidspunkt());
         return Response.ok().build();
     }
 
@@ -192,11 +192,11 @@ public class ForespørselRest {
     @Path("/sett-til-utgatt")
     @Tilgangskontrollert
     public Response settForespørselTilUtgått(@Valid @NotNull LukkForespørselRequest request) {
-        LOG.info("Setter forespørsel for saksnummer {} til utgått", request.fagsakSaksnummer());
+        LOG.info("Setter forespørsel for saksnummer {} til utgått", request.saksnummer());
 
         sjekkErSystemkall();
 
-        forespørselBehandlingTjeneste.settForespørselTilUtgått(request.fagsakSaksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        forespørselBehandlingTjeneste.settForespørselTilUtgått(request.saksnummer(), request.orgnummer(), request.skjæringstidspunkt());
         return Response.ok().build();
     }
 
