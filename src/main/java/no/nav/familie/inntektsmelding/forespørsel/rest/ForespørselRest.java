@@ -61,49 +61,6 @@ public class ForespørselRest {
     }
 
     @POST
-    @Path("/oppdater/v2")
-    @Tilgangskontrollert
-    public Response oppdaterForespørslerV2(@Valid @NotNull OppdaterForespørslerRequestV2 request) {
-        LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på saksnummer {}", request.saksnummer());
-        sjekkErSystemkall();
-
-        boolean validertOk = validerOppdaterForespørslerRequest(request);
-        if (!validertOk) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-
-        forespørselBehandlingTjeneste.oppdaterForespørsler(
-            KodeverkMapper.mapYtelsetype(request.ytelsetype()),
-            new AktørIdEntitet(request.aktørId().id()),
-            request.forespørsler(),
-            request.saksnummer()
-        );
-
-        return Response.ok().build();
-    }
-
-    private static boolean validerOppdaterForespørslerRequest(OppdaterForespørslerRequestV2 request) {
-        var unikeForespørsler = new ArrayList<>();
-        var dupliserteForespørsler = new ArrayList<>();
-
-        request.forespørsler().forEach(forespørsel -> {
-            var forespørselPair = Pair.of(forespørsel.skjæringstidspunkt(), forespørsel.orgnr());
-            if (!unikeForespørsler.contains(forespørselPair)) {
-                unikeForespørsler.add(forespørselPair);
-            } else {
-                dupliserteForespørsler.add(forespørselPair);
-            }
-        });
-
-        if (!dupliserteForespørsler.isEmpty()) {
-            LOG.warn("Kan ikke oppdatere med duplikate forespørsler: {}", dupliserteForespørsler);
-            return false;
-        }
-
-        return true;
-    }
-
-    @POST
     @Path("/oppdater")
     @Tilgangskontrollert
     public Response oppdaterForespørsler(@Valid @NotNull OppdaterForespørslerRequest request) {
@@ -158,33 +115,6 @@ public class ForespørselRest {
         sjekkErSystemkall();
 
         forespørselBehandlingTjeneste.lukkForespørsel(request.saksnummer(), request.orgnummer(), request.skjæringstidspunkt());
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/lukk/v2")
-    @Tilgangskontrollert
-    public Response lukkForespørsel(@Valid @NotNull LukkForespørselRequestV2 request) {
-        LOG.info("Lukk forespørsel for saksnummer {} med orgnummer {} og skjæringstidspunkt {}",
-            request.saksnummer(),
-            request.orgnummer(),
-            request.skjæringstidspunkt());
-
-        sjekkErSystemkall();
-
-        forespørselBehandlingTjeneste.lukkForespørsel(request.saksnummer(), request.orgnummer(), request.skjæringstidspunkt());
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/sett-til-utgatt/v2")
-    @Tilgangskontrollert
-    public Response settForespørselTilUtgått(@Valid @NotNull LukkForespørselRequestV2 request) {
-        LOG.info("Setter forespørsel for saksnummer {} til utgått", request.saksnummer());
-
-        sjekkErSystemkall();
-
-        forespørselBehandlingTjeneste.settForespørselTilUtgått(request.saksnummer(), request.orgnummer(), request.skjæringstidspunkt());
         return Response.ok().build();
     }
 
