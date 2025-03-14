@@ -162,6 +162,33 @@ public class ForespørselRest {
     }
 
     @POST
+    @Path("/lukk/v2")
+    @Tilgangskontrollert
+    public Response lukkForespørsel(@Valid @NotNull LukkForespørselRequestV2 request) {
+        LOG.info("Lukk forespørsel for saksnummer {} med orgnummer {} og skjæringstidspunkt {}",
+            request.saksnummer(),
+            request.orgnummer(),
+            request.skjæringstidspunkt());
+
+        sjekkErSystemkall();
+
+        forespørselBehandlingTjeneste.lukkForespørsel(request.saksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/sett-til-utgatt/v2")
+    @Tilgangskontrollert
+    public Response settForespørselTilUtgått(@Valid @NotNull LukkForespørselRequestV2 request) {
+        LOG.info("Setter forespørsel for saksnummer {} til utgått", request.saksnummer());
+
+        sjekkErSystemkall();
+
+        forespørselBehandlingTjeneste.settForespørselTilUtgått(request.saksnummer(), request.orgnummer(), request.skjæringstidspunkt());
+        return Response.ok().build();
+    }
+
+    @POST
     @Path("/sett-til-utgatt")
     @Tilgangskontrollert
     public Response settForespørselTilUtgått(@Valid @NotNull LukkForespørselRequest request) {
