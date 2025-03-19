@@ -41,8 +41,11 @@ class ForespørselTekster {
         return String.format(OPPGAVE_TEKST_NY, mapYtelsestypeNavn(ytelseType));
     }
 
-    public static String lagSaksTittel(String navn, LocalDate fødselsdato) {
-        return String.format("Inntektsmelding for %s (%s)", capitalizeFully(navn), fødselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+    public static String lagSaksTittel(String navn, LocalDate fødselsdato, Ytelsetype ytelsetype) {
+        return switch (ytelsetype) {
+            case PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OPPLÆRINGSPENGER -> String.format("Inntektsmelding for %s (%s)", capitalizeFully(navn), fødselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+            case OMSORGSPENGER -> String.format("Refusjonskrav for %s (%s)", capitalizeFully(navn), fødselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+        };
     }
 
     public static String lagVarselTekst(Ytelsetype ytelsetype, Organisasjon org) {

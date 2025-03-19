@@ -451,7 +451,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             new AktørIdEntitet(aktørId),
             LocalDate.of(1991, 1, 1).minusYears(30),
             null);
-        var sakTittel = ForespørselTekster.lagSaksTittel(personInfo.mapFulltNavn(), personInfo.fødselsdato());
+        var sakTittel = ForespørselTekster.lagSaksTittel(personInfo.mapFulltNavn(), personInfo.fødselsdato(), ytelsetype);
 
         lenient().when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørId), ytelsetype)).thenReturn(personInfo);
         lenient().when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(brregOrgnummer), eq(sakTittel), any())).thenReturn(sakId);

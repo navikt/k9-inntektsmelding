@@ -15,8 +15,14 @@ class ForespørselTeksterTest {
 
     @Test
     void lagSaksTittel() {
-        String saksTittel = ForespørselTekster.lagSaksTittel("OLA NORDMANN", LocalDate.of(2021, 02, 1));
+        String saksTittel = ForespørselTekster.lagSaksTittel("OLA NORDMANN", LocalDate.of(2021, 02, 1), Ytelsetype.PLEIEPENGER_SYKT_BARN);
         assertEquals("Inntektsmelding for Ola Nordmann (01.02.21)", saksTittel);
+    }
+
+    @Test
+    void lagSaksTittelOmsorgspengerRefusjon() {
+        String saksTittel = ForespørselTekster.lagSaksTittel("OLA NORDMANN", LocalDate.of(2021, 02, 1), Ytelsetype.OMSORGSPENGER);
+        assertEquals("Refusjonskrav for Ola Nordmann (01.02.21)", saksTittel);
     }
 
     @Test
