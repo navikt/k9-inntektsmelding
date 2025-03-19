@@ -53,4 +53,16 @@ public class K9DokgenKlient {
         }
         return pdf;
     }
+
+    public byte[] genererPdfOmsorgspengerRefusjon(OmsorgspengerRefusjonPdfData dokumentdata) throws URISyntaxException {
+        var path = "/template/omsorgspenger_refusjon/PDFOMSORGSPENGERREFUSJON/create-pdf-format-variation";
+        var endpoint = new URI(restConfig.endpoint() + path);
+        var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
+        var pdf = restClient.sendReturnByteArray(request);
+
+        if (pdf == null || pdf.length == 0) {
+            throw new TekniskException("K9IM", "Fikk tomt svar ved kall til dokgen for generering av pdf for refusjonskrav omsorgspenger");
+        }
+        return pdf;
+    }
 }
