@@ -19,7 +19,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     static final String SERVICE_CODE = "4936";
     static final String SERVICE_EDITION_CODE = "1";
     static final String SAK_STATUS_TEKST = "";
-    static final String SAK_STATUS_TEKST_ARBEIDSGIVERINITIERT = "Mottatt - Se kvittering eller korriger inntektsmelding";
+    static final String SAK_STATUS_TEKST_OMSORGSPENGER_REFUSJON = "Mottatt - Se kvittering eller korriger refusjonskrav";
     static final Sendevindu VARSEL_SENDEVINDU = Sendevindu.LOEPENDE;
     static final int PÅMINNELSE_ETTER_DAGER = Environment.current().getProperty("paaminnelse.etter.dager", int.class, 14);
 
@@ -204,14 +204,14 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String ferdigstillSak(String id, boolean arbeidsgiverInitiert) {
+    public String ferdigstillSak(String id, boolean erOmsorgspengerRefusjon) {
 
         var requestBuilder = NyStatusSakMutationRequest.builder()
             .setId(id)
             .setNyStatus(SaksStatus.FERDIG);
 
-        if (arbeidsgiverInitiert) {
-            requestBuilder.setOverstyrStatustekstMed(SAK_STATUS_TEKST_ARBEIDSGIVERINITIERT);
+        if (erOmsorgspengerRefusjon) {
+            requestBuilder.setOverstyrStatustekstMed(SAK_STATUS_TEKST_OMSORGSPENGER_REFUSJON);
         } else {
             requestBuilder.setOverstyrStatustekstMed(SAK_STATUS_TEKST);
         }

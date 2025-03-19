@@ -82,8 +82,8 @@ public class ForespørselBehandlingTjeneste {
         // Arbeidsgiverinitierte forespørsler har ingen oppgave
         foresporsel.getOppgaveId().ifPresent(oppgaveId -> arbeidsgiverNotifikasjon.oppgaveUtført(oppgaveId, OffsetDateTime.now()));
 
-        var erArbeidsgiverInitiertInntektsmelding = foresporsel.getOppgaveId().isEmpty();
-        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(), erArbeidsgiverInitiertInntektsmelding); // Oppdaterer status i arbeidsgiver-notifikasjon
+        var erOmsorgspengerRefusjon = foresporsel.getOppgaveId().isEmpty();
+        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(), erOmsorgspengerRefusjon); // Oppdaterer status i arbeidsgiver-notifikasjon
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
             ForespørselTekster.lagTilleggsInformasjon(årsak, foresporsel.getSkjæringstidspunkt()));
         forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
@@ -266,7 +266,7 @@ public class ForespørselBehandlingTjeneste {
         var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
-            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato()),
+            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato(), ytelsetype),
             skjemaUri);
 
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(arbeidsgiverNotifikasjonSakId, ForespørselTekster.lagTilleggsInformasjonOrdinær(skjæringstidspunkt));
@@ -311,7 +311,7 @@ public class ForespørselBehandlingTjeneste {
         var fagerSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
-            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato()),
+            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato(), Ytelsetype.OMSORGSPENGER),
             skjemaUri);
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, fagerSakId);
