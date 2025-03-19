@@ -55,10 +55,6 @@ public class InntektsmeldingPdfDataMapper {
             imDokumentdataBuilder.medAntallRefusjonsperioder(0);
         }
 
-        if (inntektsmelding.getOmsorgspenger() != null) {
-            imDokumentdataBuilder.medOmsorgspenger(mapOmsorgspenger(inntektsmelding.getOmsorgspenger()));
-        }
-
         return imDokumentdataBuilder.build();
     }
 
