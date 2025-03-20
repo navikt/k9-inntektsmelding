@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -23,28 +22,23 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 public class K9DokgenKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
-    private final String templatePath;
-    private final String templateType;
+
+    private final String OMSORGSPENGER_REFUSJON_PATH = "/template/omsorgspenger_refusjon/PDFOMSORGSPENGERREFUSJON/create-pdf-format-variation";
+    private final String INNTEKTSMELDING_PATH = "/template/inntektsmelding/PDFINNTEKTSMELDING/create-pdf-format-variation";
 
     @Inject
     public K9DokgenKlient(
-        @KonfigVerdi(value = "pdf.template.path", defaultVerdi = "/template/inntektsmelding/PDFINNTEKTSMELDING") String tempatePath,
-        @KonfigVerdi(value = "pdf.template.type", defaultVerdi = "/create-pdf-format-variation") String templateType
     ) {
-        this(RestClient.client(), tempatePath, templateType);
+        this(RestClient.client());
     }
 
-    public K9DokgenKlient(RestClient restClient,
-                          String templatePath,
-                          String templateType) {
+    public K9DokgenKlient(RestClient restClient) {
         this.restClient = restClient;
         this.restConfig = RestConfig.forClient(K9DokgenKlient.class);
-        this.templatePath = templatePath;
-        this.templateType = templateType;
     }
 
     public byte[] genererPdf(InntektsmeldingPdfData dokumentdata) throws URISyntaxException {
-        var endpoint = new URI(restConfig.endpoint() + templatePath + templateType);
+        var endpoint = new URI(restConfig.endpoint() + INNTEKTSMELDING_PATH);
         var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
         var pdf = restClient.sendReturnByteArray(request);
 
@@ -55,8 +49,7 @@ public class K9DokgenKlient {
     }
 
     public byte[] genererPdfOmsorgspengerRefusjon(OmsorgspengerRefusjonPdfData dokumentdata) throws URISyntaxException {
-        var path = "/template/omsorgspenger_refusjon/PDFOMSORGSPENGERREFUSJON/create-pdf-format-variation";
-        var endpoint = new URI(restConfig.endpoint() + path);
+        var endpoint = new URI(restConfig.endpoint() + OMSORGSPENGER_REFUSJON_PATH);
         var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
         var pdf = restClient.sendReturnByteArray(request);
 
