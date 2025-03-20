@@ -23,7 +23,7 @@ public class K9DokgenKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
 
-    private final String OMSORGSPENGER_REFUSJON_PATH = "/template/omsorgspenger_refusjon/PDFOMSORGSPENGERREFUSJON/create-pdf-format-variation";
+    private final String OMSORGSPENGER_REFUSJON_PATH = "/template/omsorgspenger_refusjon/PDFINNTEKTSMELDING/create-pdf-format-variation";
     private final String INNTEKTSMELDING_PATH = "/template/inntektsmelding/PDFINNTEKTSMELDING/create-pdf-format-variation";
 
     @Inject
