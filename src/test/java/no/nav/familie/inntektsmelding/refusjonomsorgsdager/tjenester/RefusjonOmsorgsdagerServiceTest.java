@@ -65,11 +65,11 @@ class RefusjonOmsorgsdagerServiceTest {
         var orgnummer = "999999999";
         var aktørId = AktørIdEntitet.dummy();
         var førsteFraværsdag = LocalDate.now();
-        var arbeidsforhold = List.of(new ArbeidsforholdDto(orgnummer, "ARB-1"));
+        var arbeidsforhold = List.of(new ArbeidsforholdDto(orgnummer, "ARB-1"), new ArbeidsforholdDto(orgnummer, "ARB-2"));
 
         var forventetArbeidstakerInfo = new SlåOppArbeidstakerResponseDto(
             new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()),
-            List.of(new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(orgnummer, "ARB-1", "Arbeidsgiver AS")));
+            List.of(new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(orgnummer, "Arbeidsgiver AS")));
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag)).thenReturn(arbeidsforhold);
