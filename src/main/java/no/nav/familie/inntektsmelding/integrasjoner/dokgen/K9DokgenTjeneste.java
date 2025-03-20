@@ -11,6 +11,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTje
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
@@ -43,9 +44,26 @@ public class K9DokgenTjeneste {
         personInfo = personTjeneste.hentPersonInfoFraAktørId(inntektsmelding.getAktørId(), inntektsmelding.getYtelsetype());
         arbeidsgiverNavn = finnArbeidsgiverNavn(inntektsmelding, arbeidsgvierIdent);
 
-        var imDokumentdata = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
+        if (inntektsmelding.getYtelsetype() == Ytelsetype.OMSORGSPENGER) {
+            var omsorgspengerRefusjonPdfData = OmsorgspengerRefusjonPdfDataMapper.mapOmsorgspengerRefusjonData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
+            return genererPdfForOmsorgspengerRefusjon(omsorgspengerRefusjonPdfData, inntektsmeldingsid);
+        }
 
+        var imDokumentdata = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
         return genererPdf(imDokumentdata, inntektsmeldingsid);
+    }
+
+    private byte[] genererPdfForOmsorgspengerRefusjon(OmsorgspengerRefusjonPdfData imDokumentData, int inntektsmeldingId) {
+        try {
+            byte[] pdf = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(imDokumentData);
+            LOG.info("Pdf av refusjonskrav omsorgspenger med id {} ble generert.", inntektsmeldingId);
+            return pdf;
+        } catch (Exception e) {
+            imDokumentData.anonymiser();
+            SECURE_LOG.warn("Klarte ikke å generere pdf av refusjonskrav omsorgspenger: {}", DefaultJsonMapper.toJson(imDokumentData));
+            throw new TekniskException("K9INNTEKTSMELDING_1",
+                String.format("Klarte ikke å generere pdf for refusjonskrav omsorgspenger med id %s", inntektsmeldingId), e);
+        }
     }
 
     private byte[] genererPdf(InntektsmeldingPdfData imDokumentData, int inntektsmeldingId) {
