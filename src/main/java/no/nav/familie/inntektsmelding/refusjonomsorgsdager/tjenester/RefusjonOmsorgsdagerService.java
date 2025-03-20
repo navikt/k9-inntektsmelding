@@ -1,6 +1,10 @@
 package no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,6 +17,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTje
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponseDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponseDto;
@@ -43,16 +48,16 @@ public class RefusjonOmsorgsdagerService {
         LOG.info("Slår opp arbeidstaker");
 
         var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now());
-        var arbeidsforholdMedOrgnavn = arbeidsforhold.stream()
+        var unikeArbeidsforhold = filtrerUnikeArbeidsforhold(arbeidsforhold);
+        var arbeidsforholdMedOrgnavn = unikeArbeidsforhold.stream()
             .map(arbeidsforholdDto -> new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(
                 arbeidsforholdDto.organisasjonsnummer(),
-                arbeidsforholdDto.arbeidsforholdId(),
                 organisasjonTjeneste.finnOrganisasjon(arbeidsforholdDto.organisasjonsnummer()).navn()
             ))
             .toList();
 
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER);
-        if (arbeidsforhold.isEmpty() || personInfo == null) {
+        if (arbeidsforholdMedOrgnavn.isEmpty() || personInfo == null) {
             return null;
         }
 
@@ -66,6 +71,13 @@ public class RefusjonOmsorgsdagerService {
             ),
             arbeidsforholdMedOrgnavn
         );
+    }
+
+    private List<ArbeidsforholdDto> filtrerUnikeArbeidsforhold(List<ArbeidsforholdDto> arbeidsforhold) {
+        Set<String> unikeOrgnr = new HashSet<>();
+        return arbeidsforhold.stream()
+            .filter(arbeidsforholdDto -> unikeOrgnr.add(arbeidsforholdDto.organisasjonsnummer()))
+            .collect(Collectors.toList());
     }
 
     public InnloggetBrukerDto hentInnloggetBruker(String organisasjonsnummer) {
