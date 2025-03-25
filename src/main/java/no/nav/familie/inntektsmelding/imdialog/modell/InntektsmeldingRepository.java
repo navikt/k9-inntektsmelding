@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.imdialog.modell;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -43,6 +44,15 @@ public class InntektsmeldingRepository {
             .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
             .setParameter("ytelsetype", ytelsetype)
             .setParameter("startDato", startDato);
+
+        return query.getResultList();
+    }
+
+    public List<InntektsmeldingEntitet> hentInntektsmeldinger(UUID forespørselUuid) {
+        var query = entityManager.createQuery(
+                "FROM InntektsmeldingEntitet where forespørselUuid = :forespørselUuid order by opprettetTidspunkt desc",
+                InntektsmeldingEntitet.class)
+            .setParameter("forespørselUuid", forespørselUuid);
 
         return query.getResultList();
     }

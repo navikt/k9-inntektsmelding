@@ -34,7 +34,7 @@ public class InntektsmeldingMapper {
         // Skjuler default konstruktør
     }
 
-    public static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingRequestDto dto) {
+    public static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingRequestDto dto, UUID forespørselUuid) {
         // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne lista.
         var refusjonPrMnd = finnFørsteRefusjon(dto.refusjon(), dto.startdato()).orElse(null);
         var opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(dto.refusjon(), dto.startdato()).orElse(Tid.TIDENES_ENDE);
@@ -50,7 +50,8 @@ public class InntektsmeldingMapper {
             .medKontaktperson(mapKontaktPerson(dto))
             .medEndringsårsaker(mapEndringsårsaker(dto.endringAvInntektÅrsaker()))
             .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(dto.bortfaltNaturalytelsePerioder()))
-            .medRefusjonsendringer(mapRefusjonsendringer(dto.startdato(), opphørsdato, dto.refusjon()));
+            .medRefusjonsendringer(mapRefusjonsendringer(dto.startdato(), opphørsdato, dto.refusjon()))
+            .medForespørselUuid(forespørselUuid);
 
         if (dto.omsorgspenger() != null) {
             inntektsmeldingBuilder.medOmsorgspenger(mapOmsorgspenger(dto.omsorgspenger()));

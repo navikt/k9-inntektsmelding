@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
@@ -83,6 +84,9 @@ public class InntektsmeldingEntitet {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private OmsorgspengerEntitet omsorgspenger;
 
+    @Column(name = "foresporsel_uuid")
+    private UUID forespørselUuid;
+
     public InntektsmeldingEntitet() {
         // Hibernate
     }
@@ -151,6 +155,10 @@ public class InntektsmeldingEntitet {
         return omsorgspenger;
     }
 
+    public UUID getForespørselUuid() {
+        return forespørselUuid;
+    }
+
     private void leggTilRefusjonsendring(RefusjonsendringEntitet refusjonsendringEntitet) {
         if (refusjonsendringer.stream().anyMatch(r -> r.getFom().equals(refusjonsendringEntitet.getFom()))) {
             throw new IllegalStateException("Det finnes allerede en refusjonsendring for denne datoen: " + refusjonsendringEntitet.getFom());
@@ -181,24 +189,34 @@ public class InntektsmeldingEntitet {
             return false;
         }
         InntektsmeldingEntitet entitet = (InntektsmeldingEntitet) o;
-        return Objects.equals(aktørId, entitet.aktørId) && ytelsetype == entitet.ytelsetype && Objects.equals(arbeidsgiverIdent,
-            entitet.arbeidsgiverIdent) && Objects.equals(startDato, entitet.startDato) && Objects.equals(opprettetTidspunkt,
-            entitet.opprettetTidspunkt);
+        return Objects.equals(aktørId, entitet.aktørId)
+            && ytelsetype == entitet.ytelsetype
+            && Objects.equals(arbeidsgiverIdent, entitet.arbeidsgiverIdent)
+            && Objects.equals(startDato, entitet.startDato)
+            && Objects.equals(opprettetTidspunkt, entitet.opprettetTidspunkt)
+            && Objects.equals(forespørselUuid, entitet.forespørselUuid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(aktørId, ytelsetype, arbeidsgiverIdent, startDato, opprettetTidspunkt);
+        return Objects.hash(aktørId, ytelsetype, arbeidsgiverIdent, startDato, opprettetTidspunkt, forespørselUuid);
     }
 
     @Override
     public String toString() {
-        return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelsetype=" + ytelsetype
-            + ", arbeidsgiverIdent='"
-            + maskerId(arbeidsgiverIdent) + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt + ", opprettetTidspunkt="
-            + opprettetTidspunkt
-            + ", refusjonendringer=" + refusjonsendringer + ", endringAvInntektÅrsaker=" + endringsårsaker + ", bortfaltNaturalYtelser="
-            + borfalteNaturalYtelser + '}';
+        return "InntektsmeldingEntitet{"
+            + "id=" + id
+            + ", aktørId=" + maskerId(aktørId.getAktørId())
+            + ", ytelsetype=" + ytelsetype
+            + ", arbeidsgiverIdent='" + maskerId(arbeidsgiverIdent) + '\''
+            + ", startDato=" + startDato
+            + ", månedInntekt=" + månedInntekt
+            + ", opprettetTidspunkt=" + opprettetTidspunkt
+            + ", refusjonendringer=" + refusjonsendringer
+            + ", endringAvInntektÅrsaker=" + endringsårsaker
+            + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser
+            + ", omorgspenger=" + omsorgspenger
+            + ", forespørselUuid=" + forespørselUuid + '}';
     }
 
     private String maskerId(String id) {
@@ -294,6 +312,11 @@ public class InntektsmeldingEntitet {
         public Builder medOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
             omsorgspenger.setInntektsmelding(kladd);
             kladd.omsorgspenger = omsorgspenger;
+            return this;
+        }
+
+        public Builder medForespørselUuid(UUID forespørselUuid) {
+            kladd.forespørselUuid = forespørselUuid;
             return this;
         }
 
