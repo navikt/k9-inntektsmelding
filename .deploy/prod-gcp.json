@@ -1,14 +1,14 @@
 {
   "environment": "prod",
   "minReplicas": "2",
-  "maxReplicas": "6",
+  "maxReplicas": "4",
   "limits": {
-    "cpu": "2",
+    "cpu": "1",
     "mem": "2048Mi"
   },
   "requests": {
-    "cpu": "200m",
-    "mem": "1024Mi"
+    "cpu": "100m",
+    "mem": "768Mi"
   },
   "ingresses": [
     "https://k9-inntektsmelding.intern.nav.no"
