@@ -48,15 +48,6 @@ public class InntektsmeldingRepository {
         return query.getResultList();
     }
 
-    public List<InntektsmeldingEntitet> hentInntektsmeldinger(UUID forespørselUuid) {
-        var query = entityManager.createQuery(
-                "FROM InntektsmeldingEntitet where forespørselUuid = :forespørselUuid order by opprettetTidspunkt desc",
-                InntektsmeldingEntitet.class)
-            .setParameter("forespørselUuid", forespørselUuid);
-
-        return query.getResultList();
-    }
-
     public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {
         return entityManager.find(InntektsmeldingEntitet.class, inntektsmeldingId);
     }

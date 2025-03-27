@@ -214,8 +214,7 @@ public class InntektsmeldingTjeneste {
 
         // for omsorgspenger ønsker vi å kun hente de inntektsmeldingene som er knyttet til forespørselen
         if (forespørsel.getYtelseType() == Ytelsetype.OMSORGSPENGER) {
-            var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldinger(forespørselUuid);
-            return inntektsmeldinger.stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid())).toList();
+            return forespørsel.getInntektsmeldinger().stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid())).toList();
         }
 
         var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldinger(forespørsel.getAktørId(),
