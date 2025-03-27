@@ -3,7 +3,6 @@ package no.nav.familie.inntektsmelding.imdialog.modell;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
