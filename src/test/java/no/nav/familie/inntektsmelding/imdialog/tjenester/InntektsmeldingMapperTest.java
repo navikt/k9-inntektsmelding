@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
@@ -34,6 +35,14 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
 
 class InntektsmeldingMapperTest {
+
+    ForespørselEntitet DUMMY_FORESPØRSEL_ENTITET = new ForespørselEntitet("999999999",
+        LocalDate.now(),
+        new AktørIdEntitet("9999999999999"),
+        Ytelsetype.PLEIEPENGER_SYKT_BARN,
+        "sak1",
+        LocalDate.now()
+    );
 
     @Test
     void skal_teste_mapping_uten_ref_og_naturalytelse() {
@@ -65,7 +74,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getMånedRefusjon()).isNull();
         assertThat(entitet.getOpphørsdatoRefusjon()).isNull();
         assertThat(entitet.getOmsorgspenger()).isNull();
-        assertThat(entitet.getForespørselUuid()).isNull();
+        assertThat(entitet.getForespørsel()).isNull();
     }
 
     @Test
@@ -85,7 +94,7 @@ class InntektsmeldingMapperTest {
             null);
 
         // Act
-        var entitet = InntektsmeldingMapper.mapTilEntitet(request, UUID.randomUUID());
+        var entitet = InntektsmeldingMapper.mapTilEntitet(request, DUMMY_FORESPØRSEL_ENTITET);
 
         // Assert
         assertThat(entitet.getAktørId().getAktørId()).isEqualTo(request.aktorId().id());
@@ -99,7 +108,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getKontaktperson().getTelefonnummer()).isEqualTo(request.kontaktperson().telefonnummer());
         assertThat(entitet.getRefusjonsendringer()).isEmpty();
         assertThat(entitet.getOmsorgspenger()).isNull();
-        assertThat(entitet.getForespørselUuid()).isNotNull();
+        assertThat(entitet.getForespørsel()).isNotNull();
     }
 
     @Test
@@ -120,7 +129,7 @@ class InntektsmeldingMapperTest {
             null);
 
         // Act
-        var entitet = InntektsmeldingMapper.mapTilEntitet(request, UUID.randomUUID());
+        var entitet = InntektsmeldingMapper.mapTilEntitet(request, DUMMY_FORESPØRSEL_ENTITET);
 
         // Assert
         assertThat(entitet.getAktørId().getAktørId()).isEqualTo(request.aktorId().id());
@@ -136,7 +145,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getRefusjonsendringer().getFirst().getFom()).isEqualTo(LocalDate.now().plusDays(5));
         assertThat(entitet.getRefusjonsendringer().getFirst().getRefusjonPrMnd()).isEqualByComparingTo(BigDecimal.valueOf(4000));
         assertThat(entitet.getOmsorgspenger()).isNull();
-        assertThat(entitet.getForespørselUuid()).isNotNull();
+        assertThat(entitet.getForespørsel()).isNotNull();
     }
 
     @Test
@@ -160,7 +169,7 @@ class InntektsmeldingMapperTest {
             null);
 
         // Act
-        var entitet = InntektsmeldingMapper.mapTilEntitet(request, UUID.randomUUID());
+        var entitet = InntektsmeldingMapper.mapTilEntitet(request, DUMMY_FORESPØRSEL_ENTITET);
 
         // Assert
         assertThat(entitet.getAktørId().getAktørId()).isEqualTo(request.aktorId().id());
@@ -189,7 +198,7 @@ class InntektsmeldingMapperTest {
             .getFirst()
             .tom());
         assertThat(entitet.getOmsorgspenger()).isNull();
-        assertThat(entitet.getForespørselUuid()).isNotNull();
+        assertThat(entitet.getForespørsel()).isNotNull();
     }
 
     @Test
@@ -214,7 +223,7 @@ class InntektsmeldingMapperTest {
             omsorgspenger);
 
         // Act
-        var entitet = InntektsmeldingMapper.mapTilEntitet(request, UUID.randomUUID());
+        var entitet = InntektsmeldingMapper.mapTilEntitet(request, DUMMY_FORESPØRSEL_ENTITET);
 
         // Assert
         assertThat(entitet.getAktørId().getAktørId()).isEqualTo(request.aktorId().id());
@@ -256,7 +265,7 @@ class InntektsmeldingMapperTest {
             omsorgspenger);
 
         // Act
-        var entitet = InntektsmeldingMapper.mapTilEntitet(request, UUID.randomUUID());
+        var entitet = InntektsmeldingMapper.mapTilEntitet(request, DUMMY_FORESPØRSEL_ENTITET);
 
         // Assert
         assertThat(entitet.getAktørId().getAktørId()).isEqualTo(request.aktorId().id());

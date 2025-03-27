@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
@@ -19,10 +18,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -84,8 +86,9 @@ public class InntektsmeldingEntitet {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private OmsorgspengerEntitet omsorgspenger;
 
-    @Column(name = "foresporsel_uuid")
-    private UUID forespørselUuid;
+    @ManyToOne()
+    @JoinColumn(name = "foresporsel_id")
+    private ForespørselEntitet forespørsel;
 
     public InntektsmeldingEntitet() {
         // Hibernate
@@ -155,8 +158,8 @@ public class InntektsmeldingEntitet {
         return omsorgspenger;
     }
 
-    public UUID getForespørselUuid() {
-        return forespørselUuid;
+    public ForespørselEntitet getForespørsel() {
+        return forespørsel;
     }
 
     private void leggTilRefusjonsendring(RefusjonsendringEntitet refusjonsendringEntitet) {
@@ -194,12 +197,12 @@ public class InntektsmeldingEntitet {
             && Objects.equals(arbeidsgiverIdent, entitet.arbeidsgiverIdent)
             && Objects.equals(startDato, entitet.startDato)
             && Objects.equals(opprettetTidspunkt, entitet.opprettetTidspunkt)
-            && Objects.equals(forespørselUuid, entitet.forespørselUuid);
+            && Objects.equals(forespørsel, entitet.forespørsel);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(aktørId, ytelsetype, arbeidsgiverIdent, startDato, opprettetTidspunkt, forespørselUuid);
+        return Objects.hash(aktørId, ytelsetype, arbeidsgiverIdent, startDato, opprettetTidspunkt, forespørsel);
     }
 
     @Override
@@ -216,7 +219,7 @@ public class InntektsmeldingEntitet {
             + ", endringAvInntektÅrsaker=" + endringsårsaker
             + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser
             + ", omorgspenger=" + omsorgspenger
-            + ", forespørselUuid=" + forespørselUuid + '}';
+            + ", forespørselId=" + forespørsel + '}';
     }
 
     private String maskerId(String id) {
@@ -315,8 +318,8 @@ public class InntektsmeldingEntitet {
             return this;
         }
 
-        public Builder medForespørselUuid(UUID forespørselUuid) {
-            kladd.forespørselUuid = forespørselUuid;
+        public Builder medForespørsel(ForespørselEntitet forespørsel) {
+            kladd.forespørsel = forespørsel;
             return this;
         }
 
