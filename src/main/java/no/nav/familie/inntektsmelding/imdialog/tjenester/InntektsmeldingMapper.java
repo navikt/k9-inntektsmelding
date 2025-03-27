@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
@@ -34,7 +35,7 @@ public class InntektsmeldingMapper {
         // Skjuler default konstruktør
     }
 
-    public static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingRequestDto dto) {
+    public static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingRequestDto dto, ForespørselEntitet forespørsel) {
         // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne lista.
         var refusjonPrMnd = finnFørsteRefusjon(dto.refusjon(), dto.startdato()).orElse(null);
         var opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(dto.refusjon(), dto.startdato()).orElse(Tid.TIDENES_ENDE);
@@ -50,7 +51,8 @@ public class InntektsmeldingMapper {
             .medKontaktperson(mapKontaktPerson(dto))
             .medEndringsårsaker(mapEndringsårsaker(dto.endringAvInntektÅrsaker()))
             .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(dto.bortfaltNaturalytelsePerioder()))
-            .medRefusjonsendringer(mapRefusjonsendringer(dto.startdato(), opphørsdato, dto.refusjon()));
+            .medRefusjonsendringer(mapRefusjonsendringer(dto.startdato(), opphørsdato, dto.refusjon()))
+            .medForespørsel(forespørsel);
 
         if (dto.omsorgspenger() != null) {
             inntektsmeldingBuilder.medOmsorgspenger(mapOmsorgspenger(dto.omsorgspenger()));

@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.forespørsel.modell;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,13 +13,16 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -70,6 +74,9 @@ public class ForespørselEntitet {
 
     @Column(name = "endret_tid")
     private LocalDateTime endretTidspunkt;
+
+    @OneToMany(mappedBy = "forespørsel", fetch = FetchType.LAZY)
+    private List<InntektsmeldingEntitet> inntektsmeldinger;
 
     public ForespørselEntitet(String organisasjonsnummer,
                               LocalDate skjæringstidspunkt,
@@ -152,6 +159,10 @@ public class ForespørselEntitet {
 
     public Optional<LocalDate> getFørsteUttaksdato() {
         return Optional.ofNullable(førsteUttaksdato);
+    }
+
+    public List<InntektsmeldingEntitet> getInntektsmeldinger() {
+        return inntektsmeldinger;
     }
 
     @Override

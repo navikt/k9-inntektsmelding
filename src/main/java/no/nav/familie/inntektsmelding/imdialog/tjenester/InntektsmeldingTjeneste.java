@@ -83,7 +83,7 @@ public class InntektsmeldingTjeneste {
 
         var aktorId = new AktørIdEntitet(mottattInntektsmeldingDto.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
-        var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto);
+        var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto, forespørselEntitet);
         var imId = lagreOgLagJournalførTask(entitet, forespørselEntitet);
         var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(mottattInntektsmeldingDto.foresporselUuid(), aktorId, orgnummer,
             mottattInntektsmeldingDto.startdato(), LukkeÅrsak.ORDINÆR_INNSENDING);
@@ -114,7 +114,7 @@ public class InntektsmeldingTjeneste {
         var forespørselEnitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Mangler forespørsel entitet"));
 
-        var imEnitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequestDto);
+        var imEnitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequestDto, forespørselEnitet);
         var imId = lagreOgLagJournalførTask(imEnitet, forespørselEnitet);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer,
@@ -210,6 +210,12 @@ public class InntektsmeldingTjeneste {
         var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(
                 () -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
+
+
+        // for omsorgspenger ønsker vi å kun hente de inntektsmeldingene som er knyttet til forespørselen
+        if (forespørsel.getYtelseType() == Ytelsetype.OMSORGSPENGER) {
+            return forespørsel.getInntektsmeldinger().stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid())).toList();
+        }
 
         var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldinger(forespørsel.getAktørId(),
             forespørsel.getOrganisasjonsnummer(),

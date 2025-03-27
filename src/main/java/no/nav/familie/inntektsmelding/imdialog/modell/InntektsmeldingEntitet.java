@@ -18,10 +18,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -82,6 +85,10 @@ public class InntektsmeldingEntitet {
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private OmsorgspengerEntitet omsorgspenger;
+
+    @ManyToOne()
+    @JoinColumn(name = "foresporsel_id", updatable = false)
+    private ForespørselEntitet forespørsel;
 
     public InntektsmeldingEntitet() {
         // Hibernate
@@ -151,6 +158,10 @@ public class InntektsmeldingEntitet {
         return omsorgspenger;
     }
 
+    public ForespørselEntitet getForespørsel() {
+        return forespørsel;
+    }
+
     private void leggTilRefusjonsendring(RefusjonsendringEntitet refusjonsendringEntitet) {
         if (refusjonsendringer.stream().anyMatch(r -> r.getFom().equals(refusjonsendringEntitet.getFom()))) {
             throw new IllegalStateException("Det finnes allerede en refusjonsendring for denne datoen: " + refusjonsendringEntitet.getFom());
@@ -181,24 +192,34 @@ public class InntektsmeldingEntitet {
             return false;
         }
         InntektsmeldingEntitet entitet = (InntektsmeldingEntitet) o;
-        return Objects.equals(aktørId, entitet.aktørId) && ytelsetype == entitet.ytelsetype && Objects.equals(arbeidsgiverIdent,
-            entitet.arbeidsgiverIdent) && Objects.equals(startDato, entitet.startDato) && Objects.equals(opprettetTidspunkt,
-            entitet.opprettetTidspunkt);
+        return Objects.equals(aktørId, entitet.aktørId)
+            && ytelsetype == entitet.ytelsetype
+            && Objects.equals(arbeidsgiverIdent, entitet.arbeidsgiverIdent)
+            && Objects.equals(startDato, entitet.startDato)
+            && Objects.equals(opprettetTidspunkt, entitet.opprettetTidspunkt)
+            && Objects.equals(forespørsel, entitet.forespørsel);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(aktørId, ytelsetype, arbeidsgiverIdent, startDato, opprettetTidspunkt);
+        return Objects.hash(aktørId, ytelsetype, arbeidsgiverIdent, startDato, opprettetTidspunkt, forespørsel);
     }
 
     @Override
     public String toString() {
-        return "InntektsmeldingEntitet{" + "id=" + id + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelsetype=" + ytelsetype
-            + ", arbeidsgiverIdent='"
-            + maskerId(arbeidsgiverIdent) + '\'' + ", startDato=" + startDato + ", månedInntekt=" + månedInntekt + ", opprettetTidspunkt="
-            + opprettetTidspunkt
-            + ", refusjonendringer=" + refusjonsendringer + ", endringAvInntektÅrsaker=" + endringsårsaker + ", bortfaltNaturalYtelser="
-            + borfalteNaturalYtelser + '}';
+        return "InntektsmeldingEntitet{"
+            + "id=" + id
+            + ", aktørId=" + maskerId(aktørId.getAktørId())
+            + ", ytelsetype=" + ytelsetype
+            + ", arbeidsgiverIdent='" + maskerId(arbeidsgiverIdent) + '\''
+            + ", startDato=" + startDato
+            + ", månedInntekt=" + månedInntekt
+            + ", opprettetTidspunkt=" + opprettetTidspunkt
+            + ", refusjonendringer=" + refusjonsendringer
+            + ", endringAvInntektÅrsaker=" + endringsårsaker
+            + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser
+            + ", omorgspenger=" + omsorgspenger
+            + ", forespørselId=" + forespørsel + '}';
     }
 
     private String maskerId(String id) {
@@ -294,6 +315,11 @@ public class InntektsmeldingEntitet {
         public Builder medOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
             omsorgspenger.setInntektsmelding(kladd);
             kladd.omsorgspenger = omsorgspenger;
+            return this;
+        }
+
+        public Builder medForespørsel(ForespørselEntitet forespørsel) {
+            kladd.forespørsel = forespørsel;
             return this;
         }
 
