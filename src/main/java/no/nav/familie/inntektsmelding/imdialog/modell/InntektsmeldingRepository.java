@@ -31,8 +31,9 @@ public class InntektsmeldingRepository {
         return inntektsmeldingEntitet.getId();
     }
 
-    public InntektsmeldingEntitet oppdaterInntektsmelding(InntektsmeldingEntitet inntektsmeldingEntitet) {
-        return entityManager.merge(inntektsmeldingEntitet);
+    public void oppdaterInntektsmelding(InntektsmeldingEntitet inntektsmeldingEntitet) {
+        entityManager.merge(inntektsmeldingEntitet);
+        entityManager.flush();
     }
 
     public Optional<InntektsmeldingEntitet> hentSisteInntektsmelding(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato, Ytelsetype ytelsetype) {
