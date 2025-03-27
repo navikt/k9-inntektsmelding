@@ -13,6 +13,7 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -74,7 +75,7 @@ public class ForespørselEntitet {
     @Column(name = "endret_tid")
     private LocalDateTime endretTidspunkt;
 
-    @OneToMany(mappedBy = "forespørsel")
+    @OneToMany(mappedBy = "forespørsel", fetch = FetchType.LAZY)
     private List<InntektsmeldingEntitet> inntektsmeldinger;
 
     public ForespørselEntitet(String organisasjonsnummer,
