@@ -31,6 +31,11 @@ public class InntektsmeldingRepository {
         return inntektsmeldingEntitet.getId();
     }
 
+    public void oppdaterInntektsmelding(InntektsmeldingEntitet inntektsmeldingEntitet) {
+        entityManager.merge(inntektsmeldingEntitet);
+        entityManager.flush();
+    }
+
     public Optional<InntektsmeldingEntitet> hentSisteInntektsmelding(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato, Ytelsetype ytelsetype) {
         return hentInntektsmeldinger(aktørId, arbeidsgiverIdent,  startDato, ytelsetype).stream().findFirst();
     }
