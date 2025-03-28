@@ -224,7 +224,24 @@ public class InntektsmeldingTjeneste {
         return inntektsmeldinger.stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid())).toList();
     }
 
-    public byte[] hentPDF(long id) {
+    public List<InntektsmeldingResponseDto> hentInntektsmeldingerForÅr(UUID forespørselUuid) {
+        var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
+            .orElseThrow(
+                () -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
+
+        var år = forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt).getYear();
+
+        var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldingerForÅr(forespørsel.getAktørId(),
+            forespørsel.getOrganisasjonsnummer(),
+            år,
+            forespørsel.getYtelseType());
+
+        return inntektsmeldinger.stream()
+            .map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid()))
+            .toList();
+    }
+
+        public byte[] hentPDF(long id) {
         var inntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(id);
         return k9DokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet);
     }
