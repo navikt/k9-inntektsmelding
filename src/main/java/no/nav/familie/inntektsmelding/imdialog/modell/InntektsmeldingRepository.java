@@ -52,6 +52,18 @@ public class InntektsmeldingRepository {
         return query.getResultList();
     }
 
+    public List<InntektsmeldingEntitet> hentInntektsmeldingerForÅr(AktørIdEntitet aktørId, String arbeidsgiverIdent, int år, Ytelsetype ytelsetype) {
+        var query = entityManager.createQuery(
+                "FROM InntektsmeldingEntitet where aktørId = :brukerAktørId and ytelsetype = :ytelsetype and arbeidsgiverIdent = :arbeidsgiverIdent and EXTRACT(YEAR FROM startDato) = :år order by opprettetTidspunkt desc",
+                InntektsmeldingEntitet.class)
+            .setParameter("brukerAktørId", aktørId)
+            .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
+            .setParameter("ytelsetype", ytelsetype)
+            .setParameter("år", år);
+
+        return query.getResultList();
+    }
+
     public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {
         return entityManager.find(InntektsmeldingEntitet.class, inntektsmeldingId);
     }

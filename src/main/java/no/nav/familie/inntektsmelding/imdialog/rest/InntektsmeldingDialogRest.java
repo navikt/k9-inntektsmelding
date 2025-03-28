@@ -37,6 +37,7 @@ public class InntektsmeldingDialogRest {
     public static final String BASE_PATH = "/imdialog";
     private static final String HENT_OPPLYSNINGER = "/opplysninger";
     private static final String HENT_INNTEKTSMELDINGER_FOR_OPPGAVE = "/inntektsmeldinger";
+    private static final String HENT_INNTEKTSMELDINGER_FOR_ÅR = "/inntektsmeldinger-for-aar";
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
     private static final String SEND_INNTEKTSMELDING_OMS_REFUSJON = "/send-inntektsmelding/omsorgspenger-refusjon";
     private static final String LAST_NED_PDF = "/last-ned-pdf";
@@ -76,6 +77,18 @@ public class InntektsmeldingDialogRest {
 
         LOG.info("Henter inntektsmeldinger for forespørsel {}", forespørselUuid);
         var dto = inntektsmeldingTjeneste.hentInntektsmeldinger(forespørselUuid);
+        return Response.ok(dto).build();
+    }
+
+    @GET
+    @Path(HENT_INNTEKTSMELDINGER_FOR_ÅR)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentInntektsmeldingerForÅr(@NotNull @Valid @QueryParam("foresporselUuid") UUID forespørselUuid) {
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
+
+        LOG.info("Henter inntektsmeldinger for år for forespørsel {}", forespørselUuid);
+        var dto = inntektsmeldingTjeneste.hentInntektsmeldingerForÅr(forespørselUuid);
         return Response.ok(dto).build();
     }
 
