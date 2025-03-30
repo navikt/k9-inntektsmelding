@@ -16,7 +16,12 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,11 +89,18 @@ public class InntektsmeldingDialogRest {
     @Path(HENT_INNTEKTSMELDINGER_FOR_ÅR)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
-    public Response hentInntektsmeldingerForÅr(@NotNull @Valid @QueryParam("foresporselUuid") UUID forespørselUuid) {
-        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
+    public Response hentInntektsmeldingerForÅr(@NotNull @Valid AktørIdDto aktorId,
+                                               @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
+                                               @NotNull @Valid @QueryParam("år") int år) {
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(arbeidsgiverIdent.ident()));
 
-        LOG.info("Henter inntektsmeldinger for år for forespørsel {}", forespørselUuid);
-        var dto = inntektsmeldingTjeneste.hentInntektsmeldingerForÅr(forespørselUuid);
+        LOG.info("Henter inntektsmeldinger for år for organisasjon {}", arbeidsgiverIdent.ident());
+
+        // denne metoden vil kun bli brukt for omsorgspenger da de har fagsak som strekker seg over ett år
+        var dto = inntektsmeldingTjeneste.hentInntektsmeldingerForÅr(new AktørIdEntitet(aktorId.id()),
+            arbeidsgiverIdent.ident(),
+            år,
+            Ytelsetype.OMSORGSPENGER);
         return Response.ok(dto).build();
     }
 

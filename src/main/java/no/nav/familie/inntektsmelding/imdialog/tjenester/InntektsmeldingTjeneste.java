@@ -224,20 +224,23 @@ public class InntektsmeldingTjeneste {
         return inntektsmeldinger.stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid())).toList();
     }
 
-    public List<InntektsmeldingResponseDto> hentInntektsmeldingerForÅr(UUID forespørselUuid) {
-        var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
+    public List<InntektsmeldingResponseDto> hentInntektsmeldingerForÅr(AktørIdEntitet aktørId,
+                                                                       String arbeidsgiverIdent,
+                                                                       int år,
+                                                                       Ytelsetype ytelsetype) {
+
+        // da denne koden er kun for GUI så er det ikke så viktig at forespørsel stemmer
+        var førsteForespørsel = forespørselBehandlingTjeneste.finnForespørsler(aktørId, ytelsetype, arbeidsgiverIdent).stream().findFirst()
             .orElseThrow(
-                () -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
+                () -> new IllegalStateException("Prøver å hente en forespørsel som ikke finnes, for orgNr: " + arbeidsgiverIdent));
 
-        var år = forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt).getYear();
-
-        var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldingerForÅr(forespørsel.getAktørId(),
-            forespørsel.getOrganisasjonsnummer(),
+        var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldingerForÅr(aktørId,
+            arbeidsgiverIdent,
             år,
-            forespørsel.getYtelseType());
+            ytelsetype);
 
         return inntektsmeldinger.stream()
-            .map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid()))
+            .map(im -> InntektsmeldingMapper.mapFraEntitet(im, førsteForespørsel.getUuid()))
             .toList();
     }
 
