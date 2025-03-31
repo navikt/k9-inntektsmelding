@@ -229,10 +229,15 @@ public class InntektsmeldingTjeneste {
                                                                        int år,
                                                                        Ytelsetype ytelsetype) {
 
+        var forespørsler = forespørselBehandlingTjeneste.finnForespørsler(aktørId, ytelsetype, arbeidsgiverIdent);
+
+        // dersom det ikke finnes noen forespørsler er det ikke noe for GUI å vise
+        if (forespørsler.isEmpty()) {
+            return List.of();
+        }
+
         // da denne koden er kun for GUI så er det ikke så viktig at forespørsel stemmer
-        var førsteForespørsel = forespørselBehandlingTjeneste.finnForespørsler(aktørId, ytelsetype, arbeidsgiverIdent).stream().findFirst()
-            .orElseThrow(
-                () -> new IllegalStateException("Prøver å hente en forespørsel som ikke finnes, for orgNr: " + arbeidsgiverIdent));
+        var førsteForespørsel = forespørsler.stream().findFirst();
 
         var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldingerForÅr(aktørId,
             arbeidsgiverIdent,
@@ -240,7 +245,7 @@ public class InntektsmeldingTjeneste {
             ytelsetype);
 
         return inntektsmeldinger.stream()
-            .map(im -> InntektsmeldingMapper.mapFraEntitet(im, førsteForespørsel.getUuid()))
+            .map(im -> InntektsmeldingMapper.mapFraEntitet(im, førsteForespørsel.get().getUuid()))
             .toList();
     }
 

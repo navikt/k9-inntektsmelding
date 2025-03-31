@@ -89,8 +89,8 @@ public class InntektsmeldingDialogRest {
     @Path(HENT_INNTEKTSMELDINGER_FOR_ÅR)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
-    public Response hentInntektsmeldingerForÅr(@NotNull @Valid AktørIdDto aktorId,
-                                               @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
+    public Response hentInntektsmeldingerForÅr(@NotNull @Valid @QueryParam("aktørId") AktørIdDto aktorId,
+                                               @NotNull @Valid @QueryParam("arbeidsgiverIdent") ArbeidsgiverDto arbeidsgiverIdent,
                                                @NotNull @Valid @QueryParam("år") int år) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(arbeidsgiverIdent.ident()));
 
