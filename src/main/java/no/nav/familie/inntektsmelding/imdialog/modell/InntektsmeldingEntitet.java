@@ -87,7 +87,7 @@ public class InntektsmeldingEntitet {
     private OmsorgspengerEntitet omsorgspenger;
 
     @ManyToOne()
-    @JoinColumn(name = "foresporsel_id")
+    @JoinColumn(name = "foresporsel_id", nullable = false)
     private ForespørselEntitet forespørsel;
 
     public InntektsmeldingEntitet() {
