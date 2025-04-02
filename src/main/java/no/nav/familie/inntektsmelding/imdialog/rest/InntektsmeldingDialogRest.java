@@ -6,7 +6,9 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -16,7 +18,10 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +42,7 @@ public class InntektsmeldingDialogRest {
     public static final String BASE_PATH = "/imdialog";
     private static final String HENT_OPPLYSNINGER = "/opplysninger";
     private static final String HENT_INNTEKTSMELDINGER_FOR_OPPGAVE = "/inntektsmeldinger";
+    private static final String HENT_INNTEKTSMELDINGER_FOR_ÅR = "/inntektsmeldinger-for-aar";
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
     private static final String SEND_INNTEKTSMELDING_OMS_REFUSJON = "/send-inntektsmelding/omsorgspenger-refusjon";
     private static final String LAST_NED_PDF = "/last-ned-pdf";
@@ -76,6 +82,26 @@ public class InntektsmeldingDialogRest {
 
         LOG.info("Henter inntektsmeldinger for forespørsel {}", forespørselUuid);
         var dto = inntektsmeldingTjeneste.hentInntektsmeldinger(forespørselUuid);
+        return Response.ok(dto).build();
+    }
+
+    @GET
+    @Path(HENT_INNTEKTSMELDINGER_FOR_ÅR)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentInntektsmeldingerForÅr(@NotNull @Valid @Digits(integer = 19, fraction = 0) @Pattern(regexp = "^\\d+$") @QueryParam("aktørId") String aktorId,
+                                               @NotNull @Valid @Digits(integer = 13, fraction = 0) @Pattern(regexp = "^([0-9]{9}|[0-9]{13})$") @QueryParam("arbeidsgiverIdent") String arbeidsgiverIdent,
+                                               @NotNull @Valid @QueryParam("år") int år) {
+
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(arbeidsgiverIdent));
+
+        LOG.info("Henter inntektsmeldinger for år for organisasjon {}", arbeidsgiverIdent);
+
+        // denne metoden vil kun bli brukt for omsorgspenger da de har fagsak som strekker seg over ett år
+        var dto = inntektsmeldingTjeneste.hentInntektsmeldingerForÅr(new AktørIdEntitet(aktorId),
+            arbeidsgiverIdent,
+            år,
+            Ytelsetype.OMSORGSPENGER);
         return Response.ok(dto).build();
     }
 

@@ -358,5 +358,83 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         assertThat(etterLagring.get(1).getKontaktperson().getNavn()).isEqualTo(im1.getKontaktperson().getNavn());
     }
 
+    @Test
+    void skal_hente_alle_im_for_ett_gitt_år() {
+        // Arrange
+        var aktørId = new AktørIdEntitet("9999999999999");
+        var arbeidsgiverIdent = "999999999";
+        var startDato2025 = LocalDate.now();
+        var startDato2024 = LocalDate.now().minusYears(1);
+
+        var im1 = InntektsmeldingEntitet.builder()
+            .medAktørId(aktørId)
+            .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
+            .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(startDato2025)
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(startDato2025.plusDays(10), BigDecimal.valueOf(2000))))
+            .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
+            .build();
+
+        var im2 = InntektsmeldingEntitet.builder()
+            .medAktørId(aktørId)
+            .medKontaktperson(new KontaktpersonEntitet("Andre", "999999999"))
+            .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(startDato2025)
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(startDato2025.plusDays(10), BigDecimal.valueOf(2000))))
+            .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(2))
+            .build();
+
+        var im3RiktigÅrMenAnnenAktørId = InntektsmeldingEntitet.builder()
+            .medAktørId(new AktørIdEntitet("1234567891111"))
+            .medKontaktperson(new KontaktpersonEntitet("Tredje", "999999999"))
+            .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(startDato2025)
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(startDato2025.plusDays(10), BigDecimal.valueOf(2000))))
+            .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(3))
+            .build();
+
+        var im4i2024 = InntektsmeldingEntitet.builder()
+            .medAktørId(aktørId)
+            .medKontaktperson(new KontaktpersonEntitet("Fjerde", "999999999"))
+            .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medMånedInntekt(BigDecimal.valueOf(4000))
+            .medMånedRefusjon(BigDecimal.valueOf(4000))
+            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
+            .medStartDato(startDato2024)
+            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(startDato2024.plusDays(10), BigDecimal.valueOf(2000))))
+            .medArbeidsgiverIdent(arbeidsgiverIdent)
+            .medOpprettetTidspunkt(LocalDateTime.now().minusYears(1).plusDays(4))
+            .build();
+
+        // Act
+        inntektsmeldingRepository.lagreInntektsmelding(im1);
+        inntektsmeldingRepository.lagreInntektsmelding(im2);
+        inntektsmeldingRepository.lagreInntektsmelding(im3RiktigÅrMenAnnenAktørId);
+        inntektsmeldingRepository.lagreInntektsmelding(im4i2024);
+
+        var etterLagring = inntektsmeldingRepository.hentInntektsmeldingerForÅr(aktørId, arbeidsgiverIdent, 2025, Ytelsetype.OMSORGSPENGER);
+
+        // Assert
+        assertThat(etterLagring).hasSize(2);
+        assertThat(etterLagring.getFirst().getStartDato().getYear()).isEqualTo(2025);
+        assertThat(etterLagring.getFirst().getAktørId()).isEqualTo(aktørId);
+        assertThat(etterLagring.getFirst().getArbeidsgiverIdent()).isEqualTo(arbeidsgiverIdent);
+        assertThat(etterLagring.getLast().getStartDato().getYear()).isEqualTo(2025);
+        assertThat(etterLagring.getLast().getAktørId()).isEqualTo(aktørId);
+        assertThat(etterLagring.getLast().getArbeidsgiverIdent()).isEqualTo(arbeidsgiverIdent);
+    }
+
 
 }

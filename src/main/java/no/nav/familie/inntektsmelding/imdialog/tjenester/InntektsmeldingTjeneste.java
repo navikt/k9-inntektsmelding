@@ -86,7 +86,7 @@ public class InntektsmeldingTjeneste {
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto, forespørselEntitet);
         var imId = lagreOgLagJournalførTask(entitet, forespørselEntitet);
         var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(mottattInntektsmeldingDto.foresporselUuid(), aktorId, orgnummer,
-            mottattInntektsmeldingDto.startdato(), LukkeÅrsak.ORDINÆR_INNSENDING);
+            LukkeÅrsak.ORDINÆR_INNSENDING, List.of(), List.of());
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
 
@@ -118,7 +118,7 @@ public class InntektsmeldingTjeneste {
         var imId = lagreOgLagJournalførTask(imEnitet, forespørselEnitet);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer,
-            sendInntektsmeldingRequestDto.startdato(), LukkeÅrsak.ORDINÆR_INNSENDING);
+            LukkeÅrsak.ORDINÆR_INNSENDING, imEnitet.getOmsorgspenger().getFraværsPerioder(), imEnitet.getOmsorgspenger().getDelvisFraværsPerioder());
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
 
@@ -224,7 +224,32 @@ public class InntektsmeldingTjeneste {
         return inntektsmeldinger.stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid())).toList();
     }
 
-    public byte[] hentPDF(long id) {
+    public List<InntektsmeldingResponseDto> hentInntektsmeldingerForÅr(AktørIdEntitet aktørId,
+                                                                       String arbeidsgiverIdent,
+                                                                       int år,
+                                                                       Ytelsetype ytelsetype) {
+
+        var forespørsler = forespørselBehandlingTjeneste.finnForespørsler(aktørId, ytelsetype, arbeidsgiverIdent);
+
+        // dersom det ikke finnes noen forespørsler er det ikke noe for GUI å vise
+        if (forespørsler.isEmpty()) {
+            return List.of();
+        }
+
+        // da denne koden er kun for GUI så er det ikke så viktig at forespørsel stemmer
+        var førsteForespørsel = forespørsler.stream().findFirst();
+
+        var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldingerForÅr(aktørId,
+            arbeidsgiverIdent,
+            år,
+            ytelsetype);
+
+        return inntektsmeldinger.stream()
+            .map(im -> InntektsmeldingMapper.mapFraEntitet(im, førsteForespørsel.get().getUuid()))
+            .toList();
+    }
+
+        public byte[] hentPDF(long id) {
         var inntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(id);
         return k9DokgenTjeneste.mapDataOgGenererPdf(inntektsmeldingEntitet);
     }
