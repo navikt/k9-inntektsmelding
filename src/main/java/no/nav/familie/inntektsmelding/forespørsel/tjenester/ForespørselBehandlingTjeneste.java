@@ -406,13 +406,6 @@ public class ForespørselBehandlingTjeneste {
             .max(Comparator.comparing(f -> f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt())));
     }
 
-    private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {
-        var datoÅMatcheMot = forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt);
-        if (!datoÅMatcheMot.equals(startdato)) {
-            throw new IllegalStateException("Startdato var ikke like");
-        }
-    }
-
     private void validerOrganisasjon(ForespørselEntitet forespørsel, OrganisasjonsnummerDto orgnummer) {
         if (!forespørsel.getOrganisasjonsnummer().equals(orgnummer.orgnr())) {
             throw new IllegalStateException("Organisasjonsnummer var ikke like");
