@@ -112,8 +112,9 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
             new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            SKJÆRINGSTIDSPUNKT,
-            LukkeÅrsak.EKSTERN_INNSENDING);
+            LukkeÅrsak.EKSTERN_INNSENDING,
+            List.of(),
+            List.of());
 
         clearHibernateCache();
 
@@ -130,8 +131,9 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
             new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            FØRSTE_UTTAKSDATO,
-            LukkeÅrsak.EKSTERN_INNSENDING);
+            LukkeÅrsak.EKSTERN_INNSENDING,
+            List.of(),
+            List.of());
 
         clearHibernateCache();
 

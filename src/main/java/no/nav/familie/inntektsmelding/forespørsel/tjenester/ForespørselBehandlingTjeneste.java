@@ -12,6 +12,9 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,20 +73,28 @@ public class ForespørselBehandlingTjeneste {
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
                                                      AktørIdEntitet aktorId,
                                                      OrganisasjonsnummerDto organisasjonsnummerDto,
-                                                     LocalDate startdato,
-                                                     LukkeÅrsak årsak) {
+                                                     LukkeÅrsak årsak,
+                                                     List<FraværsPeriodeEntitet> fraværsPerioder,
+                                                     List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
         var foresporsel = forespørselTjeneste.hentForespørsel(foresporselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
 
         validerAktør(foresporsel, aktorId);
         validerOrganisasjon(foresporsel, organisasjonsnummerDto);
-        validerStartdato(foresporsel, startdato);
 
         // Arbeidsgiverinitierte forespørsler har ingen oppgave
         foresporsel.getOppgaveId().ifPresent(oppgaveId -> arbeidsgiverNotifikasjon.oppgaveUtført(oppgaveId, OffsetDateTime.now()));
 
-        var erOmsorgspengerRefusjon = foresporsel.getOppgaveId().isEmpty();
+        var erOmsorgspengerRefusjon = foresporsel.getYtelseType().equals(Ytelsetype.OMSORGSPENGER);
         arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(), erOmsorgspengerRefusjon); // Oppdaterer status i arbeidsgiver-notifikasjon
+
+        String tilleggsinformasjon;
+        if (erOmsorgspengerRefusjon) {
+            tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjonForOmsorgspengerRefusjon(fraværsPerioder, delvisFraværDag);
+        } else {
+            tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjon(årsak, foresporsel.getSkjæringstidspunkt());
+        }
+        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(), tilleggsinformasjon);
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
             ForespørselTekster.lagTilleggsInformasjon(årsak, foresporsel.getSkjæringstidspunkt()));
         forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
@@ -328,8 +339,7 @@ public class ForespørselBehandlingTjeneste {
             var lukketForespørsel = ferdigstillForespørsel(f.getUuid(),
                 f.getAktørId(),
                 new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()),
-                f.getFørsteUttaksdato().orElseGet(f::getSkjæringstidspunkt),
-                LukkeÅrsak.EKSTERN_INNSENDING);
+                LukkeÅrsak.EKSTERN_INNSENDING, List.of(), List.of());
             MetrikkerTjeneste.loggForespørselLukkEkstern(lukketForespørsel);
         });
     }
@@ -394,13 +404,6 @@ public class ForespørselBehandlingTjeneste {
         return finnForespørslerForAktørId(aktørId, ytelseType).stream()
             .filter(f -> f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt()).isBefore(startdato))
             .max(Comparator.comparing(f -> f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt())));
-    }
-
-    private void validerStartdato(ForespørselEntitet forespørsel, LocalDate startdato) {
-        var datoÅMatcheMot = forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt);
-        if (!datoÅMatcheMot.equals(startdato)) {
-            throw new IllegalStateException("Startdato var ikke like");
-        }
     }
 
     private void validerOrganisasjon(ForespørselEntitet forespørsel, OrganisasjonsnummerDto orgnummer) {

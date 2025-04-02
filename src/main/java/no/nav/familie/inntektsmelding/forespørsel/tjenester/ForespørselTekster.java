@@ -2,8 +2,14 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
+
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,6 +26,7 @@ class ForespørselTekster {
     private static final String TILLEGGSINFORMASJON_UTFØRT_EKSTERN = "Utført i Altinn eller i bedriftens lønns- og personalsystem for første fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_UTGÅTT = "Du trenger ikke lenger sende inntektsmelding for første fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_ORDINÆR = "For første fraværsdag %s";
+    private static final String TILLEGGSINFORMASJON_OMS_REFUSJON = "For %s.";
 
     private ForespørselTekster() {
         // Skjuler default
@@ -37,6 +44,33 @@ class ForespørselTekster {
         };
     }
 
+    public static String lagTilleggsInformasjonForOmsorgspengerRefusjon(List<FraværsPeriodeEntitet> fraværsPerioder,
+                                                                        List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
+        List<LocalDate> fravær = sammenstillFravær(fraværsPerioder, delvisFraværDag);
+        return String.format(TILLEGGSINFORMASJON_OMS_REFUSJON,
+            fravær
+            .stream()
+            .map(date -> date.format(DateTimeFormatter.ofPattern("dd.MM.yy")))
+            .collect(Collectors.joining(", ")));
+    }
+
+    private static List<LocalDate> sammenstillFravær(List<FraværsPeriodeEntitet> fraværsPerioder,
+                                              List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
+        List<LocalDate> fravær = new ArrayList<>();
+        for (FraværsPeriodeEntitet fraværsPeriode : fraværsPerioder) {
+            LocalDate fraværsDato = fraværsPeriode.getPeriode().getFom();
+            while (fraværsDato.isBefore(fraværsPeriode.getPeriode().getTom()) || fraværsDato.isEqual(fraværsPeriode.getPeriode().getTom())) {
+                fravær.add(fraværsDato);
+                fraværsDato = fraværsDato.plusDays(1);
+            }
+        }
+        fravær.addAll(delvisFraværDag
+            .stream()
+            .map(DelvisFraværsPeriodeEntitet::getDato)
+            .toList());
+        fravær.sort(Comparator.naturalOrder());
+        return fravær;
+    }
     public static String lagOppgaveTekst(Ytelsetype ytelseType) {
         return String.format(OPPGAVE_TEKST_NY, mapYtelsestypeNavn(ytelseType));
     }
