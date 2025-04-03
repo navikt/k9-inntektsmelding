@@ -94,9 +94,8 @@ public class ForespørselBehandlingTjeneste {
         } else {
             tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjon(årsak, foresporsel.getSkjæringstidspunkt());
         }
+
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(), tilleggsinformasjon);
-        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(),
-            ForespørselTekster.lagTilleggsInformasjon(årsak, foresporsel.getSkjæringstidspunkt()));
         forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
         return foresporsel;
     }
