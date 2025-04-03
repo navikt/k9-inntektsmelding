@@ -10,9 +10,6 @@ import java.util.stream.Collectors;
 
 import jakarta.ws.rs.ApplicationPath;
 
-import no.nav.familie.inntektsmelding.forvaltning.ForespørselForvaltningRestTjeneste;
-import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogRest;
-
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
@@ -24,6 +21,7 @@ import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
+import no.nav.familie.inntektsmelding.forvaltning.ForespørselForvaltningRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.K9DokgenRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.OppgaverForvaltningRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.ProsessTaskRestTjeneste;
@@ -72,9 +70,9 @@ public class ForvaltningApiConfig extends ResourceConfig {
         var oas = new OpenAPI();
         var info = new Info().title(ENV.getNaisAppName())
             .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
-            .description("REST grensesnitt for fp-inntektsmelding.");
+            .description("REST grensesnitt for k9-inntektsmelding.");
 
-        oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpinntektsmelding")));
+        oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/k9-inntektsmelding")));
         var oasConfig = new SwaggerConfiguration().openAPI(oas)
             .prettyPrint(true)
             .resourceClasses(getApplicationClasses().stream().map(Class::getName).collect(Collectors.toSet()));
@@ -92,7 +90,6 @@ public class ForvaltningApiConfig extends ResourceConfig {
         classes.add(ProsessTaskRestTjeneste.class);
         classes.add(K9DokgenRestTjeneste.class);
         classes.add(OppgaverForvaltningRestTjeneste.class);
-        classes.add(InntektsmeldingDialogRest.class);
         classes.add(ForespørselForvaltningRestTjeneste.class);
         if (Environment.current().isLocal()) {
             classes.add(ForespørselVtpRest.class);
