@@ -67,4 +67,12 @@ public class InntektsmeldingRepository {
     public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {
         return entityManager.find(InntektsmeldingEntitet.class, inntektsmeldingId);
     }
+
+    public Long antallInntektsmeldingerUtenForespørsel() {
+        var query = entityManager.createQuery(
+            "SELECT COUNT(inntektsmelding) FROM InntektsmeldingEntitet inntektsmelding WHERE inntektsmelding.forespørsel IS NULL",
+            Long.class);
+
+        return (Long) query.getSingleResult();
+    }
 }
