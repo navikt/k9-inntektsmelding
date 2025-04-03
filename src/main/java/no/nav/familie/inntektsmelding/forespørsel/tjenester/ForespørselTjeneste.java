@@ -80,7 +80,11 @@ public class ForespørselTjeneste {
         return forespørselRepository.hentForespørsler(saksnummer);
     }
 
-    public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
-        return forespørselRepository.finnForespørsler(aktørId, ytelsetype, orgnr);
+    public List<ForespørselEntitet> finnForespørslerUnderBehandling(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
+        return forespørselRepository.finnForespørslerUnderBehandling(aktørId, ytelsetype, orgnr);
+    }
+
+    public List<ForespørselEntitet> finnAlleForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
+        return forespørselRepository.finnAlleForespørsler(aktørId, ytelsetype, orgnr);
     }
 }
