@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import jakarta.ws.rs.ApplicationPath;
 
+import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogRest;
+
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
@@ -89,6 +91,7 @@ public class ForvaltningApiConfig extends ResourceConfig {
         classes.add(ProsessTaskRestTjeneste.class);
         classes.add(K9DokgenRestTjeneste.class);
         classes.add(OppgaverForvaltningRestTjeneste.class);
+        classes.add(InntektsmeldingDialogRest.class);
         if (Environment.current().isLocal()) {
             classes.add(ForespørselVtpRest.class);
         }
