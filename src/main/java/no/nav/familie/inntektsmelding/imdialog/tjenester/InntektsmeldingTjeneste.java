@@ -175,7 +175,7 @@ public class InntektsmeldingTjeneste {
                                                                      OrganisasjonsnummerDto organisasjonsnummer) {
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype);
 
-        var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnForespørsler(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
+        var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
         var forespørslerSomMatcherFraværsdag = eksisterendeForepørsler.stream()
             .filter(f -> førsteFraværsdag.equals(f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt()))) // TODO: sjekk for et større intervall etterhvert
             .toList();
@@ -229,7 +229,7 @@ public class InntektsmeldingTjeneste {
                                                                        int år,
                                                                        Ytelsetype ytelsetype) {
 
-        var forespørsler = forespørselBehandlingTjeneste.finnForespørsler(aktørId, ytelsetype, arbeidsgiverIdent);
+        var forespørsler = forespørselBehandlingTjeneste.finnAlleForespørsler(aktørId, ytelsetype, arbeidsgiverIdent);
 
         LOG.info("Fant antall forespørsler: " + forespørsler.size());
         LOG.info("ForespørselUuid: " + forespørsler.stream().map(ForespørselEntitet::getUuid).toList());

@@ -105,8 +105,12 @@ public class ForespørselBehandlingTjeneste {
         return forespørselTjeneste.hentForespørsel(forespørselUUID);
     }
 
-    public List<ForespørselEntitet> finnForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
-        return forespørselTjeneste.finnForespørsler(aktørId, ytelsetype, orgnr);
+    public List<ForespørselEntitet> finnForespørslerUnderBehandling(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
+        return forespørselTjeneste.finnForespørslerUnderBehandling(aktørId, ytelsetype, orgnr);
+    }
+
+    public List<ForespørselEntitet> finnAlleForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
+        return forespørselTjeneste.finnAlleForespørsler(aktørId, ytelsetype, orgnr);
     }
 
     public void oppdaterForespørsler(Ytelsetype ytelsetype,
