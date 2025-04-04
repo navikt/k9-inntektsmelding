@@ -58,21 +58,13 @@ class ForespørselTeksterTest {
     @Test
     void lagTilleggsInformasjon_OmsorgspengerRefusjon() {
         List<FraværsPeriodeEntitet> fraværsPerioder = List.of(
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.now().minusDays(8), LocalDate.now().minusDays(6))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.now().minusDays(4), LocalDate.now().minusDays(2))));
+            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 25), LocalDate.of(2025, 3, 27))),
+            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 29), LocalDate.of(2025, 3, 31))));
         List<DelvisFraværsPeriodeEntitet> delvisFravær = List.of(
-            new DelvisFraværsPeriodeEntitet(LocalDate.now().minusDays(10), BigDecimal.valueOf(2)),
-            new DelvisFraværsPeriodeEntitet(LocalDate.now().minusDays(1), BigDecimal.valueOf(4)));
+            new DelvisFraværsPeriodeEntitet(LocalDate.of(2025, 3, 23), BigDecimal.valueOf(2)),
+            new DelvisFraværsPeriodeEntitet(LocalDate.of(2025, 4, 2), BigDecimal.valueOf(4)));
         String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspengerRefusjon(fraværsPerioder, delvisFravær);
-        var forventetTekst = String.format("For %s, %s, %s, %s, %s, %s, %s, %s.",
-            delvisFravær.getFirst().getDato().format(DateTimeFormatter.ofPattern("dd.MM.yy")),
-            fraværsPerioder.getFirst().getPeriode().getFom().format(DateTimeFormatter.ofPattern("dd.MM.yy")),
-            fraværsPerioder.getFirst().getPeriode().getFom().plusDays(1).format(DateTimeFormatter.ofPattern("dd.MM.yy")),
-            fraværsPerioder.getFirst().getPeriode().getTom().format(DateTimeFormatter.ofPattern("dd.MM.yy")),
-            fraværsPerioder.getLast().getPeriode().getFom().format(DateTimeFormatter.ofPattern("dd.MM.yy")),
-            fraværsPerioder.getLast().getPeriode().getFom().plusDays(1).format(DateTimeFormatter.ofPattern("dd.MM.yy")),
-            fraværsPerioder.getLast().getPeriode().getTom().format(DateTimeFormatter.ofPattern("dd.MM.yy")),
-            delvisFravær.getLast().getDato().format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+        var forventetTekst = "For 7 dager i mars, 1 dag i april.";
         assertEquals(forventetTekst, statusTekst);
     }
 

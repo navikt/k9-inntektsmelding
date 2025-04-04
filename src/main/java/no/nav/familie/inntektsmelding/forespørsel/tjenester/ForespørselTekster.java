@@ -1,11 +1,14 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
@@ -47,11 +50,40 @@ class ForespørselTekster {
     public static String lagTilleggsInformasjonForOmsorgspengerRefusjon(List<FraværsPeriodeEntitet> fraværsPerioder,
                                                                         List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
         List<LocalDate> fravær = sammenstillFravær(fraværsPerioder, delvisFraværDag);
-        return String.format(TILLEGGSINFORMASJON_OMS_REFUSJON,
-            fravær
+
+        Map<Month, Long> fraværPerMåned = fravær
             .stream()
-            .map(date -> date.format(DateTimeFormatter.ofPattern("dd.MM.yy")))
+            .collect(Collectors.groupingBy(Month::from, Collectors.counting()));
+
+        Map<Month, String> månederPåNorskOgEngelsk = månederFraEngelskTilNorsk();
+
+        return String.format(TILLEGGSINFORMASJON_OMS_REFUSJON,
+            fraværPerMåned
+            .entrySet()
+            .stream()
+            .map(måned -> String.format("%s %s i %s", måned.getValue(), dagEllerDager(måned.getValue()), månederPåNorskOgEngelsk.get(måned.getKey())))
             .collect(Collectors.joining(", ")));
+    }
+
+    private static String dagEllerDager(long antallDager) {
+        return antallDager == 1 ? "dag" : "dager";
+    }
+
+    private static Map<Month, String> månederFraEngelskTilNorsk() {
+        Map<Month, String> månederPåNorskOgEngelsk = new HashMap<>();
+        månederPåNorskOgEngelsk.put(Month.JANUARY, "januar");
+        månederPåNorskOgEngelsk.put(Month.FEBRUARY, "februar");
+        månederPåNorskOgEngelsk.put(Month.MARCH, "mars");
+        månederPåNorskOgEngelsk.put(Month.APRIL, "april");
+        månederPåNorskOgEngelsk.put(Month.MAY, "mai");
+        månederPåNorskOgEngelsk.put(Month.JUNE, "juni");
+        månederPåNorskOgEngelsk.put(Month.JULY, "juli");
+        månederPåNorskOgEngelsk.put(Month.AUGUST, "august");
+        månederPåNorskOgEngelsk.put(Month.SEPTEMBER, "september");
+        månederPåNorskOgEngelsk.put(Month.OCTOBER, "oktober");
+        månederPåNorskOgEngelsk.put(Month.NOVEMBER, "november");
+        månederPåNorskOgEngelsk.put(Month.DECEMBER, "desember");
+        return månederPåNorskOgEngelsk;
     }
 
     private static List<LocalDate> sammenstillFravær(List<FraværsPeriodeEntitet> fraværsPerioder,
