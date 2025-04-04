@@ -48,7 +48,7 @@ public class ForespørselForvaltningRestTjeneste {
     @Operation(
         description = "Finn antall inntektsmeldinger som ikker har en forespørsel",
         summary = "Finn antall inntektsmeldinger som ikker har en forespørsel",
-        tags = "oppgaver",
+        tags = "forvaltning",
         responses = {
             @ApiResponse(responseCode = "200", description = "Gir antall inntektsmeldinger som ikke har en forespørsel",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = Long.class))),
