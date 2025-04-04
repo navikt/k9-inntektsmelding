@@ -87,7 +87,7 @@ public class InntektsmeldingEntitet {
     private OmsorgspengerEntitet omsorgspenger;
 
     @ManyToOne()
-    @JoinColumn(name = "foresporsel_id")
+    @JoinColumn(name = "foresporsel_id", nullable = false, updatable = false)
     private ForespørselEntitet forespørsel;
 
     public InntektsmeldingEntitet() {
@@ -160,10 +160,6 @@ public class InntektsmeldingEntitet {
 
     public ForespørselEntitet getForespørsel() {
         return forespørsel;
-    }
-
-    public void setForespørsel (ForespørselEntitet forespørsel) {
-        this.forespørsel = forespørsel;
     }
 
     private void leggTilRefusjonsendring(RefusjonsendringEntitet refusjonsendringEntitet) {
