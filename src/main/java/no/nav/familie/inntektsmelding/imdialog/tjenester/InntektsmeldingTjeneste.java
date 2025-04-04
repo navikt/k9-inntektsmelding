@@ -231,9 +231,6 @@ public class InntektsmeldingTjeneste {
 
         var forespørsler = forespørselBehandlingTjeneste.finnAlleForespørsler(aktørId, ytelsetype, arbeidsgiverIdent);
 
-        LOG.info("Fant antall forespørsler: " + forespørsler.size());
-        LOG.info("ForespørselUuid: " + forespørsler.stream().map(ForespørselEntitet::getUuid).toList());
-
         // dersom det ikke finnes noen forespørsler er det ikke noe for GUI å vise
         if (forespørsler.isEmpty()) {
             return List.of();
@@ -246,9 +243,6 @@ public class InntektsmeldingTjeneste {
             arbeidsgiverIdent,
             år,
             ytelsetype);
-
-        LOG.info("Fant antall inntektsmeldinger: " + inntektsmeldinger.size());
-        LOG.info("InntektsmeldingId: " + inntektsmeldinger.stream().map(InntektsmeldingEntitet::getId).toList());
 
         return inntektsmeldinger.stream()
             .map(im -> InntektsmeldingMapper.mapFraEntitet(im, førsteForespørsel.get().getUuid()))
