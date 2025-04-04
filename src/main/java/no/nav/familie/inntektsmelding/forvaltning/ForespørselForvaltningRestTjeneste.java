@@ -1,15 +1,5 @@
 package no.nav.familie.inntektsmelding.forvaltning;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -20,20 +10,24 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 
 @AutentisertMedAzure
-@OpenAPIDefinition(tags = @Tag(name = "Inntektsmelding", description = "Undersøk om alle inntektsmeldinger er knyttet til en forespørsel",))
+@OpenAPIDefinition(tags = @Tag(name = "Inntektsmelding", description = "Undersøk om alle inntektsmeldinger er knyttet til en forespørsel"))
 @RequestScoped
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/inntektsmelding")
 public class ForespørselForvaltningRestTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ForespørselForvaltningRestTjeneste.class);
 
     private Tilgang tilgang;
     private InntektsmeldingRepository inntektsmeldingRepository;
