@@ -3,11 +3,12 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -55,35 +56,17 @@ class ForespørselTekster {
             .stream()
             .collect(Collectors.groupingBy(Month::from, Collectors.counting()));
 
-        Map<Month, String> månederPåNorskOgEngelsk = månederFraEngelskTilNorsk();
-
         return String.format(TILLEGGSINFORMASJON_OMS_REFUSJON,
             fraværPerMåned
             .entrySet()
             .stream()
-            .map(måned -> String.format("%s %s i %s", måned.getValue(), dagEllerDager(måned.getValue()), månederPåNorskOgEngelsk.get(måned.getKey())))
+                .sorted(Map.Entry.comparingByKey())
+                .map(måned -> String.format("%s %s i %s", måned.getValue(), dagEllerDager(måned.getValue()), måned.getKey().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("NO"))))
             .collect(Collectors.joining(", ")));
     }
 
     private static String dagEllerDager(long antallDager) {
         return antallDager == 1 ? "dag" : "dager";
-    }
-
-    private static Map<Month, String> månederFraEngelskTilNorsk() {
-        Map<Month, String> månederPåNorskOgEngelsk = new HashMap<>();
-        månederPåNorskOgEngelsk.put(Month.JANUARY, "januar");
-        månederPåNorskOgEngelsk.put(Month.FEBRUARY, "februar");
-        månederPåNorskOgEngelsk.put(Month.MARCH, "mars");
-        månederPåNorskOgEngelsk.put(Month.APRIL, "april");
-        månederPåNorskOgEngelsk.put(Month.MAY, "mai");
-        månederPåNorskOgEngelsk.put(Month.JUNE, "juni");
-        månederPåNorskOgEngelsk.put(Month.JULY, "juli");
-        månederPåNorskOgEngelsk.put(Month.AUGUST, "august");
-        månederPåNorskOgEngelsk.put(Month.SEPTEMBER, "september");
-        månederPåNorskOgEngelsk.put(Month.OCTOBER, "oktober");
-        månederPåNorskOgEngelsk.put(Month.NOVEMBER, "november");
-        månederPåNorskOgEngelsk.put(Month.DECEMBER, "desember");
-        return månederPåNorskOgEngelsk;
     }
 
     private static List<LocalDate> sammenstillFravær(List<FraværsPeriodeEntitet> fraværsPerioder,
