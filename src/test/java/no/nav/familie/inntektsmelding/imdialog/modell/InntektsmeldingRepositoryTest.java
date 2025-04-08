@@ -39,13 +39,14 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         this.forespørselRepository = new ForespørselRepository(getEntityManager());
     }
 
+
     @Test
     void skal_lagre_inntektsmelding() {
         // Arrange
         var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
         var forespørsel = forespørselRepository.hentForespørsel(forespørselId);
 
-        var førLagring = InntektsmeldingEntitet.builder()
+        var imFørLagring = InntektsmeldingEntitet.builder()
             .medAktørId(AKTØR_ID)
             .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
             .medYtelsetype(YTELSETYPE)
@@ -56,28 +57,27 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .build();
 
         // Act
-        inntektsmeldingRepository.lagreInntektsmelding(førLagring);
-        var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(førLagring.getAktørId(), førLagring.getArbeidsgiverIdent(),
-            førLagring.getStartDato(), førLagring.getYtelsetype());
+        inntektsmeldingRepository.lagreInntektsmelding(imFørLagring);
+        var imEtterLagring = inntektsmeldingRepository.hentInntektsmelding(imFørLagring.getId());
 
         // Assert
-        assertThat(etterLagring).isPresent();
-        assertThat(etterLagring.get().getKontaktperson().getTelefonnummer()).isEqualTo(førLagring.getKontaktperson().getTelefonnummer());
-        assertThat(etterLagring.get().getKontaktperson().getNavn()).isEqualTo(førLagring.getKontaktperson().getNavn());
-        assertThat(etterLagring.get().getMånedInntekt()).isEqualByComparingTo(førLagring.getMånedInntekt());
-        assertThat(etterLagring.get().getArbeidsgiverIdent()).isEqualTo(førLagring.getArbeidsgiverIdent());
-        assertThat(etterLagring.get().getAktørId()).isEqualTo(førLagring.getAktørId());
-        assertThat(etterLagring.get().getStartDato()).isEqualTo(førLagring.getStartDato());
-        assertThat(etterLagring.get().getYtelsetype()).isEqualTo(førLagring.getYtelsetype());
+        assertThat(imEtterLagring.getKontaktperson().getTelefonnummer()).isEqualTo(imFørLagring.getKontaktperson().getTelefonnummer());
+        assertThat(imEtterLagring.getKontaktperson().getNavn()).isEqualTo(imFørLagring.getKontaktperson().getNavn());
+        assertThat(imEtterLagring.getMånedInntekt()).isEqualByComparingTo(imFørLagring.getMånedInntekt());
+        assertThat(imEtterLagring.getArbeidsgiverIdent()).isEqualTo(imFørLagring.getArbeidsgiverIdent());
+        assertThat(imEtterLagring.getAktørId()).isEqualTo(imFørLagring.getAktørId());
+        assertThat(imEtterLagring.getStartDato()).isEqualTo(imFørLagring.getStartDato());
+        assertThat(imEtterLagring.getYtelsetype()).isEqualTo(imFørLagring.getYtelsetype());
     }
+
 
     @Test
     void skal_lagre_inntektsmelding_med_refusjon() {
         // Arrange
-        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
-        var forespørsel = forespørselRepository.hentForespørsel(forespørselId);
+        var forespørselUuid = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
+        var forespørsel = forespørselRepository.hentForespørsel(forespørselUuid);
 
-        var førLagring = InntektsmeldingEntitet.builder()
+        var imFørLagring = InntektsmeldingEntitet.builder()
             .medAktørId(AKTØR_ID)
             .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
             .medYtelsetype(YTELSETYPE)
@@ -91,27 +91,26 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .build();
 
         // Act
-        inntektsmeldingRepository.lagreInntektsmelding(førLagring);
-        var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(førLagring.getAktørId(), førLagring.getArbeidsgiverIdent(),
-            førLagring.getStartDato(), førLagring.getYtelsetype());
+        inntektsmeldingRepository.lagreInntektsmelding(imFørLagring);
+        var imEtterLagring = inntektsmeldingRepository.hentInntektsmelding(imFørLagring.getId());
 
         // Assert
-        assertThat(etterLagring).isPresent();
-        assertThat(etterLagring.get().getKontaktperson().getTelefonnummer()).isEqualTo(førLagring.getKontaktperson().getTelefonnummer());
-        assertThat(etterLagring.get().getKontaktperson().getNavn()).isEqualTo(førLagring.getKontaktperson().getNavn());
-        assertThat(etterLagring.get().getMånedInntekt()).isEqualByComparingTo(førLagring.getMånedInntekt());
-        assertThat(etterLagring.get().getArbeidsgiverIdent()).isEqualTo(førLagring.getArbeidsgiverIdent());
-        assertThat(etterLagring.get().getAktørId()).isEqualTo(førLagring.getAktørId());
-        assertThat(etterLagring.get().getStartDato()).isEqualTo(førLagring.getStartDato());
-        assertThat(etterLagring.get().getYtelsetype()).isEqualTo(førLagring.getYtelsetype());
-        assertThat(etterLagring.get().getOpphørsdatoRefusjon()).isEqualTo(førLagring.getOpphørsdatoRefusjon());
-        assertThat(etterLagring.get().getMånedRefusjon()).isEqualByComparingTo(førLagring.getMånedRefusjon());
-        assertThat(etterLagring.get().getRefusjonsendringer()).hasSize(1);
-        assertThat(etterLagring.get().getRefusjonsendringer().getFirst().getFom()).isEqualTo(førLagring.getRefusjonsendringer().getFirst().getFom());
-        assertThat(etterLagring.get().getRefusjonsendringer().getFirst().getRefusjonPrMnd()).isEqualByComparingTo(førLagring.getRefusjonsendringer()
+        assertThat(imEtterLagring.getKontaktperson().getTelefonnummer()).isEqualTo(imFørLagring.getKontaktperson().getTelefonnummer());
+        assertThat(imEtterLagring.getKontaktperson().getNavn()).isEqualTo(imFørLagring.getKontaktperson().getNavn());
+        assertThat(imEtterLagring.getMånedInntekt()).isEqualByComparingTo(imFørLagring.getMånedInntekt());
+        assertThat(imEtterLagring.getArbeidsgiverIdent()).isEqualTo(imFørLagring.getArbeidsgiverIdent());
+        assertThat(imEtterLagring.getAktørId()).isEqualTo(imFørLagring.getAktørId());
+        assertThat(imEtterLagring.getStartDato()).isEqualTo(imFørLagring.getStartDato());
+        assertThat(imEtterLagring.getYtelsetype()).isEqualTo(imFørLagring.getYtelsetype());
+        assertThat(imEtterLagring.getOpphørsdatoRefusjon()).isEqualTo(imFørLagring.getOpphørsdatoRefusjon());
+        assertThat(imEtterLagring.getMånedRefusjon()).isEqualByComparingTo(imFørLagring.getMånedRefusjon());
+        assertThat(imEtterLagring.getRefusjonsendringer()).hasSize(1);
+        assertThat(imEtterLagring.getRefusjonsendringer().getFirst().getFom()).isEqualTo(imFørLagring.getRefusjonsendringer().getFirst().getFom());
+        assertThat(imEtterLagring.getRefusjonsendringer().getFirst().getRefusjonPrMnd()).isEqualByComparingTo(imFørLagring.getRefusjonsendringer()
             .getFirst()
             .getRefusjonPrMnd());
     }
+
 
     @Test
     void skal_lagre_inntektsmelding_med_endringsårsaker() {
@@ -124,7 +123,8 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medFom(LocalDate.now())
             .medBleKjentFra(LocalDate.now().plusDays(10))
             .build();
-        var førLagring = InntektsmeldingEntitet.builder()
+
+        var imFørLagring = InntektsmeldingEntitet.builder()
             .medAktørId(AKTØR_ID)
             .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
             .medYtelsetype(YTELSETYPE)
@@ -138,27 +138,26 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .build();
 
         // Act
-        inntektsmeldingRepository.lagreInntektsmelding(førLagring);
-        var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(førLagring.getAktørId(), førLagring.getArbeidsgiverIdent(),
-            førLagring.getStartDato(), førLagring.getYtelsetype());
+        inntektsmeldingRepository.lagreInntektsmelding(imFørLagring);
+        var imEtterLagring = inntektsmeldingRepository.hentInntektsmelding(imFørLagring.getId());
 
         // Assert
-        assertThat(etterLagring).isPresent();
-        assertThat(etterLagring.get().getKontaktperson().getTelefonnummer()).isEqualTo(førLagring.getKontaktperson().getTelefonnummer());
-        assertThat(etterLagring.get().getKontaktperson().getNavn()).isEqualTo(førLagring.getKontaktperson().getNavn());
-        assertThat(etterLagring.get().getMånedInntekt()).isEqualByComparingTo(førLagring.getMånedInntekt());
-        assertThat(etterLagring.get().getArbeidsgiverIdent()).isEqualTo(førLagring.getArbeidsgiverIdent());
-        assertThat(etterLagring.get().getAktørId()).isEqualTo(førLagring.getAktørId());
-        assertThat(etterLagring.get().getStartDato()).isEqualTo(førLagring.getStartDato());
-        assertThat(etterLagring.get().getYtelsetype()).isEqualTo(førLagring.getYtelsetype());
-        assertThat(etterLagring.get().getOpphørsdatoRefusjon()).isEqualTo(førLagring.getOpphørsdatoRefusjon());
-        assertThat(etterLagring.get().getMånedRefusjon()).isEqualByComparingTo(førLagring.getMånedRefusjon());
-        assertThat(etterLagring.get().getEndringsårsaker()).hasSize(1);
-        assertThat(etterLagring.get().getEndringsårsaker().getFirst().getÅrsak()).isEqualTo(Endringsårsak.TARIFFENDRING);
-        assertThat(etterLagring.get().getEndringsårsaker().getFirst().getFom().orElse(null)).isEqualTo(LocalDate.now());
-        assertThat(etterLagring.get().getEndringsårsaker().getFirst().getBleKjentFom().orElse(null)).isEqualTo(LocalDate.now().plusDays(10));
-        assertThat(etterLagring.get().getOmsorgspenger()).isNull();
+        assertThat(imEtterLagring.getKontaktperson().getTelefonnummer()).isEqualTo(imFørLagring.getKontaktperson().getTelefonnummer());
+        assertThat(imEtterLagring.getKontaktperson().getNavn()).isEqualTo(imFørLagring.getKontaktperson().getNavn());
+        assertThat(imEtterLagring.getMånedInntekt()).isEqualByComparingTo(imFørLagring.getMånedInntekt());
+        assertThat(imEtterLagring.getArbeidsgiverIdent()).isEqualTo(imFørLagring.getArbeidsgiverIdent());
+        assertThat(imEtterLagring.getAktørId()).isEqualTo(imFørLagring.getAktørId());
+        assertThat(imEtterLagring.getStartDato()).isEqualTo(imFørLagring.getStartDato());
+        assertThat(imEtterLagring.getYtelsetype()).isEqualTo(imFørLagring.getYtelsetype());
+        assertThat(imEtterLagring.getOpphørsdatoRefusjon()).isEqualTo(imFørLagring.getOpphørsdatoRefusjon());
+        assertThat(imEtterLagring.getMånedRefusjon()).isEqualByComparingTo(imFørLagring.getMånedRefusjon());
+        assertThat(imEtterLagring.getEndringsårsaker()).hasSize(1);
+        assertThat(imEtterLagring.getEndringsårsaker().getFirst().getÅrsak()).isEqualTo(Endringsårsak.TARIFFENDRING);
+        assertThat(imEtterLagring.getEndringsårsaker().getFirst().getFom().orElse(null)).isEqualTo(LocalDate.now());
+        assertThat(imEtterLagring.getEndringsårsaker().getFirst().getBleKjentFom().orElse(null)).isEqualTo(LocalDate.now().plusDays(10));
+        assertThat(imEtterLagring.getOmsorgspenger()).isNull();
     }
+
 
     @Test
     void skal_lagre_inntektsmelding_med_omsorgspenger() {
@@ -177,7 +176,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(forventetDelvisFraværsDato, forventetDelvisFraværsTimer)))
             .build();
 
-        var førLagring = InntektsmeldingEntitet.builder()
+        var imFørLagring = InntektsmeldingEntitet.builder()
             .medAktørId(AKTØR_ID)
             .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
             .medYtelsetype(Ytelsetype.OMSORGSPENGER)
@@ -191,32 +190,31 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .build();
 
         // Act
-        inntektsmeldingRepository.lagreInntektsmelding(førLagring);
-        var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(førLagring.getAktørId(), førLagring.getArbeidsgiverIdent(),
-            førLagring.getStartDato(), førLagring.getYtelsetype());
+        inntektsmeldingRepository.lagreInntektsmelding(imFørLagring);
+        var imEtterLagring = inntektsmeldingRepository.hentInntektsmelding(imFørLagring.getId());
 
         // Assert
-        assertThat(etterLagring).isPresent();
-        assertThat(etterLagring.get().getKontaktperson().getTelefonnummer()).isEqualTo(førLagring.getKontaktperson().getTelefonnummer());
-        assertThat(etterLagring.get().getKontaktperson().getNavn()).isEqualTo(førLagring.getKontaktperson().getNavn());
-        assertThat(etterLagring.get().getMånedInntekt()).isEqualByComparingTo(førLagring.getMånedInntekt());
-        assertThat(etterLagring.get().getArbeidsgiverIdent()).isEqualTo(førLagring.getArbeidsgiverIdent());
-        assertThat(etterLagring.get().getAktørId()).isEqualTo(førLagring.getAktørId());
-        assertThat(etterLagring.get().getStartDato()).isEqualTo(førLagring.getStartDato());
-        assertThat(etterLagring.get().getYtelsetype()).isEqualTo(førLagring.getYtelsetype());
-        assertThat(etterLagring.get().getOpphørsdatoRefusjon()).isEqualTo(førLagring.getOpphørsdatoRefusjon());
-        assertThat(etterLagring.get().getMånedRefusjon()).isEqualByComparingTo(førLagring.getMånedRefusjon());
-        assertThat(etterLagring.get().getEndringsårsaker()).hasSize(0);
+        assertThat(imEtterLagring.getKontaktperson().getTelefonnummer()).isEqualTo(imFørLagring.getKontaktperson().getTelefonnummer());
+        assertThat(imEtterLagring.getKontaktperson().getNavn()).isEqualTo(imFørLagring.getKontaktperson().getNavn());
+        assertThat(imEtterLagring.getMånedInntekt()).isEqualByComparingTo(imFørLagring.getMånedInntekt());
+        assertThat(imEtterLagring.getArbeidsgiverIdent()).isEqualTo(imFørLagring.getArbeidsgiverIdent());
+        assertThat(imEtterLagring.getAktørId()).isEqualTo(imFørLagring.getAktørId());
+        assertThat(imEtterLagring.getStartDato()).isEqualTo(imFørLagring.getStartDato());
+        assertThat(imEtterLagring.getYtelsetype()).isEqualTo(imFørLagring.getYtelsetype());
+        assertThat(imEtterLagring.getOpphørsdatoRefusjon()).isEqualTo(imFørLagring.getOpphørsdatoRefusjon());
+        assertThat(imEtterLagring.getMånedRefusjon()).isEqualByComparingTo(imFørLagring.getMånedRefusjon());
+        assertThat(imEtterLagring.getEndringsårsaker()).hasSize(0);
 
-        assertThat(etterLagring.get().getOmsorgspenger().isHarUtbetaltPliktigeDager()).isTrue();
-        assertThat(etterLagring.get().getOmsorgspenger().getFraværsPerioder()).hasSize(2);
-        assertThat(etterLagring.get().getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getFom()).isEqualTo(forventetFraværsPeriode1.getFom());
-        assertThat(etterLagring.get().getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getTom()).isEqualTo(forventetFraværsPeriode1.getTom());
-        assertThat(etterLagring.get().getOmsorgspenger().getFraværsPerioder().getLast().getPeriode().getFom()).isEqualTo(forventetFraværsPeriode2.getFom());
-        assertThat(etterLagring.get().getOmsorgspenger().getFraværsPerioder().getLast().getPeriode().getTom()).isEqualTo(forventetFraværsPeriode2.getTom());
-        assertThat(etterLagring.get().getOmsorgspenger().getDelvisFraværsPerioder()).hasSize(1);
-        assertThat(etterLagring.get().getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
+        assertThat(imEtterLagring.getOmsorgspenger().isHarUtbetaltPliktigeDager()).isTrue();
+        assertThat(imEtterLagring.getOmsorgspenger().getFraværsPerioder()).hasSize(2);
+        assertThat(imEtterLagring.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getFom()).isEqualTo(forventetFraværsPeriode1.getFom());
+        assertThat(imEtterLagring.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getTom()).isEqualTo(forventetFraværsPeriode1.getTom());
+        assertThat(imEtterLagring.getOmsorgspenger().getFraværsPerioder().getLast().getPeriode().getFom()).isEqualTo(forventetFraværsPeriode2.getFom());
+        assertThat(imEtterLagring.getOmsorgspenger().getFraværsPerioder().getLast().getPeriode().getTom()).isEqualTo(forventetFraværsPeriode2.getTom());
+        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsPerioder()).hasSize(1);
+        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
     }
+
 
     @Test
     void skal_lagre_inntektsmelding_med_omsorgspenger_med_kun_delvis_fravær() {
@@ -233,7 +231,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(forventetDelvisFraværsDato, forventetDelvisFraværsTimer)))
             .build();
 
-        var førLagring = InntektsmeldingEntitet.builder()
+        var imFørLagring = InntektsmeldingEntitet.builder()
             .medAktørId(AKTØR_ID)
             .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
             .medYtelsetype(Ytelsetype.OMSORGSPENGER)
@@ -247,88 +245,46 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .build();
 
         // Act
-        inntektsmeldingRepository.lagreInntektsmelding(førLagring);
-        var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(førLagring.getAktørId(), førLagring.getArbeidsgiverIdent(),
-            førLagring.getStartDato(), førLagring.getYtelsetype());
+        inntektsmeldingRepository.lagreInntektsmelding(imFørLagring);
+        var imEtterLagring = inntektsmeldingRepository.hentInntektsmelding(imFørLagring.getId());
 
         // Assert
-        assertThat(etterLagring).isPresent();
-        assertThat(etterLagring.get().getKontaktperson().getTelefonnummer()).isEqualTo(førLagring.getKontaktperson().getTelefonnummer());
-        assertThat(etterLagring.get().getKontaktperson().getNavn()).isEqualTo(førLagring.getKontaktperson().getNavn());
-        assertThat(etterLagring.get().getMånedInntekt()).isEqualByComparingTo(førLagring.getMånedInntekt());
-        assertThat(etterLagring.get().getArbeidsgiverIdent()).isEqualTo(førLagring.getArbeidsgiverIdent());
-        assertThat(etterLagring.get().getAktørId()).isEqualTo(førLagring.getAktørId());
-        assertThat(etterLagring.get().getStartDato()).isEqualTo(førLagring.getStartDato());
-        assertThat(etterLagring.get().getYtelsetype()).isEqualTo(førLagring.getYtelsetype());
-        assertThat(etterLagring.get().getOpphørsdatoRefusjon()).isEqualTo(førLagring.getOpphørsdatoRefusjon());
-        assertThat(etterLagring.get().getMånedRefusjon()).isEqualByComparingTo(førLagring.getMånedRefusjon());
-        assertThat(etterLagring.get().getEndringsårsaker()).hasSize(0);
+        assertThat(imEtterLagring.getKontaktperson().getTelefonnummer()).isEqualTo(imFørLagring.getKontaktperson().getTelefonnummer());
+        assertThat(imEtterLagring.getKontaktperson().getNavn()).isEqualTo(imFørLagring.getKontaktperson().getNavn());
+        assertThat(imEtterLagring.getMånedInntekt()).isEqualByComparingTo(imFørLagring.getMånedInntekt());
+        assertThat(imEtterLagring.getArbeidsgiverIdent()).isEqualTo(imFørLagring.getArbeidsgiverIdent());
+        assertThat(imEtterLagring.getAktørId()).isEqualTo(imFørLagring.getAktørId());
+        assertThat(imEtterLagring.getStartDato()).isEqualTo(imFørLagring.getStartDato());
+        assertThat(imEtterLagring.getYtelsetype()).isEqualTo(imFørLagring.getYtelsetype());
+        assertThat(imEtterLagring.getOpphørsdatoRefusjon()).isEqualTo(imFørLagring.getOpphørsdatoRefusjon());
+        assertThat(imEtterLagring.getMånedRefusjon()).isEqualByComparingTo(imFørLagring.getMånedRefusjon());
+        assertThat(imEtterLagring.getEndringsårsaker()).hasSize(0);
 
-        assertThat(etterLagring.get().getOmsorgspenger().isHarUtbetaltPliktigeDager()).isTrue();
-        assertThat(etterLagring.get().getOmsorgspenger().getFraværsPerioder()).hasSize(0);
-        assertThat(etterLagring.get().getOmsorgspenger().getDelvisFraværsPerioder()).hasSize(1);
-        assertThat(etterLagring.get().getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
+        assertThat(imEtterLagring.getOmsorgspenger().isHarUtbetaltPliktigeDager()).isTrue();
+        assertThat(imEtterLagring.getOmsorgspenger().getFraværsPerioder()).hasSize(0);
+        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsPerioder()).hasSize(1);
+        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
     }
 
-
-    @Test
-    void skal_hente_siste_inntektsmelding() {
-        // Arrange
-        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
-        var forespørsel = forespørselRepository.hentForespørsel(forespørselId);
-
-        var im1 = InntektsmeldingEntitet.builder()
-            .medAktørId(AKTØR_ID)
-            .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
-            .medYtelsetype(YTELSETYPE)
-            .medMånedInntekt(BigDecimal.valueOf(4000))
-            .medMånedRefusjon(BigDecimal.valueOf(4000))
-            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
-            .medStartDato(START_DATO)
-            .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
-            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
-            .medForespørsel(forespørsel.get())
-            .build();
-
-        var im2 = InntektsmeldingEntitet.builder()
-            .medAktørId(AKTØR_ID)
-            .medKontaktperson(new KontaktpersonEntitet("Andre", "999999999"))
-            .medYtelsetype(YTELSETYPE)
-            .medMånedInntekt(BigDecimal.valueOf(4000))
-            .medMånedRefusjon(BigDecimal.valueOf(4000))
-            .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
-            .medStartDato(START_DATO)
-            .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO.plusDays(10), BigDecimal.valueOf(2000))))
-            .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
-            .medOpprettetTidspunkt(LocalDateTime.now().plusDays(2))
-            .medForespørsel(forespørsel.get())
-            .build();
-
-        // Act
-        inntektsmeldingRepository.lagreInntektsmelding(im1);
-        inntektsmeldingRepository.lagreInntektsmelding(im2);
-
-        var etterLagring = inntektsmeldingRepository.hentSisteInntektsmelding(AKTØR_ID, ARBEIDSGIVER_IDENT, START_DATO, Ytelsetype.PLEIEPENGER_SYKT_BARN);
-
-        // Assert
-        assertThat(etterLagring).isPresent();
-        assertThat(etterLagring.get().getKontaktperson().getNavn()).isEqualTo(im2.getKontaktperson().getNavn());
-    }
 
     @Test
     void skal_hente_alle_im_for_forespørsel() {
         // Arrange
-        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
-        var forespørsel = forespørselRepository.hentForespørsel(forespørselId);
+        var person1 = AKTØR_ID;
+        var forespørselIdPsbPerson1 = forespørselRepository.lagreForespørsel(START_DATO, Ytelsetype.PLEIEPENGER_SYKT_BARN, person1.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
+        var forespørselPsbPerson1 = forespørselRepository.hentForespørsel(forespørselIdPsbPerson1);
 
-        AktørIdEntitet AKTØR_ID_2 = new AktørIdEntitet("1234567891111");
-        var forespørselId2 = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID_2.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
-        var forespørsel2 = forespørselRepository.hentForespørsel(forespørselId2);
+        AktørIdEntitet person2 = new AktørIdEntitet("1234567891111");
+        var forespørselIdPsbPerson2 = forespørselRepository.lagreForespørsel(START_DATO, Ytelsetype.PLEIEPENGER_SYKT_BARN, person2.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
+        var forespørselPsbPerson2 = forespørselRepository.hentForespørsel(forespørselIdPsbPerson2);
+
+        var forespørselIdPpnPerson1 = forespørselRepository.lagreForespørsel(START_DATO, Ytelsetype.PLEIEPENGER_NÆRSTÅENDE, person1.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
+        var forespørselPpnPerson1 = forespørselRepository.hentForespørsel(forespørselIdPpnPerson1);
 
         var im1 = InntektsmeldingEntitet.builder()
-            .medAktørId(AKTØR_ID)
+            .medAktørId(person1)
             .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
-            .medYtelsetype(YTELSETYPE)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -336,13 +292,13 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
-            .medForespørsel(forespørsel.get())
+            .medForespørsel(forespørselPsbPerson1.get())
             .build();
 
         var im2 = InntektsmeldingEntitet.builder()
-            .medAktørId(AKTØR_ID_2)
+            .medAktørId(person2)
             .medKontaktperson(new KontaktpersonEntitet("Andre", "999999999"))
-            .medYtelsetype(YTELSETYPE)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -350,13 +306,13 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(2))
-            .medForespørsel(forespørsel2.get())
+            .medForespørsel(forespørselPsbPerson2.get())
             .build();
 
         var im3 = InntektsmeldingEntitet.builder()
-            .medAktørId(AKTØR_ID)
+            .medAktørId(person1)
             .medKontaktperson(new KontaktpersonEntitet("Tredje", "999999999"))
-            .medYtelsetype(YTELSETYPE)
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medMånedRefusjon(BigDecimal.valueOf(4000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -364,11 +320,11 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(3))
-            .medForespørsel(forespørsel.get())
+            .medForespørsel(forespørselPsbPerson1.get())
             .build();
 
         var im4 = InntektsmeldingEntitet.builder()
-            .medAktørId(AKTØR_ID)
+            .medAktørId(person1)
             .medKontaktperson(new KontaktpersonEntitet("Fjerde", "999999999"))
             .medYtelsetype(Ytelsetype.PLEIEPENGER_NÆRSTÅENDE)
             .medMånedInntekt(BigDecimal.valueOf(4000))
@@ -378,7 +334,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(4))
-            .medForespørsel(forespørsel.get())
+            .medForespørsel(forespørselPpnPerson1.get())
             .build();
 
         // Act
@@ -387,12 +343,32 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         inntektsmeldingRepository.lagreInntektsmelding(im3);
         inntektsmeldingRepository.lagreInntektsmelding(im4);
 
-        var etterLagring = inntektsmeldingRepository.hentInntektsmeldinger(AKTØR_ID, ARBEIDSGIVER_IDENT, START_DATO, Ytelsetype.PLEIEPENGER_SYKT_BARN);
+        // for å tvinge lagring av forespørsler og inntektsmeldinger
+        clearHibernateCache();
+
+        var forespørselPsbPerson1EtterLagring = forespørselRepository.hentForespørsel(forespørselIdPsbPerson1).get();
+        var imEtterLagringPsbPerson1 = forespørselPsbPerson1EtterLagring.getInntektsmeldinger();
+
+        var forespørselPsbPerson2EtterLagring = forespørselRepository.hentForespørsel(forespørselIdPsbPerson2).get();
+        var imEtterLagringPsbPerson2 = forespørselPsbPerson2EtterLagring.getInntektsmeldinger();
+
+        var forespørselPpnPerson1EtterLagring = forespørselRepository.hentForespørsel(forespørselIdPpnPerson1).get();
+        var imEtterLagringPpnPerson1 = forespørselPpnPerson1EtterLagring.getInntektsmeldinger();
 
         // Assert
-        assertThat(etterLagring).hasSize(2);
-        assertThat(etterLagring.get(0).getKontaktperson().getNavn()).isEqualTo(im3.getKontaktperson().getNavn());
-        assertThat(etterLagring.get(1).getKontaktperson().getNavn()).isEqualTo(im1.getKontaktperson().getNavn());
+        assertThat(imEtterLagringPsbPerson1).hasSize(2);
+        assertThat(imEtterLagringPsbPerson1.get(0).getKontaktperson().getNavn()).isEqualTo(im3.getKontaktperson().getNavn());
+        assertThat(imEtterLagringPsbPerson1.get(0).getYtelsetype()).isEqualTo(im3.getYtelsetype());
+        assertThat(imEtterLagringPsbPerson1.get(1).getKontaktperson().getNavn()).isEqualTo(im1.getKontaktperson().getNavn());
+        assertThat(imEtterLagringPsbPerson1.get(1).getYtelsetype()).isEqualTo(im1.getYtelsetype());
+
+        assertThat(imEtterLagringPsbPerson2).hasSize(1);
+        assertThat(imEtterLagringPsbPerson2.get(0).getKontaktperson().getNavn()).isEqualTo(im2.getKontaktperson().getNavn());
+        assertThat(imEtterLagringPsbPerson2.get(0).getYtelsetype()).isEqualTo(im2.getYtelsetype());
+
+        assertThat(imEtterLagringPpnPerson1).hasSize(1);
+        assertThat(imEtterLagringPpnPerson1.get(0).getKontaktperson().getNavn()).isEqualTo(im4.getKontaktperson().getNavn());
+        assertThat(imEtterLagringPpnPerson1.get(0).getYtelsetype()).isEqualTo(im4.getYtelsetype());
     }
 
     @Test
@@ -486,4 +462,10 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
     }
 
 
+    private void clearHibernateCache() {
+        // Fjerne hibernate cachen før assertions skal evalueres - hibernate ignorerer alle updates som er markert med updatable = false ved skriving mot databasen
+        // men objektene i cachen blir oppdatert helt greit likevel.
+        // På denne måten evaluerer vi faktisk tilstanden som blir til slutt lagret i databasen.
+        getEntityManager().clear();
+    }
 }
