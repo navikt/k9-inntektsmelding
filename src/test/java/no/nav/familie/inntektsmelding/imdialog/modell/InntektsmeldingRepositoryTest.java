@@ -465,16 +465,16 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
 
         clearHibernateCache();
 
-        var etterLagring = inntektsmeldingRepository.hentInntektsmeldingerForÅr(AKTØR_ID, ARBEIDSGIVER_IDENT, 2025, Ytelsetype.OMSORGSPENGER);
+        var imEtterLagring2025 = inntektsmeldingRepository.hentInntektsmeldingerForÅr(AKTØR_ID, ARBEIDSGIVER_IDENT, 2025, Ytelsetype.OMSORGSPENGER);
 
         // Assert
-        assertThat(etterLagring).hasSize(2);
-        assertThat(etterLagring.getFirst().getStartDato().getYear()).isEqualTo(2025);
-        assertThat(etterLagring.getFirst().getAktørId()).isEqualTo(AKTØR_ID);
-        assertThat(etterLagring.getFirst().getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
-        assertThat(etterLagring.getLast().getStartDato().getYear()).isEqualTo(2025);
-        assertThat(etterLagring.getLast().getAktørId()).isEqualTo(AKTØR_ID);
-        assertThat(etterLagring.getLast().getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
+        assertThat(imEtterLagring2025).hasSize(2);
+        assertThat(imEtterLagring2025.getFirst().getStartDato().getYear()).isEqualTo(2025);
+        assertThat(imEtterLagring2025.getFirst().getAktørId()).isEqualTo(AKTØR_ID);
+        assertThat(imEtterLagring2025.getFirst().getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
+        assertThat(imEtterLagring2025.getLast().getStartDato().getYear()).isEqualTo(2025);
+        assertThat(imEtterLagring2025.getLast().getAktørId()).isEqualTo(AKTØR_ID);
+        assertThat(imEtterLagring2025.getLast().getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
     }
 
 
