@@ -58,6 +58,9 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         inntektsmeldingRepository.lagreInntektsmelding(imFørLagring);
+
+        clearHibernateCache();
+
         var imEtterLagring = inntektsmeldingRepository.hentInntektsmelding(imFørLagring.getId());
 
         // Assert
@@ -92,6 +95,9 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         inntektsmeldingRepository.lagreInntektsmelding(imFørLagring);
+
+        clearHibernateCache();
+
         var imEtterLagring = inntektsmeldingRepository.hentInntektsmelding(imFørLagring.getId());
 
         // Assert
@@ -139,6 +145,9 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         inntektsmeldingRepository.lagreInntektsmelding(imFørLagring);
+
+        clearHibernateCache();
+
         var imEtterLagring = inntektsmeldingRepository.hentInntektsmelding(imFørLagring.getId());
 
         // Assert
@@ -191,6 +200,9 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         inntektsmeldingRepository.lagreInntektsmelding(imFørLagring);
+
+        clearHibernateCache();
+
         var imEtterLagring = inntektsmeldingRepository.hentInntektsmelding(imFørLagring.getId());
 
         // Assert
@@ -246,6 +258,9 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         inntektsmeldingRepository.lagreInntektsmelding(imFørLagring);
+
+        clearHibernateCache();
+
         var imEtterLagring = inntektsmeldingRepository.hentInntektsmelding(imFørLagring.getId());
 
         // Assert
@@ -343,7 +358,6 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         inntektsmeldingRepository.lagreInntektsmelding(im3);
         inntektsmeldingRepository.lagreInntektsmelding(im4);
 
-        // for å tvinge lagring av forespørsler og inntektsmeldinger
         clearHibernateCache();
 
         var forespørselPsbPerson1EtterLagring = forespørselRepository.hentForespørsel(forespørselIdPsbPerson1).get();
@@ -448,6 +462,8 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         inntektsmeldingRepository.lagreInntektsmelding(im2);
         inntektsmeldingRepository.lagreInntektsmelding(im3RiktigÅrMenAnnenAktørId);
         inntektsmeldingRepository.lagreInntektsmelding(im4i2024);
+
+        clearHibernateCache();
 
         var etterLagring = inntektsmeldingRepository.hentInntektsmeldingerForÅr(AKTØR_ID, ARBEIDSGIVER_IDENT, 2025, Ytelsetype.OMSORGSPENGER);
 
