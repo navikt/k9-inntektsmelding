@@ -14,7 +14,7 @@
     "https://k9-inntektsmelding.intern.dev.nav.no"
   ],
   "dbTier": "db-f1-micro",
-  "enableDBAudit": "true",
+  "enableDBAudit": true,
   "dbDiskAutoresize": "false",
   "dbHighAvailability": "false",
   "dbPointInTimeRecovery": "false",
