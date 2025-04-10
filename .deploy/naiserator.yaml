@@ -54,6 +54,15 @@ spec:
         highAvailability: {{dbHighAvailability}}
         pointInTimeRecovery: {{dbPointInTimeRecovery}}
         collation: nb_NO.UTF8
+        {{#if enableDBAudit}}
+        flags:
+          - name: "cloudsql.enable_pgaudit"
+            value: "on"
+          - name: "pgaudit.log"
+            value: "write"
+          - name: "pgaudit.log_parameter"
+            value: "on"
+        {{/if}}
   secureLogs:
     enabled: true
   tokenx:
