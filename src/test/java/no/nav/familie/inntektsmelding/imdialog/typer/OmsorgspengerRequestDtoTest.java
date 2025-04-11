@@ -75,5 +75,70 @@ public class OmsorgspengerRequestDtoTest {
         Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
         assertEquals(1, violations.size());
     }
+
+    @Test
+    public void ingenOverlappMellomFraværHeleDager() {
+        var fraværHeleDager = List.of(
+            lagFraværHeleDager(LocalDate.now().minusWeeks(3), LocalDate.now().minusWeeks(2)),
+            lagFraværHeleDager(LocalDate.now().minusWeeks(1), LocalDate.now()));
+        var dto = lagOmsorgspengerRequestDto(true, fraværHeleDager, null);
+
+        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        assertEquals(0, violations.size());
+    }
+
+    @Test
+    public void overlappendeFraværHeleDagerSkalFeile() {
+        var fraværHeleDager = List.of(
+            lagFraværHeleDager(LocalDate.now().minusWeeks(3), LocalDate.now().minusWeeks(2)),
+            lagFraværHeleDager(LocalDate.now().minusWeeks(2), LocalDate.now()));
+        var dto = lagOmsorgspengerRequestDto(true, fraværHeleDager, null);
+
+        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        assertEquals(1, violations.size());
+    }
+
+    @Test
+    public void ingenOverlappMellomDelvisFraværsdagerOgFraværHeleDager() {
+        var fraværHeleDager = List.of(
+            lagFraværHeleDager(LocalDate.now().minusWeeks(3), LocalDate.now().minusWeeks(3)),
+            lagFraværHeleDager(LocalDate.now().minusWeeks(1), LocalDate.now()));
+
+        var fraværDelerAvDagen = List.of(lagFraværDelerAvDagen(LocalDate.now().plusWeeks(1), new BigDecimal("2.5")));
+        var dto = lagOmsorgspengerRequestDto(true, fraværHeleDager, fraværDelerAvDagen);
+
+        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        assertEquals(0, violations.size());
+    }
+
+    @Test
+    public void sammeDagKanIkkeFinnesIDelvisFraværsdagerOgFraværHeleDager() {
+        var fraværHeleDager = List.of(
+            lagFraværHeleDager(LocalDate.now().minusWeeks(3), LocalDate.now().minusWeeks(2)),
+            lagFraværHeleDager(LocalDate.now().minusWeeks(1), LocalDate.now()));
+
+        var fraværDelerAvDagen = List.of(
+            lagFraværDelerAvDagen(LocalDate.now().minusWeeks(2), new BigDecimal("2.5")),
+            lagFraværDelerAvDagen(LocalDate.now(), new BigDecimal("2.5")));
+
+        var dto = lagOmsorgspengerRequestDto(true, fraværHeleDager, fraværDelerAvDagen);
+
+        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        assertEquals(1, violations.size());
+    }
+
+    private SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto lagFraværHeleDager(LocalDate fom, LocalDate tom) {
+        return new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto(fom, tom);
+    }
+
+    private SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto lagFraværDelerAvDagen(LocalDate dato, BigDecimal timer) {
+        return new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(dato, timer);
+    }
+
+    private SendInntektsmeldingRequestDto.OmsorgspengerRequestDto lagOmsorgspengerRequestDto(Boolean harUtbetaltPliktigeDager,
+                                                                                                  List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto> fraværHeleDager,
+                                                                                                  List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto> fraværDelerAvDagen) {
+        return new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(harUtbetaltPliktigeDager, fraværHeleDager, fraværDelerAvDagen);
+    }
 }
 
