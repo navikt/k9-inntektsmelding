@@ -211,17 +211,12 @@ public class InntektsmeldingTjeneste {
             .orElseThrow(
                 () -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
 
+        var inntektsmeldinger = forespørsel.getInntektsmeldinger();
 
-        // for omsorgspenger ønsker vi å kun hente de inntektsmeldingene som er knyttet til forespørselen
-        if (forespørsel.getYtelseType() == Ytelsetype.OMSORGSPENGER) {
-            return forespørsel.getInntektsmeldinger().stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid())).toList();
-        }
-
-        var inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldinger(forespørsel.getAktørId(),
-            forespørsel.getOrganisasjonsnummer(),
-            forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt),
-            forespørsel.getYtelseType());
-        return inntektsmeldinger.stream().map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid())).toList();
+        return inntektsmeldinger
+            .stream()
+            .map(im -> InntektsmeldingMapper.mapFraEntitet(im, forespørsel.getUuid()))
+            .toList();
     }
 
     public List<InntektsmeldingResponseDto> hentInntektsmeldingerForÅr(AktørIdEntitet aktørId,

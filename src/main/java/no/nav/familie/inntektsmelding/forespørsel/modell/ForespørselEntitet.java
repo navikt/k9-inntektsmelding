@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.forespørsel.modell;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -162,7 +163,12 @@ public class ForespørselEntitet {
     }
 
     public List<InntektsmeldingEntitet> getInntektsmeldinger() {
-        return inntektsmeldinger;
+        if (inntektsmeldinger == null) {
+            return List.of();
+        }
+        return inntektsmeldinger.stream()
+            .sorted(Comparator.comparing(InntektsmeldingEntitet::getOpprettetTidspunkt).reversed())
+            .toList();
     }
 
     @Override
