@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.familie.inntektsmelding.database.JpaExtension;
-import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -283,7 +282,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
 
 
     @Test
-    void skal_hente_alle_im_for_forespørsel() {
+    void skal_hente_alle_im_for_forespørsel_i_riktig_rekkefølge() {
         // Arrange
         var person1 = AKTØR_ID;
         var forespørselIdPsbPerson1 = forespørselRepository.lagreForespørsel(START_DATO, Ytelsetype.PLEIEPENGER_SYKT_BARN, person1.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
