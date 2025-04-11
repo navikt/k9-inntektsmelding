@@ -109,6 +109,18 @@ public class OmsorgspengerRequestDtoTest {
     }
 
     @Test
+    public void dupliserteFraværDelerAvDagenSkalFeile() {
+        var fraværDelerAvDagen = List.of(
+            lagFraværDelerAvDagen(LocalDate.now(), new BigDecimal("2.5")),
+            lagFraværDelerAvDagen(LocalDate.now().minusDays(2), new BigDecimal("2.5")),
+            lagFraværDelerAvDagen(LocalDate.now(), new BigDecimal("2.5")));
+        var dto = new OmsorgspengerRequestDto(true, null, fraværDelerAvDagen);
+
+        Set<ConstraintViolation<OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        assertEquals(1, violations.size());
+    }
+
+    @Test
     public void ingenOverlappMellomDelvisFraværsdagerOgFraværHeleDager() {
         var fraværHeleDager = List.of(
             lagFraværHeleDager(LocalDate.now().minusWeeks(3), LocalDate.now().minusWeeks(3)),
