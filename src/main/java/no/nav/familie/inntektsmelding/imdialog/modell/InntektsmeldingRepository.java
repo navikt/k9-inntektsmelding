@@ -31,25 +31,8 @@ public class InntektsmeldingRepository {
         return inntektsmeldingEntitet.getId();
     }
 
-    public void oppdaterInntektsmelding(InntektsmeldingEntitet inntektsmeldingEntitet) {
-        entityManager.merge(inntektsmeldingEntitet);
-        entityManager.flush();
-    }
-
-    public Optional<InntektsmeldingEntitet> hentSisteInntektsmelding(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato, Ytelsetype ytelsetype) {
-        return hentInntektsmeldinger(aktørId, arbeidsgiverIdent,  startDato, ytelsetype).stream().findFirst();
-    }
-
-    public List<InntektsmeldingEntitet> hentInntektsmeldinger(AktørIdEntitet aktørId, String arbeidsgiverIdent, LocalDate startDato, Ytelsetype ytelsetype) {
-        var query = entityManager.createQuery(
-                "FROM InntektsmeldingEntitet where aktørId = :brukerAktørId and ytelsetype = :ytelsetype and arbeidsgiverIdent = :arbeidsgiverIdent and startDato = :startDato order by opprettetTidspunkt desc",
-                InntektsmeldingEntitet.class)
-            .setParameter("brukerAktørId", aktørId)
-            .setParameter("arbeidsgiverIdent", arbeidsgiverIdent)
-            .setParameter("ytelsetype", ytelsetype)
-            .setParameter("startDato", startDato);
-
-        return query.getResultList();
+    public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {
+        return entityManager.find(InntektsmeldingEntitet.class, inntektsmeldingId);
     }
 
     public List<InntektsmeldingEntitet> hentInntektsmeldingerForÅr(AktørIdEntitet aktørId, String arbeidsgiverIdent, int år, Ytelsetype ytelsetype) {
@@ -62,17 +45,5 @@ public class InntektsmeldingRepository {
             .setParameter("år", år);
 
         return query.getResultList();
-    }
-
-    public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {
-        return entityManager.find(InntektsmeldingEntitet.class, inntektsmeldingId);
-    }
-
-    public Long antallInntektsmeldingerUtenForespørsel() {
-        var query = entityManager.createQuery(
-            "SELECT COUNT(inntektsmelding) FROM InntektsmeldingEntitet inntektsmelding WHERE inntektsmelding.forespørsel IS NULL",
-            Long.class);
-
-        return (Long) query.getSingleResult();
     }
 }
