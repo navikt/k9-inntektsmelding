@@ -21,6 +21,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
+import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
@@ -206,8 +207,8 @@ class InntektsmeldingMapperTest {
         // Arrange
         var forventetFraværsFom = LocalDate.now();
         var forventetFraværsTom = LocalDate.now().plusDays(5);
-        var omsorgspenger = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true,
-            List.of(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto(forventetFraværsFom, forventetFraværsTom)),
+        var omsorgspenger = new OmsorgspengerRequestDto(true,
+            List.of(new OmsorgspengerRequestDto.FraværHeleDagerRequestDto(forventetFraværsFom, forventetFraværsTom)),
             null);
 
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
@@ -248,9 +249,9 @@ class InntektsmeldingMapperTest {
         // Arrange
         var forventetDelvisFraværsDato = LocalDate.now();
         var forventetAntallFraværsTimer = BigDecimal.valueOf(3);
-        var omsorgspenger = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true,
+        var omsorgspenger = new OmsorgspengerRequestDto(true,
             null,
-            List.of(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(forventetDelvisFraværsDato, forventetAntallFraværsTimer)));
+            List.of(new OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(forventetDelvisFraværsDato, forventetAntallFraværsTimer)));
 
         var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),

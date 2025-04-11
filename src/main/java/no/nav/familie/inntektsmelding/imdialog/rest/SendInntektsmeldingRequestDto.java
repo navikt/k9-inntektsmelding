@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -50,28 +49,6 @@ public record SendInntektsmeldingRequestDto(@Valid UUID foresporselUuid,
 
     public record KontaktpersonRequestDto(@Size(max = 100) @NotNull String navn,
                                           @NotNull @Size(max = 100) String telefonnummer) {
-    }
-
-    public record OmsorgspengerRequestDto(@NotNull Boolean harUtbetaltPliktigeDager,
-                                          List<@Valid FraværHeleDagerRequestDto> fraværHeleDager,
-                                          List<@Valid FraværDelerAvDagenRequestDto> fraværDelerAvDagen) {
-
-        public record FraværHeleDagerRequestDto(@NotNull LocalDate fom,
-                                                @NotNull LocalDate tom) {
-
-        }
-
-        public record FraværDelerAvDagenRequestDto(@NotNull LocalDate dato,
-                                                   @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal timer) {
-        }
-
-        @AssertTrue(message = "Må ha enten fraværHeleDager eller fraværDelerAvDagen")
-        private boolean isValidFraværsPerioderOrDelvisFraværsPerioder() {
-            if (fraværHeleDager == null || fraværHeleDager.isEmpty()) {
-                return !(fraværDelerAvDagen == null || fraværDelerAvDagen.isEmpty());
-            }
-            return true;
-        }
     }
 }
 

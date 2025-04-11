@@ -32,6 +32,6 @@ public record InntektsmeldingResponseDto(
     @NotNull List<SendInntektsmeldingRequestDto.@Valid Refusjon> refusjon,
     @NotNull List<SendInntektsmeldingRequestDto.@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder,
     @NotNull List<SendInntektsmeldingRequestDto.@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker,
-    @Valid SendInntektsmeldingRequestDto.OmsorgspengerRequestDto omsorgspenger
+    @Valid OmsorgspengerRequestDto omsorgspenger
 ) {
 }
