@@ -6,7 +6,7 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import jakarta.validation.ConstraintViolation;
 
-import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -32,48 +32,58 @@ public class OmsorgspengerRequestDtoTest {
 
     @Test
     public void testValidFraværsPerioder() {
-        List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto> fraværsPerioder = new ArrayList<>();
-        fraværsPerioder.add(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto(LocalDate.now(), LocalDate.now().plusDays(1)));
+        List<OmsorgspengerRequestDto.FraværHeleDagerRequestDto> fraværsPerioder = new ArrayList<>();
+        fraværsPerioder.add(new OmsorgspengerRequestDto.FraværHeleDagerRequestDto(LocalDate.now(), LocalDate.now().plusDays(1)));
 
-        SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true, fraværsPerioder, new ArrayList<>());
+        OmsorgspengerRequestDto dto = new OmsorgspengerRequestDto(true, fraværsPerioder, new ArrayList<>());
 
-        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        Set<ConstraintViolation<OmsorgspengerRequestDto>> violations = validator.validate(dto);
         assertTrue(violations.isEmpty());
     }
 
     @Test
     public void testValidDelvisFraværsPerioder() {
-        List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto> delvisFraværsPerioder = new ArrayList<>();
-        delvisFraværsPerioder.add(new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(LocalDate.now(), new BigDecimal("2.5")));
+        List<OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto> delvisFraværsPerioder = new ArrayList<>();
+        delvisFraværsPerioder.add(new OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(LocalDate.now(), new BigDecimal("2.5")));
 
-        SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true, new ArrayList<>(), delvisFraværsPerioder);
+        OmsorgspengerRequestDto dto = new OmsorgspengerRequestDto(true, new ArrayList<>(), delvisFraværsPerioder);
 
-        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        Set<ConstraintViolation<OmsorgspengerRequestDto>> violations = validator.validate(dto);
         assertTrue(violations.isEmpty());
     }
 
     @Test
     public void testInvalidFraværsPerioderAndDelvisFraværsPerioder() {
-        SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true, new ArrayList<>(), new ArrayList<>());
+        OmsorgspengerRequestDto dto = new OmsorgspengerRequestDto(true, new ArrayList<>(), new ArrayList<>());
 
-        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        Set<ConstraintViolation<OmsorgspengerRequestDto>> violations = validator.validate(dto);
         assertEquals(1, violations.size());
     }
 
     @Test
     public void testInvalidFraværsPerioderAndDelvisFraværsPerioderSomErNull() {
-        SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true, null, null);
+        OmsorgspengerRequestDto dto = new OmsorgspengerRequestDto(true, null, null);
 
-        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        Set<ConstraintViolation<OmsorgspengerRequestDto>> violations = validator.validate(dto);
         assertEquals(1, violations.size());
     }
 
     @Test
     public void testInvalidFraværsPerioderAndDelvisFraværsPerioderSomErNullOgTomListe() {
-        SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(true, null, new ArrayList<>());
+        OmsorgspengerRequestDto dto = new OmsorgspengerRequestDto(true, null, new ArrayList<>());
 
-        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        Set<ConstraintViolation<OmsorgspengerRequestDto>> violations = validator.validate(dto);
         assertEquals(1, violations.size());
+    }
+
+    @Test
+    public void fraværHeleDagerMåVæreKorrekt() {
+        var fraværHeleDager = List.of(lagFraværHeleDager(LocalDate.now(), LocalDate.now().minusWeeks(1)));
+        var dto = new OmsorgspengerRequestDto(true, fraværHeleDager, null);
+
+        Set<ConstraintViolation<OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        assertEquals(1, violations.size());
+
     }
 
     @Test
@@ -81,9 +91,9 @@ public class OmsorgspengerRequestDtoTest {
         var fraværHeleDager = List.of(
             lagFraværHeleDager(LocalDate.now().minusWeeks(3), LocalDate.now().minusWeeks(2)),
             lagFraværHeleDager(LocalDate.now().minusWeeks(1), LocalDate.now()));
-        var dto = lagOmsorgspengerRequestDto(true, fraværHeleDager, null);
+        var dto = new OmsorgspengerRequestDto(true, fraværHeleDager, null);
 
-        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        Set<ConstraintViolation<OmsorgspengerRequestDto>> violations = validator.validate(dto);
         assertEquals(0, violations.size());
     }
 
@@ -92,9 +102,9 @@ public class OmsorgspengerRequestDtoTest {
         var fraværHeleDager = List.of(
             lagFraværHeleDager(LocalDate.now().minusWeeks(3), LocalDate.now().minusWeeks(2)),
             lagFraværHeleDager(LocalDate.now().minusWeeks(2), LocalDate.now()));
-        var dto = lagOmsorgspengerRequestDto(true, fraværHeleDager, null);
+        var dto = new OmsorgspengerRequestDto(true, fraværHeleDager, null);
 
-        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        Set<ConstraintViolation<OmsorgspengerRequestDto>> violations = validator.validate(dto);
         assertEquals(1, violations.size());
     }
 
@@ -105,9 +115,9 @@ public class OmsorgspengerRequestDtoTest {
             lagFraværHeleDager(LocalDate.now().minusWeeks(1), LocalDate.now()));
 
         var fraværDelerAvDagen = List.of(lagFraværDelerAvDagen(LocalDate.now().plusWeeks(1), new BigDecimal("2.5")));
-        var dto = lagOmsorgspengerRequestDto(true, fraværHeleDager, fraværDelerAvDagen);
+        var dto = new OmsorgspengerRequestDto(true, fraværHeleDager, fraværDelerAvDagen);
 
-        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        Set<ConstraintViolation<OmsorgspengerRequestDto>> violations = validator.validate(dto);
         assertEquals(0, violations.size());
     }
 
@@ -121,24 +131,18 @@ public class OmsorgspengerRequestDtoTest {
             lagFraværDelerAvDagen(LocalDate.now().minusWeeks(2), new BigDecimal("2.5")),
             lagFraværDelerAvDagen(LocalDate.now(), new BigDecimal("2.5")));
 
-        var dto = lagOmsorgspengerRequestDto(true, fraværHeleDager, fraværDelerAvDagen);
+        var dto = new OmsorgspengerRequestDto(true, fraværHeleDager, fraværDelerAvDagen);
 
-        Set<ConstraintViolation<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto>> violations = validator.validate(dto);
+        Set<ConstraintViolation<OmsorgspengerRequestDto>> violations = validator.validate(dto);
         assertEquals(1, violations.size());
     }
 
-    private SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto lagFraværHeleDager(LocalDate fom, LocalDate tom) {
-        return new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto(fom, tom);
+    private OmsorgspengerRequestDto.FraværHeleDagerRequestDto lagFraværHeleDager(LocalDate fom, LocalDate tom) {
+        return new OmsorgspengerRequestDto.FraværHeleDagerRequestDto(fom, tom);
     }
 
-    private SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto lagFraværDelerAvDagen(LocalDate dato, BigDecimal timer) {
-        return new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(dato, timer);
-    }
-
-    private SendInntektsmeldingRequestDto.OmsorgspengerRequestDto lagOmsorgspengerRequestDto(Boolean harUtbetaltPliktigeDager,
-                                                                                                  List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto> fraværHeleDager,
-                                                                                                  List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto> fraværDelerAvDagen) {
-        return new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(harUtbetaltPliktigeDager, fraværHeleDager, fraværDelerAvDagen);
+    private OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto lagFraværDelerAvDagen(LocalDate dato, BigDecimal timer) {
+        return new OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(dato, timer);
     }
 }
 

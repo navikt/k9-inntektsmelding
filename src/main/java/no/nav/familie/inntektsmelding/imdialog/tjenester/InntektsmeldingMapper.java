@@ -20,6 +20,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
@@ -90,7 +91,7 @@ public class InntektsmeldingMapper {
         var bortfalteNaturalytelser = mapTilBortfaltNaturalytelseRequestDto(imEntitet);
         var endringsårsaker = mapTilEndringsårsakerRequestDto(imEntitet);
 
-        SendInntektsmeldingRequestDto.OmsorgspengerRequestDto omsorgspenger = null;
+        OmsorgspengerRequestDto omsorgspenger = null;
         if (imEntitet.getOmsorgspenger() != null) {
             omsorgspenger = mapTilOmsorgspengerRequestDto(imEntitet);
         }
@@ -138,21 +139,21 @@ public class InntektsmeldingMapper {
         return endringsårsaker;
     }
 
-    private static SendInntektsmeldingRequestDto.OmsorgspengerRequestDto mapTilOmsorgspengerRequestDto(InntektsmeldingEntitet imEntitet) {
+    private static OmsorgspengerRequestDto mapTilOmsorgspengerRequestDto(InntektsmeldingEntitet imEntitet) {
         if (imEntitet.getOmsorgspenger() == null) {
             return null;
         }
 
         var omsorgspengerEntitet = imEntitet.getOmsorgspenger();
-        var omsorgspenger = new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto(
+        var omsorgspenger = new OmsorgspengerRequestDto(
             omsorgspengerEntitet.isHarUtbetaltPliktigeDager(),
             omsorgspengerEntitet.getFraværsPerioder()
                 .stream()
-                .map(fravær -> new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto(fravær.getPeriode().getFom(), fravær.getPeriode().getTom()))
+                .map(fravær -> new OmsorgspengerRequestDto.FraværHeleDagerRequestDto(fravær.getPeriode().getFom(), fravær.getPeriode().getTom()))
                 .toList(),
             omsorgspengerEntitet.getDelvisFraværsPerioder()
                 .stream()
-                .map(delvisFravær -> new SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(delvisFravær.getDato(), delvisFravær.getTimer()))
+                .map(delvisFravær -> new OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(delvisFravær.getDato(), delvisFravær.getTimer()))
                 .toList()
         );
 
@@ -215,7 +216,7 @@ public class InntektsmeldingMapper {
         return new KontaktpersonEntitet(dto.kontaktperson().navn(), dto.kontaktperson().telefonnummer());
     }
 
-    private static OmsorgspengerEntitet mapOmsorgspenger(SendInntektsmeldingRequestDto.OmsorgspengerRequestDto dto) {
+    private static OmsorgspengerEntitet mapOmsorgspenger(OmsorgspengerRequestDto dto) {
         return OmsorgspengerEntitet.builder()
             .medHarUtbetaltPliktigeDager(dto.harUtbetaltPliktigeDager())
             .medFraværsPerioder(mapFraværsPerioder(dto.fraværHeleDager()))
@@ -223,7 +224,7 @@ public class InntektsmeldingMapper {
             .build();
     }
 
-    private static List<FraværsPeriodeEntitet> mapFraværsPerioder(List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværHeleDagerRequestDto> dto) {
+    private static List<FraværsPeriodeEntitet> mapFraværsPerioder(List<OmsorgspengerRequestDto.FraværHeleDagerRequestDto> dto) {
         if (dto == null) {
             return null;
         }
@@ -232,7 +233,7 @@ public class InntektsmeldingMapper {
             .toList();
     }
 
-    private static List<DelvisFraværsPeriodeEntitet> mapDelvisFraværsPerioder(List<SendInntektsmeldingRequestDto.OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto> dto) {
+    private static List<DelvisFraværsPeriodeEntitet> mapDelvisFraværsPerioder(List<OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto> dto) {
         if (dto == null) {
             return null;
         }
