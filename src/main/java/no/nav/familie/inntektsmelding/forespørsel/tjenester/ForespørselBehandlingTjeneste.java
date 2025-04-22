@@ -321,7 +321,7 @@ public class ForespørselBehandlingTjeneste {
 
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, Ytelsetype.OMSORGSPENGER);
         var merkelapp = ForespørselTekster.finnMerkelapp(Ytelsetype.OMSORGSPENGER);
-        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
+        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + uuid);
         var fagerSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
