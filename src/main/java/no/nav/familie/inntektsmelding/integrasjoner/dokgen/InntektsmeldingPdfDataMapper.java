@@ -4,7 +4,6 @@ import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.Inntektsmeldin
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.List;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
@@ -56,21 +54,6 @@ public class InntektsmeldingPdfDataMapper {
         }
 
         return imDokumentdataBuilder.build();
-    }
-
-    private static Omsorgspenger mapOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
-        var datoFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        var fraværsPerioder = omsorgspenger.getFraværsPerioder()
-            .stream()
-            .map(fp -> new Omsorgspenger.FraværsPeriode(fp.getPeriode().getFom().format(datoFormat), fp.getPeriode().getTom().format(datoFormat)))
-            .toList();
-
-        var delvisFraværsPerioder = omsorgspenger.getDelvisFraværsPerioder()
-            .stream()
-            .map(dfp -> new Omsorgspenger.DelvisFraværsPeriode(dfp.getDato().format(datoFormat), dfp.getTimer()))
-            .toList();
-
-        return new Omsorgspenger(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværsPerioder, delvisFraværsPerioder);
     }
 
     private static List<Endringsarsak> mapEndringsårsaker(List<EndringsårsakEntitet> endringsårsaker) {
