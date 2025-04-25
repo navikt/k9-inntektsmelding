@@ -47,10 +47,17 @@ public class OmsorgspengerRefusjonPdfDataMapper {
 
         var delvisFraværsPerioder = omsorgspenger.getDelvisFraværsPerioder()
             .stream()
+            .filter(dfp -> dfp.getTimer().compareTo(BigDecimal.ZERO) > 0)
             .map(dfp -> new Omsorgspenger.DelvisFraværsPeriode(dfp.getDato().format(datoFormat), dfp.getTimer()))
             .toList();
 
-        return new Omsorgspenger(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværsPerioder, delvisFraværsPerioder);
+        var trukketFraværsPerioder = omsorgspenger.getDelvisFraværsPerioder()
+            .stream()
+            .filter(dfp -> dfp.getTimer().compareTo(BigDecimal.ZERO) == 0)
+            .map(dfp -> new Omsorgspenger.TrukketFraværsPeriode(dfp.getDato().format(datoFormat)))
+            .toList();
+
+        return new Omsorgspenger(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværsPerioder, delvisFraværsPerioder, trukketFraværsPerioder);
     }
 
     private static List<Endringsarsak> mapEndringsårsaker(List<EndringsårsakEntitet> endringsårsaker) {

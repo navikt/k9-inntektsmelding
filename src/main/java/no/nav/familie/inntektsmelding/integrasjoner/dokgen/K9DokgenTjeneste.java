@@ -50,7 +50,7 @@ public class K9DokgenTjeneste {
         }
 
         var imDokumentdata = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
-        return genererPdf(imDokumentdata, inntektsmeldingsid);
+        return genererPdfForInntektsmelding(imDokumentdata, inntektsmeldingsid);
     }
 
     private byte[] genererPdfForOmsorgspengerRefusjon(OmsorgspengerRefusjonPdfData imDokumentData, int inntektsmeldingId) {
@@ -66,7 +66,7 @@ public class K9DokgenTjeneste {
         }
     }
 
-    private byte[] genererPdf(InntektsmeldingPdfData imDokumentData, int inntektsmeldingId) {
+    private byte[] genererPdfForInntektsmelding(InntektsmeldingPdfData imDokumentData, int inntektsmeldingId) {
         try {
             byte[] pdf = k9DokgenKlient.genererPdf(imDokumentData);
             LOG.info("Pdf av inntektsmelding med id {} ble generert.", inntektsmeldingId);
