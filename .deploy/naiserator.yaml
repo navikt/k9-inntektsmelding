@@ -30,6 +30,17 @@ spec:
   prometheus:
     enabled: true
     path: /k9/inntektsmelding/internal/metrics/prometheus
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+      destinations:
+        - id: "grafana-lgtm"
+        - id: "elastic-apm"
   replicas:
     min: {{minReplicas}}
     max: {{maxReplicas}}
