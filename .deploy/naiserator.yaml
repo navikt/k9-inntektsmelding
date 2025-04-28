@@ -40,7 +40,6 @@ spec:
       runtime: java
       destinations:
         - id: "grafana-lgtm"
-        - id: "elastic-apm"
   replicas:
     min: {{minReplicas}}
     max: {{maxReplicas}}
