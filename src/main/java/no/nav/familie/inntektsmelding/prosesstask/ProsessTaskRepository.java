@@ -11,6 +11,10 @@ import jakarta.persistence.EntityManager;
 public class ProsessTaskRepository {
     private EntityManager entityManager;
 
+    public ProsessTaskRepository() {
+        // CDI
+    }
+
     @Inject
     public ProsessTaskRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
