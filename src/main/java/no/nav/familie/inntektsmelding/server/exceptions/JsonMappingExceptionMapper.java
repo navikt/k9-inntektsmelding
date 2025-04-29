@@ -16,7 +16,15 @@ public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingEx
     @Override
     public Response toResponse(JsonMappingException exception) {
         var feil = "FIM-252294: JSON-mapping feil";
-        LOG.warn(feil);
+        LOG.warn(feil, new FeltFeilDto("stack_trace", getStackTraceAsString(exception)));
         return Response.status(Response.Status.BAD_REQUEST).entity(new FeilDto(feil)).type(MediaType.APPLICATION_JSON).build();
+    }
+
+    private String getStackTraceAsString(JsonMappingException exception) {
+        StringBuilder sb = new StringBuilder();
+        for (StackTraceElement element : exception.getStackTrace()) {
+            sb.append(element.toString()).append("\n");
+        }
+        return sb.toString();
     }
 }
