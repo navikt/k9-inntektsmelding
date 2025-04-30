@@ -1,9 +1,8 @@
 {
   "environment": "prod",
   "minReplicas": "2",
-  "maxReplicas": "6",
+  "maxReplicas": "4",
   "limits": {
-    "cpu": "2",
     "mem": "2048Mi"
   },
   "requests": {
