@@ -20,7 +20,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class StatistikkMetrikkTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatistikkMetrikkTask.class);
-    private static final String PROSESS_TASK_METRIKK_NAVN = "k9-inntektsmelding.prosessTask.feilende";
+    private static final String PROSESS_TASK_METRIKK_NAVN = "k9_inntektsmelding_prosessTask_feilende";
+    private static final AtomicLong GAUGE = REGISTRY.gauge(PROSESS_TASK_METRIKK_NAVN, new AtomicLong(0));
+
     private ProsessTaskRepository prosessTaskRepository;
 
     public StatistikkMetrikkTask() {
@@ -36,6 +38,6 @@ public class StatistikkMetrikkTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         var feilendeProsessTasker = prosessTaskRepository.tellAntallFeilendeProsessTasker();
         LOG.info("Antall feilende prosess tasker: {}", feilendeProsessTasker);
-        REGISTRY.gauge(PROSESS_TASK_METRIKK_NAVN, new AtomicLong(feilendeProsessTasker));
+        GAUGE.set(feilendeProsessTasker);
     }
 }
