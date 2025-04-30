@@ -35,6 +35,7 @@ public class StatistikkMetrikkTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var feilendeProsessTasker = prosessTaskRepository.tellAntallFeilendeProsessTasker();
+        LOG.info("Antall feilende prosess tasker: {}", feilendeProsessTasker);
         REGISTRY.gauge(PROSESS_TASK_METRIKK_NAVN, new AtomicLong(feilendeProsessTasker));
     }
 }
