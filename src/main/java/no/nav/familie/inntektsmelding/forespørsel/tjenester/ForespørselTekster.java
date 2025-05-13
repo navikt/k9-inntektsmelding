@@ -12,10 +12,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
@@ -31,6 +34,8 @@ class ForespørselTekster {
     private static final String TILLEGGSINFORMASJON_UTGÅTT = "Du trenger ikke lenger sende inntektsmelding for første fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_ORDINÆR = "For første fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_OMS_REFUSJON = "For %s.";
+
+    private static final Logger LOG = LoggerFactory.getLogger(ForespørselTekster.class);
 
     private ForespørselTekster() {
         // Skjuler default
@@ -56,13 +61,21 @@ class ForespørselTekster {
             .stream()
             .collect(Collectors.groupingBy(Month::from, Collectors.counting()));
 
-        return String.format(TILLEGGSINFORMASJON_OMS_REFUSJON,
+        var tilleggsinfo = String.format(TILLEGGSINFORMASJON_OMS_REFUSJON,
             fraværPerMåned
-            .entrySet()
-            .stream()
+                .entrySet()
+                .stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(måned -> String.format("%s %s i %s", måned.getValue(), dagEllerDager(måned.getValue()), måned.getKey().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("NO"))))
-            .collect(Collectors.joining(", ")));
+                .collect(Collectors.joining(", ")));
+
+
+        if (tilleggsinfo.length() >= 140) {
+            LOG.info("Mottok tilleggsinfo med mange perioder: {}", tilleggsinfo);
+            return tilleggsinfo.substring(0, 137) + "...";
+        }
+
+        return tilleggsinfo;
     }
 
     private static String dagEllerDager(long antallDager) {
