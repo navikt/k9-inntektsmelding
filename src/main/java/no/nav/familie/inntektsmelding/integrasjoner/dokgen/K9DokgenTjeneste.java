@@ -44,7 +44,7 @@ public class K9DokgenTjeneste {
         personInfo = personTjeneste.hentPersonInfoFraAktørId(inntektsmelding.getAktørId(), inntektsmelding.getYtelsetype());
         arbeidsgiverNavn = finnArbeidsgiverNavn(inntektsmelding, arbeidsgvierIdent);
 
-        if (inntektsmelding.getYtelsetype() == Ytelsetype.OMSORGSPENGER) {
+        if (inntektsmelding.getYtelsetype() == Ytelsetype.OMSORGSPENGER && inntektsmelding.getOmsorgspenger() != null) {
             var omsorgspengerRefusjonPdfData = OmsorgspengerRefusjonPdfDataMapper.mapOmsorgspengerRefusjonData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
             return genererPdfForOmsorgspengerRefusjon(omsorgspengerRefusjonPdfData, inntektsmeldingsid);
         }
