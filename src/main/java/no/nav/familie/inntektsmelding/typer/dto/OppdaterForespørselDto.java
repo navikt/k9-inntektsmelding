@@ -9,4 +9,10 @@ public record OppdaterForespørselDto(@NotNull LocalDate skjæringstidspunkt,
                                      @NotNull @Valid OrganisasjonsnummerDto orgnr,
                                      @NotNull ForespørselAksjon aksjon,
                                      @Valid OmsorgspengerDataDto omsorgspengerData) {
+
+    public OppdaterForespørselDto(@NotNull LocalDate skjæringstidspunkt,
+                                  @NotNull @Valid OrganisasjonsnummerDto orgnr,
+                                  @NotNull ForespørselAksjon aksjon) {
+        this(skjæringstidspunkt, orgnr, aksjon, null);
+    }
 }
