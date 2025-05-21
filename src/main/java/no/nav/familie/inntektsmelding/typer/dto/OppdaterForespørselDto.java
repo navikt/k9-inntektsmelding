@@ -1,12 +1,9 @@
-package no.nav.familie.inntektsmelding.forespørsel.rest;
+package no.nav.familie.inntektsmelding.typer.dto;
 
 import java.time.LocalDate;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-
-import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
-import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 
 public record OppdaterForespørselDto(@NotNull LocalDate skjæringstidspunkt,
                                      @NotNull @Valid OrganisasjonsnummerDto orgnr,
