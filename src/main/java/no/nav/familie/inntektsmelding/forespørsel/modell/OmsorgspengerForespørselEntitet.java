@@ -31,10 +31,10 @@ public class OmsorgspengerForespørselEntitet {
     @Column(name = "BEGRUNNELSE_FOR_SOEKNAD", nullable = false)
     private String begrunnelseForSøknad;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "OMSORGSPENGER_FORESPOERSEL")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "omsorgspengerForespørsel")
     private List<FraværsPeriodeForespørselEntitet> fraværsPerioder = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "OMSORGSPENGER_FORESPOERSEL")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "omsorgspengerForespørsel")
     private List<DelvisFraværsDagForespørselEntitet> delvisFraværsDager = new ArrayList<>();
 
     public OmsorgspengerForespørselEntitet() {
