@@ -32,17 +32,17 @@ public class DelvisFraværsDagForespørselEntitet {
     @Column(name = "FRAVAERS_TIMER", nullable = false, updatable = false)
     private BigDecimal fraværstimer;
 
-    @Column(name = "FORVENTET_ARBEIDS_TIMER", nullable = false, updatable = false)
-    private BigDecimal forventetArbeidstimer;
+    @Column(name = "NORMAL_ARBEIDSTID", nullable = false, updatable = false)
+    private BigDecimal normalArbeidstid;
 
     public DelvisFraværsDagForespørselEntitet() {
         // Hibernate
     }
 
-    public DelvisFraværsDagForespørselEntitet(LocalDate dato, BigDecimal fraværstimer, BigDecimal forventetArbeidstimer) {
+    public DelvisFraværsDagForespørselEntitet(LocalDate dato, BigDecimal fraværstimer, BigDecimal normalArbeidstid) {
         this.dato = dato;
         this.fraværstimer = fraværstimer;
-        this.forventetArbeidstimer = forventetArbeidstimer;
+        this.normalArbeidstid = normalArbeidstid;
     }
 
     public Long getId() {
@@ -57,8 +57,8 @@ public class DelvisFraværsDagForespørselEntitet {
         return fraværstimer;
     }
 
-    public BigDecimal getForventetArbeidstimer() {
-        return forventetArbeidstimer;
+    public BigDecimal getNormalArbeidstid() {
+        return normalArbeidstid;
     }
 
     public OmsorgspengerForespørselEntitet getOmsorgspengerForespørsel() {
