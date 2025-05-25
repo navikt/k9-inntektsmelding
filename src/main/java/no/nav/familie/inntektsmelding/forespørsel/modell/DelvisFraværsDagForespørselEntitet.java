@@ -14,7 +14,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 @SequenceGenerator(name = "GLOBAL_PK_SEQ_GENERATOR", sequenceName = "SEQ_GLOBAL_PK")
-@Entity(name = "DelvisFraværsDagEntitet")
+@Entity(name = "DelvisFraværsDagForespørselEntitet")
 @Table(name = "DELVIS_FRAVAERS_DAG_FORESPOERSEL")
 public class DelvisFraværsDagForespørselEntitet {
 

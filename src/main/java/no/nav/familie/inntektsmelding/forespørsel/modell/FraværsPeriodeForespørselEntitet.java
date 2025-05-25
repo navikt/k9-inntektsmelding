@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 
 @SequenceGenerator(name = "GLOBAL_PK_SEQ_GENERATOR", sequenceName = "SEQ_GLOBAL_PK")
-@Entity(name = "FraværsPeriodeEntitet")
+@Entity(name = "FraværsPeriodeForespørselEntitet")
 @Table(name = "FRAVAERS_PERIODE_FORESPOERSEL")
 public class FraværsPeriodeForespørselEntitet {
 
