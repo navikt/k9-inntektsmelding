@@ -7,5 +7,5 @@ import jakarta.validation.constraints.NotNull;
 
 public record DelvisFraværsDagDto(@NotNull LocalDate dato,
                                   @NotNull BigDecimal fraværstimer,
-                                  @NotNull BigDecimal forventetArbeidstimer) {
+                                  @NotNull BigDecimal normalArbeidstid) {
 }

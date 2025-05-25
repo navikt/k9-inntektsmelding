@@ -10,7 +10,7 @@ public record OmsorgspengerDataDto(@Valid String begrunnelseForSøknad,
                                    @Valid List<DelvisFraværsDagDto> delvisFraværsDager) {
 
     @AssertTrue(message = "Ingen fraværsPerioder overlapper")
-    private boolean isValidIngenOverlappMellomfraværsPerioder() {
+    private boolean isValidIngenOverlappMellomFraværsPerioder() {
         if (fraværsPerioder == null || fraværsPerioder.isEmpty()) {
             return true;
         }
@@ -23,7 +23,7 @@ public record OmsorgspengerDataDto(@Valid String begrunnelseForSøknad,
 
 
     @AssertTrue(message = "Ingen duplikate delvisFraværsDager finnes")
-    private boolean isValidIngenDuplikatedelvisFraværsDager() {
+    private boolean isValidIngenDuplikateDelvisFraværsDager() {
         if (delvisFraværsDager == null || delvisFraværsDager.isEmpty()) {
             return true;
         }
@@ -36,7 +36,7 @@ public record OmsorgspengerDataDto(@Valid String begrunnelseForSøknad,
 
 
     @AssertTrue(message = "Ingen delvisFraværsDager finnes i fraværsPerioder")
-    private boolean isValidIngenOvelerlappMellomFraværDelevAvDagenOgfraværsPerioder() {
+    private boolean isValidIngenOverlappMellomFraværDelevAvDagenOgFraværsPerioder() {
         if (fraværsPerioder == null || fraværsPerioder.isEmpty() || delvisFraværsDager == null || delvisFraværsDager.isEmpty()) {
             return true;
         }

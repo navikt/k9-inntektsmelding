@@ -16,7 +16,7 @@ public record FraværsPeriodeDto(@NotNull LocalDate fom,
         return (fom.isBefore(dato) || fom.isEqual(dato)) && (tom.isAfter(dato) || tom.isEqual(dato));
     }
 
-    @AssertTrue(message = "fom er før tom")
+    @AssertTrue(message = "fom er før eller lik tom")
     private boolean isValidFomErFørTom() {
         return fom.isBefore(tom) || fom.isEqual(tom);
     }
