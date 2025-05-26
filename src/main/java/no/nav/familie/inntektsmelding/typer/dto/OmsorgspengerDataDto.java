@@ -36,7 +36,7 @@ public record OmsorgspengerDataDto(@Valid String begrunnelseForSøknad,
 
 
     @AssertTrue(message = "Ingen delvisFraværsDager finnes i fraværsPerioder")
-    private boolean isValidIngenOverlappMellomFraværDelevAvDagenOgFraværsPerioder() {
+    private boolean isValidIngenOverlappMellomFraværDelerAvDagenOgFraværsPerioder() {
         if (fraværsPerioder == null || fraværsPerioder.isEmpty() || delvisFraværsDager == null || delvisFraværsDager.isEmpty()) {
             return true;
         }
