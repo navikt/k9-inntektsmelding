@@ -26,7 +26,7 @@ public class OmsorgspengerForespørselEntitet {
 
     @OneToOne(optional = false)
     @JoinColumn(name = "FORESPOERSEL_ID", nullable = false, updatable = false)
-    private ForespørselEntitet forespoersel;
+    private ForespørselEntitet forespørsel;
 
     @Column(name = "BEGRUNNELSE_FOR_SOEKNAD", nullable = false)
     private String begrunnelseForSøknad;
@@ -51,6 +51,18 @@ public class OmsorgspengerForespørselEntitet {
 
     public String getBegrunnelseForSøknad() {
         return begrunnelseForSøknad;
+    }
+
+    public List<FraværsPeriodeForespørselEntitet> getFraværsPerioder() {
+        return fraværsPerioder;
+    }
+
+    public List<DelvisFraværsDagForespørselEntitet> getDelvisFraværsDager() {
+        return delvisFraværsDager;
+    }
+
+    public void setForespørsel(ForespørselEntitet forespørsel) {
+        this.forespørsel = forespørsel;
     }
 
     private void leggTilFraværsPeriode(FraværsPeriodeForespørselEntitet fraværsPeriode) {

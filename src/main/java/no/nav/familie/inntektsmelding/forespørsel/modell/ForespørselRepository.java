@@ -12,8 +12,10 @@ import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselMapper;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.OmsorgspengerDataDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -32,14 +34,27 @@ public class ForespørselRepository {
     }
 
 
-    public UUID lagreForespørsel(LocalDate skjæringstidspunkt, Ytelsetype ytelsetype, String aktørId, String orgnummer, String saksnummer,
+    public UUID lagreForespørsel(LocalDate skjæringstidspunkt,
+                                 Ytelsetype ytelsetype,
+                                 String aktørId,
+                                 String orgnummer,
+                                 String saksnummer,
                                  LocalDate førsteUttaksdato) {
-        var forespørselEntitet = new ForespørselEntitet(orgnummer,
-            skjæringstidspunkt,
-            new AktørIdEntitet(aktørId),
-            ytelsetype,
-            saksnummer,
-            førsteUttaksdato);
+        var forespørselEntitet = ForespørselMapper.mapForespørsel(skjæringstidspunkt, ytelsetype, aktørId, orgnummer, saksnummer, førsteUttaksdato);
+        LOG.info("ForespørselRepository: lagrer forespørsel entitet: {}", forespørselEntitet);
+        entityManager.persist(forespørselEntitet);
+        entityManager.flush();
+        return forespørselEntitet.getUuid();
+    }
+
+    public UUID lagreForespørsel(LocalDate skjæringstidspunkt,
+                                 Ytelsetype ytelsetype,
+                                 String aktørId,
+                                 String orgnummer,
+                                 String saksnummer,
+                                 LocalDate førsteUttaksdato,
+                                 OmsorgspengerDataDto omsorgspenger) {
+        var forespørselEntitet = ForespørselMapper.mapForespørsel(skjæringstidspunkt, ytelsetype, aktørId, orgnummer, saksnummer, førsteUttaksdato, omsorgspenger);
         LOG.info("ForespørselRepository: lagrer forespørsel entitet: {}", forespørselEntitet);
         entityManager.persist(forespørselEntitet);
         entityManager.flush();

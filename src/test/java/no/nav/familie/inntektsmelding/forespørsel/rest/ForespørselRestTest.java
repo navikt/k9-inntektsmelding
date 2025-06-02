@@ -14,8 +14,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselMapper;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
@@ -25,7 +25,6 @@ import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
-import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
@@ -87,10 +86,10 @@ class ForespørselRestTest {
         var expectedOrg = "123456789";
         var expectedBruker = "1233425324241";
         var expectedSkjæringstidspunkt = LocalDate.now();
-        var input = new ForespørselEntitet(expectedOrg, expectedSkjæringstidspunkt, new AktørIdEntitet(expectedBruker), Ytelsetype.PLEIEPENGER_SYKT_BARN,
-            "9876544321", expectedSkjæringstidspunkt.plusDays(10));
+        var forespørselEntitet = ForespørselMapper.mapForespørsel(expectedSkjæringstidspunkt, Ytelsetype.PLEIEPENGER_SYKT_BARN,
+            expectedBruker, expectedOrg, "9876544321", expectedSkjæringstidspunkt.plusDays(10));
 
-        var resultat = ForespørselRest.mapTilDto(input);
+        var resultat = ForespørselRest.mapTilDto(forespørselEntitet);
 
         assertThat(resultat).isNotNull().isInstanceOf(ForespørselRest.ForespørselDto.class);
         assertThat(resultat.organisasjonsnummer()).isEqualTo(new OrganisasjonsnummerDto(expectedOrg));
