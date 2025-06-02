@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsDagInntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeInntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -122,12 +122,10 @@ class InntektsmeldingXMLTjenesteTest {
             .build();
         var aktørIdSøker = new AktørIdEntitet("1234567891234");
         var fnrSøker = new PersonIdent("11111111111");
-        var omsorgspenger = OmsorgspengerEntitet.builder()
+        var omsorgspenger = OmsorgspengerInntektsmeldingEntitet.builder()
             .medHarUtbetaltPliktigeDager(true)
-            .medFraværsPerioder(List.of(new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2024, 6, 1),
-                LocalDate.of(2024, 6, 10)))))
-            .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(LocalDate.of(2024, 6, 1),
-                BigDecimal.valueOf(3))));
+            .medFraværsPerioder(List.of(new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 10)))))
+            .medDelvisFraværsDager(List.of(new DelvisFraværsDagInntektsmeldingEntitet(LocalDate.of(2024, 6, 1), BigDecimal.valueOf(3))));
 
         var inntektsmelding = InntektsmeldingEntitet.builder()
             .medArbeidsgiverIdent("999999999")

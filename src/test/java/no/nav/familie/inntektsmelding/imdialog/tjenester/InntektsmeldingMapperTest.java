@@ -15,10 +15,10 @@ import org.junit.jupiter.api.Test;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
@@ -241,7 +241,7 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getOmsorgspenger().getFraværsPerioder()).hasSize(1);
         assertThat(entitet.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getFom()).isEqualTo(forventetFraværsFom);
         assertThat(entitet.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getTom()).isEqualTo(forventetFraværsTom);
-        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder()).isEmpty();
+        assertThat(entitet.getOmsorgspenger().getDelvisFraværsDager()).isEmpty();
     }
 
     @Test
@@ -280,9 +280,9 @@ class InntektsmeldingMapperTest {
         assertThat(entitet.getMånedRefusjon()).isNull();
         assertThat(entitet.getOpphørsdatoRefusjon()).isNull();
         assertThat(entitet.getOmsorgspenger().isHarUtbetaltPliktigeDager()).isTrue();
-        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder()).hasSize(1);
-        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
-        assertThat(entitet.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getTimer()).isEqualTo(forventetAntallFraværsTimer);
+        assertThat(entitet.getOmsorgspenger().getDelvisFraværsDager()).hasSize(1);
+        assertThat(entitet.getOmsorgspenger().getDelvisFraværsDager().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
+        assertThat(entitet.getOmsorgspenger().getDelvisFraværsDager().getFirst().getTimer()).isEqualTo(forventetAntallFraværsTimer);
         assertThat(entitet.getOmsorgspenger().getFraværsPerioder()).isEmpty();
     }
 
@@ -526,10 +526,10 @@ class InntektsmeldingMapperTest {
                     .medÅrsak(Endringsårsak.TARIFFENDRING)
                     .build()
             ))
-            .medOmsorgspenger(OmsorgspengerEntitet.builder()
+            .medOmsorgspenger(OmsorgspengerInntektsmeldingEntitet.builder()
                 .medHarUtbetaltPliktigeDager(true)
-                .medFraværsPerioder(List.of(new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now().plusDays(5)))))
-                .medDelvisFraværsPerioder(null)
+                .medFraværsPerioder(List.of(new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now().plusDays(5)))))
+                .medDelvisFraværsDager(null)
                 .build()
             )
             .build();

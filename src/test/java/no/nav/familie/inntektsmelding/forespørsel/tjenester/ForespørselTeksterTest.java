@@ -9,8 +9,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsDagInntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeInntektsmeldingEntitet;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 
@@ -58,12 +58,12 @@ class ForespørselTeksterTest {
 
     @Test
     void lagTilleggsInformasjon_OmsorgspengerRefusjon() {
-        List<FraværsPeriodeEntitet> fraværsPerioder = List.of(
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 25), LocalDate.of(2025, 3, 27))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 29), LocalDate.of(2025, 3, 31))));
-        List<DelvisFraværsPeriodeEntitet> delvisFravær = List.of(
-            new DelvisFraværsPeriodeEntitet(LocalDate.of(2025, 3, 23), BigDecimal.valueOf(2)),
-            new DelvisFraværsPeriodeEntitet(LocalDate.of(2025, 4, 2), BigDecimal.valueOf(4)));
+        List<FraværsPeriodeInntektsmeldingEntitet> fraværsPerioder = List.of(
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 25), LocalDate.of(2025, 3, 27))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 29), LocalDate.of(2025, 3, 31))));
+        List<DelvisFraværsDagInntektsmeldingEntitet> delvisFravær = List.of(
+            new DelvisFraværsDagInntektsmeldingEntitet(LocalDate.of(2025, 3, 23), BigDecimal.valueOf(2)),
+            new DelvisFraværsDagInntektsmeldingEntitet(LocalDate.of(2025, 4, 2), BigDecimal.valueOf(4)));
         String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspengerRefusjon(fraværsPerioder, delvisFravær);
         var forventetTekst = "For 7 dager i mars, 1 dag i april.";
         assertEquals(forventetTekst, statusTekst);
@@ -71,19 +71,19 @@ class ForespørselTeksterTest {
 
     @Test
     void lagTilleggsInformasjon_OmsorgspengerRefusjon_lang_tekst_skal_forkortes() {
-        List<FraværsPeriodeEntitet> fraværsPerioder = List.of(
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 1, 9), LocalDate.of(2025, 1, 27))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 2, 9), LocalDate.of(2025, 2, 10))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 9), LocalDate.of(2025, 3, 10))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 4, 9), LocalDate.of(2025, 4, 10))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 5, 9), LocalDate.of(2025, 5, 10))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 6, 9), LocalDate.of(2025, 6, 10))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 7, 9), LocalDate.of(2025, 7, 10))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 8, 9), LocalDate.of(2025, 8, 10))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 9, 9), LocalDate.of(2025, 9, 10))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 10, 9), LocalDate.of(2025, 10, 10))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 11, 9), LocalDate.of(2025, 11, 10))),
-            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 12, 9), LocalDate.of(2025, 12, 10))));
+        List<FraværsPeriodeInntektsmeldingEntitet> fraværsPerioder = List.of(
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 1, 9), LocalDate.of(2025, 1, 27))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 2, 9), LocalDate.of(2025, 2, 10))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 9), LocalDate.of(2025, 3, 10))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 4, 9), LocalDate.of(2025, 4, 10))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 5, 9), LocalDate.of(2025, 5, 10))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 6, 9), LocalDate.of(2025, 6, 10))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 7, 9), LocalDate.of(2025, 7, 10))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 8, 9), LocalDate.of(2025, 8, 10))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 9, 9), LocalDate.of(2025, 9, 10))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 10, 9), LocalDate.of(2025, 10, 10))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 11, 9), LocalDate.of(2025, 11, 10))),
+            new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 12, 9), LocalDate.of(2025, 12, 10))));
         String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspengerRefusjon(fraværsPerioder, List.of());
         assertTrue(statusTekst.contains("..."));
     }

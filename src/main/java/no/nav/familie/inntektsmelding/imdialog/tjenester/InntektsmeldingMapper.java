@@ -11,12 +11,12 @@ import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsDagInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
@@ -151,7 +151,7 @@ public class InntektsmeldingMapper {
                 .stream()
                 .map(fravær -> new OmsorgspengerRequestDto.FraværHeleDagerRequestDto(fravær.getPeriode().getFom(), fravær.getPeriode().getTom()))
                 .toList(),
-            omsorgspengerEntitet.getDelvisFraværsPerioder()
+            omsorgspengerEntitet.getDelvisFraværsDager()
                 .stream()
                 .map(delvisFravær -> new OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(delvisFravær.getDato(), delvisFravær.getTimer()))
                 .toList()
@@ -216,29 +216,29 @@ public class InntektsmeldingMapper {
         return new KontaktpersonEntitet(dto.kontaktperson().navn(), dto.kontaktperson().telefonnummer());
     }
 
-    private static OmsorgspengerEntitet mapOmsorgspenger(OmsorgspengerRequestDto dto) {
-        return OmsorgspengerEntitet.builder()
+    private static OmsorgspengerInntektsmeldingEntitet mapOmsorgspenger(OmsorgspengerRequestDto dto) {
+        return OmsorgspengerInntektsmeldingEntitet.builder()
             .medHarUtbetaltPliktigeDager(dto.harUtbetaltPliktigeDager())
             .medFraværsPerioder(mapFraværsPerioder(dto.fraværHeleDager()))
-            .medDelvisFraværsPerioder(mapDelvisFraværsPerioder(dto.fraværDelerAvDagen()))
+            .medDelvisFraværsDager(mapDelvisFraværsDager(dto.fraværDelerAvDagen()))
             .build();
     }
 
-    private static List<FraværsPeriodeEntitet> mapFraværsPerioder(List<OmsorgspengerRequestDto.FraværHeleDagerRequestDto> dto) {
-        if (dto == null) {
+    private static List<FraværsPeriodeInntektsmeldingEntitet> mapFraværsPerioder(List<OmsorgspengerRequestDto.FraværHeleDagerRequestDto> fraværsPerioder) {
+        if (fraværsPerioder == null) {
             return null;
         }
-        return dto.stream()
-            .map(fraværsPeriode -> new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(fraværsPeriode.fom(), fraværsPeriode.tom())))
+        return fraværsPerioder.stream()
+            .map(fraværsPeriode -> new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(fraværsPeriode.fom(), fraværsPeriode.tom())))
             .toList();
     }
 
-    private static List<DelvisFraværsPeriodeEntitet> mapDelvisFraværsPerioder(List<OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto> dto) {
-        if (dto == null) {
+    private static List<DelvisFraværsDagInntektsmeldingEntitet> mapDelvisFraværsDager(List<OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto> delvisFraværsDager) {
+        if (delvisFraværsDager == null) {
             return null;
         }
-        return dto.stream()
-            .map(delvisFraværsPeriode -> new DelvisFraværsPeriodeEntitet(delvisFraværsPeriode.dato(), delvisFraværsPeriode.timer()))
+        return delvisFraværsDager.stream()
+            .map(delvisFraværsDag -> new DelvisFraværsDagInntektsmeldingEntitet(delvisFraværsDag.dato(), delvisFraværsDag.timer()))
             .toList();
     }
 }

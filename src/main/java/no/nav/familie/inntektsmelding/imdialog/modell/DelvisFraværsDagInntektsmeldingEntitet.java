@@ -12,9 +12,9 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity(name = "DelvisFraværsPeriodeEntitet")
-@Table(name = "DELVIS_FRAVAERS_PERIODE")
-public class DelvisFraværsPeriodeEntitet {
+@Entity(name = "DelvisFraværsDagInntektsmeldingEntitet")
+@Table(name = "DELVIS_FRAVAERS_DAG_INNTEKTSMELDING")
+public class DelvisFraværsDagInntektsmeldingEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
@@ -22,7 +22,7 @@ public class DelvisFraværsPeriodeEntitet {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "omsorgspenger_id", nullable = false, updatable = false)
-    private OmsorgspengerEntitet omsorgspenger;
+    private OmsorgspengerInntektsmeldingEntitet omsorgspenger;
 
     @Column(name = "dato", nullable = false)
     private LocalDate dato;
@@ -30,11 +30,11 @@ public class DelvisFraværsPeriodeEntitet {
     @Column(name = "timer", nullable = false)
     private BigDecimal timer;
 
-    public DelvisFraværsPeriodeEntitet() {
+    public DelvisFraværsDagInntektsmeldingEntitet() {
         // Hibernate
     }
 
-    public DelvisFraværsPeriodeEntitet(LocalDate dato, BigDecimal timer) {
+    public DelvisFraværsDagInntektsmeldingEntitet(LocalDate dato, BigDecimal timer) {
         this.dato = dato;
         this.timer = timer;
     }
@@ -47,13 +47,13 @@ public class DelvisFraværsPeriodeEntitet {
         return timer;
     }
 
-    void setOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
+    void setOmsorgspenger(OmsorgspengerInntektsmeldingEntitet omsorgspenger) {
         this.omsorgspenger = omsorgspenger;
     }
 
     @Override
     public String toString() {
-        return "DelvisFraværsPeriodeEntitet{" +
+        return "DelvisFraværsDagInntektsmeldingEntitet{" +
             "dato=" + dato +
             ", timer=" + timer +
             '}';
