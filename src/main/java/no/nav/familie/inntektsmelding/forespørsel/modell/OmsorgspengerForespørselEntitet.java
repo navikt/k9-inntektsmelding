@@ -53,12 +53,12 @@ public class OmsorgspengerForespørselEntitet {
         return begrunnelseForSøknad;
     }
 
-    public void leggTilFraværsPeriode(FraværsPeriodeForespørselEntitet fraværsPeriode) {
+    private void leggTilFraværsPeriode(FraværsPeriodeForespørselEntitet fraværsPeriode) {
         fraværsPeriode.setOmsorgspengerForespørsel(this);
         fraværsPerioder.add(fraværsPeriode);
     }
 
-    public void leggTilDelvisFraværsDag(DelvisFraværsDagForespørselEntitet delvisFraværsDag) {
+    private void leggTilDelvisFraværsDag(DelvisFraværsDagForespørselEntitet delvisFraværsDag) {
         delvisFraværsDag.setOmsorgspengerForespørsel(this);
         delvisFraværsDager.add(delvisFraværsDag);
     }
