@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -169,11 +170,38 @@ public class ForespørselEntitet {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ForespørselEntitet that)) return false;
+
+        return Objects.equals(sakId, that.sakId)
+            && Objects.equals(organisasjonsnummer, that.organisasjonsnummer)
+            && Objects.equals(skjæringstidspunkt, that.skjæringstidspunkt)
+            && Objects.equals(aktørId, that.aktørId)
+            && ytelseType == that.ytelseType
+            && Objects.equals(saksnummer, that.saksnummer)
+            && Objects.equals(førsteUttaksdato, that.førsteUttaksdato)
+            && Objects.equals(omsorgspenger, that.omsorgspenger);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sakId, organisasjonsnummer, skjæringstidspunkt, aktørId, ytelseType, saksnummer, førsteUttaksdato, omsorgspenger);
+    }
+
+    @Override
     public String toString() {
-        return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + maskerId(organisasjonsnummer)
-            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelseType=" + ytelseType
-            + ", saksnummer="
-            + saksnummer + '}';
+        return "ForespørselEntitet{" +
+            "id=" + id +
+            ", uuid=" + uuid +
+            ", sakId=" + sakId +
+            ", organisasjonsnummer=" + maskerId(organisasjonsnummer) +
+            ", skjæringstidspunkt=" + skjæringstidspunkt +
+            ", aktørId=" + maskerId(aktørId.getAktørId()) +
+            ", ytelseType=" + ytelseType +
+            ", saksnummer=" + saksnummer +
+            ", omsorgspenger=" + omsorgspenger +
+            '}';
     }
 
     private String maskerId(String id) {

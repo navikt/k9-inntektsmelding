@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.modell;
 
+import java.util.Objects;
+
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -50,4 +52,30 @@ public class FraværsPeriodeForespørselEntitet {
     public void setOmsorgspengerForespørsel(OmsorgspengerForespørselEntitet omsorgspengerForespørsel) {
         this.omsorgspengerForespørsel = omsorgspengerForespørsel;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FraværsPeriodeForespørselEntitet that)) {
+            return false;
+        }
+        return Objects.equals(periode, that.periode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(periode);
+    }
+
+    @Override
+    public String toString() {
+        return "FraværsPeriodeForespørselEntitet{" +
+            "id=" + id +
+            ", periode=" + periode +
+            ", omsorgspengerForespørsel=" + omsorgspengerForespørsel.getId() +
+            '}';
+    }
+
 }

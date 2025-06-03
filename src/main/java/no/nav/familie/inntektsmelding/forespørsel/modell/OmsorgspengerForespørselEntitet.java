@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.forespørsel.modell;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -69,6 +70,35 @@ public class OmsorgspengerForespørselEntitet {
     private void leggTilDelvisFraværsDag(DelvisFraværsDagForespørselEntitet delvisFraværsDag) {
         delvisFraværsDag.setOmsorgspengerForespørsel(this);
         delvisFraværsDager.add(delvisFraværsDag);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof OmsorgspengerForespørselEntitet that)) {
+            return false;
+        }
+
+        return Objects.equals(begrunnelseForSøknad, that.begrunnelseForSøknad)
+            && Objects.equals(fraværsPerioder, that.fraværsPerioder)
+            && Objects.equals(delvisFraværsDager, that.delvisFraværsDager);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(begrunnelseForSøknad, fraværsPerioder, delvisFraværsDager);
+    }
+
+    @Override
+    public String toString() {
+        return "OmsorgspengerForespørselEntitet{" +
+                "id=" + id +
+                ", begrunnelseForSøknad='" + begrunnelseForSøknad +
+                ", fraværsPerioder=" + fraværsPerioder +
+                ", delvisFraværsDager=" + delvisFraværsDager +
+                '}';
     }
 
     public static Builder builder() {

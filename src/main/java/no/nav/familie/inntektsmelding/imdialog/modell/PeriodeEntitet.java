@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.imdialog.modell;
 
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -41,6 +42,24 @@ public class PeriodeEntitet {
         }
         this.fom = fomDato;
         this.tom = tomDato;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PeriodeEntitet that)) {
+            return false;
+        }
+
+        return fom.equals(that.fom)
+            && tom.equals(that.tom);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fom, tom);
     }
 
     @Override

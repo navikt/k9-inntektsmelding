@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.forespørsel.modell;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -67,5 +68,34 @@ public class DelvisFraværsDagForespørselEntitet {
 
     public void setOmsorgspengerForespørsel(OmsorgspengerForespørselEntitet omsorgspengerForespørsel) {
         this.omsorgspengerForespørsel = omsorgspengerForespørsel;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DelvisFraværsDagForespørselEntitet that)) {
+            return false;
+        }
+
+        return Objects.equals(dato, that.dato) &&
+               Objects.equals(fraværstimer, that.fraværstimer) &&
+               Objects.equals(normalArbeidstid, that.normalArbeidstid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dato, fraværstimer, normalArbeidstid);
+    }
+
+    @Override
+    public String toString() {
+        return "DelvisFraværsDagForespørselEntitet{" +
+               "id=" + id +
+               ", dato=" + dato +
+               ", fraværstimer=" + fraværstimer +
+               ", normalArbeidstid=" + normalArbeidstid +
+               '}';
     }
 }
