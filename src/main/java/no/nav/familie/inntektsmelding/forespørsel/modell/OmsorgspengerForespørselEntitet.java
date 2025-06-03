@@ -37,12 +37,8 @@ public class OmsorgspengerForespørselEntitet {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "omsorgspengerForespørsel")
     private List<DelvisFraværsDagForespørselEntitet> delvisFraværsDager = new ArrayList<>();
 
-    public OmsorgspengerForespørselEntitet() {
+    OmsorgspengerForespørselEntitet() {
         // Hibernate
-    }
-
-    public OmsorgspengerForespørselEntitet(String begrunnelseForSøknad) {
-        this.begrunnelseForSøknad = begrunnelseForSøknad;
     }
 
     public Long getId() {

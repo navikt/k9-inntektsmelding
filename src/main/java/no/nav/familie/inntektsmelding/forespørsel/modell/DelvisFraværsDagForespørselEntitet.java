@@ -35,7 +35,7 @@ public class DelvisFraværsDagForespørselEntitet {
     @Column(name = "NORMAL_ARBEIDSTID", nullable = false, updatable = false)
     private BigDecimal normalArbeidstid;
 
-    public DelvisFraværsDagForespørselEntitet() {
+    DelvisFraværsDagForespørselEntitet() {
         // Hibernate
     }
 

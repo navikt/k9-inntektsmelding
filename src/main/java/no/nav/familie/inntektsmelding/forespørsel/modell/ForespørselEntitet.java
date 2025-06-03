@@ -84,7 +84,7 @@ public class ForespørselEntitet {
     @OneToMany(mappedBy = "forespørsel", fetch = FetchType.LAZY)
     private List<InntektsmeldingEntitet> inntektsmeldinger;
 
-    public ForespørselEntitet() {
+    ForespørselEntitet() {
         this.uuid = UUID.randomUUID();
     }
 

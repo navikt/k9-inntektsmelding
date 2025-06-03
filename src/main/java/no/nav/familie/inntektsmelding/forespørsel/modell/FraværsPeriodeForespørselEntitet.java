@@ -27,7 +27,7 @@ public class FraværsPeriodeForespørselEntitet {
     @Embedded
     private PeriodeEntitet periode;
 
-    public FraværsPeriodeForespørselEntitet() {
+    FraværsPeriodeForespørselEntitet() {
         // Hibernate
     }
 
