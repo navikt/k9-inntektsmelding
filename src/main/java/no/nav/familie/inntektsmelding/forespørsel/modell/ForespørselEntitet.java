@@ -259,7 +259,7 @@ public class ForespørselEntitet {
         }
 
         public ForespørselEntitet build() {
-            if (kladd.organisasjonsnummer == null || kladd.skjæringstidspunkt == null || kladd.aktørId == null || kladd.ytelseType == null || kladd.saksnummer == null) {
+            if (kladd.organisasjonsnummer == null || kladd.skjæringstidspunkt == null || kladd.aktørId == null || kladd.ytelseType == null) {
                 throw new IllegalArgumentException("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
             }
             if (kladd.ytelseType != Ytelsetype.OMSORGSPENGER && kladd.omsorgspenger != null) {

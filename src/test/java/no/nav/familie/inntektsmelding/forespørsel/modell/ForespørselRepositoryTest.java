@@ -121,34 +121,6 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
                 null));
 
         Exception e1 = assertThrows(IllegalArgumentException.class,
-            () -> forespørselRepository.lagreForespørsel(LocalDate.now(),
-                Ytelsetype.PLEIEPENGER_SYKT_BARN,
-                "9999999999999",
-                "999999999",
-                null,
-                null));
-        assertThat(e1.getMessage()).contains("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
-
-        Exception e2 = assertThrows(IllegalArgumentException.class,
-            () -> forespørselRepository.lagreForespørsel(LocalDate.now(),
-                Ytelsetype.PLEIEPENGER_SYKT_BARN,
-                "9999999999999",
-                null,
-                "123",
-                null));
-        assertThat(e2.getMessage()).contains("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
-
-        Exception e3 = assertThrows(IllegalArgumentException.class,
-            () -> forespørselRepository.lagreForespørsel(LocalDate.now(),
-                null,
-                "9999999999999",
-                "999999999",
-                "123",
-                null));
-
-        assertThat(e3.getMessage()).contains("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
-
-        Exception e4 = assertThrows(IllegalArgumentException.class,
             () -> forespørselRepository.lagreForespørsel(null,
                 Ytelsetype.PLEIEPENGER_SYKT_BARN,
                 "9999999999999",
@@ -156,7 +128,26 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
                 "123",
                 null));
 
-        assertThat(e4.getMessage()).contains("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
+        assertThat(e1.getMessage()).contains("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
+
+        Exception e2 = assertThrows(IllegalArgumentException.class,
+            () -> forespørselRepository.lagreForespørsel(LocalDate.now(),
+                null,
+                "9999999999999",
+                "999999999",
+                "123",
+                null));
+
+        assertThat(e2.getMessage()).contains("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
+
+        Exception e3 = assertThrows(IllegalArgumentException.class,
+            () -> forespørselRepository.lagreForespørsel(LocalDate.now(),
+                Ytelsetype.PLEIEPENGER_SYKT_BARN,
+                "9999999999999",
+                null,
+                "123",
+                null));
+        assertThat(e3.getMessage()).contains("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
     }
 
     @Test
