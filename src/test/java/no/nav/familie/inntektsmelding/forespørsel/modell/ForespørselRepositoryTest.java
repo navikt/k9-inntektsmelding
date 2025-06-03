@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.modell;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -107,6 +108,74 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
         assertThat(hentet.getOmsorgspenger().getDelvisFraværsDager().get(0).getDato()).isEqualTo(delvisFraværsDag.dato());
         assertThat(hentet.getOmsorgspenger().getDelvisFraværsDager().get(0).getFraværstimer()).isEqualByComparingTo(delvisFraværsDag.fraværstimer());
         assertThat(hentet.getOmsorgspenger().getDelvisFraværsDager().get(0).getNormalArbeidstid()).isEqualByComparingTo(delvisFraværsDag.normalArbeidstid());
+    }
+
+    @Test
+    void skal_kaste_feil_dersom_et_obligatorisk_felt_mangler() {
+        assertThrows(NullPointerException.class,
+            () -> forespørselRepository.lagreForespørsel(LocalDate.now(),
+                Ytelsetype.PLEIEPENGER_SYKT_BARN,
+                null,
+                "999999999",
+                "123",
+                null));
+
+        Exception e1 = assertThrows(IllegalArgumentException.class,
+            () -> forespørselRepository.lagreForespørsel(LocalDate.now(),
+                Ytelsetype.PLEIEPENGER_SYKT_BARN,
+                "9999999999999",
+                "999999999",
+                null,
+                null));
+        assertThat(e1.getMessage()).contains("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
+
+        Exception e2 = assertThrows(IllegalArgumentException.class,
+            () -> forespørselRepository.lagreForespørsel(LocalDate.now(),
+                Ytelsetype.PLEIEPENGER_SYKT_BARN,
+                "9999999999999",
+                null,
+                "123",
+                null));
+        assertThat(e2.getMessage()).contains("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
+
+        Exception e3 = assertThrows(IllegalArgumentException.class,
+            () -> forespørselRepository.lagreForespørsel(LocalDate.now(),
+                null,
+                "9999999999999",
+                "999999999",
+                "123",
+                null));
+
+        assertThat(e3.getMessage()).contains("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
+
+        Exception e4 = assertThrows(IllegalArgumentException.class,
+            () -> forespørselRepository.lagreForespørsel(null,
+                Ytelsetype.PLEIEPENGER_SYKT_BARN,
+                "9999999999999",
+                "999999999",
+                "123",
+                null));
+
+        assertThat(e4.getMessage()).contains("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
+    }
+
+    @Test
+    void skal_feile_for_omsorgspenger_med_annen_ytelse_type() {
+        var begrunnelse = "Begrunnelse for søknad";
+        var fraværsPeriode = new FraværsPeriodeDto(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5));
+        var delvisFraværsDag = new DelvisFraværsDagDto(LocalDate.now().minusDays(3), BigDecimal.valueOf(4.5), BigDecimal.valueOf(7.5));
+        var omsorgspengerData = new OmsorgspengerDataDto(begrunnelse, List.of(fraværsPeriode), List.of(delvisFraværsDag));
+
+        Exception e4 = assertThrows(IllegalArgumentException.class,
+            () -> forespørselRepository.lagreForespørsel(LocalDate.now(),
+                Ytelsetype.PLEIEPENGER_SYKT_BARN,
+                "9999999999999",
+                "999999999",
+                "123",
+                null,
+                omsorgspengerData));
+
+        assertThat(e4.getMessage()).contains("OmsorgspengerForespørselEntitet skal kun settes for ytelseType Omsorgspenger, ikke for yteleseType:");
     }
 
     private void clearHibernateCache() {

@@ -231,6 +231,13 @@ public class ForespørselEntitet {
         }
 
         public ForespørselEntitet build() {
+            if (kladd.organisasjonsnummer == null || kladd.skjæringstidspunkt == null || kladd.aktørId == null || kladd.ytelseType == null || kladd.saksnummer == null) {
+                throw new IllegalArgumentException("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
+            }
+            if (kladd.ytelseType != Ytelsetype.OMSORGSPENGER && kladd.omsorgspenger != null) {
+                throw new IllegalArgumentException("OmsorgspengerForespørselEntitet skal kun settes for ytelseType Omsorgspenger, ikke for yteleseType: " + kladd.ytelseType);
+            }
+
             return kladd;
         }
     }
