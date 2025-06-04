@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "hentinntektlistebolk.url", endpointDefault = "http://ikomp.team-inntekt/rs/api/v1/hentinntektlistebolk", scopesProperty = "hentinntektlistebolk.scopes", scopesDefault = "api://prod-fss.team-inntekt.ikomp/.default")
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "hentinntektlistebolk.url", endpointDefault = "https://ikomp.prod-fss-pub.nais.io/rs/api/v1/hentinntektlistebolk", scopesProperty = "hentinntektlistebolk.scopes", scopesDefault = "api://prod-fss.team-inntekt.ikomp/.default")
 public class InntektskomponentKlient {
     private static final Logger LOG = LoggerFactory.getLogger(InntektskomponentKlient.class);
     private static final YearMonth INNTK_TIDLIGSTE_DATO = YearMonth.of(2015, 7);
