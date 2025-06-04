@@ -27,13 +27,13 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsDagInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
@@ -156,29 +156,29 @@ public class K9DokgenRestTjeneste {
             .toList();
     }
 
-    private static OmsorgspengerEntitet mapOmsorgspenger(OmsorgspengerRequestDto dto) {
-        return OmsorgspengerEntitet.builder()
+    private static OmsorgspengerInntektsmeldingEntitet mapOmsorgspenger(OmsorgspengerRequestDto dto) {
+        return OmsorgspengerInntektsmeldingEntitet.builder()
             .medHarUtbetaltPliktigeDager(dto.harUtbetaltPliktigeDager())
             .medFraværsPerioder(mapFraværsPerioder(dto.fraværsPerioder()))
-            .medDelvisFraværsPerioder(mapDelvisFraværsPerioder(dto.delvisFraværsPerioder()))
+            .medDelvisFraværsDager(mapDelvisFraværsDager(dto.delvisFraværsDager()))
             .build();
     }
 
-    private static List<FraværsPeriodeEntitet> mapFraværsPerioder(List<FraværsPeriodeRequestDto> dto) {
-        if (dto == null) {
+    private static List<FraværsPeriodeInntektsmeldingEntitet> mapFraværsPerioder(List<FraværsPeriodeRequestDto> fraværsPerioder) {
+        if (fraværsPerioder == null) {
             return null;
         }
-        return dto.stream()
-            .map(fraværsPeriode -> new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(fraværsPeriode.fom(), fraværsPeriode.tom())))
+        return fraværsPerioder.stream()
+            .map(fraværsPeriode -> new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(fraværsPeriode.fom(), fraværsPeriode.tom())))
             .toList();
     }
 
-    private static List<DelvisFraværsPeriodeEntitet> mapDelvisFraværsPerioder(List<DelvisFraværsPeriodeRequestDto> dto) {
-        if (dto == null) {
+    private static List<DelvisFraværsDagInntektsmeldingEntitet> mapDelvisFraværsDager(List<DelvisFraværsDagRequestDto> delvisFraværsDager) {
+        if (delvisFraværsDager == null) {
             return null;
         }
-        return dto.stream()
-            .map(delvisFraværsPeriode -> new DelvisFraværsPeriodeEntitet(delvisFraværsPeriode.dato(), delvisFraværsPeriode.timer()))
+        return delvisFraværsDager.stream()
+            .map(delvisFraværsDag -> new DelvisFraværsDagInntektsmeldingEntitet(delvisFraværsDag.dato(), delvisFraværsDag.timer()))
             .toList();
     }
 
@@ -228,7 +228,7 @@ public class K9DokgenRestTjeneste {
 
     public record OmsorgspengerRequestDto(@NotNull Boolean harUtbetaltPliktigeDager,
                                           List<@Valid FraværsPeriodeRequestDto> fraværsPerioder,
-                                          List<@Valid DelvisFraværsPeriodeRequestDto> delvisFraværsPerioder) {
+                                          List<@Valid DelvisFraværsDagRequestDto> delvisFraværsDager) {
     }
 
     public record FraværsPeriodeRequestDto(@NotNull LocalDate fom,
@@ -236,8 +236,8 @@ public class K9DokgenRestTjeneste {
 
     }
 
-    public record DelvisFraværsPeriodeRequestDto(@NotNull LocalDate dato,
-                                                 @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal timer) {
+    public record DelvisFraværsDagRequestDto(@NotNull LocalDate dato,
+                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal timer) {
     }
 
     private void sjekkAtKallerHarRollenDrift() {

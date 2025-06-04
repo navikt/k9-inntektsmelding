@@ -9,9 +9,9 @@ import java.util.Map;
 
 import jakarta.xml.bind.JAXBElement;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsDagInntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeInntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 
@@ -91,12 +91,12 @@ class InntektsmeldingXMLMapperTest {
 
         var aktøridFnrMap = Map.of(DUMMY_AKTØRID, PersonIdent.fra(DUMMY_FNR));
 
-        var omsorgspenger = OmsorgspengerEntitet.builder()
+        var omsorgspenger = OmsorgspengerInntektsmeldingEntitet.builder()
             .medHarUtbetaltPliktigeDager(true)
-            .medFraværsPerioder(List.of(new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom, forventetFraværsPeriodeTom)),
-                new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom2, forventetFraværsPeriodeTom2))))
-            .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato, forventetTimer),
-                new DelvisFraværsPeriodeEntitet(forventetDelvisFraværDato2, forventetTimer2)));
+            .medFraværsPerioder(List.of(new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom, forventetFraværsPeriodeTom)),
+                new FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet.fraOgMedTilOgMed(forventetFraværsPeriodeFom2, forventetFraværsPeriodeTom2))))
+            .medDelvisFraværsDager(List.of(new DelvisFraværsDagInntektsmeldingEntitet(forventetDelvisFraværDato, forventetTimer),
+                new DelvisFraværsDagInntektsmeldingEntitet(forventetDelvisFraværDato2, forventetTimer2)));
 
 
         var inntektsmelding = lagInntektsmeldingEntitet(DUMMY_AKTØRID, Kildesystem.ARBEIDSGIVERPORTAL, omsorgspenger.build());
@@ -155,7 +155,7 @@ class InntektsmeldingXMLMapperTest {
 
     private static InntektsmeldingEntitet lagInntektsmeldingEntitet(AktørIdEntitet aktørId,
                                                                     Kildesystem kildesystem,
-                                                                    OmsorgspengerEntitet omsorgspenger) {
+                                                                    OmsorgspengerInntektsmeldingEntitet omsorgspenger) {
         return InntektsmeldingEntitet.builder()
             .medArbeidsgiverIdent(DUMMY_ARBEIDSGIVER_IDENT)
             .medAktørId(aktørId)

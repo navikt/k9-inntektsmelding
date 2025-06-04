@@ -14,9 +14,9 @@ import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "OmsorgspengerEntitet")
-@Table(name = "OMSORGSPENGER")
-public class OmsorgspengerEntitet {
+@Entity(name = "OmsorgspengerInntektsmeldingEntitet")
+@Table(name = "OMSORGSPENGER_INNTEKTSMELDING")
+public class OmsorgspengerInntektsmeldingEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
@@ -30,17 +30,17 @@ public class OmsorgspengerEntitet {
     private boolean harUtbetaltPliktigeDager;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "omsorgspenger")
-    private List<FraværsPeriodeEntitet> fraværsPerioder = new ArrayList<>();
+    private List<FraværsPeriodeInntektsmeldingEntitet> fraværsPerioder = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "omsorgspenger")
-    private List<DelvisFraværsPeriodeEntitet> delvisFraværsPerioder = new ArrayList<>();
+    private List<DelvisFraværsDagInntektsmeldingEntitet> delvisFraværsDager = new ArrayList<>();
 
 
-    public OmsorgspengerEntitet() {
+    public OmsorgspengerInntektsmeldingEntitet() {
         // Hibernate
     }
 
-    public OmsorgspengerEntitet(boolean harUtbetaltPliktigeDager) {
+    public OmsorgspengerInntektsmeldingEntitet(boolean harUtbetaltPliktigeDager) {
         this.harUtbetaltPliktigeDager = harUtbetaltPliktigeDager;
     }
 
@@ -48,26 +48,26 @@ public class OmsorgspengerEntitet {
         return harUtbetaltPliktigeDager;
     }
 
-    public List<FraværsPeriodeEntitet> getFraværsPerioder() {
+    public List<FraværsPeriodeInntektsmeldingEntitet> getFraværsPerioder() {
         return fraværsPerioder;
     }
 
-    public List<DelvisFraværsPeriodeEntitet> getDelvisFraværsPerioder() {
-        return delvisFraværsPerioder;
+    public List<DelvisFraværsDagInntektsmeldingEntitet> getDelvisFraværsDager() {
+        return delvisFraværsDager;
     }
 
     public void setInntektsmelding(InntektsmeldingEntitet inntektsmelding) {
         this.inntektsmelding = inntektsmelding;
     }
 
-    private void leggTilFraværsPeriode(FraværsPeriodeEntitet fraværsPeriode) {
+    private void leggTilFraværsPeriode(FraværsPeriodeInntektsmeldingEntitet fraværsPeriode) {
         fraværsPeriode.setOmsorgspenger(this);
         fraværsPerioder.add(fraværsPeriode);
     }
 
-    private void leggTilDelvisFraværsPeriode(DelvisFraværsPeriodeEntitet delvisFraværsPeriode) {
-        delvisFraværsPeriode.setOmsorgspenger(this);
-        delvisFraværsPerioder.add(delvisFraværsPeriode);
+    private void leggTilDelvisFraværsDag(DelvisFraværsDagInntektsmeldingEntitet delvisFraværsDag) {
+        delvisFraværsDag.setOmsorgspenger(this);
+        delvisFraværsDager.add(delvisFraværsDag);
     }
 
     public static Builder builder() {
@@ -75,38 +75,38 @@ public class OmsorgspengerEntitet {
     }
 
     public static class Builder {
-        private final OmsorgspengerEntitet kladd = new OmsorgspengerEntitet();
+        private final OmsorgspengerInntektsmeldingEntitet kladd = new OmsorgspengerInntektsmeldingEntitet();
 
         public Builder medHarUtbetaltPliktigeDager(boolean harUtbetaltPliktigeDager) {
             kladd.harUtbetaltPliktigeDager = harUtbetaltPliktigeDager;
             return this;
         }
 
-        public Builder medFraværsPerioder(List<FraværsPeriodeEntitet> fraværsPerioder) {
+        public Builder medFraværsPerioder(List<FraværsPeriodeInntektsmeldingEntitet> fraværsPerioder) {
             if (fraværsPerioder != null) {
                 fraværsPerioder.forEach(kladd::leggTilFraværsPeriode);
             }
             return this;
         }
 
-        public Builder medDelvisFraværsPerioder(List<DelvisFraværsPeriodeEntitet> delvisFraværsPerioder) {
-            if (delvisFraværsPerioder != null) {
-                delvisFraværsPerioder.forEach(kladd::leggTilDelvisFraværsPeriode);
+        public Builder medDelvisFraværsDager(List<DelvisFraværsDagInntektsmeldingEntitet> delvisFraværsDager) {
+            if (delvisFraværsDager != null) {
+                delvisFraværsDager.forEach(kladd::leggTilDelvisFraværsDag);
             }
             return this;
         }
 
-        public OmsorgspengerEntitet build() {
+        public OmsorgspengerInntektsmeldingEntitet build() {
             return kladd;
         }
     }
 
     @Override
     public String toString() {
-        return "OmsorgspengerEntitet{" +
+        return "OmsorgspengerInntektsmeldingEntitet{" +
             "harUtbetaltPliktigeDager=" + harUtbetaltPliktigeDager +
             ", fraværsPerioder=" + fraværsPerioder +
-            ", delvisFraværsPerioder=" + delvisFraværsPerioder +
+            ", delvisFraværsDager=" + delvisFraværsDager +
             '}';
     }
 }

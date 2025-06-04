@@ -12,9 +12,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsDagInntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeInntektsmeldingEntitet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -53,8 +52,8 @@ class ForespørselTekster {
         };
     }
 
-    public static String lagTilleggsInformasjonForOmsorgspengerRefusjon(List<FraværsPeriodeEntitet> fraværsPerioder,
-                                                                        List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
+    public static String lagTilleggsInformasjonForOmsorgspengerRefusjon(List<FraværsPeriodeInntektsmeldingEntitet> fraværsPerioder,
+                                                                        List<DelvisFraværsDagInntektsmeldingEntitet> delvisFraværDag) {
         List<LocalDate> fravær = sammenstillFravær(fraværsPerioder, delvisFraværDag);
 
         Map<Month, Long> fraværPerMåned = fravær
@@ -82,10 +81,10 @@ class ForespørselTekster {
         return antallDager == 1 ? "dag" : "dager";
     }
 
-    private static List<LocalDate> sammenstillFravær(List<FraværsPeriodeEntitet> fraværsPerioder,
-                                              List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
+    private static List<LocalDate> sammenstillFravær(List<FraværsPeriodeInntektsmeldingEntitet> fraværsPerioder,
+                                                     List<DelvisFraværsDagInntektsmeldingEntitet> delvisFraværDag) {
         List<LocalDate> fravær = new ArrayList<>();
-        for (FraværsPeriodeEntitet fraværsPeriode : fraværsPerioder) {
+        for (FraværsPeriodeInntektsmeldingEntitet fraværsPeriode : fraværsPerioder) {
             LocalDate fraværsDato = fraværsPeriode.getPeriode().getFom();
             while (fraværsDato.isBefore(fraværsPeriode.getPeriode().getTom()) || fraværsDato.isEqual(fraværsPeriode.getPeriode().getTom())) {
                 fravær.add(fraværsDato);
@@ -94,7 +93,7 @@ class ForespørselTekster {
         }
         fravær.addAll(delvisFraværDag
             .stream()
-            .map(DelvisFraværsPeriodeEntitet::getDato)
+            .map(DelvisFraværsDagInntektsmeldingEntitet::getDato)
             .toList());
         fravær.sort(Comparator.naturalOrder());
         return fravær;

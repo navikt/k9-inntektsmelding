@@ -9,9 +9,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-@Entity(name = "FraværsPeriodeEntitet")
-@Table(name = "FRAVAERS_PERIODE")
-public class FraværsPeriodeEntitet {
+@Entity(name = "FraværsPeriodeInntektsmeldingEntitet")
+@Table(name = "FRAVAERS_PERIODE_INNTEKTSMELDING")
+public class FraværsPeriodeInntektsmeldingEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
@@ -19,16 +19,16 @@ public class FraværsPeriodeEntitet {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "omsorgspenger_id", nullable = false, updatable = false)
-    private OmsorgspengerEntitet omsorgspenger;
+    private OmsorgspengerInntektsmeldingEntitet omsorgspenger;
 
     @Embedded
     private PeriodeEntitet periode;
 
-    public FraværsPeriodeEntitet() {
+    public FraværsPeriodeInntektsmeldingEntitet() {
         // Hibernate
     }
 
-    public FraværsPeriodeEntitet(PeriodeEntitet periode) {
+    public FraværsPeriodeInntektsmeldingEntitet(PeriodeEntitet periode) {
         this.periode = periode;
     }
 
@@ -36,17 +36,17 @@ public class FraværsPeriodeEntitet {
         return periode;
     }
 
-    public OmsorgspengerEntitet getOmsorgspenger() {
+    public OmsorgspengerInntektsmeldingEntitet getOmsorgspenger() {
         return omsorgspenger;
     }
 
-    void setOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
+    void setOmsorgspenger(OmsorgspengerInntektsmeldingEntitet omsorgspenger) {
         this.omsorgspenger = omsorgspenger;
     }
 
     @Override
     public String toString() {
-        return "FraværsPeriodeEntitet{" +
+        return "FraværsPeriodeInntektsmeldingEntitet{" +
             "periode=" + periode +
             '}';
     }

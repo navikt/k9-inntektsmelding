@@ -178,10 +178,10 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var forventetDelvisFraværsDato = LocalDate.now().plusDays(11);
         var forventetDelvisFraværsTimer = BigDecimal.valueOf(4);
 
-        var omsorgspenger = OmsorgspengerEntitet.builder()
+        var omsorgspenger = OmsorgspengerInntektsmeldingEntitet.builder()
             .medHarUtbetaltPliktigeDager(true)
-            .medFraværsPerioder(List.of(new FraværsPeriodeEntitet(forventetFraværsPeriode1), new FraværsPeriodeEntitet(forventetFraværsPeriode2)))
-            .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(forventetDelvisFraværsDato, forventetDelvisFraværsTimer)))
+            .medFraværsPerioder(List.of(new FraværsPeriodeInntektsmeldingEntitet(forventetFraværsPeriode1), new FraværsPeriodeInntektsmeldingEntitet(forventetFraværsPeriode2)))
+            .medDelvisFraværsDager(List.of(new DelvisFraværsDagInntektsmeldingEntitet(forventetDelvisFraværsDato, forventetDelvisFraværsTimer)))
             .build();
 
         var imFørLagring = InntektsmeldingEntitet.builder()
@@ -222,8 +222,8 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         assertThat(imEtterLagring.getOmsorgspenger().getFraværsPerioder().getFirst().getPeriode().getTom()).isEqualTo(forventetFraværsPeriode1.getTom());
         assertThat(imEtterLagring.getOmsorgspenger().getFraværsPerioder().getLast().getPeriode().getFom()).isEqualTo(forventetFraværsPeriode2.getFom());
         assertThat(imEtterLagring.getOmsorgspenger().getFraværsPerioder().getLast().getPeriode().getTom()).isEqualTo(forventetFraværsPeriode2.getTom());
-        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsPerioder()).hasSize(1);
-        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
+        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsDager()).hasSize(1);
+        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsDager().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
     }
 
 
@@ -236,10 +236,10 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var forventetDelvisFraværsDato = LocalDate.now().plusDays(11);
         var forventetDelvisFraværsTimer = BigDecimal.valueOf(4);
 
-        var omsorgspenger = OmsorgspengerEntitet.builder()
+        var omsorgspenger = OmsorgspengerInntektsmeldingEntitet.builder()
             .medHarUtbetaltPliktigeDager(true)
             .medFraværsPerioder(null)
-            .medDelvisFraværsPerioder(List.of(new DelvisFraværsPeriodeEntitet(forventetDelvisFraværsDato, forventetDelvisFraværsTimer)))
+            .medDelvisFraværsDager(List.of(new DelvisFraværsDagInntektsmeldingEntitet(forventetDelvisFraværsDato, forventetDelvisFraværsTimer)))
             .build();
 
         var imFørLagring = InntektsmeldingEntitet.builder()
@@ -276,8 +276,8 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
 
         assertThat(imEtterLagring.getOmsorgspenger().isHarUtbetaltPliktigeDager()).isTrue();
         assertThat(imEtterLagring.getOmsorgspenger().getFraværsPerioder()).hasSize(0);
-        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsPerioder()).hasSize(1);
-        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsPerioder().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
+        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsDager()).hasSize(1);
+        assertThat(imEtterLagring.getOmsorgspenger().getDelvisFraværsDager().getFirst().getDato()).isEqualTo(forventetDelvisFraværsDato);
     }
 
 
