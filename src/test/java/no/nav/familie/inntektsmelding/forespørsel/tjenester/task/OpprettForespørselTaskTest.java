@@ -11,8 +11,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselMapper;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -55,8 +55,7 @@ class OpprettForespørselTaskTest {
         taskdata.setProperty(OpprettForespørselTask.STP, skjæringstidspunkt.toString());
 
         when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(saksnummer, organisasjon, skjæringstidspunkt))
-            .thenReturn(List.of(new ForespørselEntitet(organisasjon.orgnr(), skjæringstidspunkt, aktørId, ytelsetype, saksnummer.saksnr(), null
-            )));
+            .thenReturn(List.of(ForespørselMapper.mapForespørsel(skjæringstidspunkt, ytelsetype, aktørId.getAktørId(), organisasjon.orgnr(), saksnummer.saksnr(), null)));
 
         task.doTask(taskdata);
 

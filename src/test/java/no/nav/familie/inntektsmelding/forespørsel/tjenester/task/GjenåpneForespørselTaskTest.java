@@ -2,10 +2,12 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselMapper;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
@@ -27,8 +29,8 @@ import static org.mockito.Mockito.*;
 
 class GjenåpneForespørselTaskTest {
 
-    private final UUID forespørselUuid = UUID.randomUUID();
-    private final ForespørselEntitet entitet = new ForespørselEntitet();
+    private final ForespørselEntitet entitet = ForespørselMapper.mapForespørsel(LocalDate.now(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "1234567890134", "arbeidsgiverOrgNr", "saksnummer", LocalDate.now());
+    private final UUID forespørselUuid = entitet.getUuid();
     private final InntektsmeldingResponseDto inntektsmeldingResponseDto = new InntektsmeldingResponseDto(
         1L,
         UUID.randomUUID(),
