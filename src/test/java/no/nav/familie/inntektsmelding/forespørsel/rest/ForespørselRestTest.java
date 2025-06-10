@@ -86,7 +86,7 @@ class ForespørselRestTest {
     }
 
     @Test
-    void hent_skal_filtrere_vekk_duplikate_forespørsler() {
+    void hent_skal_filtrere_vekk_duplikate_forespørsler_1() {
         var orgnummer = new OrganisasjonsnummerDto(BRREG_ORGNUMMER);
         var stp = LocalDate.now();
         var aktørId = new AktørIdDto("1234567890134");
@@ -107,6 +107,30 @@ class ForespørselRestTest {
         assertThat(forespørselDtos).isNotNull();
         assertThat(forespørselDtos.size()).isEqualTo(1);
         assertThat(forespørselDtos.getFirst().status()).isEqualTo(ForespørselStatus.FERDIG);
+    }
+
+    @Test
+    void hent_skal_filtrere_vekk_duplikate_forespørsler_2() {
+        var orgnummer = new OrganisasjonsnummerDto(BRREG_ORGNUMMER);
+        var stp = LocalDate.now();
+        var aktørId = new AktørIdDto("1234567890134");
+
+        var forespørsel1 = new ForespørselEntitet(orgnummer.orgnr(), stp, new AktørIdEntitet(aktørId.id()), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp);
+        forespørsel1.setStatus(ForespørselStatus.UTGÅTT);
+        var forespørsel2 = new ForespørselEntitet(orgnummer.orgnr(), stp, new AktørIdEntitet(aktørId.id()), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp);
+        forespørsel2.setStatus(ForespørselStatus.UTGÅTT);
+
+        when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(any(SaksnummerDto.class), eq(null), eq(null))).thenReturn(List.of(forespørsel1, forespørsel2));
+
+        var response = forespørselRest.hentForespørslerForSak("SAK");
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        List<ForespørselRest.ForespørselDto> forespørselDtos = (List<ForespørselRest.ForespørselDto>) response.getEntity();
+
+        assertThat(forespørselDtos).isNotNull();
+        assertThat(forespørselDtos.size()).isEqualTo(1);
+        assertThat(forespørselDtos.getFirst().status()).isEqualTo(ForespørselStatus.UTGÅTT);
     }
 
     @Test
