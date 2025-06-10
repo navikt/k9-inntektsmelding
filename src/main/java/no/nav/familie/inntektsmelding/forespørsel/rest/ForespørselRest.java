@@ -150,15 +150,16 @@ public class ForespørselRest {
         List<ForespørselEntitet> resultat = new ArrayList<>();
         for (ForespørselEntitet forespørsel : forespørsler) {
             if (forespørsel.getStatus() == ForespørselStatus.UTGÅTT) {
-                var duplikater = forespørsler.stream().filter(f -> f.getSkjæringstidspunkt().equals(forespørsel.getSkjæringstidspunkt())
-                    && f.getOrganisasjonsnummer().equals(forespørsel.getOrganisasjonsnummer())
-                    && f != forespørsel).toList();
+                var duplikater = forespørsler.stream().filter(f ->
+                        f.getSkjæringstidspunkt().equals(forespørsel.getSkjæringstidspunkt())
+                            && f.getOrganisasjonsnummer().equals(forespørsel.getOrganisasjonsnummer())
+                            && f != forespørsel)
+                    .toList();
 
-                boolean harDuplikatFerdigEllerUnderBehandling = duplikater.stream()
-                    .anyMatch(d -> d.getStatus() == ForespørselStatus.FERDIG || d.getStatus() == ForespørselStatus.UNDER_BEHANDLING);
-                boolean harDuplikatNyereUtgått = duplikater.stream()
-                    .anyMatch(d -> d.getStatus() == ForespørselStatus.UTGÅTT && d.getOpprettetTidspunkt().isAfter(forespørsel.getOpprettetTidspunkt()));
-                if (!harDuplikatFerdigEllerUnderBehandling && !harDuplikatNyereUtgått) {
+                boolean harDuplikatMedAnnenStatusEllerNyere = duplikater.stream()
+                    .anyMatch(d -> d.getStatus() != ForespørselStatus.UTGÅTT
+                        || d.getOpprettetTidspunkt().isAfter(forespørsel.getOpprettetTidspunkt()));
+                if (!harDuplikatMedAnnenStatusEllerNyere) {
                     resultat.add(forespørsel);
                 }
             } else {
