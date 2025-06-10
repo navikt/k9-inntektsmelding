@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,8 +88,17 @@ public class InntektsmeldingTjeneste {
         var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
         var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto, forespørselEntitet);
         var imId = lagreOgLagJournalførTask(entitet, forespørselEntitet);
+
+        List<FraværsPeriodeEntitet> omsorgspengerFraværsPerioder = entitet.getOmsorgspenger() != null
+            ? entitet.getOmsorgspenger().getFraværsPerioder()
+            : List.of();
+
+        List<DelvisFraværsPeriodeEntitet> omsorgspengerDelvisFraværsPerioder = entitet.getOmsorgspenger() != null
+            ? entitet.getOmsorgspenger().getDelvisFraværsPerioder()
+            : List.of();
+
         var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(mottattInntektsmeldingDto.foresporselUuid(), aktorId, orgnummer,
-            LukkeÅrsak.ORDINÆR_INNSENDING, List.of(), List.of());
+            LukkeÅrsak.ORDINÆR_INNSENDING, omsorgspengerFraværsPerioder, omsorgspengerDelvisFraværsPerioder);
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
 
