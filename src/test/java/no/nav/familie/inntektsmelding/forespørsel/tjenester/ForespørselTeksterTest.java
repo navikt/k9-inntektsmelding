@@ -64,7 +64,7 @@ class ForespørselTeksterTest {
         List<DelvisFraværsPeriodeEntitet> delvisFravær = List.of(
             new DelvisFraværsPeriodeEntitet(LocalDate.of(2025, 3, 23), BigDecimal.valueOf(2)),
             new DelvisFraværsPeriodeEntitet(LocalDate.of(2025, 4, 2), BigDecimal.valueOf(4)));
-        String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspengerRefusjon(fraværsPerioder, delvisFravær);
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, delvisFravær);
         var forventetTekst = "For 7 dager i mars, 1 dag i april.";
         assertEquals(forventetTekst, statusTekst);
     }
@@ -84,7 +84,7 @@ class ForespørselTeksterTest {
             new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 10, 9), LocalDate.of(2025, 10, 10))),
             new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 11, 9), LocalDate.of(2025, 11, 10))),
             new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 12, 9), LocalDate.of(2025, 12, 10))));
-        String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspengerRefusjon(fraværsPerioder, List.of());
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, List.of());
         assertTrue(statusTekst.contains("..."));
     }
 

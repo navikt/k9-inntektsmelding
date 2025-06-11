@@ -12,7 +12,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 
@@ -33,7 +32,7 @@ class ForespørselTekster {
     private static final String TILLEGGSINFORMASJON_UTFØRT_EKSTERN = "Utført i Altinn eller i bedriftens lønns- og personalsystem for første fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_UTGÅTT = "Du trenger ikke lenger sende inntektsmelding for første fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_ORDINÆR = "For første fraværsdag %s";
-    private static final String TILLEGGSINFORMASJON_OMS_REFUSJON = "For %s.";
+    private static final String TILLEGGSINFORMASJON_OMS = "For %s.";
 
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselTekster.class);
 
@@ -53,15 +52,15 @@ class ForespørselTekster {
         };
     }
 
-    public static String lagTilleggsInformasjonForOmsorgspengerRefusjon(List<FraværsPeriodeEntitet> fraværsPerioder,
-                                                                        List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
+    public static String lagTilleggsInformasjonForOmsorgspenger(List<FraværsPeriodeEntitet> fraværsPerioder,
+                                                                List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
         List<LocalDate> fravær = sammenstillFravær(fraværsPerioder, delvisFraværDag);
 
         Map<Month, Long> fraværPerMåned = fravær
             .stream()
             .collect(Collectors.groupingBy(Month::from, Collectors.counting()));
 
-        var tilleggsinfo = String.format(TILLEGGSINFORMASJON_OMS_REFUSJON,
+        var tilleggsinfo = String.format(TILLEGGSINFORMASJON_OMS,
             fraværPerMåned
                 .entrySet()
                 .stream()

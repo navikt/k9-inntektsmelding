@@ -14,7 +14,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class OmsorgspengerRefusjonPdfData {
+public class OmsorgspengerPdfData {
     private String avsenderSystem;
     private String navnSøker;
     private String personnummer;
@@ -79,7 +79,7 @@ public class OmsorgspengerRefusjonPdfData {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        OmsorgspengerRefusjonPdfData that = (OmsorgspengerRefusjonPdfData) o;
+        OmsorgspengerPdfData that = (OmsorgspengerPdfData) o;
         return Objects.equals(avsenderSystem, that.avsenderSystem)
             && Objects.equals(navnSøker, that.navnSøker)
             && Objects.equals(personnummer, that.personnummer)
@@ -137,10 +137,10 @@ public class OmsorgspengerRefusjonPdfData {
     }
 
     public static class Builder {
-        private OmsorgspengerRefusjonPdfData kladd;
+        private OmsorgspengerPdfData kladd;
 
         public Builder() {
-            kladd = new OmsorgspengerRefusjonPdfData();
+            kladd = new OmsorgspengerPdfData();
         }
 
         public Builder medAvsenderSystem(String avsenderSystem) {
@@ -198,7 +198,7 @@ public class OmsorgspengerRefusjonPdfData {
             return this;
         }
 
-        public OmsorgspengerRefusjonPdfData build() {
+        public OmsorgspengerPdfData build() {
             return kladd;
         }
     }
