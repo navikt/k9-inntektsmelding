@@ -5,10 +5,10 @@ import java.util.Map;
 
 import jakarta.xml.bind.JAXBElement;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsDagInntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerInntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -84,33 +84,33 @@ public class InntektsmeldingXMLMapper {
         return imXml;
     }
 
-    private static JAXBElement<Omsorgspenger> lagOmsorgspenger(OmsorgspengerEntitet omsorgspengerEntitet) {
+    private static JAXBElement<Omsorgspenger> lagOmsorgspenger(OmsorgspengerInntektsmeldingEntitet omsorgspengerInntektsmeldingEntitet) {
         var omsorgspenger = new Omsorgspenger();
-        omsorgspenger.setHarUtbetaltPliktigeDager(of.createOmsorgspengerHarUtbetaltPliktigeDager(omsorgspengerEntitet.isHarUtbetaltPliktigeDager()));
+        omsorgspenger.setHarUtbetaltPliktigeDager(of.createOmsorgspengerHarUtbetaltPliktigeDager(omsorgspengerInntektsmeldingEntitet.isHarUtbetaltPliktigeDager()));
 
         FravaersPeriodeListe fraværListeObjekt = new FravaersPeriodeListe();
         var fraværListe = fraværListeObjekt.getFravaerPeriode();
-        omsorgspengerEntitet.getFraværsPerioder()
+        omsorgspengerInntektsmeldingEntitet.getFraværsPerioder()
             .forEach(fravær -> fraværListe.add(lagPeriode(fravær)));
         omsorgspenger.setFravaersPerioder(of.createOmsorgspengerFravaersPerioder(fraværListeObjekt));
 
         DelvisFravaersListe delvisFraværListeObjekt = new DelvisFravaersListe();
         var delvisFraværListe = delvisFraværListeObjekt.getDelvisFravaer();
-        omsorgspengerEntitet.getDelvisFraværsPerioder()
+        omsorgspengerInntektsmeldingEntitet.getDelvisFraværsDager()
             .forEach(delvisFravær -> delvisFraværListe.add(lagDelvisFravaer(delvisFravær)));
         omsorgspenger.setDelvisFravaersListe(of.createOmsorgspengerDelvisFravaersListe(delvisFraværListeObjekt));
 
         return of.createSkjemainnholdOmsorgspenger(omsorgspenger);
     }
 
-    private static DelvisFravaer lagDelvisFravaer(DelvisFraværsPeriodeEntitet delvisFravær) {
+    private static DelvisFravaer lagDelvisFravaer(DelvisFraværsDagInntektsmeldingEntitet delvisFravær) {
         var delvisFravaer = new DelvisFravaer();
         delvisFravaer.setDato(of.createDelvisFravaerDato(delvisFravær.getDato()));
         delvisFravaer.setTimer(of.createDelvisFravaerTimer(delvisFravær.getTimer()));
         return delvisFravaer;
     }
 
-    private static Periode lagPeriode(FraværsPeriodeEntitet fravær) {
+    private static Periode lagPeriode(FraværsPeriodeInntektsmeldingEntitet fravær) {
         Periode periode = of.createPeriode();
         periode.setFom(of.createPeriodeFom(fravær.getPeriode().getFom()));
         periode.setTom(of.createPeriodeTom(fravær.getPeriode().getTom()));

@@ -12,8 +12,8 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsDagInntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeInntektsmeldingEntitet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +74,8 @@ public class ForespørselBehandlingTjeneste {
                                                      AktørIdEntitet aktorId,
                                                      OrganisasjonsnummerDto organisasjonsnummerDto,
                                                      LukkeÅrsak årsak,
-                                                     List<FraværsPeriodeEntitet> fraværsPerioder,
-                                                     List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
+                                                     List<FraværsPeriodeInntektsmeldingEntitet> fraværsPerioder,
+                                                     List<DelvisFraværsDagInntektsmeldingEntitet> delvisFraværDag) {
         var foresporsel = forespørselTjeneste.hentForespørsel(foresporselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
 

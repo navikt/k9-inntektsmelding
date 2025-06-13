@@ -84,7 +84,7 @@ public class InntektsmeldingEntitet {
     private List<EndringsårsakEntitet> endringsårsaker = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
-    private OmsorgspengerEntitet omsorgspenger;
+    private OmsorgspengerInntektsmeldingEntitet omsorgspenger;
 
     @ManyToOne()
     @JoinColumn(name = "foresporsel_id", nullable = false, updatable = false)
@@ -154,7 +154,7 @@ public class InntektsmeldingEntitet {
         return endringsårsaker;
     }
 
-    public OmsorgspengerEntitet getOmsorgspenger() {
+    public OmsorgspengerInntektsmeldingEntitet getOmsorgspenger() {
         return omsorgspenger;
     }
 
@@ -312,7 +312,7 @@ public class InntektsmeldingEntitet {
             return this;
         }
 
-        public Builder medOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
+        public Builder medOmsorgspenger(OmsorgspengerInntektsmeldingEntitet omsorgspenger) {
             omsorgspenger.setInntektsmelding(kladd);
             kladd.omsorgspenger = omsorgspenger;
             return this;

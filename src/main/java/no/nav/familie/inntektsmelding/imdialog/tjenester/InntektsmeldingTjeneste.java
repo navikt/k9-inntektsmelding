@@ -118,7 +118,7 @@ public class InntektsmeldingTjeneste {
         var imId = lagreOgLagJournalførTask(imEnitet, forespørselEnitet);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer,
-            LukkeÅrsak.ORDINÆR_INNSENDING, imEnitet.getOmsorgspenger().getFraværsPerioder(), imEnitet.getOmsorgspenger().getDelvisFraværsPerioder());
+            LukkeÅrsak.ORDINÆR_INNSENDING, imEnitet.getOmsorgspenger().getFraværsPerioder(), imEnitet.getOmsorgspenger().getDelvisFraværsDager());
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
 
