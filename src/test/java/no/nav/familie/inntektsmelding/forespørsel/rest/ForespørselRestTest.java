@@ -26,6 +26,7 @@ import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -75,8 +76,8 @@ class ForespørselRestTest {
         var stp2 = LocalDate.now().minusMonths(2);
         var aktørId = new AktørIdDto("1234567890134");
 
-        var forespørsler = List.of(new OppdaterForespørselDto(stp1, orgnummer, ForespørselAksjon.OPPRETT),
-            new OppdaterForespørselDto(stp1, orgnummer, ForespørselAksjon.OPPRETT));
+        var forespørsler = List.of(new OppdaterForespørselDto(stp1, orgnummer, ForespørselAksjon.OPPRETT, null),
+            new OppdaterForespørselDto(stp1, orgnummer, ForespørselAksjon.OPPRETT, null));
 
         var saksnummer = new SaksnummerDto("SAK");
         var response = forespørselRest.oppdaterForespørsler(
@@ -102,7 +103,7 @@ class ForespørselRestTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        List<ForespørselRest.ForespørselDto> forespørselDtos = (List<ForespørselRest.ForespørselDto>) response.getEntity();
+        List<ForespørselDto> forespørselDtos = (List<ForespørselDto>) response.getEntity();
 
         assertThat(forespørselDtos).isNotNull();
         assertThat(forespørselDtos.size()).isEqualTo(1);
@@ -126,7 +127,7 @@ class ForespørselRestTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        List<ForespørselRest.ForespørselDto> forespørselDtos = (List<ForespørselRest.ForespørselDto>) response.getEntity();
+        List<ForespørselDto> forespørselDtos = (List<ForespørselDto>) response.getEntity();
 
         assertThat(forespørselDtos).isNotNull();
         assertThat(forespørselDtos.size()).isEqualTo(1);
@@ -143,7 +144,7 @@ class ForespørselRestTest {
 
         var resultat = ForespørselRest.mapTilDto(input);
 
-        assertThat(resultat).isNotNull().isInstanceOf(ForespørselRest.ForespørselDto.class);
+        assertThat(resultat).isNotNull().isInstanceOf(ForespørselDto.class);
         assertThat(resultat.organisasjonsnummer()).isEqualTo(new OrganisasjonsnummerDto(expectedOrg));
         assertThat(resultat.skjæringstidspunkt()).isEqualTo(expectedSkjæringstidspunkt);
         assertThat(resultat.brukerAktørId()).isEqualTo(new AktørIdDto(expectedBruker));
@@ -156,14 +157,16 @@ class ForespørselRestTest {
         var expectedOrg = new OrganisasjonsnummerDto("123456789");
         var expectedBruker = new AktørIdDto("123342532424");
         var expectedSkjæringstidspunkt = LocalDate.now();
-        var dto = new ForespørselRest.ForespørselDto(UUID.randomUUID(), expectedOrg, expectedSkjæringstidspunkt, expectedBruker,
-            YtelseTypeDto.PLEIEPENGER_I_LIVETS_SLUTTFASE, ForespørselStatus.UNDER_BEHANDLING);
+        var expectedEtterspurtePerioder = List.of(new PeriodeDto(expectedSkjæringstidspunkt, expectedSkjæringstidspunkt.plusDays(10)));
+        var dto = new ForespørselDto(UUID.randomUUID(), expectedOrg, expectedSkjæringstidspunkt, expectedBruker,
+            YtelseTypeDto.OMSORGSPENGER, ForespørselStatus.UNDER_BEHANDLING, expectedEtterspurtePerioder);
 
         var ser = DefaultJsonMapper.toJson(dto);
-        var des = DefaultJsonMapper.fromJson(ser, ForespørselRest.ForespørselDto.class);
+        var des = DefaultJsonMapper.fromJson(ser, ForespørselDto.class);
 
 
         assertThat(ser).contains(expectedOrg.orgnr(), expectedBruker.id(), expectedSkjæringstidspunkt.toString());
+        assertThat(ser).contains(expectedEtterspurtePerioder.getFirst().fom().toString(), expectedEtterspurtePerioder.getFirst().tom().toString());
         assertThat(des).isEqualTo(dto);
     }
 }
