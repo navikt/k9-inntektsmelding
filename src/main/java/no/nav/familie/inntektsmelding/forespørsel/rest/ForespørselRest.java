@@ -23,6 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.EtterspurtPeriodeEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -32,6 +33,7 @@ import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -138,9 +140,9 @@ public class ForespørselRest {
 
         var forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(new SaksnummerDto(saksnummer), null, null);
         forespørsler = filtrerDuplikateForespørsler(forespørsler);
-        var forespørselDtos = forespørsler.stream().map(ForespørselRest::mapTilDto).toList();
+        var forespørselResponse = forespørsler.stream().map(ForespørselRest::mapTilForespørselResponse).toList();
 
-        return Response.ok(forespørselDtos).build();
+        return Response.ok(forespørselResponse).build();
     }
 
     private List<ForespørselEntitet> filtrerDuplikateForespørsler(List<ForespørselEntitet> forespørsler) {
@@ -166,9 +168,19 @@ public class ForespørselRest {
         return resultat;
     }
 
-    static ForespørselDto mapTilDto(ForespørselEntitet entitet) {
-        return new ForespørselDto(entitet.getUuid(), new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()), entitet.getSkjæringstidspunkt(),
-            new AktørIdDto(entitet.getAktørId().getAktørId()), KodeverkMapper.mapYtelsetype(entitet.getYtelseType()), entitet.getStatus(), null); // TODO: fiks denne
+    static ForespørselResponse mapTilForespørselResponse(ForespørselEntitet entitet) {
+        return new ForespørselResponse(entitet.getUuid(), new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()), entitet.getSkjæringstidspunkt(),
+            new AktørIdDto(entitet.getAktørId().getAktørId()), KodeverkMapper.mapYtelsetype(entitet.getYtelseType()), entitet.getStatus(), mapTilPeriodeDtoer(entitet.getEtterspurtePerioder()));
+    }
+
+    static List<PeriodeDto> mapTilPeriodeDtoer(List<EtterspurtPeriodeEntitet> etterspurtePerioder) {
+        if (etterspurtePerioder == null) {
+            return null;
+        }
+
+        return etterspurtePerioder.stream()
+            .map(etterspurtPeriode -> new PeriodeDto(etterspurtPeriode.getFom(), etterspurtPeriode.getTom()))
+            .toList();
     }
 
     private void sjekkErSystemkall() {

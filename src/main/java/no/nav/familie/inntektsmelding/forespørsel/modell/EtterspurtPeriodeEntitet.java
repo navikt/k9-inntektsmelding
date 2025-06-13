@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.modell;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -39,8 +41,12 @@ public class EtterspurtPeriodeEntitet {
         return id;
     }
 
-    public PeriodeEntitet getPeriode() {
-        return periode;
+    public LocalDate getFom() {
+        return periode.getFom();
+    }
+
+    public LocalDate getTom() {
+        return periode.getTom();
     }
 
     public ForespørselEntitet getForespørsel() {

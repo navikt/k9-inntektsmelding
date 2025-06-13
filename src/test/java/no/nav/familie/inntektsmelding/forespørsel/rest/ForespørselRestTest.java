@@ -102,11 +102,11 @@ class ForespørselRestTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        List<ForespørselDto> forespørselDtos = (List<ForespørselDto>) response.getEntity();
+        List<ForespørselResponse> forespørselResponses = (List<ForespørselResponse>) response.getEntity();
 
-        assertThat(forespørselDtos).isNotNull();
-        assertThat(forespørselDtos.size()).isEqualTo(1);
-        assertThat(forespørselDtos.getFirst().status()).isEqualTo(ForespørselStatus.FERDIG);
+        assertThat(forespørselResponses).isNotNull();
+        assertThat(forespørselResponses.size()).isEqualTo(1);
+        assertThat(forespørselResponses.getFirst().status()).isEqualTo(ForespørselStatus.FERDIG);
     }
 
     @Test
@@ -126,11 +126,11 @@ class ForespørselRestTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        List<ForespørselDto> forespørselDtos = (List<ForespørselDto>) response.getEntity();
+        List<ForespørselResponse> forespørselResponses = (List<ForespørselResponse>) response.getEntity();
 
-        assertThat(forespørselDtos).isNotNull();
-        assertThat(forespørselDtos.size()).isEqualTo(1);
-        assertThat(forespørselDtos.getFirst().status()).isEqualTo(ForespørselStatus.UTGÅTT);
+        assertThat(forespørselResponses).isNotNull();
+        assertThat(forespørselResponses.size()).isEqualTo(1);
+        assertThat(forespørselResponses.getFirst().status()).isEqualTo(ForespørselStatus.UTGÅTT);
     }
 
     @Test
@@ -140,9 +140,9 @@ class ForespørselRestTest {
         var expectedSkjæringstidspunkt = LocalDate.now();
         var input = ForespørselMapper.mapForespørsel(expectedOrg, expectedSkjæringstidspunkt, expectedBruker, Ytelsetype.PLEIEPENGER_SYKT_BARN, "9876544321", expectedSkjæringstidspunkt.plusDays(10));
 
-        var resultat = ForespørselRest.mapTilDto(input);
+        var resultat = ForespørselRest.mapTilForespørselResponse(input);
 
-        assertThat(resultat).isNotNull().isInstanceOf(ForespørselDto.class);
+        assertThat(resultat).isNotNull().isInstanceOf(ForespørselResponse.class);
         assertThat(resultat.organisasjonsnummer()).isEqualTo(new OrganisasjonsnummerDto(expectedOrg));
         assertThat(resultat.skjæringstidspunkt()).isEqualTo(expectedSkjæringstidspunkt);
         assertThat(resultat.brukerAktørId()).isEqualTo(new AktørIdDto(expectedBruker));
@@ -156,11 +156,11 @@ class ForespørselRestTest {
         var expectedBruker = new AktørIdDto("123342532424");
         var expectedSkjæringstidspunkt = LocalDate.now();
         var expectedEtterspurtePerioder = List.of(new PeriodeDto(expectedSkjæringstidspunkt, expectedSkjæringstidspunkt.plusDays(10)));
-        var dto = new ForespørselDto(UUID.randomUUID(), expectedOrg, expectedSkjæringstidspunkt, expectedBruker,
+        var dto = new ForespørselResponse(UUID.randomUUID(), expectedOrg, expectedSkjæringstidspunkt, expectedBruker,
             YtelseTypeDto.OMSORGSPENGER, ForespørselStatus.UNDER_BEHANDLING, expectedEtterspurtePerioder);
 
         var ser = DefaultJsonMapper.toJson(dto);
-        var des = DefaultJsonMapper.fromJson(ser, ForespørselDto.class);
+        var des = DefaultJsonMapper.fromJson(ser, ForespørselResponse.class);
 
 
         assertThat(ser).contains(expectedOrg.orgnr(), expectedBruker.id(), expectedSkjæringstidspunkt.toString());

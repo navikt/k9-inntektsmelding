@@ -10,11 +10,11 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
-public record ForespørselDto(UUID uuid,
-                             OrganisasjonsnummerDto organisasjonsnummer,
-                             LocalDate skjæringstidspunkt,
-                             AktørIdDto brukerAktørId,
-                             YtelseTypeDto ytelseType,
-                             ForespørselStatus status,
-                             List<PeriodeDto> etterspurtePerioder) {
+public record ForespørselResponse(UUID uuid,
+                                  OrganisasjonsnummerDto organisasjonsnummer,
+                                  LocalDate skjæringstidspunkt,
+                                  AktørIdDto brukerAktørId,
+                                  YtelseTypeDto ytelseType,
+                                  ForespørselStatus status,
+                                  List<PeriodeDto> etterspurtePerioder) {
 }
