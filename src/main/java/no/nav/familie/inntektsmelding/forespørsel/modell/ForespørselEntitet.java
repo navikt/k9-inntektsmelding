@@ -79,6 +79,9 @@ public class ForespørselEntitet {
     @OneToMany(mappedBy = "forespørsel", fetch = FetchType.LAZY)
     private List<InntektsmeldingEntitet> inntektsmeldinger;
 
+    @OneToMany(mappedBy = "forespørsel")
+    private List<EtterspurtPeriodeEntitet> etterspurtePerioder;
+
     public ForespørselEntitet(String organisasjonsnummer,
                               LocalDate skjæringstidspunkt,
                               AktørIdEntitet aktørId,
@@ -171,12 +174,29 @@ public class ForespørselEntitet {
             .toList();
     }
 
+    public List<EtterspurtPeriodeEntitet> getEtterspurtePerioder() {
+        return etterspurtePerioder;
+    }
+
+    private void leggTilEtterspurtPeriode(EtterspurtPeriodeEntitet etterspurtPeriode) {
+        etterspurtPeriode.setForespørsel(this);
+        etterspurtePerioder.add(etterspurtPeriode);
+    }
+
     @Override
     public String toString() {
-        return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + maskerId(organisasjonsnummer)
-            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelseType=" + ytelseType
-            + ", saksnummer="
-            + saksnummer + '}';
+        return "ForespørselEntitet{" +
+            "id=" + id +
+            ", uuid=" + uuid +
+            ", sakId=" + sakId +
+            ", organisasjonsnummer=" + maskerId(organisasjonsnummer) +
+            ", skjæringstidspunkt=" + skjæringstidspunkt +
+            ", aktørId=" + maskerId(aktørId.getAktørId()) +
+            ", ytelseType=" + ytelseType +
+            ", saksnummer=" + saksnummer +
+            ", status=" + status +
+            ", etterspurtePerioder=" + etterspurtePerioder +
+            '}';
     }
 
     private String maskerId(String id) {
