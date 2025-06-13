@@ -79,22 +79,11 @@ public class ForespørselEntitet {
     @OneToMany(mappedBy = "forespørsel", fetch = FetchType.LAZY)
     private List<InntektsmeldingEntitet> inntektsmeldinger;
 
-    public ForespørselEntitet(String organisasjonsnummer,
-                              LocalDate skjæringstidspunkt,
-                              AktørIdEntitet aktørId,
-                              Ytelsetype ytelseType,
-                              String saksnummer,
-                              LocalDate førsteUttaksdato) {
-        this.uuid = UUID.randomUUID();
-        this.organisasjonsnummer = organisasjonsnummer;
-        this.skjæringstidspunkt = skjæringstidspunkt;
-        this.aktørId = aktørId;
-        this.ytelseType = ytelseType;
-        this.saksnummer = saksnummer;
-        this.førsteUttaksdato = førsteUttaksdato;
-    }
+    @OneToMany(mappedBy = "forespørsel")
+    private List<EtterspurtPeriodeEntitet> etterspurtePerioder;
 
-    public ForespørselEntitet() {
+    ForespørselEntitet() {
+        this.uuid = UUID.randomUUID();
     }
 
     @PreUpdate
@@ -171,12 +160,29 @@ public class ForespørselEntitet {
             .toList();
     }
 
+    public List<EtterspurtPeriodeEntitet> getEtterspurtePerioder() {
+        return etterspurtePerioder;
+    }
+
+    private void leggTilEtterspurtPeriode(EtterspurtPeriodeEntitet etterspurtPeriode) {
+        etterspurtPeriode.setForespørsel(this);
+        etterspurtePerioder.add(etterspurtPeriode);
+    }
+
     @Override
     public String toString() {
-        return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + maskerId(organisasjonsnummer)
-            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelseType=" + ytelseType
-            + ", saksnummer="
-            + saksnummer + '}';
+        return "ForespørselEntitet{" +
+            "id=" + id +
+            ", uuid=" + uuid +
+            ", sakId=" + sakId +
+            ", organisasjonsnummer=" + maskerId(organisasjonsnummer) +
+            ", skjæringstidspunkt=" + skjæringstidspunkt +
+            ", aktørId=" + maskerId(aktørId.getAktørId()) +
+            ", ytelseType=" + ytelseType +
+            ", saksnummer=" + saksnummer +
+            ", status=" + status +
+            ", etterspurtePerioder=" + etterspurtePerioder +
+            '}';
     }
 
     private String maskerId(String id) {
@@ -188,5 +194,59 @@ public class ForespørselEntitet {
             return "*".repeat(length);
         }
         return "*".repeat(length - 4) + id.substring(length - 4);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final ForespørselEntitet kladd = new ForespørselEntitet();
+
+        public Builder medOrganisasjonsnummer(String organisasjonsnummer) {
+            kladd.organisasjonsnummer = organisasjonsnummer;
+            return this;
+        }
+
+        public Builder medSkjæringstidspunkt(LocalDate skjæringstidspunkt) {
+            kladd.skjæringstidspunkt = skjæringstidspunkt;
+            return this;
+        }
+
+        public Builder medAktørId(AktørIdEntitet aktørId) {
+            kladd.aktørId = aktørId;
+            return this;
+        }
+
+        public Builder medYtelseType(Ytelsetype ytelseType) {
+            kladd.ytelseType = ytelseType;
+            return this;
+        }
+
+        public Builder medSaksnummer(String saksnummer) {
+            kladd.saksnummer = saksnummer;
+            return this;
+        }
+
+        public Builder medFørsteUttaksdato(LocalDate førsteUttaksdato) {
+            kladd.førsteUttaksdato = førsteUttaksdato;
+            return this;
+        }
+
+        public Builder medEtterspurtePerioder(List<EtterspurtPeriodeEntitet> etterspurtePerioder) {
+            if (etterspurtePerioder != null) {
+                etterspurtePerioder.forEach(kladd::leggTilEtterspurtPeriode);
+            }
+            return this;
+        }
+
+
+        public ForespørselEntitet build() {
+            if (kladd.organisasjonsnummer == null || kladd.skjæringstidspunkt == null || kladd.aktørId == null || kladd.ytelseType == null) {
+                throw new IllegalArgumentException("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
+            }
+
+            return kladd;
+        }
     }
 }

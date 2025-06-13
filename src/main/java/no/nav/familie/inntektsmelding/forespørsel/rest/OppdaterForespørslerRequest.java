@@ -16,10 +16,10 @@ public record OppdaterForespørslerRequest(@NotNull @Valid AktørIdDto aktørId,
                                           @NotNull YtelseTypeDto ytelsetype,
                                           @NotNull @Valid SaksnummerDto saksnummer) {
 
-    @AssertTrue(message = "Hvis ytelsestype er omsorgspenger, må omsorgspengerData være med")
+    @AssertTrue(message = "Hvis ytelsestype er omsorgspenger, må etterspurtePerioder være med")
     private boolean isValidOmsorgspengerInfo() {
         if (ytelsetype.equals(YtelseTypeDto.OMSORGSPENGER)) {
-            return forespørsler.stream().allMatch(forespørsel -> forespørsel.omsorgspengerData() != null);
+            return forespørsler.stream().allMatch(forespørsel -> forespørsel.etterspurtePerioder() != null);
         }
         return true;
     }
