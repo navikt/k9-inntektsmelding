@@ -27,7 +27,7 @@ public class EtterspurtPeriodeEntitet {
     @Embedded
     private PeriodeEntitet periode;
 
-    public EtterspurtPeriodeEntitet() {
+    EtterspurtPeriodeEntitet() {
         // Hibernate
     }
 
