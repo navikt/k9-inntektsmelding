@@ -55,7 +55,7 @@ public class K9DokgenTjeneste {
 
     private byte[] genererPdfForOmsorgspenger(OmsorgspengerPdfData imDokumentData, int inntektsmeldingId) {
         try {
-            byte[] pdf = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(imDokumentData);
+            byte[] pdf = k9DokgenKlient.genererPdfOmsorgspenger(imDokumentData);
             LOG.info("Pdf av refusjonskrav omsorgspenger med id {} ble generert.", inntektsmeldingId);
             return pdf;
         } catch (Exception e) {
