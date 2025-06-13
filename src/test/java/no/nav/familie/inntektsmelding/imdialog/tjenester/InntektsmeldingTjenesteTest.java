@@ -20,8 +20,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselMapper;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
@@ -96,12 +96,7 @@ class InntektsmeldingTjenesteTest {
     void skal_lage_dto() {
         // Arrange
         var uuid = UUID.randomUUID();
-        var forespørsel = new ForespørselEntitet("999999999",
-            LocalDate.now(),
-            new AktørIdEntitet("9999999999999"),
-            Ytelsetype.PLEIEPENGER_SYKT_BARN,
-            "123",
-            null);
+        var forespørsel = ForespørselMapper.mapForespørsel(LocalDate.now(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "9999999999999", "999999999", "123", null);
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer())).thenReturn(
             new Organisasjon("Bedriften", forespørsel.getOrganisasjonsnummer()));
@@ -164,12 +159,7 @@ class InntektsmeldingTjenesteTest {
     void skal_lage_dto_med_første_uttaksdato() {
         // Arrange
         var uuid = UUID.randomUUID();
-        var forespørsel = new ForespørselEntitet("999999999",
-            LocalDate.now(),
-            new AktørIdEntitet("9999999999999"),
-            Ytelsetype.PLEIEPENGER_SYKT_BARN,
-            "123",
-            LocalDate.now().plusDays(10));
+        var forespørsel = ForespørselMapper.mapForespørsel(LocalDate.now(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "9999999999999", "999999999", "123", LocalDate.now().plusDays(10));
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer())).thenReturn(
             new Organisasjon("Bedriften", forespørsel.getOrganisasjonsnummer()));
@@ -211,12 +201,7 @@ class InntektsmeldingTjenesteTest {
     void skal_ikke_godta_im_på_utgått_forespørrsel() {
         // Arrange
         var uuid = UUID.randomUUID();
-        var forespørsel = new ForespørselEntitet("999999999",
-            LocalDate.now(),
-            new AktørIdEntitet("9999999999999"),
-            Ytelsetype.PLEIEPENGER_SYKT_BARN,
-            "123",
-            null);
+        var forespørsel = ForespørselMapper.mapForespørsel(LocalDate.now(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "9999999999999", "999999999", "123", null);
         forespørsel.setStatus(ForespørselStatus.UTGÅTT);
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
         var innsendingDto = new SendInntektsmeldingRequestDto(uuid,
@@ -247,8 +232,7 @@ class InntektsmeldingTjenesteTest {
         when(personTjeneste.hentPersonFraIdent(fnr, Ytelsetype.PLEIEPENGER_SYKT_BARN)).thenReturn(
             new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null));
         var orgnr = "999999999";
-        when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag)).thenReturn(List.of(new ArbeidsforholdDto(orgnr,
-            "ARB-001")));
+        when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag)).thenReturn(List.of(new ArbeidsforholdDto(orgnr, "ARB-001")));
         when(organisasjonTjeneste.finnOrganisasjon(orgnr)).thenReturn(new Organisasjon("Bedriften", orgnr));
         // Act
         var response = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(fnr, Ytelsetype.PLEIEPENGER_SYKT_BARN, LocalDate.now()).orElse(null);
@@ -270,23 +254,15 @@ class InntektsmeldingTjenesteTest {
         var førsteFraværsdag = LocalDate.now();
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var aktørId = new AktørIdEntitet("9999999999999");
-        var forespørsel = new ForespørselEntitet("999999999",
-            førsteFraværsdag.plusWeeks(1),
-            aktørId,
-            ytelsetype,
-            "123",
-            førsteFraværsdag.plusWeeks(1));
+        var forespørsel = ForespørselMapper.mapForespørsel(førsteFraværsdag.plusWeeks(1), ytelsetype, aktørId.getAktørId(), "999999999", "123", førsteFraværsdag.plusWeeks(1));
         var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null);
         when(personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype)).thenReturn(personInfo);
         when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID), ytelsetype)).thenReturn(
             new PersonInfo("Ine", null, "Sender", new PersonIdent(INNMELDER_UID), null, LocalDate.now(), "+4711111111"));
         when(forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of(forespørsel));
-        when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften",
-            organisasjonsnummer.orgnr()));
-        when(inntektTjeneste.hentInntekt(aktørId,
-            førsteFraværsdag,
-            LocalDate.now(),
-            organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
+        when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften", organisasjonsnummer.orgnr()));
+        when(inntektTjeneste.hentInntekt(aktørId, førsteFraværsdag, LocalDate.now(), organisasjonsnummer.orgnr())).thenReturn(
+            new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
         var imDialogDto = inntektsmeldingTjeneste.lagArbeidsgiverinitiertDialogDto(fødselsnummer,
             ytelsetype,
@@ -312,7 +288,7 @@ class InntektsmeldingTjenesteTest {
         var førsteFraværsdag = LocalDate.now();
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var aktørId = new AktørIdEntitet("9999999999999");
-        var forespørsel = new ForespørselEntitet("999999999", førsteFraværsdag, aktørId, ytelsetype, "123", førsteFraværsdag);
+        var forespørsel = ForespørselMapper.mapForespørsel(førsteFraværsdag, ytelsetype, aktørId.getAktørId(), "999999999", "123", førsteFraværsdag);
         var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null);
         when(personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype)).thenReturn(personInfo);
         when(personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype)).thenReturn(personInfo);
@@ -320,12 +296,9 @@ class InntektsmeldingTjenesteTest {
             new PersonInfo("Ine", null, "Sender", new PersonIdent(INNMELDER_UID), null, LocalDate.now(), "+4711111111"));
         when(forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of(forespørsel));
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørsel.getUuid())).thenReturn(Optional.of(forespørsel));
-        when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften",
-            organisasjonsnummer.orgnr()));
-        when(inntektTjeneste.hentInntekt(aktørId,
-            førsteFraværsdag,
-            LocalDate.now(),
-            organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
+        when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften", organisasjonsnummer.orgnr()));
+        when(inntektTjeneste.hentInntekt(aktørId, førsteFraværsdag, LocalDate.now(), organisasjonsnummer.orgnr())).thenReturn(
+            new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
         var imDialogDto = inntektsmeldingTjeneste.lagArbeidsgiverinitiertDialogDto(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
 
