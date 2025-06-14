@@ -9,7 +9,7 @@ public interface ArbeidsgiverNotifikasjon {
 
     String oppdaterSakTilleggsinformasjon(String id, String overstyrtTilleggsinformasjon);
 
-    String ferdigstillSak(String id, boolean arbeidsgvierInitiert);
+    String ferdigstillSak(String id, boolean erArbeidsgiverinitiert);
 
     String opprettOppgave(String grupperingsid,
                           Merkelapp merkelapp,
