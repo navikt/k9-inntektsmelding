@@ -2,7 +2,6 @@ package no.nav.familie.inntektsmelding.forespørsel.rest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -140,33 +139,9 @@ public class ForespørselRest {
         sjekkErSystemkall();
 
         var forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(new SaksnummerDto(saksnummer), null, null);
-        forespørsler = filtrerDuplikateForespørsler(forespørsler);
         var forespørselDtos = forespørsler.stream().map(ForespørselRest::mapTilDto).toList();
 
         return Response.ok(forespørselDtos).build();
-    }
-
-    private List<ForespørselEntitet> filtrerDuplikateForespørsler(List<ForespørselEntitet> forespørsler) {
-        List<ForespørselEntitet> resultat = new ArrayList<>();
-        for (ForespørselEntitet forespørsel : forespørsler) {
-            if (forespørsel.getStatus() == ForespørselStatus.UTGÅTT) {
-                var duplikater = forespørsler.stream().filter(f ->
-                        f.getSkjæringstidspunkt().equals(forespørsel.getSkjæringstidspunkt())
-                            && f.getOrganisasjonsnummer().equals(forespørsel.getOrganisasjonsnummer())
-                            && f != forespørsel)
-                    .toList();
-
-                boolean harDuplikatMedAnnenStatusEllerNyere = duplikater.stream()
-                    .anyMatch(d -> d.getStatus() != ForespørselStatus.UTGÅTT
-                        || d.getOpprettetTidspunkt().isAfter(forespørsel.getOpprettetTidspunkt()));
-                if (!harDuplikatMedAnnenStatusEllerNyere) {
-                    resultat.add(forespørsel);
-                }
-            } else {
-                resultat.add(forespørsel);
-            }
-        }
-        return resultat;
     }
 
     record ForespørselDto(UUID uuid, OrganisasjonsnummerDto organisasjonsnummer, LocalDate skjæringstidspunkt, AktørIdDto brukerAktørId,
