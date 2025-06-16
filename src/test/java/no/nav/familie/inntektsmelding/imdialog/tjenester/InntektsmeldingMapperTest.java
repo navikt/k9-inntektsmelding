@@ -13,6 +13,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselMapper;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
@@ -37,10 +38,10 @@ import no.nav.vedtak.konfig.Tid;
 
 class InntektsmeldingMapperTest {
 
-    ForespørselEntitet DUMMY_FORESPØRSEL_ENTITET = new ForespørselEntitet("999999999",
-        LocalDate.now(),
-        new AktørIdEntitet("9999999999999"),
+    ForespørselEntitet DUMMY_FORESPØRSEL_ENTITET = ForespørselMapper.mapForespørsel(LocalDate.now(),
         Ytelsetype.PLEIEPENGER_SYKT_BARN,
+        "9999999999999",
+        "999999999",
         "sak1",
         LocalDate.now()
     );

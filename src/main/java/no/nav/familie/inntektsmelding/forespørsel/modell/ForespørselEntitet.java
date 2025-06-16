@@ -4,11 +4,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -19,6 +21,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -76,25 +79,14 @@ public class ForespørselEntitet {
     @Column(name = "endret_tid")
     private LocalDateTime endretTidspunkt;
 
+    @OneToOne(mappedBy = "forespørsel", cascade = CascadeType.ALL)
+    private OmsorgspengerForespørselEntitet omsorgspenger;
+
     @OneToMany(mappedBy = "forespørsel", fetch = FetchType.LAZY)
     private List<InntektsmeldingEntitet> inntektsmeldinger;
 
-    public ForespørselEntitet(String organisasjonsnummer,
-                              LocalDate skjæringstidspunkt,
-                              AktørIdEntitet aktørId,
-                              Ytelsetype ytelseType,
-                              String saksnummer,
-                              LocalDate førsteUttaksdato) {
+    ForespørselEntitet() {
         this.uuid = UUID.randomUUID();
-        this.organisasjonsnummer = organisasjonsnummer;
-        this.skjæringstidspunkt = skjæringstidspunkt;
-        this.aktørId = aktørId;
-        this.ytelseType = ytelseType;
-        this.saksnummer = saksnummer;
-        this.førsteUttaksdato = førsteUttaksdato;
-    }
-
-    public ForespørselEntitet() {
     }
 
     @PreUpdate
@@ -162,6 +154,12 @@ public class ForespørselEntitet {
         return Optional.ofNullable(førsteUttaksdato);
     }
 
+    public OmsorgspengerForespørselEntitet getOmsorgspenger() {return omsorgspenger;}
+
+    public void setOmsorgspenger(OmsorgspengerForespørselEntitet omsorgspenger) {
+        this.omsorgspenger = omsorgspenger;
+    }
+
     public List<InntektsmeldingEntitet> getInntektsmeldinger() {
         if (inntektsmeldinger == null) {
             return List.of();
@@ -172,11 +170,38 @@ public class ForespørselEntitet {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ForespørselEntitet that)) return false;
+
+        return Objects.equals(sakId, that.sakId)
+            && Objects.equals(organisasjonsnummer, that.organisasjonsnummer)
+            && Objects.equals(skjæringstidspunkt, that.skjæringstidspunkt)
+            && Objects.equals(aktørId, that.aktørId)
+            && ytelseType == that.ytelseType
+            && Objects.equals(saksnummer, that.saksnummer)
+            && Objects.equals(førsteUttaksdato, that.førsteUttaksdato)
+            && Objects.equals(omsorgspenger, that.omsorgspenger);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sakId, organisasjonsnummer, skjæringstidspunkt, aktørId, ytelseType, saksnummer, førsteUttaksdato, omsorgspenger);
+    }
+
+    @Override
     public String toString() {
-        return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + maskerId(organisasjonsnummer)
-            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelseType=" + ytelseType
-            + ", saksnummer="
-            + saksnummer + '}';
+        return "ForespørselEntitet{" +
+            "id=" + id +
+            ", uuid=" + uuid +
+            ", sakId=" + sakId +
+            ", organisasjonsnummer=" + maskerId(organisasjonsnummer) +
+            ", skjæringstidspunkt=" + skjæringstidspunkt +
+            ", aktørId=" + maskerId(aktørId.getAktørId()) +
+            ", ytelseType=" + ytelseType +
+            ", saksnummer=" + saksnummer +
+            ", omsorgspenger=" + omsorgspenger +
+            '}';
     }
 
     private String maskerId(String id) {
@@ -189,4 +214,60 @@ public class ForespørselEntitet {
         }
         return "*".repeat(length - 4) + id.substring(length - 4);
     }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final ForespørselEntitet kladd = new ForespørselEntitet();
+
+        public Builder medOrganisasjonsnummer(String organisasjonsnummer) {
+            kladd.organisasjonsnummer = organisasjonsnummer;
+            return this;
+        }
+
+        public Builder medSkjæringstidspunkt(LocalDate skjæringstidspunkt) {
+            kladd.skjæringstidspunkt = skjæringstidspunkt;
+            return this;
+        }
+
+        public Builder medAktørId(AktørIdEntitet aktørId) {
+            kladd.aktørId = aktørId;
+            return this;
+        }
+
+        public Builder medYtelseType(Ytelsetype ytelseType) {
+            kladd.ytelseType = ytelseType;
+            return this;
+        }
+
+        public Builder medSaksnummer(String saksnummer) {
+            kladd.saksnummer = saksnummer;
+            return this;
+        }
+
+        public Builder medFørsteUttaksdato(LocalDate førsteUttaksdato) {
+            kladd.førsteUttaksdato = førsteUttaksdato;
+            return this;
+        }
+
+        public Builder medOmsorgspenger(OmsorgspengerForespørselEntitet omsorgspenger) {
+            omsorgspenger.setForespørsel(kladd);
+            kladd.omsorgspenger = omsorgspenger;
+            return this;
+        }
+
+        public ForespørselEntitet build() {
+            if (kladd.organisasjonsnummer == null || kladd.skjæringstidspunkt == null || kladd.aktørId == null || kladd.ytelseType == null) {
+                throw new IllegalArgumentException("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
+            }
+            if (kladd.ytelseType != Ytelsetype.OMSORGSPENGER && kladd.omsorgspenger != null) {
+                throw new IllegalArgumentException("OmsorgspengerForespørselEntitet skal kun settes for ytelseType Omsorgspenger, ikke for yteleseType: " + kladd.ytelseType);
+            }
+
+            return kladd;
+        }
+    }
+
 }
