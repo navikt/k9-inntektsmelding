@@ -40,10 +40,6 @@ public class OmsorgspengerEntitet {
         // Hibernate
     }
 
-    public OmsorgspengerEntitet(boolean harUtbetaltPliktigeDager) {
-        this.harUtbetaltPliktigeDager = harUtbetaltPliktigeDager;
-    }
-
     public boolean isHarUtbetaltPliktigeDager() {
         return harUtbetaltPliktigeDager;
     }
