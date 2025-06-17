@@ -48,7 +48,7 @@ public class K9DokgenKlient {
         return pdf;
     }
 
-    public byte[] genererPdfOmsorgspengerRefusjon(OmsorgspengerRefusjonPdfData dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfOmsorgspenger(OmsorgspengerPdfData dokumentdata) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + OMSORGSPENGER_REFUSJON_PATH);
         var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
         var pdf = restClient.sendReturnByteArray(request);

@@ -85,12 +85,13 @@ public class ForespørselBehandlingTjeneste {
         // Arbeidsgiverinitierte forespørsler har ingen oppgave
         foresporsel.getOppgaveId().ifPresent(oppgaveId -> arbeidsgiverNotifikasjon.oppgaveUtført(oppgaveId, OffsetDateTime.now()));
 
-        var erOmsorgspengerRefusjon = foresporsel.getYtelseType().equals(Ytelsetype.OMSORGSPENGER);
-        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(), erOmsorgspengerRefusjon); // Oppdaterer status i arbeidsgiver-notifikasjon
+        var erArbeidsgiverinitiert = foresporsel.getOppgaveId().isEmpty();
+        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(), erArbeidsgiverinitiert); // Oppdaterer status i arbeidsgiver-notifikasjon
 
+        var erOmsorgspenger = foresporsel.getYtelseType().equals(Ytelsetype.OMSORGSPENGER);
         String tilleggsinformasjon;
-        if (erOmsorgspengerRefusjon) {
-            tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjonForOmsorgspengerRefusjon(fraværsPerioder, delvisFraværDag);
+        if (erOmsorgspenger) {
+            tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, delvisFraværDag);
         } else {
             tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjon(årsak, foresporsel.getSkjæringstidspunkt());
         }

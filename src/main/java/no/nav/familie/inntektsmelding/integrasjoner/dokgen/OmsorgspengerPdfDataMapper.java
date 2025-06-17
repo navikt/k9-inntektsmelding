@@ -11,18 +11,22 @@ import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 
-public class OmsorgspengerRefusjonPdfDataMapper {
+public class OmsorgspengerPdfDataMapper {
 
-    private OmsorgspengerRefusjonPdfDataMapper() {
+    private OmsorgspengerPdfDataMapper() {
         throw new IllegalStateException("InntektsmeldingPdfDataMapper: Utility class");
     }
 
-    public static OmsorgspengerRefusjonPdfData mapOmsorgspengerRefusjonData(InntektsmeldingEntitet inntektsmelding,
-                                                                String arbeidsgiverNavn,
-                                                                PersonInfo personInfo,
-                                                                String arbeidsgvierIdent) {
+    public static OmsorgspengerPdfData mapOmsorgspengerData(InntektsmeldingEntitet inntektsmelding,
+                                                            String arbeidsgiverNavn,
+                                                            PersonInfo personInfo,
+                                                            String arbeidsgvierIdent) {
+        if (inntektsmelding.getOmsorgspenger() == null) {
+            throw new IllegalStateException("InntektsmeldingEntitet mangler omsorgspenger data");
+        }
+
         var startdato = inntektsmelding.getStartDato();
-        var imDokumentdataBuilder = new OmsorgspengerRefusjonPdfData.Builder()
+        var imDokumentdataBuilder = new OmsorgspengerPdfData.Builder()
             .medNavn(personInfo.mapNavn())
             .medPersonnummer(personInfo.fødselsnummer().getIdent())
             .medArbeidsgiverIdent(arbeidsgvierIdent)

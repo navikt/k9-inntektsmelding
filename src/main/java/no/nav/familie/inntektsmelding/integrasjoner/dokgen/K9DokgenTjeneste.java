@@ -44,18 +44,18 @@ public class K9DokgenTjeneste {
         personInfo = personTjeneste.hentPersonInfoFraAktørId(inntektsmelding.getAktørId(), inntektsmelding.getYtelsetype());
         arbeidsgiverNavn = finnArbeidsgiverNavn(inntektsmelding, arbeidsgvierIdent);
 
-        if (inntektsmelding.getYtelsetype() == Ytelsetype.OMSORGSPENGER && inntektsmelding.getOmsorgspenger() != null) {
-            var omsorgspengerRefusjonPdfData = OmsorgspengerRefusjonPdfDataMapper.mapOmsorgspengerRefusjonData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
-            return genererPdfForOmsorgspengerRefusjon(omsorgspengerRefusjonPdfData, inntektsmeldingsid);
+        if (inntektsmelding.getYtelsetype() == Ytelsetype.OMSORGSPENGER) {
+            var omsorgspengerPdfData = OmsorgspengerPdfDataMapper.mapOmsorgspengerData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
+            return genererPdfForOmsorgspenger(omsorgspengerPdfData, inntektsmeldingsid);
         }
 
         var imDokumentdata = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
         return genererPdfForInntektsmelding(imDokumentdata, inntektsmeldingsid);
     }
 
-    private byte[] genererPdfForOmsorgspengerRefusjon(OmsorgspengerRefusjonPdfData imDokumentData, int inntektsmeldingId) {
+    private byte[] genererPdfForOmsorgspenger(OmsorgspengerPdfData imDokumentData, int inntektsmeldingId) {
         try {
-            byte[] pdf = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(imDokumentData);
+            byte[] pdf = k9DokgenKlient.genererPdfOmsorgspenger(imDokumentData);
             LOG.info("Pdf av refusjonskrav omsorgspenger med id {} ble generert.", inntektsmeldingId);
             return pdf;
         } catch (Exception e) {

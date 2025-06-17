@@ -197,7 +197,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         assertThat(input.get("id")).isEqualTo(expectedId);
         assertThat(input.get("nyStatus")).isEqualTo(SaksStatus.FERDIG);
-        assertThat(input.get("overstyrStatustekstMed")).isEqualTo(ArbeidsgiverNotifikasjonTjeneste.SAK_STATUS_TEKST_OMSORGSPENGER_REFUSJON);
+        assertThat(input.get("overstyrStatustekstMed")).isEqualTo(ArbeidsgiverNotifikasjonTjeneste.SAK_STATUS_TEKST_ARBEIDSGIVERINITIERT);
 
         assertThat(input.get("idempotencyKey")).isNull();
         assertThat(input.get("hardDelete")).isNull();
