@@ -1,8 +1,7 @@
-package no.nav.familie.inntektsmelding.forespørsel.tjenester;
+package no.nav.familie.inntektsmelding.forespørsel.modell;
 
 import java.time.LocalDate;
 
-import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
