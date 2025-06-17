@@ -36,7 +36,7 @@ public class OmsorgspengerEntitet {
     private List<DelvisFraværsPeriodeEntitet> delvisFraværsPerioder = new ArrayList<>();
 
 
-    public OmsorgspengerEntitet() {
+    OmsorgspengerEntitet() {
         // Hibernate
     }
 

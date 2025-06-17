@@ -90,7 +90,7 @@ public class InntektsmeldingEntitet {
     @JoinColumn(name = "foresporsel_id", nullable = false, updatable = false)
     private ForespørselEntitet forespørsel;
 
-    public InntektsmeldingEntitet() {
+    InntektsmeldingEntitet() {
         // Hibernate
     }
 

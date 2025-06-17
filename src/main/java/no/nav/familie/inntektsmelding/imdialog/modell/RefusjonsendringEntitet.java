@@ -29,7 +29,7 @@ public class RefusjonsendringEntitet {
     @Column(name = "maaned_refusjon")
     private BigDecimal refusjonPrMnd;
 
-    public RefusjonsendringEntitet() {
+    RefusjonsendringEntitet() {
         // Hibernate
     }
 

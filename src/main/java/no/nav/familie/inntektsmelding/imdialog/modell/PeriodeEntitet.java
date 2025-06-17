@@ -17,7 +17,7 @@ public class PeriodeEntitet {
     @Column(name = "tom")
     private LocalDate tom;
 
-    public PeriodeEntitet() {
+    PeriodeEntitet() {
         // Hibernate
     }
 
