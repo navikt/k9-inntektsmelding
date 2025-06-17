@@ -28,6 +28,7 @@ import jakarta.persistence.Table;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @SequenceGenerator(name = "GLOBAL_PK_SEQ_GENERATOR", sequenceName = "SEQ_GLOBAL_PK")
@@ -162,8 +163,10 @@ public class ForespørselEntitet {
             .toList();
     }
 
-    public List<EtterspurtPeriodeEntitet> getEtterspurtePerioder() {
-        return etterspurtePerioder;
+    public List<PeriodeDto> getEtterspurtePerioder() {
+        return etterspurtePerioder.stream()
+            .map(etterspurtPeriode -> new PeriodeDto(etterspurtPeriode.getFom(), etterspurtPeriode.getTom()))
+            .toList();
     }
 
     private void leggTilEtterspurtPeriode(EtterspurtPeriodeEntitet etterspurtPeriode) {

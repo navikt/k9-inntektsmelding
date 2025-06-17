@@ -23,7 +23,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.familie.inntektsmelding.forespørsel.modell.EtterspurtPeriodeEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -33,7 +32,6 @@ import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -170,17 +168,7 @@ public class ForespørselRest {
 
     static ForespørselResponse mapTilForespørselResponse(ForespørselEntitet entitet) {
         return new ForespørselResponse(entitet.getUuid(), new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()), entitet.getSkjæringstidspunkt(),
-            new AktørIdDto(entitet.getAktørId().getAktørId()), KodeverkMapper.mapYtelsetype(entitet.getYtelseType()), entitet.getStatus(), mapTilPeriodeDtoer(entitet.getEtterspurtePerioder()));
-    }
-
-    static List<PeriodeDto> mapTilPeriodeDtoer(List<EtterspurtPeriodeEntitet> etterspurtePerioder) {
-        if (etterspurtePerioder == null) {
-            return null;
-        }
-
-        return etterspurtePerioder.stream()
-            .map(etterspurtPeriode -> new PeriodeDto(etterspurtPeriode.getFom(), etterspurtPeriode.getTom()))
-            .toList();
+            new AktørIdDto(entitet.getAktørId().getAktørId()), KodeverkMapper.mapYtelsetype(entitet.getYtelseType()), entitet.getStatus(), entitet.getEtterspurtePerioder());
     }
 
     private void sjekkErSystemkall() {
