@@ -170,8 +170,14 @@ public class ForespørselEntitet {
     }
 
     private void leggTilEtterspurtPeriode(EtterspurtPeriodeEntitet etterspurtPeriode) {
-        etterspurtPeriode.setForespørsel(this);
-        etterspurtePerioder.add(etterspurtPeriode);
+        if (etterspurtePerioder.stream().noneMatch(eksisterendePeriode -> erSammePeriode(eksisterendePeriode, etterspurtPeriode))) {
+            etterspurtPeriode.setForespørsel(this);
+            etterspurtePerioder.add(etterspurtPeriode);
+        }
+    }
+
+    private boolean erSammePeriode(EtterspurtPeriodeEntitet eksisterendePeriode, EtterspurtPeriodeEntitet nyPeriode) {
+        return eksisterendePeriode.getFom().isEqual(nyPeriode.getFom()) && eksisterendePeriode.getTom().isEqual(nyPeriode.getTom());
     }
 
     @Override
