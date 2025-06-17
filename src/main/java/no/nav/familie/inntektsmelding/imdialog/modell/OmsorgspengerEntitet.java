@@ -49,11 +49,11 @@ public class OmsorgspengerEntitet {
     }
 
     public List<FraværsPeriodeEntitet> getFraværsPerioder() {
-        return fraværsPerioder;
+        return List.copyOf(fraværsPerioder);
     }
 
     public List<DelvisFraværsPeriodeEntitet> getDelvisFraværsPerioder() {
-        return delvisFraværsPerioder;
+        return List.copyOf(delvisFraværsPerioder);
     }
 
     public void setInntektsmelding(InntektsmeldingEntitet inntektsmelding) {
