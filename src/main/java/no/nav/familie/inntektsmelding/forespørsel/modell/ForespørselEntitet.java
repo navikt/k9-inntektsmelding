@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.forespørsel.modell;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -79,8 +81,8 @@ public class ForespørselEntitet {
     @OneToMany(mappedBy = "forespørsel", fetch = FetchType.LAZY)
     private List<InntektsmeldingEntitet> inntektsmeldinger;
 
-    @OneToMany(mappedBy = "forespørsel")
-    private List<EtterspurtPeriodeEntitet> etterspurtePerioder;
+    @OneToMany(mappedBy = "forespørsel", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<EtterspurtPeriodeEntitet> etterspurtePerioder = new ArrayList<>();
 
     ForespørselEntitet() {
         this.uuid = UUID.randomUUID();
