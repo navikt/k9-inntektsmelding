@@ -65,4 +65,16 @@ public class EtterspurtPeriodeEntitet {
                ", periode=" + periode +
                '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EtterspurtPeriodeEntitet that)) {
+            return false;
+        }
+
+        return periode.equals(that.periode);
+    }
 }
