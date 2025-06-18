@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,13 +15,15 @@ import org.mockito.Mockito;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 class SettForespørselTilUtgåttTaskTest {
 
-    private final UUID forespørselUuid = UUID.randomUUID();
-    private final ForespørselEntitet entitet = new ForespørselEntitet();
+    private final ForespørselEntitet entitet = ForespørselMapper.mapForespørsel("arbeidsgiverOrgNr", LocalDate.now(), "1234567890134", Ytelsetype.PLEIEPENGER_SYKT_BARN, "saksnummer", LocalDate.now());
+    private final UUID forespørselUuid = entitet.getUuid();
 
     private final ForespørselBehandlingTjeneste forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
 

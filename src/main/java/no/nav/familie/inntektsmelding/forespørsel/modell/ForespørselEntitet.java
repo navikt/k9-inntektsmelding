@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.forespørsel.modell;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -26,6 +28,7 @@ import jakarta.persistence.Table;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @SequenceGenerator(name = "GLOBAL_PK_SEQ_GENERATOR", sequenceName = "SEQ_GLOBAL_PK")
@@ -79,22 +82,11 @@ public class ForespørselEntitet {
     @OneToMany(mappedBy = "forespørsel", fetch = FetchType.LAZY)
     private List<InntektsmeldingEntitet> inntektsmeldinger;
 
-    public ForespørselEntitet(String organisasjonsnummer,
-                              LocalDate skjæringstidspunkt,
-                              AktørIdEntitet aktørId,
-                              Ytelsetype ytelseType,
-                              String saksnummer,
-                              LocalDate førsteUttaksdato) {
-        this.uuid = UUID.randomUUID();
-        this.organisasjonsnummer = organisasjonsnummer;
-        this.skjæringstidspunkt = skjæringstidspunkt;
-        this.aktørId = aktørId;
-        this.ytelseType = ytelseType;
-        this.saksnummer = saksnummer;
-        this.førsteUttaksdato = førsteUttaksdato;
-    }
+    @OneToMany(mappedBy = "forespørsel", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<EtterspurtPeriodeEntitet> etterspurtePerioder = new ArrayList<>();
 
-    public ForespørselEntitet() {
+    ForespørselEntitet() {
+        this.uuid = UUID.randomUUID();
     }
 
     @PreUpdate
@@ -171,12 +163,38 @@ public class ForespørselEntitet {
             .toList();
     }
 
+    public List<PeriodeDto> getEtterspurtePerioder() {
+        return etterspurtePerioder.stream()
+            .map(etterspurtPeriode -> new PeriodeDto(etterspurtPeriode.getFom(), etterspurtPeriode.getTom()))
+            .toList();
+    }
+
+    private void leggTilEtterspurtPeriode(PeriodeDto etterspurtPeriode) {
+        if (!etterspurtePerioderInneholderNyPeriode(etterspurtPeriode)){
+            etterspurtePerioder.add(new EtterspurtPeriodeEntitet(this, etterspurtPeriode));
+        }
+    }
+
+    private boolean etterspurtePerioderInneholderNyPeriode(PeriodeDto etterspurtPeriode) {
+        return etterspurtePerioder.stream()
+            .anyMatch(eksisterendePeriode -> eksisterendePeriode.getFom().equals(etterspurtPeriode.fom()) &&
+                                             eksisterendePeriode.getTom().equals(etterspurtPeriode.tom()));
+    }
+
     @Override
     public String toString() {
-        return "ForespørselEntitet{" + "id=" + id + ", uuid=" + uuid + ", sakId=" + sakId + ", organisasjonsnummer=" + maskerId(organisasjonsnummer)
-            + ", skjæringstidspunkt=" + skjæringstidspunkt + ", aktørId=" + maskerId(aktørId.getAktørId()) + ", ytelseType=" + ytelseType
-            + ", saksnummer="
-            + saksnummer + '}';
+        return "ForespørselEntitet{" +
+            "id=" + id +
+            ", uuid=" + uuid +
+            ", sakId=" + sakId +
+            ", organisasjonsnummer=" + maskerId(organisasjonsnummer) +
+            ", skjæringstidspunkt=" + skjæringstidspunkt +
+            ", aktørId=" + maskerId(aktørId.getAktørId()) +
+            ", ytelseType=" + ytelseType +
+            ", saksnummer=" + saksnummer +
+            ", status=" + status +
+            ", etterspurtePerioder=" + etterspurtePerioder +
+            '}';
     }
 
     private String maskerId(String id) {
@@ -188,5 +206,59 @@ public class ForespørselEntitet {
             return "*".repeat(length);
         }
         return "*".repeat(length - 4) + id.substring(length - 4);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final ForespørselEntitet kladd = new ForespørselEntitet();
+
+        public Builder medOrganisasjonsnummer(String organisasjonsnummer) {
+            kladd.organisasjonsnummer = organisasjonsnummer;
+            return this;
+        }
+
+        public Builder medSkjæringstidspunkt(LocalDate skjæringstidspunkt) {
+            kladd.skjæringstidspunkt = skjæringstidspunkt;
+            return this;
+        }
+
+        public Builder medAktørId(AktørIdEntitet aktørId) {
+            kladd.aktørId = aktørId;
+            return this;
+        }
+
+        public Builder medYtelseType(Ytelsetype ytelseType) {
+            kladd.ytelseType = ytelseType;
+            return this;
+        }
+
+        public Builder medSaksnummer(String saksnummer) {
+            kladd.saksnummer = saksnummer;
+            return this;
+        }
+
+        public Builder medFørsteUttaksdato(LocalDate førsteUttaksdato) {
+            kladd.førsteUttaksdato = førsteUttaksdato;
+            return this;
+        }
+
+        public Builder medEtterspurtePerioder(List<PeriodeDto> etterspurtePerioder) {
+            if (etterspurtePerioder != null) {
+                etterspurtePerioder.forEach(kladd::leggTilEtterspurtPeriode);
+            }
+            return this;
+        }
+
+
+        public ForespørselEntitet build() {
+            if (kladd.organisasjonsnummer == null || kladd.skjæringstidspunkt == null || kladd.aktørId == null || kladd.ytelseType == null) {
+                throw new IllegalArgumentException("Mangler obligatoriske felt(er) for å bygge ForespørselEntitet");
+            }
+
+            return kladd;
+        }
     }
 }

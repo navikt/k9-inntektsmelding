@@ -34,9 +34,9 @@ public class ForespørselRepository {
 
     public UUID lagreForespørsel(LocalDate skjæringstidspunkt, Ytelsetype ytelsetype, String aktørId, String orgnummer, String saksnummer,
                                  LocalDate førsteUttaksdato) {
-        var forespørselEntitet = new ForespørselEntitet(orgnummer,
+        var forespørselEntitet = ForespørselMapper.mapForespørsel(orgnummer,
             skjæringstidspunkt,
-            new AktørIdEntitet(aktørId),
+            aktørId,
             ytelsetype,
             saksnummer,
             førsteUttaksdato);

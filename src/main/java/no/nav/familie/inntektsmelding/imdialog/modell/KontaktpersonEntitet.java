@@ -27,7 +27,7 @@ public class KontaktpersonEntitet {
     @Column(name = "navn")
     private String navn;
 
-    public KontaktpersonEntitet() {
+    KontaktpersonEntitet() {
         // Hibernate
     }
 

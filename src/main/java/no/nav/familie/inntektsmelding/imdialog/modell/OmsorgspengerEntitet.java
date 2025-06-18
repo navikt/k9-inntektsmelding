@@ -36,12 +36,8 @@ public class OmsorgspengerEntitet {
     private List<DelvisFraværsPeriodeEntitet> delvisFraværsPerioder = new ArrayList<>();
 
 
-    public OmsorgspengerEntitet() {
+    OmsorgspengerEntitet() {
         // Hibernate
-    }
-
-    public OmsorgspengerEntitet(boolean harUtbetaltPliktigeDager) {
-        this.harUtbetaltPliktigeDager = harUtbetaltPliktigeDager;
     }
 
     public boolean isHarUtbetaltPliktigeDager() {
@@ -49,11 +45,11 @@ public class OmsorgspengerEntitet {
     }
 
     public List<FraværsPeriodeEntitet> getFraværsPerioder() {
-        return fraværsPerioder;
+        return List.copyOf(fraværsPerioder);
     }
 
     public List<DelvisFraværsPeriodeEntitet> getDelvisFraværsPerioder() {
-        return delvisFraværsPerioder;
+        return List.copyOf(delvisFraværsPerioder);
     }
 
     public void setInntektsmelding(InntektsmeldingEntitet inntektsmelding) {

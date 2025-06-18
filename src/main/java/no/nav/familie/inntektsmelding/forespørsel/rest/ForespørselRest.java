@@ -1,9 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.rest;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -35,7 +33,6 @@ import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
-import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @AutentisertMedAzure
@@ -141,9 +138,9 @@ public class ForespørselRest {
 
         var forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(new SaksnummerDto(saksnummer), null, null);
         forespørsler = filtrerDuplikateForespørsler(forespørsler);
-        var forespørselDtos = forespørsler.stream().map(ForespørselRest::mapTilDto).toList();
+        var forespørselResponse = forespørsler.stream().map(ForespørselRest::mapTilForespørselResponse).toList();
 
-        return Response.ok(forespørselDtos).build();
+        return Response.ok(forespørselResponse).build();
     }
 
     private List<ForespørselEntitet> filtrerDuplikateForespørsler(List<ForespørselEntitet> forespørsler) {
@@ -169,13 +166,9 @@ public class ForespørselRest {
         return resultat;
     }
 
-    record ForespørselDto(UUID uuid, OrganisasjonsnummerDto organisasjonsnummer, LocalDate skjæringstidspunkt, AktørIdDto brukerAktørId,
-                          YtelseTypeDto ytelseType, ForespørselStatus status) {
-    }
-
-    static ForespørselDto mapTilDto(ForespørselEntitet entitet) {
-        return new ForespørselDto(entitet.getUuid(), new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()), entitet.getSkjæringstidspunkt(),
-            new AktørIdDto(entitet.getAktørId().getAktørId()), KodeverkMapper.mapYtelsetype(entitet.getYtelseType()), entitet.getStatus());
+    static ForespørselResponse mapTilForespørselResponse(ForespørselEntitet entitet) {
+        return new ForespørselResponse(entitet.getUuid(), new OrganisasjonsnummerDto(entitet.getOrganisasjonsnummer()), entitet.getSkjæringstidspunkt(),
+            new AktørIdDto(entitet.getAktørId().getAktørId()), KodeverkMapper.mapYtelsetype(entitet.getYtelseType()), entitet.getStatus(), entitet.getEtterspurtePerioder());
     }
 
     private void sjekkErSystemkall() {

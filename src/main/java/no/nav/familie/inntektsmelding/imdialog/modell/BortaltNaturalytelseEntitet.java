@@ -39,7 +39,7 @@ public class BortaltNaturalytelseEntitet {
     @Column(name = "maaned_Beloep", nullable = false)
     private BigDecimal månedBeløp;
 
-    public BortaltNaturalytelseEntitet() {
+    BortaltNaturalytelseEntitet() {
         // Hibernate
     }
 

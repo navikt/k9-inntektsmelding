@@ -30,7 +30,7 @@ public class DelvisFraværsPeriodeEntitet {
     @Column(name = "timer", nullable = false)
     private BigDecimal timer;
 
-    public DelvisFraværsPeriodeEntitet() {
+    DelvisFraværsPeriodeEntitet() {
         // Hibernate
     }
 

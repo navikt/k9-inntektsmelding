@@ -20,8 +20,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
@@ -96,9 +96,9 @@ class InntektsmeldingTjenesteTest {
     void skal_lage_dto() {
         // Arrange
         var uuid = UUID.randomUUID();
-        var forespørsel = new ForespørselEntitet("999999999",
+        var forespørsel = ForespørselMapper.mapForespørsel("999999999",
             LocalDate.now(),
-            new AktørIdEntitet("9999999999999"),
+            "9999999999999",
             Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
             null);
@@ -164,9 +164,9 @@ class InntektsmeldingTjenesteTest {
     void skal_lage_dto_med_første_uttaksdato() {
         // Arrange
         var uuid = UUID.randomUUID();
-        var forespørsel = new ForespørselEntitet("999999999",
+        var forespørsel = ForespørselMapper.mapForespørsel("999999999",
             LocalDate.now(),
-            new AktørIdEntitet("9999999999999"),
+            "9999999999999",
             Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
             LocalDate.now().plusDays(10));
@@ -211,9 +211,9 @@ class InntektsmeldingTjenesteTest {
     void skal_ikke_godta_im_på_utgått_forespørrsel() {
         // Arrange
         var uuid = UUID.randomUUID();
-        var forespørsel = new ForespørselEntitet("999999999",
+        var forespørsel = ForespørselMapper.mapForespørsel("999999999",
             LocalDate.now(),
-            new AktørIdEntitet("9999999999999"),
+            "9999999999999",
             Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
             null);
@@ -270,9 +270,9 @@ class InntektsmeldingTjenesteTest {
         var førsteFraværsdag = LocalDate.now();
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var aktørId = new AktørIdEntitet("9999999999999");
-        var forespørsel = new ForespørselEntitet("999999999",
+        var forespørsel = ForespørselMapper.mapForespørsel("999999999",
             førsteFraværsdag.plusWeeks(1),
-            aktørId,
+            aktørId.getAktørId(),
             ytelsetype,
             "123",
             førsteFraværsdag.plusWeeks(1));
@@ -312,7 +312,7 @@ class InntektsmeldingTjenesteTest {
         var førsteFraværsdag = LocalDate.now();
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var aktørId = new AktørIdEntitet("9999999999999");
-        var forespørsel = new ForespørselEntitet("999999999", førsteFraværsdag, aktørId, ytelsetype, "123", førsteFraværsdag);
+        var forespørsel = ForespørselMapper.mapForespørsel("999999999", førsteFraværsdag, aktørId.getAktørId(), ytelsetype, "123", førsteFraværsdag);
         var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null);
         when(personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype)).thenReturn(personInfo);
         when(personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype)).thenReturn(personInfo);

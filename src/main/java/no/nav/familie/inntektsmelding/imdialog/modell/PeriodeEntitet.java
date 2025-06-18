@@ -17,7 +17,7 @@ public class PeriodeEntitet {
     @Column(name = "tom")
     private LocalDate tom;
 
-    public PeriodeEntitet() {
+    PeriodeEntitet() {
         // Hibernate
     }
 
@@ -46,6 +46,19 @@ public class PeriodeEntitet {
     @Override
     public String toString() {
         return "PeriodeEntitet{" + "fom=" + fom + ", tom=" + tom + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PeriodeEntitet that)) {
+            return false;
+        }
+
+        return fom.equals(that.fom)
+            && tom.equals(that.tom) ;
     }
 
     public boolean overlapper(PeriodeEntitet other) {

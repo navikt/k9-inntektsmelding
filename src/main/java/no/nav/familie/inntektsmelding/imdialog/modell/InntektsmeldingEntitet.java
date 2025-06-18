@@ -90,7 +90,7 @@ public class InntektsmeldingEntitet {
     @JoinColumn(name = "foresporsel_id", nullable = false, updatable = false)
     private ForespørselEntitet forespørsel;
 
-    public InntektsmeldingEntitet() {
+    InntektsmeldingEntitet() {
         // Hibernate
     }
 
@@ -119,7 +119,7 @@ public class InntektsmeldingEntitet {
     }
 
     public List<BortaltNaturalytelseEntitet> getBorfalteNaturalYtelser() {
-        return borfalteNaturalYtelser;
+        return List.copyOf(borfalteNaturalYtelser);
     }
 
     public KontaktpersonEntitet getKontaktperson() {
@@ -139,7 +139,7 @@ public class InntektsmeldingEntitet {
     }
 
     public List<RefusjonsendringEntitet> getRefusjonsendringer() {
-        return refusjonsendringer;
+        return List.copyOf(refusjonsendringer);
     }
 
     public String getOpprettetAv() {
@@ -151,7 +151,7 @@ public class InntektsmeldingEntitet {
     }
 
     public List<EndringsårsakEntitet> getEndringsårsaker() {
-        return endringsårsaker;
+        return List.copyOf(endringsårsaker);
     }
 
     public OmsorgspengerEntitet getOmsorgspenger() {

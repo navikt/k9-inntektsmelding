@@ -42,7 +42,7 @@ public class EndringsårsakEntitet {
     @Column(name = "ble_kjent_fom")
     private LocalDate bleKjentFom;
 
-    public EndringsårsakEntitet() {
+    EndringsårsakEntitet() {
         // Hibernate
     }
 
