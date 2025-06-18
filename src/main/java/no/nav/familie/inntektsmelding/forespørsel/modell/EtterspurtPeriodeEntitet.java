@@ -13,6 +13,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 
 @SequenceGenerator(name = "GLOBAL_PK_SEQ_GENERATOR", sequenceName = "SEQ_GLOBAL_PK")
 @Entity(name = "EtterspurtPeriodeEntitet")
@@ -29,12 +30,13 @@ public class EtterspurtPeriodeEntitet {
     @Embedded
     private PeriodeEntitet periode;
 
-    EtterspurtPeriodeEntitet() {
+    private EtterspurtPeriodeEntitet() {
         // Hibernate
     }
 
-    public EtterspurtPeriodeEntitet(PeriodeEntitet periode) {
-        this.periode = periode;
+    EtterspurtPeriodeEntitet(ForespørselEntitet forespørsel, PeriodeDto periode) {
+        this.forespørsel = forespørsel;
+        this.periode = PeriodeEntitet.fraOgMedTilOgMed(periode.fom(), periode.tom());
     }
 
     public Long getId() {

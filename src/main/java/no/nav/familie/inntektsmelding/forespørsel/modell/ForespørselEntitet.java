@@ -169,11 +169,16 @@ public class ForespørselEntitet {
             .toList();
     }
 
-    private void leggTilEtterspurtPeriode(EtterspurtPeriodeEntitet etterspurtPeriode) {
-        if (etterspurtePerioder.stream().noneMatch(eksisterendePeriode -> eksisterendePeriode.equals(etterspurtPeriode) )) {
-            etterspurtPeriode.setForespørsel(this);
-            etterspurtePerioder.add(etterspurtPeriode);
+    private void leggTilEtterspurtPeriode(PeriodeDto etterspurtPeriode) {
+        if (!etterspurtePerioderInneholderNyPeriode(etterspurtPeriode)){
+            etterspurtePerioder.add(new EtterspurtPeriodeEntitet(this, etterspurtPeriode));
         }
+    }
+
+    private boolean etterspurtePerioderInneholderNyPeriode(PeriodeDto etterspurtPeriode) {
+        return etterspurtePerioder.stream()
+            .anyMatch(eksisterendePeriode -> eksisterendePeriode.getFom().equals(etterspurtPeriode.fom()) &&
+                                             eksisterendePeriode.getTom().equals(etterspurtPeriode.tom()));
     }
 
     @Override
@@ -240,7 +245,7 @@ public class ForespørselEntitet {
             return this;
         }
 
-        public Builder medEtterspurtePerioder(List<EtterspurtPeriodeEntitet> etterspurtePerioder) {
+        public Builder medEtterspurtePerioder(List<PeriodeDto> etterspurtePerioder) {
             if (etterspurtePerioder != null) {
                 etterspurtePerioder.forEach(kladd::leggTilEtterspurtPeriode);
             }
