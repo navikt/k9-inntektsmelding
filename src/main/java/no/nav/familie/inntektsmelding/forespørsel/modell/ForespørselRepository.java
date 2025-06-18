@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -40,6 +41,20 @@ public class ForespørselRepository {
             ytelsetype,
             saksnummer,
             førsteUttaksdato);
+        LOG.info("ForespørselRepository: lagrer forespørsel entitet: {}", forespørselEntitet);
+        entityManager.persist(forespørselEntitet);
+        entityManager.flush();
+        return forespørselEntitet.getUuid();
+    }
+
+    public UUID lagreForespørsel(LocalDate skjæringstidspunkt,
+                                 Ytelsetype ytelsetype,
+                                 String aktørId,
+                                 String orgnummer,
+                                 String saksnummer,
+                                 LocalDate førsteUttaksdato,
+                                 List<PeriodeDto> etterspurtePerioder) {
+        var forespørselEntitet = ForespørselMapper.mapForespørsel(orgnummer, skjæringstidspunkt, aktørId, ytelsetype, saksnummer, førsteUttaksdato, etterspurtePerioder);
         LOG.info("ForespørselRepository: lagrer forespørsel entitet: {}", forespørselEntitet);
         entityManager.persist(forespørselEntitet);
         entityManager.flush();

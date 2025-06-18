@@ -12,6 +12,7 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -36,6 +37,17 @@ public class ForespørselTjeneste {
                                    LocalDate førsteUttaksdato) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
             saksnummer.saksnr(), førsteUttaksdato);
+    }
+
+    public UUID opprettForespørsel(LocalDate skjæringstidspunkt,
+                                   Ytelsetype ytelseType,
+                                   AktørIdEntitet brukerAktørId,
+                                   OrganisasjonsnummerDto orgnr,
+                                   SaksnummerDto saksnummer,
+                                   LocalDate førsteUttaksdato,
+                                   List<PeriodeDto> etterspurtePerioder) {
+        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
+            saksnummer.saksnr(), førsteUttaksdato, etterspurtePerioder);
     }
 
     public UUID opprettForespørselOmsorgspengerRefusjon(LocalDate skjæringstidspunkt,

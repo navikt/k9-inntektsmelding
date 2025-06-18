@@ -32,6 +32,7 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -127,7 +128,8 @@ public class ForespørselBehandlingTjeneste {
                 aktørId,
                 saksnummer,
                 forespørselDto.orgnr(),
-                forespørselDto.skjæringstidspunkt());
+                forespørselDto.skjæringstidspunkt(),
+                forespørselDto.etterspurtePerioder());
             taskGruppe.addNesteParallell(opprettForespørselTask);
         }
 
@@ -260,7 +262,8 @@ public class ForespørselBehandlingTjeneste {
                                    SaksnummerDto saksnummer,
                                    OrganisasjonsnummerDto organisasjonsnummer,
                                    LocalDate skjæringstidspunkt,
-                                   LocalDate førsteUttaksdato) {
+                                   LocalDate førsteUttaksdato,
+                                   List<PeriodeDto> etterspurtePerioder) {
         LOG.info("Oppretter forespørsel, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             organisasjonsnummer,
             skjæringstidspunkt,
@@ -274,7 +277,8 @@ public class ForespørselBehandlingTjeneste {
             aktørId,
             organisasjonsnummer,
             saksnummer,
-            førsteUttaksdato);
+            førsteUttaksdato,
+            etterspurtePerioder);
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);

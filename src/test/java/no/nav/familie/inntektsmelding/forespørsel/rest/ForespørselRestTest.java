@@ -7,9 +7,15 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+
 import org.eclipse.jetty.http.HttpStatus;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,8 +23,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
@@ -83,6 +89,49 @@ class ForespørselRestTest {
             new OppdaterForespørslerRequest(aktørId, forespørsler, YtelseTypeDto.PLEIEPENGER_SYKT_BARN, saksnummer));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+    }
+
+    @Test
+    void skal_gi_valideringsfeil_for_OppdaterForespørslerRequest_for_omsorgspenger_uten_etterspurte_perioder() {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+        var orgnummer = new OrganisasjonsnummerDto(BRREG_ORGNUMMER);
+        var stp1 = LocalDate.now();
+        var forespørselDto = new OppdaterForespørselDto(stp1, orgnummer, ForespørselAksjon.OPPRETT, null);
+
+        var forespørsler = List.of(forespørselDto);
+        var aktørId = new AktørIdDto("1234567890134");
+        var saksnummer = new SaksnummerDto("SAK");
+
+        var request = new OppdaterForespørslerRequest(aktørId, forespørsler, YtelseTypeDto.OMSORGSPENGER, saksnummer);
+
+        // Validate the request
+        Set<ConstraintViolation<OppdaterForespørslerRequest>> violations = validator.validate(request);
+
+        Assertions.assertTrue(violations != null && !violations.isEmpty()); // Assert validation errors exist
+        assertThat(violations.iterator().next().getMessage())
+            .isEqualTo("Hvis ytelsestype er omsorgspenger, må etterspurtePerioder være med");
+    }
+
+    @Test
+    void skal_gi_valideringsfeil_for_OppdaterForespørselDto_med_duplikate_etterspurte_perioder() {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+        var orgnummer = new OrganisasjonsnummerDto(BRREG_ORGNUMMER);
+        var stp1 = LocalDate.now();
+        var etterspurtePerioder = List.of(
+            new PeriodeDto(stp1, stp1.plusDays(10)),
+            new PeriodeDto(stp1, stp1.plusDays(10) // Duplicate periods
+            ));
+
+        var forespørselDto = new OppdaterForespørselDto(stp1, orgnummer, ForespørselAksjon.OPPRETT, etterspurtePerioder);
+
+        // Validate the DTO
+        Set<ConstraintViolation<OppdaterForespørselDto>> violations = validator.validate(forespørselDto);
+
+        Assertions.assertTrue(violations != null && !violations.isEmpty()); // Assert validation errors exist
+        assertThat(violations.iterator().next().getMessage())
+            .isEqualTo("Hvis etterspurtePerioder finnes kan den ikke inneholde duplikate perioder");
     }
 
     @Test

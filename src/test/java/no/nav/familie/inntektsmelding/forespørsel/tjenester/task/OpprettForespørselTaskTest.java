@@ -58,10 +58,10 @@ class OpprettForespørselTaskTest {
     void skal_opprette_forespørsel_med_etterspurte_perioder_dersom_det_ikke_eksisterer_en_for_stp() {
         var task = new OpprettForespørselTask(forespørselBehandlingTjeneste);
         List<PeriodeDto> etterspurtePerioder = List.of(new PeriodeDto(LocalDate.now(), LocalDate.now().plusDays(10)));
-        var taskdata = OpprettForespørselTask.lagTaskData(ytelsetype, aktørId, saksnummer, organisasjon, skjæringstidspunkt, etterspurtePerioder);
+        var taskdata = OpprettForespørselTask.lagTaskData(Ytelsetype.OMSORGSPENGER, aktørId, saksnummer, organisasjon, skjæringstidspunkt, etterspurtePerioder);
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste).opprettForespørsel(ytelsetype, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null, etterspurtePerioder);
+        verify(forespørselBehandlingTjeneste).opprettForespørsel(Ytelsetype.OMSORGSPENGER, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null, etterspurtePerioder);
     }
 }

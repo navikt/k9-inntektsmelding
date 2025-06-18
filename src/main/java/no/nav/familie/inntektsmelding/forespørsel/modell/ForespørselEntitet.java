@@ -82,7 +82,7 @@ public class ForespørselEntitet {
     @OneToMany(mappedBy = "forespørsel", fetch = FetchType.LAZY)
     private List<InntektsmeldingEntitet> inntektsmeldinger;
 
-    @OneToMany(mappedBy = "forespørsel", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "forespørsel", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EtterspurtPeriodeEntitet> etterspurtePerioder = new ArrayList<>();
 
     ForespørselEntitet() {
@@ -170,12 +170,14 @@ public class ForespørselEntitet {
     }
 
     private void leggTilEtterspurtPeriode(PeriodeDto etterspurtPeriode) {
-        if (!etterspurtePerioderInneholderNyPeriode(etterspurtPeriode)){
-            etterspurtePerioder.add(new EtterspurtPeriodeEntitet(this, etterspurtPeriode));
+        if (etterspurtePerioderInneholderAlleredePerioden(etterspurtPeriode)){
+            // Dette burde ikke skje, validering skal være gjort i OppdaterForespørselDto
+            throw new IllegalArgumentException("Etterspurt periode " + etterspurtPeriode + " finnes allerede i listen over etterspurte perioder: " + etterspurtePerioder);
         }
+        etterspurtePerioder.add(new EtterspurtPeriodeEntitet(this, etterspurtPeriode));
     }
 
-    private boolean etterspurtePerioderInneholderNyPeriode(PeriodeDto etterspurtPeriode) {
+    private boolean etterspurtePerioderInneholderAlleredePerioden(PeriodeDto etterspurtPeriode) {
         return etterspurtePerioder.stream()
             .anyMatch(eksisterendePeriode -> eksisterendePeriode.getFom().equals(etterspurtPeriode.fom()) &&
                                              eksisterendePeriode.getTom().equals(etterspurtPeriode.tom()));
@@ -246,7 +248,7 @@ public class ForespørselEntitet {
         }
 
         public Builder medEtterspurtePerioder(List<PeriodeDto> etterspurtePerioder) {
-            if (etterspurtePerioder != null) {
+            if (etterspurtePerioder != null && !etterspurtePerioder.isEmpty()) {
                 etterspurtePerioder.forEach(kladd::leggTilEtterspurtPeriode);
             }
             return this;
