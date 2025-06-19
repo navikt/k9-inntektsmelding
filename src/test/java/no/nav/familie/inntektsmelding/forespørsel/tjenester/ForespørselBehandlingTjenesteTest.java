@@ -24,7 +24,6 @@ import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
-import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
@@ -36,7 +35,9 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
+import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -78,7 +79,8 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             arbeidsgiverNotifikasjon,
             personTjeneste,
             prosessTaskTjeneste,
-            organisasjonTjeneste);
+            organisasjonTjeneste,
+            new JacksonJsonConfig());
     }
 
     @Test

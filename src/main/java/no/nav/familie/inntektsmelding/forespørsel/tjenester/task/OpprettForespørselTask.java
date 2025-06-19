@@ -9,6 +9,8 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -31,13 +33,14 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
     public static final String YTELSETYPE = "ytelsetype";
     public static final String ORGNR = "orgnr";
     public static final String STP = "skjaeringstidspunkt";
-    public static final String ETTERSPURTE_PERIODER = "etterspurtePerioder";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
+    private ObjectMapper objectMapper;
 
     @Inject
-    public OpprettForespørselTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
+    public OpprettForespørselTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, JacksonJsonConfig jacksonJsonConfig) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
+        this.objectMapper = jacksonJsonConfig.getObjectMapper();
     }
 
     OpprettForespørselTask() {
@@ -67,41 +70,20 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         MetrikkerTjeneste.loggForespørselOpprettet(ytelsetype);
     }
 
-    private static List<PeriodeDto> hentEtterspurtePerioder(ProsessTaskData prosessTaskData, Ytelsetype ytelsetype) {
+    private List<PeriodeDto> hentEtterspurtePerioder(ProsessTaskData prosessTaskData, Ytelsetype ytelsetype) {
         List<PeriodeDto> etterspurtePerioder;
         if (ytelsetype != Ytelsetype.OMSORGSPENGER) {
             return null;
         }
 
         try {
-            etterspurtePerioder = JacksonJsonConfig.getObjectMapper().readValue(
+            etterspurtePerioder = objectMapper.readValue(
                 prosessTaskData.getPayloadAsString(),
-                JacksonJsonConfig.getObjectMapper().getTypeFactory().constructCollectionType(List.class, PeriodeDto.class)
+                objectMapper.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class)
             );
             return etterspurtePerioder;
         } catch (Exception e) {
             throw new RuntimeException("Kunne ikke deserialisere etterspurtePerioder for ytelse: " + ytelsetype, e);
         }
-    }
-
-    public static ProsessTaskData lagTaskData(Ytelsetype ytelsetype,
-                                              AktørIdEntitet aktørId,
-                                              SaksnummerDto saksnummer,
-                                              OrganisasjonsnummerDto organisasjon,
-                                              LocalDate skjæringstidspunkt,
-                                              List<PeriodeDto> etterspurtePerioder) {
-        var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
-        taskdata.setProperty(YTELSETYPE, ytelsetype.name());
-        taskdata.setAktørId(aktørId.getAktørId());
-        taskdata.setSaksnummer(saksnummer.saksnr());
-        taskdata.setProperty(ORGNR, organisasjon.orgnr());
-        taskdata.setProperty(STP, skjæringstidspunkt.toString());
-        try {
-            taskdata.setPayload(JacksonJsonConfig.getObjectMapper().writeValueAsString(etterspurtePerioder));
-        } catch (Exception e) {
-            LOG.error("Kunne ikke serialisere etterspurtePerioder til JSON", e);
-            throw new RuntimeException("Kunne ikke serialisere etterspurtePerioder", e);
-        }
-        return taskdata;
     }
 }

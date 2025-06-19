@@ -11,9 +11,12 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -27,13 +30,14 @@ class OpprettForespørselTaskTest {
     private final SaksnummerDto saksnummer = new SaksnummerDto("456");
     private final OrganisasjonsnummerDto organisasjon = new OrganisasjonsnummerDto("789");
     private final LocalDate skjæringstidspunkt = LocalDate.now();
+    private final JacksonJsonConfig jacksonJsonConfig = new JacksonJsonConfig();
 
     private final ForespørselBehandlingTjeneste forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
 
     @Test
     void skal_opprette_forespørsel_dersom_det_ikke_eksisterer_en_for_stp() {
-        var task = new OpprettForespørselTask(forespørselBehandlingTjeneste);
-        var taskdata = OpprettForespørselTask.lagTaskData(ytelsetype, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null);
+        var task = new OpprettForespørselTask(forespørselBehandlingTjeneste, jacksonJsonConfig);
+        var taskdata = lagOpprettForespørselTaskData(ytelsetype, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null);
 
         task.doTask(taskdata);
 
@@ -42,8 +46,8 @@ class OpprettForespørselTaskTest {
 
     @Test
     void skal_ikke_opprette_ny_forespørsel_dersom_det_eksisterer_en_for_samme_stp() {
-        var task = new OpprettForespørselTask(forespørselBehandlingTjeneste);
-        var taskdata = OpprettForespørselTask.lagTaskData(ytelsetype, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null);
+        var task = new OpprettForespørselTask(forespørselBehandlingTjeneste, jacksonJsonConfig);
+        var taskdata = lagOpprettForespørselTaskData(ytelsetype, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null);
 
         when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(saksnummer, organisasjon, skjæringstidspunkt))
             .thenReturn(List.of(ForespørselMapper.mapForespørsel(organisasjon.orgnr(), skjæringstidspunkt, aktørId.getAktørId(), ytelsetype, saksnummer.saksnr(), null
@@ -56,12 +60,35 @@ class OpprettForespørselTaskTest {
 
     @Test
     void skal_opprette_forespørsel_med_etterspurte_perioder_dersom_det_ikke_eksisterer_en_for_stp() {
-        var task = new OpprettForespørselTask(forespørselBehandlingTjeneste);
+        var task = new OpprettForespørselTask(forespørselBehandlingTjeneste, jacksonJsonConfig);
         List<PeriodeDto> etterspurtePerioder = List.of(new PeriodeDto(LocalDate.now(), LocalDate.now().plusDays(10)));
-        var taskdata = OpprettForespørselTask.lagTaskData(Ytelsetype.OMSORGSPENGER, aktørId, saksnummer, organisasjon, skjæringstidspunkt, etterspurtePerioder);
+        var taskdata = lagOpprettForespørselTaskData(Ytelsetype.OMSORGSPENGER, aktørId, saksnummer, organisasjon, skjæringstidspunkt, etterspurtePerioder
+        );
 
         task.doTask(taskdata);
 
         verify(forespørselBehandlingTjeneste).opprettForespørsel(Ytelsetype.OMSORGSPENGER, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null, etterspurtePerioder);
+    }
+
+    private ProsessTaskData lagOpprettForespørselTaskData(Ytelsetype ytelsetype,
+                                                          AktørIdEntitet aktørId,
+                                                          SaksnummerDto saksnummer,
+                                                          OrganisasjonsnummerDto organisasjon,
+                                                          LocalDate skjæringstidspunkt,
+                                                          List<PeriodeDto> etterspurtePerioder) {
+        var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
+        taskdata.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
+        taskdata.setAktørId(aktørId.getAktørId());
+        taskdata.setSaksnummer(saksnummer.saksnr());
+        taskdata.setProperty(OpprettForespørselTask.ORGNR, organisasjon.orgnr());
+        taskdata.setProperty(OpprettForespørselTask.STP, skjæringstidspunkt.toString());
+        if (etterspurtePerioder != null) {
+            try {
+                taskdata.setPayload(jacksonJsonConfig.getObjectMapper().writeValueAsString(etterspurtePerioder));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return taskdata;
     }
 }
