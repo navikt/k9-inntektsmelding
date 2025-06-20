@@ -140,9 +140,9 @@ class ForespørselRestTest {
         var stp = LocalDate.now();
         var aktørId = new AktørIdDto("1234567890134");
 
-        var forespørsel1 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp);
+        var forespørsel1 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp, null);
         forespørsel1.setStatus(ForespørselStatus.UTGÅTT);
-        var forespørsel2 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp);
+        var forespørsel2 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp, null);
         forespørsel2.setStatus(ForespørselStatus.FERDIG);
 
         when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(any(SaksnummerDto.class), eq(null), eq(null))).thenReturn(List.of(forespørsel1, forespørsel2));
@@ -164,9 +164,9 @@ class ForespørselRestTest {
         var stp = LocalDate.now();
         var aktørId = new AktørIdDto("1234567890134");
 
-        var forespørsel1 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp);
+        var forespørsel1 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp, null);
         forespørsel1.setStatus(ForespørselStatus.UTGÅTT);
-        var forespørsel2 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp);
+        var forespørsel2 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp, null);
         forespørsel2.setStatus(ForespørselStatus.UTGÅTT);
 
         when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(any(SaksnummerDto.class), eq(null), eq(null))).thenReturn(List.of(forespørsel1, forespørsel2));
@@ -187,7 +187,7 @@ class ForespørselRestTest {
         var expectedOrg = "123456789";
         var expectedBruker = "1233425324241";
         var expectedSkjæringstidspunkt = LocalDate.now();
-        var input = ForespørselMapper.mapForespørsel(expectedOrg, expectedSkjæringstidspunkt, expectedBruker, Ytelsetype.PLEIEPENGER_SYKT_BARN, "9876544321", expectedSkjæringstidspunkt.plusDays(10));
+        var input = ForespørselMapper.mapForespørsel(expectedOrg, expectedSkjæringstidspunkt, expectedBruker, Ytelsetype.PLEIEPENGER_SYKT_BARN, "9876544321", expectedSkjæringstidspunkt.plusDays(10), null);
 
         var resultat = ForespørselRest.mapTilForespørselResponse(input);
 

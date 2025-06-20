@@ -50,7 +50,7 @@ class OpprettForespørselTaskTest {
         var taskdata = lagOpprettForespørselTaskData(ytelsetype, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null);
 
         when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(saksnummer, organisasjon, skjæringstidspunkt))
-            .thenReturn(List.of(ForespørselMapper.mapForespørsel(organisasjon.orgnr(), skjæringstidspunkt, aktørId.getAktørId(), ytelsetype, saksnummer.saksnr(), null
+            .thenReturn(List.of(ForespørselMapper.mapForespørsel(organisasjon.orgnr(), skjæringstidspunkt, aktørId.getAktørId(), ytelsetype, saksnummer.saksnr(), null, null
             )));
 
         task.doTask(taskdata);
