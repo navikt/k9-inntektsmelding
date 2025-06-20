@@ -32,21 +32,6 @@ public class ForespørselRepository {
         this.entityManager = entityManager;
     }
 
-
-    public UUID lagreForespørsel(LocalDate skjæringstidspunkt, Ytelsetype ytelsetype, String aktørId, String orgnummer, String saksnummer,
-                                 LocalDate førsteUttaksdato) {
-        var forespørselEntitet = ForespørselMapper.mapForespørsel(orgnummer,
-            skjæringstidspunkt,
-            aktørId,
-            ytelsetype,
-            saksnummer,
-            førsteUttaksdato);
-        LOG.info("ForespørselRepository: lagrer forespørsel entitet: {}", forespørselEntitet);
-        entityManager.persist(forespørselEntitet);
-        entityManager.flush();
-        return forespørselEntitet.getUuid();
-    }
-
     public UUID lagreForespørsel(LocalDate skjæringstidspunkt,
                                  Ytelsetype ytelsetype,
                                  String aktørId,

@@ -34,16 +34,6 @@ public class ForespørselTjeneste {
                                    AktørIdEntitet brukerAktørId,
                                    OrganisasjonsnummerDto orgnr,
                                    SaksnummerDto saksnummer,
-                                   LocalDate førsteUttaksdato) {
-        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            saksnummer.saksnr(), førsteUttaksdato);
-    }
-
-    public UUID opprettForespørsel(LocalDate skjæringstidspunkt,
-                                   Ytelsetype ytelseType,
-                                   AktørIdEntitet brukerAktørId,
-                                   OrganisasjonsnummerDto orgnr,
-                                   SaksnummerDto saksnummer,
                                    LocalDate førsteUttaksdato,
                                    List<PeriodeDto> etterspurtePerioder) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
@@ -55,7 +45,7 @@ public class ForespørselTjeneste {
                                                         OrganisasjonsnummerDto orgnr,
                                                         LocalDate førsteUttaksdato) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, Ytelsetype.OMSORGSPENGER, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            null, førsteUttaksdato);
+            null, førsteUttaksdato, null);
     }
 
     public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {
