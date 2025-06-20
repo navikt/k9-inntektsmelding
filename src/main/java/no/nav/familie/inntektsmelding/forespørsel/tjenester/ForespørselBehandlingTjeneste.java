@@ -66,13 +66,13 @@ public class ForespørselBehandlingTjeneste {
                                          PersonTjeneste personTjeneste,
                                          ProsessTaskTjeneste prosessTaskTjeneste,
                                          OrganisasjonTjeneste organisasjonTjeneste,
-                                         JacksonJsonConfig objectMapper) {
+                                         JacksonJsonConfig jacksonJsonConfig) {
         this.forespørselTjeneste = forespørselTjeneste;
         this.arbeidsgiverNotifikasjon = arbeidsgiverNotifikasjon;
         this.personTjeneste = personTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
-        this.objectMapper = objectMapper.getObjectMapper();
+        this.objectMapper = jacksonJsonConfig.getObjectMapper();
         this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
     }
 

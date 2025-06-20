@@ -170,14 +170,14 @@ public class ForespørselEntitet {
     }
 
     private void leggTilEtterspurtPeriode(PeriodeDto etterspurtPeriode) {
-        if (etterspurtePerioderInneholderAlleredePerioden(etterspurtPeriode)){
+        if (etterspurtePerioderInneholderNyPeriode(etterspurtPeriode)){
             // Dette burde ikke skje, validering skal være gjort i OppdaterForespørselDto
             throw new IllegalArgumentException("Etterspurt periode " + etterspurtPeriode + " finnes allerede i listen over etterspurte perioder: " + etterspurtePerioder);
         }
         etterspurtePerioder.add(new EtterspurtPeriodeEntitet(this, etterspurtPeriode));
     }
 
-    private boolean etterspurtePerioderInneholderAlleredePerioden(PeriodeDto etterspurtPeriode) {
+    private boolean etterspurtePerioderInneholderNyPeriode(PeriodeDto etterspurtPeriode) {
         return etterspurtePerioder.stream()
             .anyMatch(eksisterendePeriode -> eksisterendePeriode.getFom().equals(etterspurtPeriode.fom()) &&
                                              eksisterendePeriode.getTom().equals(etterspurtPeriode.tom()));
