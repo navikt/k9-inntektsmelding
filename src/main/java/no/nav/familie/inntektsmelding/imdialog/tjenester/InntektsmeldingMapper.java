@@ -27,6 +27,8 @@ import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
+import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
 
@@ -55,11 +57,21 @@ public class InntektsmeldingMapper {
             .medRefusjonsendringer(mapRefusjonsendringer(dto.startdato(), opphørsdato, dto.refusjon()))
             .medForespørsel(forespørsel);
 
-        if (dto.omsorgspenger() != null) {
+        if (dto.omsorgspenger() != null) { // omsorgspenger refusjon
             inntektsmeldingBuilder.medOmsorgspenger(mapOmsorgspenger(dto.omsorgspenger()));
         }
 
+        if (erDetOmsorgspengerDirekteUtbetaling(dto.ytelse(), forespørsel)) { // omsorgepenger direkte utbetaling
+            inntektsmeldingBuilder.medOmsorgspenger(mapOmsorgspengerFraForespørsel(forespørsel.getEtterspurtePerioder()));
+        }
+
         return inntektsmeldingBuilder.build();
+    }
+
+    private static boolean erDetOmsorgspengerDirekteUtbetaling(YtelseTypeDto ytelse, ForespørselEntitet forespørsel) {
+        return ytelse.equals(YtelseTypeDto.OMSORGSPENGER)
+            && forespørsel.getEtterspurtePerioder() != null
+            && !forespørsel.getEtterspurtePerioder().isEmpty();
     }
 
     private static Optional<BigDecimal> finnFørsteRefusjon(List<SendInntektsmeldingRequestDto.Refusjon> refusjon, LocalDate startdato) {
@@ -216,12 +228,26 @@ public class InntektsmeldingMapper {
         return new KontaktpersonEntitet(dto.kontaktperson().navn(), dto.kontaktperson().telefonnummer());
     }
 
+    private static OmsorgspengerEntitet mapOmsorgspengerFraForespørsel(List<PeriodeDto> etterspurtePerioder) {
+        return OmsorgspengerEntitet.builder()
+            .medHarUtbetaltPliktigeDager(true) // Forespørsel fra omsorgspenger har alltid betalt pliktige dager
+            .medFraværsPerioder(mapPerioder(etterspurtePerioder))
+            .build();
+    }
+
+
     private static OmsorgspengerEntitet mapOmsorgspenger(OmsorgspengerRequestDto dto) {
         return OmsorgspengerEntitet.builder()
             .medHarUtbetaltPliktigeDager(dto.harUtbetaltPliktigeDager())
             .medFraværsPerioder(mapFraværsPerioder(dto.fraværHeleDager()))
             .medDelvisFraværsPerioder(mapDelvisFraværsPerioder(dto.fraværDelerAvDagen()))
             .build();
+    }
+
+    private static List<FraværsPeriodeEntitet> mapPerioder(List<PeriodeDto> etterspurtePerioder) {
+        return etterspurtePerioder.stream()
+            .map(fraværsPeriode -> new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(fraværsPeriode.fom(), fraværsPeriode.tom())))
+            .toList();
     }
 
     private static List<FraværsPeriodeEntitet> mapFraværsPerioder(List<OmsorgspengerRequestDto.FraværHeleDagerRequestDto> dto) {
