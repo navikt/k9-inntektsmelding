@@ -21,8 +21,7 @@ public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto per
                                        @Valid @NotNull YtelseTypeDto ytelse,
                                        @Valid UUID forespørselUuid,
                                        @Valid @NotNull ForespørselStatusDto forespørselStatus,
-                                       @Valid @NotNull LocalDate førsteUttaksdato,
-                                       @Valid List<PeriodeDto> etterspurtePerioder) {
+                                       @Valid @NotNull LocalDate førsteUttaksdato) {
 
     public record PersonInfoResponseDto(@NotNull String fornavn, @NotNull String mellomnavn, @NotNull String etternavn, @NotNull String fødselsnummer,
                                         @NotNull String aktørId) {
