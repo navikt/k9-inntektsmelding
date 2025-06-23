@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselStatusDto;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
-import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
 public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto person,
@@ -21,8 +20,7 @@ public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto per
                                        @Valid @NotNull YtelseTypeDto ytelse,
                                        @Valid UUID forespørselUuid,
                                        @Valid @NotNull ForespørselStatusDto forespørselStatus,
-                                       @Valid @NotNull LocalDate førsteUttaksdato,
-                                       @Valid List<PeriodeDto> etterspurtePerioder) {
+                                       @Valid @NotNull LocalDate førsteUttaksdato) {
 
     public record PersonInfoResponseDto(@NotNull String fornavn, @NotNull String mellomnavn, @NotNull String etternavn, @NotNull String fødselsnummer,
                                         @NotNull String aktørId) {

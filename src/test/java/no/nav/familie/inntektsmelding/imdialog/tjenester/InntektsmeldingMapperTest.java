@@ -43,8 +43,7 @@ class InntektsmeldingMapperTest {
         "9999999999999",
         Ytelsetype.PLEIEPENGER_SYKT_BARN,
         "sak1",
-        LocalDate.now(),
-        null
+        LocalDate.now()
     );
 
     @Test
