@@ -170,7 +170,6 @@ public class InntektsmeldingTjeneste {
             forespørsel.getAktørId(),
             forespørsel.getSkjæringstidspunkt(),
             forespørsel.getOrganisasjonsnummer());
-
         return new InntektsmeldingDialogDto(personDto,
             organisasjonDto,
             innmelderDto,
@@ -179,8 +178,7 @@ public class InntektsmeldingTjeneste {
             KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()),
             forespørsel.getUuid(),
             KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()),
-            forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt),
-            forespørsel.getEtterspurtePerioder());
+            forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt));
     }
 
     public InntektsmeldingDialogDto lagArbeidsgiverinitiertDialogDto(PersonIdent fødselsnummer,
@@ -212,8 +210,7 @@ public class InntektsmeldingTjeneste {
             KodeverkMapper.mapYtelsetype(ytelsetype),
             null,
             KodeverkMapper.mapForespørselStatus(ForespørselStatus.UNDER_BEHANDLING),
-            førsteFraværsdag,
-            null
+            førsteFraværsdag
         );
     }
 

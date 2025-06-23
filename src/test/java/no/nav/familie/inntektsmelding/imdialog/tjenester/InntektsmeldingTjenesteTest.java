@@ -101,7 +101,6 @@ class InntektsmeldingTjenesteTest {
             "9999999999999",
             Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
-            null,
             null);
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer())).thenReturn(
@@ -170,8 +169,7 @@ class InntektsmeldingTjenesteTest {
             "9999999999999",
             Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
-            LocalDate.now().plusDays(10),
-            null);
+            LocalDate.now().plusDays(10));
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer())).thenReturn(
             new Organisasjon("Bedriften", forespørsel.getOrganisasjonsnummer()));
@@ -218,7 +216,6 @@ class InntektsmeldingTjenesteTest {
             "9999999999999",
             Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
-            null,
             null);
         forespørsel.setStatus(ForespørselStatus.UTGÅTT);
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
@@ -278,8 +275,7 @@ class InntektsmeldingTjenesteTest {
             aktørId.getAktørId(),
             ytelsetype,
             "123",
-            førsteFraværsdag.plusWeeks(1),
-            null);
+            førsteFraværsdag.plusWeeks(1));
         var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null);
         when(personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype)).thenReturn(personInfo);
         when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID), ytelsetype)).thenReturn(
@@ -316,7 +312,7 @@ class InntektsmeldingTjenesteTest {
         var førsteFraværsdag = LocalDate.now();
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var aktørId = new AktørIdEntitet("9999999999999");
-        var forespørsel = ForespørselMapper.mapForespørsel("999999999", førsteFraværsdag, aktørId.getAktørId(), ytelsetype, "123", førsteFraværsdag, null);
+        var forespørsel = ForespørselMapper.mapForespørsel("999999999", førsteFraværsdag, aktørId.getAktørId(), ytelsetype, "123", førsteFraværsdag);
         var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null);
         when(personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype)).thenReturn(personInfo);
         when(personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype)).thenReturn(personInfo);

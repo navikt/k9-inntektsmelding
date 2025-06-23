@@ -12,7 +12,6 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
-import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -34,10 +33,9 @@ public class ForespørselTjeneste {
                                    AktørIdEntitet brukerAktørId,
                                    OrganisasjonsnummerDto orgnr,
                                    SaksnummerDto saksnummer,
-                                   LocalDate førsteUttaksdato,
-                                   List<PeriodeDto> etterspurtePerioder) {
+                                   LocalDate førsteUttaksdato) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            saksnummer.saksnr(), førsteUttaksdato, etterspurtePerioder);
+            saksnummer.saksnr(), førsteUttaksdato);
     }
 
     public UUID opprettForespørselOmsorgspengerRefusjon(LocalDate skjæringstidspunkt,
@@ -45,7 +43,7 @@ public class ForespørselTjeneste {
                                                         OrganisasjonsnummerDto orgnr,
                                                         LocalDate førsteUttaksdato) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, Ytelsetype.OMSORGSPENGER, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            null, førsteUttaksdato, null);
+            null, førsteUttaksdato);
     }
 
     public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {
