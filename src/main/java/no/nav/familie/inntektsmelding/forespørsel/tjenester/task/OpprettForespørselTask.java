@@ -10,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
@@ -22,6 +20,7 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.familie.inntektsmelding.utils.K9ObjectMapper;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -36,11 +35,13 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
     public static final String STP = "skjaeringstidspunkt";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
+    private ObjectMapper objectMapper;
 
     @Inject
-    public OpprettForespørselTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
+    public OpprettForespørselTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
+                                  K9ObjectMapper k9ObjectMapper) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
+        this.objectMapper = k9ObjectMapper.getObjectMapper();
     }
 
     OpprettForespørselTask() {

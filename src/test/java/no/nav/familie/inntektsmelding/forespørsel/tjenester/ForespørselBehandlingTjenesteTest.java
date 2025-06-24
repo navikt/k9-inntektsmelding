@@ -40,6 +40,7 @@ import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.familie.inntektsmelding.utils.K9ObjectMapper;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -78,7 +79,8 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             arbeidsgiverNotifikasjon,
             personTjeneste,
             prosessTaskTjeneste,
-            organisasjonTjeneste);
+            organisasjonTjeneste,
+            new K9ObjectMapper());
     }
 
     @Test
