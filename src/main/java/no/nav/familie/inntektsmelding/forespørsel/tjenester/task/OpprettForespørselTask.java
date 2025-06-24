@@ -10,14 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
+import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -25,18 +24,19 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 @ProsessTask("forespørsel.opprett")
 public class OpprettForespørselTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OpprettForespørselTask.class);
+    private static final ObjectMapper OBJECT_MAPPER = DefaultJsonMapper.getObjectMapper();
 
     public static final String YTELSETYPE = "ytelsetype";
     public static final String ORGNR = "orgnr";
     public static final String STP = "skjaeringstidspunkt";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
 
     @Inject
     public OpprettForespørselTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
@@ -77,13 +77,34 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         }
 
         try {
-            etterspurtePerioder = objectMapper.readValue(
+            etterspurtePerioder = OBJECT_MAPPER.readValue(
                 prosessTaskData.getPayloadAsString(),
-                objectMapper.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class)
+                OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class)
             );
             return etterspurtePerioder;
         } catch (Exception e) {
             throw new RuntimeException("Kunne ikke deserialisere etterspurtePerioder for ytelse: " + ytelsetype, e);
         }
+    }
+
+    public static ProsessTaskData lagOpprettForespørselTaskData(Ytelsetype ytelsetype,
+                                                          AktørIdEntitet aktørId,
+                                                          SaksnummerDto saksnummer,
+                                                          OppdaterForespørselDto forespørselDto) {
+        var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
+        taskdata.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
+        taskdata.setAktørId(aktørId.getAktørId());
+        taskdata.setSaksnummer(saksnummer.saksnr());
+        taskdata.setProperty(OpprettForespørselTask.ORGNR,  forespørselDto.orgnr().orgnr());
+        taskdata.setProperty(OpprettForespørselTask.STP, forespørselDto.skjæringstidspunkt().toString());
+        if (forespørselDto.etterspurtePerioder() != null) {
+            try {
+                taskdata.setPayload(OBJECT_MAPPER.writeValueAsString(forespørselDto.etterspurtePerioder()));
+            } catch (Exception e) {
+                LOG.error("Kunne ikke serialisere etterspurtePerioder til JSON", e);
+                throw new RuntimeException("Kunne ikke serialisere etterspurtePerioder", e);
+            }
+        }
+        return taskdata;
     }
 }
