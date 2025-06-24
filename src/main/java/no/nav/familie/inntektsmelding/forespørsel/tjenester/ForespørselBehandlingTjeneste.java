@@ -15,8 +15,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
@@ -36,7 +34,6 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.familie.inntektsmelding.utils.K9ObjectMapper;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -45,7 +42,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 @ApplicationScoped
 public class ForespørselBehandlingTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselBehandlingTjeneste.class);
-
     private static final no.nav.foreldrepenger.konfig.Environment ENV = Environment.current();
 
     private ForespørselTjeneste forespørselTjeneste;
@@ -54,7 +50,6 @@ public class ForespørselBehandlingTjeneste {
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private String inntektsmeldingSkjemaLenke;
-    private ObjectMapper objectMapper;
 
     ForespørselBehandlingTjeneste() {
         // CDI
@@ -65,14 +60,12 @@ public class ForespørselBehandlingTjeneste {
                                          ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon,
                                          PersonTjeneste personTjeneste,
                                          ProsessTaskTjeneste prosessTaskTjeneste,
-                                         OrganisasjonTjeneste organisasjonTjeneste,
-                                         K9ObjectMapper k9ObjectMapper) {
+                                         OrganisasjonTjeneste organisasjonTjeneste) {
         this.forespørselTjeneste = forespørselTjeneste;
         this.arbeidsgiverNotifikasjon = arbeidsgiverNotifikasjon;
         this.personTjeneste = personTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
-        this.objectMapper = k9ObjectMapper.getObjectMapper();
         this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
     }
 
@@ -129,7 +122,7 @@ public class ForespørselBehandlingTjeneste {
         // Forespørsler som skal opprettes
         var skalOpprettes = utledNyeForespørsler(forespørsler, eksisterendeForespørsler);
         for (OppdaterForespørselDto forespørselDto : skalOpprettes) {
-            var opprettForespørselTask = lagOpprettForespørselTaskData(ytelsetype, aktørId, saksnummer, forespørselDto);
+            var opprettForespørselTask = OpprettForespørselTask.lagOpprettForespørselTaskData(ytelsetype, aktørId, saksnummer, forespørselDto);
             taskGruppe.addNesteParallell(opprettForespørselTask);
         }
 
@@ -424,26 +417,5 @@ public class ForespørselBehandlingTjeneste {
         if (!forespørsel.getAktørId().equals(aktorId)) {
             throw new IllegalStateException("AktørId for bruker var ikke like");
         }
-    }
-
-    private ProsessTaskData lagOpprettForespørselTaskData(Ytelsetype ytelsetype,
-                                                          AktørIdEntitet aktørId,
-                                                          SaksnummerDto saksnummer,
-                                                          OppdaterForespørselDto forespørselDto) {
-        var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
-        taskdata.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
-        taskdata.setAktørId(aktørId.getAktørId());
-        taskdata.setSaksnummer(saksnummer.saksnr());
-        taskdata.setProperty(OpprettForespørselTask.ORGNR,  forespørselDto.orgnr().orgnr());
-        taskdata.setProperty(OpprettForespørselTask.STP, forespørselDto.skjæringstidspunkt().toString());
-        if (forespørselDto.etterspurtePerioder() != null) {
-            try {
-                taskdata.setPayload(objectMapper.writeValueAsString(forespørselDto.etterspurtePerioder()));
-            } catch (Exception e) {
-                LOG.error("Kunne ikke serialisere etterspurtePerioder til JSON", e);
-                throw new RuntimeException("Kunne ikke serialisere etterspurtePerioder", e);
-            }
-        }
-        return taskdata;
     }
 }
