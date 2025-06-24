@@ -42,7 +42,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_lagre_inntektsmelding() {
         // Arrange
-        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO, null);
+        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
         var forespørsel = forespørselRepository.hentForespørsel(forespørselId);
 
         var imFørLagring = InntektsmeldingEntitet.builder()
@@ -76,7 +76,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_lagre_inntektsmelding_med_refusjon() {
         // Arrange
-        var forespørselUuid = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO, null);
+        var forespørselUuid = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
         var forespørsel = forespørselRepository.hentForespørsel(forespørselUuid);
 
         var imFørLagring = InntektsmeldingEntitet.builder()
@@ -120,7 +120,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_lagre_inntektsmelding_med_endringsårsaker() {
         // Arrange
-        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO, null);
+        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
         var forespørsel = forespørselRepository.hentForespørsel(forespørselId);
 
         var endring = EndringsårsakEntitet.builder()
@@ -170,7 +170,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_lagre_inntektsmelding_med_omsorgspenger() {
         // Arrange
-        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO, null);
+        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
         var forespørsel = forespørselRepository.hentForespørsel(forespørselId);
 
         var forventetFraværsPeriode1 = PeriodeEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now().plusDays(10));
@@ -230,7 +230,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_lagre_inntektsmelding_med_omsorgspenger_med_kun_delvis_fravær() {
         // Arrange
-        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO, null);
+        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
         var forespørsel = forespørselRepository.hentForespørsel(forespørselId);
 
         var forventetDelvisFraværsDato = LocalDate.now().plusDays(11);
@@ -285,14 +285,14 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
     void skal_hente_alle_im_for_forespørsel_i_riktig_rekkefølge() {
         // Arrange
         var person1 = AKTØR_ID;
-        var forespørselIdPsbPerson1 = forespørselRepository.lagreForespørsel(START_DATO, Ytelsetype.PLEIEPENGER_SYKT_BARN, person1.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO, null);
+        var forespørselIdPsbPerson1 = forespørselRepository.lagreForespørsel(START_DATO, Ytelsetype.PLEIEPENGER_SYKT_BARN, person1.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
         var forespørselPsbPerson1 = forespørselRepository.hentForespørsel(forespørselIdPsbPerson1);
 
         AktørIdEntitet person2 = new AktørIdEntitet("1234567891111");
-        var forespørselIdPsbPerson2 = forespørselRepository.lagreForespørsel(START_DATO, Ytelsetype.PLEIEPENGER_SYKT_BARN, person2.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO, null);
+        var forespørselIdPsbPerson2 = forespørselRepository.lagreForespørsel(START_DATO, Ytelsetype.PLEIEPENGER_SYKT_BARN, person2.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
         var forespørselPsbPerson2 = forespørselRepository.hentForespørsel(forespørselIdPsbPerson2);
 
-        var forespørselIdPpnPerson1 = forespørselRepository.lagreForespørsel(START_DATO, Ytelsetype.PLEIEPENGER_NÆRSTÅENDE, person1.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO, null);
+        var forespørselIdPpnPerson1 = forespørselRepository.lagreForespørsel(START_DATO, Ytelsetype.PLEIEPENGER_NÆRSTÅENDE, person1.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO);
         var forespørselPpnPerson1 = forespørselRepository.hentForespørsel(forespørselIdPpnPerson1);
 
         var im1 = InntektsmeldingEntitet.builder()
@@ -390,14 +390,14 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         var START_DATO_2025 = LocalDate.of(2025, 2, 1);
         var START_DATO_2024 = LocalDate.of(2024, 2, 1);
 
-        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO_2025, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO_2025, null);
+        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO_2025, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO_2025);
         var forespørsel = forespørselRepository.hentForespørsel(forespørselId);
 
         AktørIdEntitet AKTØR_ID_2 = new AktørIdEntitet("1234567891111");
-        var forespørselId2 = forespørselRepository.lagreForespørsel(START_DATO_2025, YTELSETYPE, AKTØR_ID_2.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO_2025, null);
+        var forespørselId2 = forespørselRepository.lagreForespørsel(START_DATO_2025, YTELSETYPE, AKTØR_ID_2.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO_2025);
         var forespørsel2 = forespørselRepository.hentForespørsel(forespørselId2);
 
-        var forespørselId3 = forespørselRepository.lagreForespørsel(START_DATO_2024, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO_2024, null);
+        var forespørselId3 = forespørselRepository.lagreForespørsel(START_DATO_2024, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER, START_DATO_2024);
         var forespørsel3 = forespørselRepository.hentForespørsel(forespørselId3);
 
         var im1 = InntektsmeldingEntitet.builder()

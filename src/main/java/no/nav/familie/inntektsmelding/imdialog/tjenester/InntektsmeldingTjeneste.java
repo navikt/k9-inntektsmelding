@@ -170,7 +170,6 @@ public class InntektsmeldingTjeneste {
             forespørsel.getAktørId(),
             forespørsel.getSkjæringstidspunkt(),
             forespørsel.getOrganisasjonsnummer());
-
         return new InntektsmeldingDialogDto(personDto,
             organisasjonDto,
             innmelderDto,
