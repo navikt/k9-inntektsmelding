@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
@@ -30,7 +32,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
-import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
@@ -54,7 +55,7 @@ public class ForespørselBehandlingTjeneste {
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private String inntektsmeldingSkjemaLenke;
-    private ObjectMapper objectMapper;
+    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
 
     ForespørselBehandlingTjeneste() {
         // CDI
@@ -65,14 +66,12 @@ public class ForespørselBehandlingTjeneste {
                                          ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon,
                                          PersonTjeneste personTjeneste,
                                          ProsessTaskTjeneste prosessTaskTjeneste,
-                                         OrganisasjonTjeneste organisasjonTjeneste,
-                                         JacksonJsonConfig jacksonJsonConfig) {
+                                         OrganisasjonTjeneste organisasjonTjeneste) {
         this.forespørselTjeneste = forespørselTjeneste;
         this.arbeidsgiverNotifikasjon = arbeidsgiverNotifikasjon;
         this.personTjeneste = personTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
-        this.objectMapper = jacksonJsonConfig.getObjectMapper();
         this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
     }
 

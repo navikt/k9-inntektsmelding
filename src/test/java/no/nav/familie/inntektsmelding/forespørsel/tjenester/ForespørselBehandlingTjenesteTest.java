@@ -35,7 +35,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
@@ -79,8 +78,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             arbeidsgiverNotifikasjon,
             personTjeneste,
             prosessTaskTjeneste,
-            organisasjonTjeneste,
-            new JacksonJsonConfig());
+            organisasjonTjeneste);
     }
 
     @Test

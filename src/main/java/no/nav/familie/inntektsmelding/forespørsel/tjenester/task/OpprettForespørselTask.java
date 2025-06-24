@@ -10,13 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
-import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -35,12 +36,11 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
     public static final String STP = "skjaeringstidspunkt";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private ObjectMapper objectMapper;
+    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
 
     @Inject
-    public OpprettForespørselTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, JacksonJsonConfig jacksonJsonConfig) {
+    public OpprettForespørselTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
-        this.objectMapper = jacksonJsonConfig.getObjectMapper();
     }
 
     OpprettForespørselTask() {
