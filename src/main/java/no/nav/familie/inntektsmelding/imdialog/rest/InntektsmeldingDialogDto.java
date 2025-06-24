@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselStatusDto;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
-import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
 public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoResponseDto person,
