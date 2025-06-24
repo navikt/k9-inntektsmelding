@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.server.jackson;
 
 import java.util.TimeZone;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
 
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Provider
+@ApplicationScoped
 public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
 
     private final ObjectMapper objectMapper;
@@ -39,4 +41,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         return objectMapper;
     }
 
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
+    }
 }
