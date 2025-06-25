@@ -18,7 +18,7 @@ class MerkelappTest {
 
     @Test
     void values() {
-        assertThat(Merkelapp.values()).hasSize(4);
+        assertThat(Merkelapp.values()).hasSize(5);
     }
 
     @Test
