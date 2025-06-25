@@ -273,7 +273,7 @@ public class ForespørselBehandlingTjeneste {
             saksnummer,
             førsteUttaksdato,
             etterspurtePerioder);
-        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
         var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
@@ -318,7 +318,7 @@ public class ForespørselBehandlingTjeneste {
             organisasjonsnummer,
             skjæringstidspunkt);
 
-        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, Ytelsetype.OMSORGSPENGER);
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = Merkelapp.REFUSJONSKRAV_OMS;
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + uuid);
         var fagerSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),

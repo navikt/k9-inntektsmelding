@@ -56,7 +56,7 @@ public class RefusjonOmsorgsdagerService {
             ))
             .toList();
 
-        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER);
+        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
         if (arbeidsforholdMedOrgnavn.isEmpty() || personInfo == null) {
             return null;
         }
@@ -85,7 +85,7 @@ public class RefusjonOmsorgsdagerService {
     }
 
     public HentInntektsopplysningerResponseDto hentInntektsopplysninger(PersonIdent fødselsnummer, String organisasjonsnummer, LocalDate skjæringstidspunkt) {
-        var person = personTjeneste.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER);
+        var person = personTjeneste.hentPersonFraIdent(fødselsnummer);
         var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(
             fødselsnummer,
             skjæringstidspunkt

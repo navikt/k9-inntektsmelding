@@ -187,7 +187,7 @@ public class InntektsmeldingTjeneste {
                                                                      Ytelsetype ytelsetype,
                                                                      LocalDate førsteFraværsdag,
                                                                      OrganisasjonsnummerDto organisasjonsnummer) {
-        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype);
+        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
 
         var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
         var forespørslerSomMatcherFraværsdag = eksisterendeForepørsler.stream()
@@ -269,7 +269,7 @@ public class InntektsmeldingTjeneste {
             throw new IllegalStateException("Mangler innlogget bruker kontekst.");
         }
         var pid = KontekstHolder.getKontekst().getUid();
-        var personInfo = personTjeneste.hentPersonFraIdent(PersonIdent.fra(pid), ytelsetype);
+        var personInfo = personTjeneste.hentPersonFraIdent(PersonIdent.fra(pid));
         return new InntektsmeldingDialogDto.InnsenderDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(),
             personInfo.telefonnummer());
     }
@@ -301,7 +301,7 @@ public class InntektsmeldingTjeneste {
     }
 
     private InntektsmeldingDialogDto.PersonInfoResponseDto lagPersonDto(AktørIdEntitet aktørId, Ytelsetype ytelseType) {
-        var personInfo = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelseType);
+        var personInfo = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         return new InntektsmeldingDialogDto.PersonInfoResponseDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(),
             personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
     }
@@ -309,7 +309,7 @@ public class InntektsmeldingTjeneste {
     public Optional<SlåOppArbeidstakerResponseDto> finnArbeidsforholdForFnr(PersonIdent fødselsnummer, Ytelsetype ytelsetype,
                                                                             LocalDate førsteFraværsdag) {
         // TODO Skal vi sjekke noe mtp kode 6/7
-        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer, ytelsetype);
+        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
         if (personInfo == null) {
             return Optional.empty();
         }
