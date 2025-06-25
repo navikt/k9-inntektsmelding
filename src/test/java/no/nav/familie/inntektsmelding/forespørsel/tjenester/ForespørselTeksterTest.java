@@ -22,14 +22,14 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 class ForespørselTeksterTest {
 
     @Test
-    void lagSaksTittel() {
-        String saksTittel = ForespørselTekster.lagSaksTittel("OLA NORDMANN", LocalDate.of(2021, 02, 1), Ytelsetype.PLEIEPENGER_SYKT_BARN);
+    void lagSaksTittelInntektsmelding() {
+        String saksTittel = ForespørselTekster.lagSaksTittelInntektsmelding("OLA NORDMANN", LocalDate.of(2021, 02, 1));
         assertEquals("Inntektsmelding for Ola Nordmann (01.02.21)", saksTittel);
     }
 
     @Test
     void lagSaksTittelOmsorgspengerRefusjon() {
-        String saksTittel = ForespørselTekster.lagSaksTittel("OLA NORDMANN", LocalDate.of(2021, 02, 1), Ytelsetype.OMSORGSPENGER);
+        String saksTittel = ForespørselTekster.lagSaksTittelRefusjon("OLA NORDMANN", LocalDate.of(2021, 02, 1));
         assertEquals("Refusjonskrav for Ola Nordmann (01.02.21)", saksTittel);
     }
 

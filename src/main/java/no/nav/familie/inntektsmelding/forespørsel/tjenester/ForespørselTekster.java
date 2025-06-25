@@ -102,11 +102,12 @@ class ForespørselTekster {
         return String.format(OPPGAVE_TEKST_NY, mapYtelsestypeNavn(ytelseType));
     }
 
-    public static String lagSaksTittel(String navn, LocalDate fødselsdato, Ytelsetype ytelsetype) {
-        return switch (ytelsetype) {
-            case PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OPPLÆRINGSPENGER -> String.format("Inntektsmelding for %s (%s)", capitalizeFully(navn), fødselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
-            case OMSORGSPENGER -> String.format("Refusjonskrav for %s (%s)", capitalizeFully(navn), fødselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
-        };
+    public static String lagSaksTittelInntektsmelding(String navn, LocalDate fødselsdato) {
+        return String.format("Inntektsmelding for %s (%s)", capitalizeFully(navn), fødselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+    }
+
+    public static String lagSaksTittelRefusjon(String navn, LocalDate fødselsdato) {
+        return String.format("Refusjonskrav for %s (%s)", capitalizeFully(navn), fødselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
     }
 
     public static String lagVarselTekst(Ytelsetype ytelsetype, Organisasjon org) {
@@ -124,7 +125,7 @@ class ForespørselTekster {
     public static Merkelapp finnMerkelapp(Ytelsetype ytelsetype) {
         return switch (ytelsetype) {
             case PLEIEPENGER_SYKT_BARN -> Merkelapp.INNTEKTSMELDING_PSB;
-            case OMSORGSPENGER -> Merkelapp.INNTEKTSMELDING_OMP;
+            case OMSORGSPENGER -> Merkelapp.REFUSJONSKRAV_OMS;
             case PLEIEPENGER_NÆRSTÅENDE -> Merkelapp.INNTEKTSMELDING_PILS;
             case OPPLÆRINGSPENGER -> Merkelapp.INNTEKTSMELDING_OPP;
         };

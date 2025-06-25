@@ -23,6 +23,7 @@ import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørs
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
+import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -278,7 +279,7 @@ public class ForespørselBehandlingTjeneste {
         var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
-            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato(), ytelsetype),
+            ForespørselTekster.lagSaksTittelInntektsmelding(person.mapFulltNavn(), person.fødselsdato()),
             skjemaUri);
 
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(arbeidsgiverNotifikasjonSakId, ForespørselTekster.lagTilleggsInformasjonOrdinær(skjæringstidspunkt));
@@ -318,12 +319,12 @@ public class ForespørselBehandlingTjeneste {
             skjæringstidspunkt);
 
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, Ytelsetype.OMSORGSPENGER);
-        var merkelapp = ForespørselTekster.finnMerkelapp(Ytelsetype.OMSORGSPENGER);
+        var merkelapp = Merkelapp.REFUSJONSKRAV_OMS;
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + uuid);
         var fagerSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
-            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato(), Ytelsetype.OMSORGSPENGER),
+            ForespørselTekster.lagSaksTittelRefusjon(person.mapFulltNavn(), person.fødselsdato()),
             skjemaUri);
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, fagerSakId);
