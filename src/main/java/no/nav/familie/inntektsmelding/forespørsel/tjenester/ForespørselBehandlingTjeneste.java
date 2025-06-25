@@ -319,12 +319,12 @@ public class ForespørselBehandlingTjeneste {
             skjæringstidspunkt);
 
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
-        var merkelapp = Merkelapp.REFUSJONSKRAV_OMS;
+        var merkelapp = Merkelapp.REFUSJONSKRAV_OMP;
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + uuid);
         var fagerSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
-            ForespørselTekster.lagSaksTittelRefusjon(person.mapFulltNavn(), person.fødselsdato()),
+            ForespørselTekster.lagSaksTittelRefusjonskrav(person.mapFulltNavn(), person.fødselsdato()),
             skjemaUri);
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, fagerSakId);

@@ -4,8 +4,8 @@ public enum Merkelapp {
     INNTEKTSMELDING_PSB("Inntektsmelding pleiepenger sykt barn"),
     INNTEKTSMELDING_PILS("Inntektsmelding pleiepenger i livets sluttfase"),
     INNTEKTSMELDING_OPP("Inntektsmelding opplæringspenger"),
-    INNTEKTSMELDING_OMS("Inntektsmelding omsorgspenger"),
-    REFUSJONSKRAV_OMS("Refusjonskrav for omsorgspenger");
+    INNTEKTSMELDING_OMP("Inntektsmelding omsorgspenger"),
+    REFUSJONSKRAV_OMP("Refusjonskrav for omsorgspenger");
 
     private final String beskrivelse;
 

@@ -9,8 +9,8 @@ class MerkelappTest {
 
     @Test
     void getBeskrivelse() {
-        assertThat(Merkelapp.REFUSJONSKRAV_OMS.getBeskrivelse()).isEqualTo("Refusjonskrav for omsorgspenger");
-        assertThat(Merkelapp.INNTEKTSMELDING_OMS.getBeskrivelse()).isEqualTo("Inntektsmelding omsorgspenger");
+        assertThat(Merkelapp.REFUSJONSKRAV_OMP.getBeskrivelse()).isEqualTo("Refusjonskrav for omsorgspenger");
+        assertThat(Merkelapp.INNTEKTSMELDING_OMP.getBeskrivelse()).isEqualTo("Inntektsmelding omsorgspenger");
         assertThat(Merkelapp.INNTEKTSMELDING_OPP.getBeskrivelse()).isEqualTo("Inntektsmelding opplæringspenger");
         assertThat(Merkelapp.INNTEKTSMELDING_PILS.getBeskrivelse()).isEqualTo("Inntektsmelding pleiepenger i livets sluttfase");
         assertThat(Merkelapp.INNTEKTSMELDING_PSB.getBeskrivelse()).isEqualTo("Inntektsmelding pleiepenger sykt barn");

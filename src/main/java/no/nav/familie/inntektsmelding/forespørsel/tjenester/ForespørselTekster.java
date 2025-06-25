@@ -106,7 +106,7 @@ class ForespørselTekster {
         return String.format("Inntektsmelding for %s (%s)", capitalizeFully(navn), fødselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
     }
 
-    public static String lagSaksTittelRefusjon(String navn, LocalDate fødselsdato) {
+    public static String lagSaksTittelRefusjonskrav(String navn, LocalDate fødselsdato) {
         return String.format("Refusjonskrav for %s (%s)", capitalizeFully(navn), fødselsdato.format(DateTimeFormatter.ofPattern("dd.MM.yy")));
     }
 
@@ -125,7 +125,7 @@ class ForespørselTekster {
     public static Merkelapp finnMerkelapp(Ytelsetype ytelsetype) {
         return switch (ytelsetype) {
             case PLEIEPENGER_SYKT_BARN -> Merkelapp.INNTEKTSMELDING_PSB;
-            case OMSORGSPENGER -> Merkelapp.REFUSJONSKRAV_OMS;
+            case OMSORGSPENGER -> Merkelapp.INNTEKTSMELDING_OMP;
             case PLEIEPENGER_NÆRSTÅENDE -> Merkelapp.INNTEKTSMELDING_PILS;
             case OPPLÆRINGSPENGER -> Merkelapp.INNTEKTSMELDING_OPP;
         };

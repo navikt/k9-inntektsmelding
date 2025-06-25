@@ -29,7 +29,7 @@ class ForespørselTeksterTest {
 
     @Test
     void lagSaksTittelOmsorgspengerRefusjon() {
-        String saksTittel = ForespørselTekster.lagSaksTittelRefusjon("OLA NORDMANN", LocalDate.of(2021, 02, 1));
+        String saksTittel = ForespørselTekster.lagSaksTittelRefusjonskrav("OLA NORDMANN", LocalDate.of(2021, 02, 1));
         assertEquals("Refusjonskrav for Ola Nordmann (01.02.21)", saksTittel);
     }
 
