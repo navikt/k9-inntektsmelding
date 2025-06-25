@@ -23,6 +23,7 @@ import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørs
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
+import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -272,13 +273,13 @@ public class ForespørselBehandlingTjeneste {
             saksnummer,
             førsteUttaksdato,
             etterspurtePerioder);
-        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, ytelsetype);
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
         var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
-            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato(), ytelsetype),
+            ForespørselTekster.lagSaksTittelInntektsmelding(person.mapFulltNavn(), person.fødselsdato()),
             skjemaUri);
 
         arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(arbeidsgiverNotifikasjonSakId, ForespørselTekster.lagTilleggsInformasjonOrdinær(skjæringstidspunkt));
@@ -317,13 +318,13 @@ public class ForespørselBehandlingTjeneste {
             organisasjonsnummer,
             skjæringstidspunkt);
 
-        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId, Ytelsetype.OMSORGSPENGER);
-        var merkelapp = ForespørselTekster.finnMerkelapp(Ytelsetype.OMSORGSPENGER);
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
+        var merkelapp = Merkelapp.REFUSJONSKRAV_OMP;
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + uuid);
         var fagerSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
-            ForespørselTekster.lagSaksTittel(person.mapFulltNavn(), person.fødselsdato(), Ytelsetype.OMSORGSPENGER),
+            ForespørselTekster.lagSaksTittelRefusjonskrav(person.mapFulltNavn(), person.fødselsdato()),
             skjemaUri);
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, fagerSakId);

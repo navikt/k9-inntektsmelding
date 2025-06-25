@@ -23,7 +23,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTje
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponseDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerDto;
@@ -71,7 +70,7 @@ class RefusjonOmsorgsdagerServiceTest {
             new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()),
             List.of(new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(orgnummer, "Arbeidsgiver AS")));
 
-        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null));
+        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag)).thenReturn(arbeidsforhold);
         when(organisasjonTjenesteMock.finnOrganisasjon(orgnummer)).thenReturn(new Organisasjon( "Arbeidsgiver AS", orgnummer));
 
@@ -86,7 +85,7 @@ class RefusjonOmsorgsdagerServiceTest {
         var fødselsnummer = PersonIdent.fra("12345678910");
         var førsteFraværsdag = LocalDate.now();
 
-        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER)).thenReturn(null);
+        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(null);
 
         var response = service.hentArbeidstaker(fødselsnummer);
 
@@ -109,7 +108,7 @@ class RefusjonOmsorgsdagerServiceTest {
         var fødselsnummer = PersonIdent.fra("12345678910");
         var organisasjonsnummer = "999999999";
 
-        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER)).thenReturn(new PersonInfo("fornavn",
+        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn",
             "mellomnavn",
             "etternavn",
             fødselsnummer,
@@ -132,7 +131,7 @@ class RefusjonOmsorgsdagerServiceTest {
         var fødselsnummer = PersonIdent.fra("12345678910");
         var organisasjonsnummer = "999999999";
 
-        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER)).thenReturn(new PersonInfo("fornavn",
+        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn",
             "mellomnavn",
             "etternavn",
             fødselsnummer,
@@ -152,7 +151,7 @@ class RefusjonOmsorgsdagerServiceTest {
         var fødselsnummer = PersonIdent.fra("12345678910");
         var organisasjonsnummer = "999999999";
 
-        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer, Ytelsetype.OMSORGSPENGER)).thenReturn(null);
+        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(null);
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer,
             LocalDate.now())).thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, "ARB-1")));
 

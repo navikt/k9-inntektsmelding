@@ -129,7 +129,7 @@ class JoarkTjenesteTest {
             .build();
 
         // Kan foreløpig ikke teste med spesifikk request i mock siden eksternreferanse genereres on the fly
-        when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørIdArbeidsgiver), Ytelsetype.PLEIEPENGER_SYKT_BARN)).thenReturn(
+        when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørIdArbeidsgiver))).thenReturn(
             new PersonInfo("Navn", null, "Navnesen", new PersonIdent("9999999999999"), aktørIdSøker, LocalDate.now(), null));
         when(klient.opprettJournalpost(any(), anyBoolean())).thenReturn(new OpprettJournalpostResponse("9999", false, Collections.emptyList()));
         // Act

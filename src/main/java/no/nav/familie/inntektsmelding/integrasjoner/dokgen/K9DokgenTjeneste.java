@@ -41,7 +41,7 @@ public class K9DokgenTjeneste {
         var arbeidsgvierIdent = inntektsmelding.getArbeidsgiverIdent();
         var inntektsmeldingsid = inntektsmelding.getId() != null ? inntektsmelding.getId().intValue() : 1;
 
-        personInfo = personTjeneste.hentPersonInfoFraAktørId(inntektsmelding.getAktørId(), inntektsmelding.getYtelsetype());
+        personInfo = personTjeneste.hentPersonInfoFraAktørId(inntektsmelding.getAktørId());
         arbeidsgiverNavn = finnArbeidsgiverNavn(inntektsmelding, arbeidsgvierIdent);
 
         if (inntektsmelding.getYtelsetype() == Ytelsetype.OMSORGSPENGER) {
@@ -83,7 +83,7 @@ public class K9DokgenTjeneste {
         String arbeidsgiverNavn;
         if (!OrganisasjonsnummerValidator.erGyldig(arbeidsgvierIdent)) {
             var personIdent = new PersonIdent(arbeidsgvierIdent);
-            arbeidsgiverNavn = personTjeneste.hentPersonFraIdent(personIdent, inntektsmelding.getYtelsetype()).mapNavn();
+            arbeidsgiverNavn = personTjeneste.hentPersonFraIdent(personIdent).mapNavn();
         } else {
             arbeidsgiverNavn = organisasjonTjeneste.finnOrganisasjon(arbeidsgvierIdent).navn();
         }

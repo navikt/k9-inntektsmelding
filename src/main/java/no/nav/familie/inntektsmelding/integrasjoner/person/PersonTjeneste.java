@@ -46,7 +46,7 @@ public class PersonTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public PersonInfo hentPersonInfoFraAktørId(AktørIdEntitet aktørId, Ytelsetype ytelseType) {
+    public PersonInfo hentPersonInfoFraAktørId(AktørIdEntitet aktørId) {
         var request = new HentPersonQueryRequest();
         request.setIdent(aktørId.getAktørId());
 
@@ -63,7 +63,7 @@ public class PersonTjeneste {
         return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId, mapFødselsdato(person), null);
     }
 
-    public PersonInfo hentPersonFraIdent(PersonIdent personIdent, Ytelsetype ytelseType) {
+    public PersonInfo hentPersonFraIdent(PersonIdent personIdent) {
         var request = new HentPersonQueryRequest();
         request.setIdent(personIdent.getIdent());
 
@@ -93,7 +93,7 @@ public class PersonTjeneste {
             throw new IllegalStateException("Mangler innlogget bruker kontekst.");
         }
         var pid = KontekstHolder.getKontekst().getUid();
-        return hentPersonFraIdent(PersonIdent.fra(pid), ytelsetype);
+        return hentPersonFraIdent(PersonIdent.fra(pid));
     }
 
     private LocalDate mapFødselsdato(Person person) {
