@@ -37,7 +37,7 @@ public class K9DokgenKlient {
         this.restConfig = RestConfig.forClient(K9DokgenKlient.class);
     }
 
-    public byte[] genererPdf(InntektsmeldingPdfData dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfInntektsmelding(InntektsmeldingPdfData dokumentdata) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + INNTEKTSMELDING_PATH);
         var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
         var pdf = restClient.sendReturnByteArray(request);
@@ -48,7 +48,7 @@ public class K9DokgenKlient {
         return pdf;
     }
 
-    public byte[] genererPdfOmsorgspenger(OmsorgspengerPdfData dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfOmsorgspengerRefusjon(OmsorgspengerRefusjonPdfData dokumentdata) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + OMSORGSPENGER_REFUSJON_PATH);
         var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
         var pdf = restClient.sendReturnByteArray(request);

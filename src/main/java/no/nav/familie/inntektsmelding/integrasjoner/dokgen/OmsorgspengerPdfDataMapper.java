@@ -17,16 +17,16 @@ public class OmsorgspengerPdfDataMapper {
         throw new IllegalStateException("InntektsmeldingPdfDataMapper: Utility class");
     }
 
-    public static OmsorgspengerPdfData mapOmsorgspengerData(InntektsmeldingEntitet inntektsmelding,
-                                                            String arbeidsgiverNavn,
-                                                            PersonInfo personInfo,
-                                                            String arbeidsgvierIdent) {
+    public static OmsorgspengerRefusjonPdfData mapOmsorgspengerRefusjonData(InntektsmeldingEntitet inntektsmelding,
+                                                                            String arbeidsgiverNavn,
+                                                                            PersonInfo personInfo,
+                                                                            String arbeidsgvierIdent) {
         if (inntektsmelding.getOmsorgspenger() == null) {
             throw new IllegalStateException("InntektsmeldingEntitet mangler omsorgspenger data");
         }
 
         var startdato = inntektsmelding.getStartDato();
-        var imDokumentdataBuilder = new OmsorgspengerPdfData.Builder()
+        var imDokumentdataBuilder = new OmsorgspengerRefusjonPdfData.Builder()
             .medNavn(personInfo.mapNavn())
             .medPersonnummer(personInfo.fødselsnummer().getIdent())
             .medArbeidsgiverIdent(arbeidsgvierIdent)
