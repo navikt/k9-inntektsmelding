@@ -1,20 +1,17 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
-import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoForLister;
-
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
+import no.nav.familie.inntektsmelding.utils.mapper.PdfDataMapperUtil;
 
-public class OmsorgspengerPdfDataMapper {
+public class OmsorgspengerRefusjonPdfDataMapper {
 
-    private OmsorgspengerPdfDataMapper() {
-        throw new IllegalStateException("InntektsmeldingPdfDataMapper: Utility class");
+    private OmsorgspengerRefusjonPdfDataMapper() {
+        throw new IllegalStateException("OmsorgspengerPdfDataMapper: Utility class");
     }
 
     public static OmsorgspengerRefusjonPdfData mapOmsorgspengerRefusjonData(InntektsmeldingEntitet inntektsmelding,
@@ -34,8 +31,8 @@ public class OmsorgspengerPdfDataMapper {
             .medAvsenderSystem("NAV_NO")
             .medOpprettetTidspunkt(inntektsmelding.getOpprettetTidspunkt())
             .medMånedInntekt(inntektsmelding.getMånedInntekt())
-            .medKontaktperson(mapKontaktperson(inntektsmelding))
-            .medEndringsårsaker(mapEndringsårsaker(inntektsmelding.getEndringsårsaker()))
+            .medKontaktperson(PdfDataMapperUtil.mapKontaktperson(inntektsmelding))
+            .medEndringsårsaker(PdfDataMapperUtil.mapEndringsårsaker(inntektsmelding.getEndringsårsaker()))
             .medOmsorgspenger(mapOmsorgspenger(inntektsmelding.getOmsorgspenger()))
             .medÅrForRefusjon(BigDecimal.valueOf(startdato.getYear()));
 
@@ -62,16 +59,5 @@ public class OmsorgspengerPdfDataMapper {
             .toList();
 
         return new Omsorgspenger(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværsPerioder, delvisFraværsPerioder, trukketFraværsPerioder);
-    }
-
-    private static List<Endringsarsak> mapEndringsårsaker(List<EndringsårsakEntitet> endringsårsaker) {
-        return endringsårsaker.stream()
-            .map( endringsårsakEntitet -> new Endringsarsak(endringsårsakEntitet.getÅrsak().getBeskrivelse(), formaterDatoForLister(endringsårsakEntitet.getFom().orElse(null)), formaterDatoForLister(endringsårsakEntitet.getTom().orElse(null)),
-                formaterDatoForLister(endringsårsakEntitet.getBleKjentFom().orElse(null))))
-            .toList();
-    }
-
-    private static Kontaktperson mapKontaktperson(InntektsmeldingEntitet inntektsmelding) {
-        return new Kontaktperson(inntektsmelding.getKontaktperson().getNavn(), inntektsmelding.getKontaktperson().getTelefonnummer());
     }
 }

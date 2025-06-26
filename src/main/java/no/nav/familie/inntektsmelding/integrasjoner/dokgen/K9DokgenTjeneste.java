@@ -46,7 +46,7 @@ public class K9DokgenTjeneste {
 
         if (inntektsmelding.getYtelsetype() == Ytelsetype.OMSORGSPENGER) {
             if (inntektsmelding.getMånedRefusjon() != null) {
-                var omsorgspengerPdfData = OmsorgspengerPdfDataMapper.mapOmsorgspengerRefusjonData(inntektsmelding,
+                var omsorgspengerPdfData = OmsorgspengerRefusjonPdfDataMapper.mapOmsorgspengerRefusjonData(inntektsmelding,
                     arbeidsgiverNavn,
                     personInfo,
                     arbeidsgvierIdent);

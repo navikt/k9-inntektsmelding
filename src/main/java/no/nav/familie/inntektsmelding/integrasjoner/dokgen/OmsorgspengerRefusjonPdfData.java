@@ -1,18 +1,16 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
-import static java.time.format.DateTimeFormatter.ofPattern;
-
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
+import no.nav.familie.inntektsmelding.utils.FormatUtils;
+
+// TODO: rydd opp i denne filen. Fjern ting vi ikke trenger og vurder å bruke metoder for bedre formatiering av datoer og personnummer. Lag også tester
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class OmsorgspengerRefusjonPdfData {
     private String avsenderSystem;
@@ -99,38 +97,6 @@ public class OmsorgspengerRefusjonPdfData {
             opprettetTidspunkt, endringsarsaker,omsorgspenger, årForRefusjon);
     }
 
-    public static String formaterPersonnummer(String personnummer) {
-        if (personnummer != null && personnummer.length() == 11) {
-            var formatertPersonnummer = new StringBuilder(personnummer);
-            formatertPersonnummer.insert(6, " ");
-            return formatertPersonnummer.toString();
-        }
-        return personnummer;
-    }
-
-    public static String formaterDatoForLister(LocalDate dato) {
-        if (dato == null) {
-            return null;
-        }
-        return dato.format(ofPattern("dd.MM.yyyy", Locale.forLanguageTag("NO")));
-    }
-
-    public static String formaterDatoMedNavnPåUkedag(LocalDate dato) {
-        if (dato == null) {
-            return null;
-        }
-        var navnPåUkedag = dato.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("NO"));
-        navnPåUkedag = navnPåUkedag.substring(0,1).toUpperCase() + navnPåUkedag.substring(1);
-        return navnPåUkedag + " " + dato.format(ofPattern("d. MMMM yyyy", Locale.forLanguageTag("NO")));
-    }
-
-    public static String formaterDatoOgTidNorsk(LocalDateTime opprettetTidspunkt) {
-        if (opprettetTidspunkt == null) {
-            return null;
-        }
-        return opprettetTidspunkt.format(ofPattern("d. MMMM yyyy HH:mm:ss", Locale.forLanguageTag("NO")));
-    }
-
     public void anonymiser() {
         this.personnummer = personnummer.substring(0, 4) + "** *****";
         this.arbeidsgiverIdent = arbeidsgiverIdent.substring(0, 4) + "** *****";
@@ -154,7 +120,7 @@ public class OmsorgspengerRefusjonPdfData {
         }
 
         public Builder medPersonnummer(String personnummer) {
-            this.kladd.personnummer = formaterPersonnummer(personnummer);
+            this.kladd.personnummer = FormatUtils.formaterPersonnummer(personnummer);
             return this;
         }
 
@@ -174,7 +140,7 @@ public class OmsorgspengerRefusjonPdfData {
         }
 
         public Builder medOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
-            this.kladd.opprettetTidspunkt = formaterDatoOgTidNorsk(opprettetTidspunkt);
+            this.kladd.opprettetTidspunkt = FormatUtils.formaterDatoOgTidNorsk(opprettetTidspunkt);
             return this;
         }
 
