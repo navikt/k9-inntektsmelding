@@ -1,17 +1,17 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
 import java.math.BigDecimal;
-import java.time.format.DateTimeFormatter;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
+import no.nav.familie.inntektsmelding.utils.FormatUtils;
 import no.nav.familie.inntektsmelding.utils.mapper.PdfDataMapperUtil;
 
 public class OmsorgspengerRefusjonPdfDataMapper {
 
     private OmsorgspengerRefusjonPdfDataMapper() {
-        throw new IllegalStateException("OmsorgspengerPdfDataMapper: Utility class");
+        throw new IllegalStateException("OmsorgspengerRefusjonPdfDataMapper: Utility class");
     }
 
     public static OmsorgspengerRefusjonPdfData mapOmsorgspengerRefusjonData(InntektsmeldingEntitet inntektsmelding,
@@ -40,22 +40,21 @@ public class OmsorgspengerRefusjonPdfDataMapper {
     }
 
     private static Omsorgspenger mapOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
-        var datoFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         var fraværsPerioder = omsorgspenger.getFraværsPerioder()
             .stream()
-            .map(fp -> new FraværsPeriode(fp.getPeriode().getFom().format(datoFormat), fp.getPeriode().getTom().format(datoFormat)))
+            .map(fp -> new FraværsPeriode(FormatUtils.formaterDatoForLister(fp.getPeriode().getFom()), FormatUtils.formaterDatoForLister(fp.getPeriode().getTom())))
             .toList();
 
         var delvisFraværsPerioder = omsorgspenger.getDelvisFraværsPerioder()
             .stream()
             .filter(dfp -> dfp.getTimer().compareTo(BigDecimal.ZERO) > 0)
-            .map(dfp -> new DelvisFraværsPeriode(dfp.getDato().format(datoFormat), dfp.getTimer()))
+            .map(dfp -> new DelvisFraværsPeriode(FormatUtils.formaterDatoForLister(dfp.getDato()), dfp.getTimer()))
             .toList();
 
         var trukketFraværsPerioder = omsorgspenger.getDelvisFraværsPerioder()
             .stream()
             .filter(dfp -> dfp.getTimer().compareTo(BigDecimal.ZERO) == 0)
-            .map(dfp -> new TrukketFraværsPeriode(dfp.getDato().format(datoFormat)))
+            .map(dfp -> new TrukketFraværsPeriode(FormatUtils.formaterDatoForLister(dfp.getDato())))
             .toList();
 
         return new Omsorgspenger(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværsPerioder, delvisFraværsPerioder, trukketFraværsPerioder);
