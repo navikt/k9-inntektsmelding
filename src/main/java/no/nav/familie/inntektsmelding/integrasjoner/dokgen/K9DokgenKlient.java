@@ -24,6 +24,7 @@ public class K9DokgenKlient {
     private final RestConfig restConfig;
 
     private final String OMSORGSPENGER_REFUSJON_PATH = "/template/omsorgspenger_refusjon/PDFINNTEKTSMELDING/create-pdf-format-variation";
+    private final String OMSORGSPENGER_INNTEKTSMELDING_PATH = "/template/omsorgspenger_inntektsmelding/PDFINNTEKTSMELDING/create-pdf-format-variation";
     private final String INNTEKTSMELDING_PATH = "/template/inntektsmelding/PDFINNTEKTSMELDING/create-pdf-format-variation";
 
     @Inject
@@ -55,6 +56,17 @@ public class K9DokgenKlient {
 
         if (pdf == null || pdf.length == 0) {
             throw new TekniskException("K9IM", "Fikk tomt svar ved kall til dokgen for generering av pdf for refusjonskrav omsorgspenger");
+        }
+        return pdf;
+    }
+
+    public byte[] genererPdfOmsorgspengerInntektsmelding(OmsorgspengerInntektsmeldingPdfData dokumentdata) throws URISyntaxException {
+        var endpoint = new URI(restConfig.endpoint() + OMSORGSPENGER_INNTEKTSMELDING_PATH);
+        var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
+        var pdf = restClient.sendReturnByteArray(request);
+
+        if (pdf == null || pdf.length == 0) {
+            throw new TekniskException("K9IM", "Fikk tomt svar ved kall til dokgen for generering av pdf for inntektsmelding omsorgspenger");
         }
         return pdf;
     }

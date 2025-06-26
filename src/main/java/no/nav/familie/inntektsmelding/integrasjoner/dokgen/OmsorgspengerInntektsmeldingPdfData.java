@@ -22,7 +22,8 @@ public class OmsorgspengerInntektsmeldingPdfData {
     private BigDecimal månedInntekt;
     private String opprettetTidspunkt;
     private List<Endringsarsak> endringsarsaker = new ArrayList<>();
-    private FraværsInfo fraværsInfo;
+    private List<FraværsPeriode> fraværsperioder;
+    private String harUtbetaltLønn;
 
     public String getAvsenderSystem() {
         return avsenderSystem;
@@ -60,10 +61,13 @@ public class OmsorgspengerInntektsmeldingPdfData {
         return endringsarsaker;
     }
 
-    public FraværsInfo getFraværsInfo() {
-        return fraværsInfo;
+    public List<FraværsPeriode> getFraværsperioder() {
+        return fraværsperioder;
     }
 
+    public String getHarUtbetaltLønn() {
+        return harUtbetaltLønn;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -83,13 +87,14 @@ public class OmsorgspengerInntektsmeldingPdfData {
             && Objects.equals(månedInntekt, that.månedInntekt)
             && Objects.equals(opprettetTidspunkt, that.opprettetTidspunkt)
             && Objects.equals(endringsarsaker, that.endringsarsaker)
-            && Objects.equals(fraværsInfo, that.fraværsInfo);
+            && Objects.equals(fraværsperioder, that.fraværsperioder)
+            && Objects.equals(harUtbetaltLønn, that.harUtbetaltLønn);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(avsenderSystem, navnSøker, personnummer, arbeidsgiverIdent, arbeidsgiverNavn, kontaktperson, månedInntekt,
-            opprettetTidspunkt, endringsarsaker,fraværsInfo);
+            opprettetTidspunkt, endringsarsaker, fraværsperioder, harUtbetaltLønn);
     }
 
     public void anonymiser() {
@@ -149,8 +154,13 @@ public class OmsorgspengerInntektsmeldingPdfData {
             return this;
         }
 
-        public Builder medFraværsInfo(FraværsInfo fraværsInfo) {
-            this.kladd.fraværsInfo = fraværsInfo;
+        public Builder medFraværsperioder(List<FraværsPeriode> fraværsperioder) {
+            this.kladd.fraværsperioder = fraværsperioder;
+            return this;
+        }
+
+        public Builder medHarUtbetaltLønn(String harUtbetaltLønn) {
+            this.kladd.harUtbetaltLønn = harUtbetaltLønn;
             return this;
         }
 
