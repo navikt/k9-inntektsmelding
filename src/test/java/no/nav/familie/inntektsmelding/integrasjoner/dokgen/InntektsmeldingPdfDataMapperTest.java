@@ -90,6 +90,71 @@ class InntektsmeldingPdfDataMapperTest {
     }
 
     @Test
+    void skal_opprette_med_endringsårsaker() {
+
+        var endringsårsakFom = LocalDate.of(2024, 6, 1);
+        var endringsårsakTom = LocalDate.of(2024, 6, 30);
+        var endringsårsakBleKjentFra = LocalDate.of(2024, 6, 30);
+
+        List<EndringsårsakEntitet> endringsårsaker = List.of(EndringsårsakEntitet.builder()
+                .medÅrsak(Endringsårsak.PERMISJON)
+                .medFom(endringsårsakFom)
+                .medTom(endringsårsakTom)
+                .build(),
+            EndringsårsakEntitet.builder()
+                .medÅrsak(Endringsårsak.BONUS)
+                .build(),
+            EndringsårsakEntitet.builder()
+                .medÅrsak(Endringsårsak.TARIFFENDRING)
+                .medFom(endringsårsakFom)
+                .medBleKjentFra(endringsårsakBleKjentFra)
+                .build()
+        );
+
+        var inntektsmeldingEntitet = lagStandardInntektsmeldingBuilder()
+            .medEndringsårsaker(endringsårsaker)
+            .build();
+
+        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+
+        assertThat(pdfData.getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
+        assertThat(pdfData.getAvsenderSystem()).isEqualTo("NAV_NO");
+        assertThat(pdfData.getArbeidsgiverNavn()).isEqualTo(ARBEIDSGIVER_NAVN);
+        assertThat(pdfData.getKontaktperson().navn()).isEqualTo(NAVN);
+        assertThat(pdfData.getKontaktperson().telefonnummer()).isEqualTo(ORG_NUMMER);
+        assertThat(pdfData.getMånedInntekt()).isEqualTo(INNTEKT);
+        assertThat(pdfData.getNavnSøker()).isEqualTo(FORNAVN + " " + MELLOMNAVN + " " + ETTERNAVN);
+        assertThat(pdfData.getYtelsetype()).isEqualTo(Ytelsetype.PLEIEPENGER_SYKT_BARN);
+        assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(FormatUtils.formaterDatoOgTidNorsk(OPPRETTETT_TIDSPUNKT));
+        assertThat(pdfData.getStartDato()).isEqualTo(FormatUtils.formaterDatoMedNavnPåUkedag(START_DATO));
+        assertThat(pdfData.getPersonnummer()).isEqualTo(FormatUtils.formaterPersonnummer(personIdent.getIdent()));
+        assertThat(pdfData.getRefusjonsendringer()).hasSize(1);
+        assertThat(pdfData.getAntallRefusjonsperioder()).isEqualTo(1);
+        assertThat(pdfData.getRefusjonsendringer().getFirst().beloep()).isEqualTo(REFUSJON_BELØP);
+        assertThat(pdfData.getRefusjonsendringer().getFirst().fom()).isEqualTo(FormatUtils.formaterDatoForLister(START_DATO));
+        assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
+        assertThat(pdfData.ingenBortfaltNaturalytelse()).isTrue();
+        assertThat(pdfData.getNaturalytelser()).isEmpty();
+        assertThat(pdfData.getEndringsarsaker().isEmpty()).isFalse();
+        assertThat(pdfData.getEndringsarsaker()).hasSize(3);
+
+        assertThat(pdfData.getEndringsarsaker().get(0).arsak()).isEqualTo(Endringsårsak.PERMISJON.getBeskrivelse());
+        assertThat(pdfData.getEndringsarsaker().get(0).fom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakFom));
+        assertThat(pdfData.getEndringsarsaker().get(0).tom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakTom));
+        assertThat(pdfData.getEndringsarsaker().get(0).bleKjentFra()).isNull();
+
+        assertThat(pdfData.getEndringsarsaker().get(1).arsak()).isEqualTo(Endringsårsak.BONUS.getBeskrivelse());
+        assertThat(pdfData.getEndringsarsaker().get(1).fom()).isNull();
+        assertThat(pdfData.getEndringsarsaker().get(1).tom()).isNull();
+        assertThat(pdfData.getEndringsarsaker().get(1).bleKjentFra()).isNull();
+
+        assertThat(pdfData.getEndringsarsaker().get(2).arsak()).isEqualTo(Endringsårsak.TARIFFENDRING.getBeskrivelse());
+        assertThat(pdfData.getEndringsarsaker().get(2).fom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakFom));
+        assertThat(pdfData.getEndringsarsaker().get(2).tom()).isNull();
+        assertThat(pdfData.getEndringsarsaker().get(2).bleKjentFra()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakBleKjentFra));
+    }
+
+    @Test
     void skal_mappe_flere_refusjonsendringer_korrekt() {
 
         var refusjonsstartdato2 = LocalDate.now().plusWeeks(1);
