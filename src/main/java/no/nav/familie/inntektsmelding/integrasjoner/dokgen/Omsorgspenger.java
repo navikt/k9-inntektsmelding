@@ -12,19 +12,4 @@ public record Omsorgspenger(@NotNull Boolean harUtbetaltPliktigeDager,
                             List<FraværsPeriode> fraværsPerioder,
                             List<DelvisFraværsPeriode> delvisFraværsPerioder,
                             List<TrukketFraværsPeriode> trukketFraværsPerioder) {
-
-    @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-    public record FraværsPeriode(@NotNull String fom,
-                                 @NotNull String tom) {
-
-    }
-
-    @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-    public record DelvisFraværsPeriode(@NotNull String dato,
-                                       @NotNull BigDecimal timer) {
-    }
-
-    @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-    public record TrukketFraværsPeriode(@NotNull String dato) {
-    }
 }

@@ -43,19 +43,19 @@ public class OmsorgspengerRefusjonPdfDataMapper {
         var datoFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         var fraværsPerioder = omsorgspenger.getFraværsPerioder()
             .stream()
-            .map(fp -> new Omsorgspenger.FraværsPeriode(fp.getPeriode().getFom().format(datoFormat), fp.getPeriode().getTom().format(datoFormat)))
+            .map(fp -> new FraværsPeriode(fp.getPeriode().getFom().format(datoFormat), fp.getPeriode().getTom().format(datoFormat)))
             .toList();
 
         var delvisFraværsPerioder = omsorgspenger.getDelvisFraværsPerioder()
             .stream()
             .filter(dfp -> dfp.getTimer().compareTo(BigDecimal.ZERO) > 0)
-            .map(dfp -> new Omsorgspenger.DelvisFraværsPeriode(dfp.getDato().format(datoFormat), dfp.getTimer()))
+            .map(dfp -> new DelvisFraværsPeriode(dfp.getDato().format(datoFormat), dfp.getTimer()))
             .toList();
 
         var trukketFraværsPerioder = omsorgspenger.getDelvisFraværsPerioder()
             .stream()
             .filter(dfp -> dfp.getTimer().compareTo(BigDecimal.ZERO) == 0)
-            .map(dfp -> new Omsorgspenger.TrukketFraværsPeriode(dfp.getDato().format(datoFormat)))
+            .map(dfp -> new TrukketFraværsPeriode(dfp.getDato().format(datoFormat)))
             .toList();
 
         return new Omsorgspenger(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværsPerioder, delvisFraværsPerioder, trukketFraværsPerioder);
