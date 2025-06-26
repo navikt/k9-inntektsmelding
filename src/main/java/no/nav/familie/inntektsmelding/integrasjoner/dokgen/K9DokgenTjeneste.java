@@ -42,7 +42,7 @@ public class K9DokgenTjeneste {
         var inntektsmeldingsid = inntektsmelding.getId() != null ? inntektsmelding.getId().intValue() : 1;
 
         personInfo = personTjeneste.hentPersonInfoFraAktørId(inntektsmelding.getAktørId());
-        arbeidsgiverNavn = finnArbeidsgiverNavn(inntektsmelding, arbeidsgvierIdent);
+        arbeidsgiverNavn = finnArbeidsgiverNavn(arbeidsgvierIdent);
 
         if (inntektsmelding.getYtelsetype() == Ytelsetype.OMSORGSPENGER) {
             if (inntektsmelding.getMånedRefusjon() != null) {
@@ -86,7 +86,7 @@ public class K9DokgenTjeneste {
         }
     }
 
-    private String finnArbeidsgiverNavn(InntektsmeldingEntitet inntektsmelding, String arbeidsgvierIdent) {
+    private String finnArbeidsgiverNavn(String arbeidsgvierIdent) {
         String arbeidsgiverNavn;
         if (!OrganisasjonsnummerValidator.erGyldig(arbeidsgvierIdent)) {
             var personIdent = new PersonIdent(arbeidsgvierIdent);
