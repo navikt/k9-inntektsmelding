@@ -19,10 +19,6 @@ public class OmsorgspengerInntektsmeldingPdfDataMapper {
                                                                                           String arbeidsgiverNavn,
                                                                                           PersonInfo personInfo,
                                                                                           String arbeidsgvierIdent) {
-        if (inntektsmelding.getOmsorgspenger() == null) {
-            throw new IllegalStateException("InntektsmeldingEntitet mangler omsorgspenger data");
-        }
-
         var imDokumentdataBuilder = new OmsorgspengerInntektsmeldingPdfData.Builder()
             .medNavn(personInfo.mapNavn())
             .medPersonnummer(personInfo.fødselsnummer().getIdent())
@@ -40,11 +36,15 @@ public class OmsorgspengerInntektsmeldingPdfDataMapper {
     }
 
     private static String mapHarUtbetaltLønn(BigDecimal månedRefusjon) {
-        // Hvis arbeidsgiver har oppgir refusjon, har de utbetalt lønn
+        // Hvis arbeidsgiver har oppgitt refusjon, har de utbetalt lønn
         return månedRefusjon != null && månedRefusjon.compareTo(BigDecimal.ZERO) > 0 ? "Ja" : "Nei";
     }
 
     private static List<FraværsPeriode> mapFraværsInfo(OmsorgspengerEntitet omsorgspenger) {
+        if (omsorgspenger == null || omsorgspenger.getFraværsPerioder() == null || omsorgspenger.getFraværsPerioder().isEmpty()) {
+            throw new IllegalStateException("OmsorgspengerEntitet mangler fraværsperioder");
+        }
+
         return omsorgspenger.getFraværsPerioder()
             .stream()
             .map(fp -> new FraværsPeriode(FormatUtils.formaterDatoForLister(fp.getPeriode().getFom()), FormatUtils.formaterDatoForLister(fp.getPeriode().getTom())))
