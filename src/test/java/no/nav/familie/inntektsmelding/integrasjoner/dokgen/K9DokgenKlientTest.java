@@ -30,4 +30,12 @@ class K9DokgenKlientTest {
         var bytes = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(new OmsorgspengerRefusjonPdfData());
         assertThat(bytes).isNotEmpty();
     }
+
+    @Test
+    void skal_generere_pdf_omsorgspenger_inntektsmelding() throws URISyntaxException {
+        K9DokgenKlient k9DokgenKlient = new K9DokgenKlient(restClient);
+        when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
+        var bytes = k9DokgenKlient.genererPdfOmsorgspengerInntektsmelding(new OmsorgspengerInntektsmeldingPdfData());
+        assertThat(bytes).isNotEmpty();
+    }
 }
