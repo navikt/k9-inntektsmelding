@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 import no.nav.familie.inntektsmelding.utils.FormatUtils;
 
-// TODO: rydd opp i denne filen. Fjern ting vi ikke trenger og vurder å bruke metoder for bedre formatiering av datoer og personnummer. Lag også tester
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class OmsorgspengerRefusjonPdfData {
     private String avsenderSystem;
