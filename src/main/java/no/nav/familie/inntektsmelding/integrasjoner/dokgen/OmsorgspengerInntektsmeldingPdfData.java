@@ -1,8 +1,6 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
-
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,27 +8,21 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.utils.FormatUtils;
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class InntektsmeldingPdfData {
+public class OmsorgspengerInntektsmeldingPdfData {
     private String avsenderSystem;
     private String navnSøker;
     private String personnummer;
-    private Ytelsetype ytelsetype;
     private String arbeidsgiverIdent;
     private String arbeidsgiverNavn;
     private Kontaktperson kontaktperson;
-    private String startDato;
     private BigDecimal månedInntekt;
     private String opprettetTidspunkt;
-    private List<RefusjonsendringPeriode> refusjonsendringer = new ArrayList<>();
-    private List<NaturalYtelse> naturalytelser = new ArrayList<>();
-    private boolean ingenBortfaltNaturalytelse;
-    private boolean ingenGjenopptattNaturalytelse;
     private List<Endringsarsak> endringsarsaker = new ArrayList<>();
-    private int antallRefusjonsperioder;
+    private List<FraværsPeriode> fraværsperioder;
+    private String harUtbetaltLønn;
 
     public String getAvsenderSystem() {
         return avsenderSystem;
@@ -42,10 +34,6 @@ public class InntektsmeldingPdfData {
 
     public String getPersonnummer() {
         return personnummer;
-    }
-
-    public Ytelsetype getYtelsetype() {
-        return ytelsetype;
     }
 
     public String getArbeidsgiverIdent() {
@@ -60,10 +48,6 @@ public class InntektsmeldingPdfData {
         return kontaktperson;
     }
 
-    public String getStartDato() {
-        return startDato;
-    }
-
     public BigDecimal getMånedInntekt() {
         return månedInntekt;
     }
@@ -72,28 +56,16 @@ public class InntektsmeldingPdfData {
         return opprettetTidspunkt;
     }
 
-    public List<RefusjonsendringPeriode> getRefusjonsendringer() {
-        return refusjonsendringer;
-    }
-
-    public List<NaturalYtelse> getNaturalytelser() {
-        return naturalytelser;
-    }
-
-    public boolean ingenGjenopptattNaturalytelse() {
-        return ingenGjenopptattNaturalytelse;
-    }
-
-    public boolean ingenBortfaltNaturalytelse() {
-        return ingenBortfaltNaturalytelse;
-    }
-
     public List<Endringsarsak> getEndringsarsaker() {
         return endringsarsaker;
     }
 
-    public int getAntallRefusjonsperioder() {
-        return antallRefusjonsperioder;
+    public List<FraværsPeriode> getFraværsperioder() {
+        return fraværsperioder;
+    }
+
+    public String getHarUtbetaltLønn() {
+        return harUtbetaltLønn;
     }
 
     @Override
@@ -104,30 +76,24 @@ public class InntektsmeldingPdfData {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        InntektsmeldingPdfData that = (InntektsmeldingPdfData) o;
-        return ingenBortfaltNaturalytelse == that.ingenBortfaltNaturalytelse
-            && ingenGjenopptattNaturalytelse == that.ingenGjenopptattNaturalytelse
-            && Objects.equals(avsenderSystem, that.avsenderSystem)
+        OmsorgspengerInntektsmeldingPdfData that = (OmsorgspengerInntektsmeldingPdfData) o;
+        return Objects.equals(avsenderSystem, that.avsenderSystem)
             && Objects.equals(navnSøker, that.navnSøker)
             && Objects.equals(personnummer, that.personnummer)
-            && ytelsetype == that.ytelsetype
             && Objects.equals(arbeidsgiverIdent, that.arbeidsgiverIdent)
             && Objects.equals(arbeidsgiverNavn, that.arbeidsgiverNavn)
             && Objects.equals(kontaktperson, that.kontaktperson)
-            && Objects.equals(startDato, that.startDato)
             && Objects.equals(månedInntekt, that.månedInntekt)
             && Objects.equals(opprettetTidspunkt, that.opprettetTidspunkt)
-            && Objects.equals(refusjonsendringer, that.refusjonsendringer)
-            && Objects.equals(naturalytelser, that.naturalytelser)
             && Objects.equals(endringsarsaker, that.endringsarsaker)
-            && Objects.equals(antallRefusjonsperioder, that.antallRefusjonsperioder);
+            && Objects.equals(fraværsperioder, that.fraværsperioder)
+            && Objects.equals(harUtbetaltLønn, that.harUtbetaltLønn);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(avsenderSystem, navnSøker, personnummer, ytelsetype, arbeidsgiverIdent, arbeidsgiverNavn, kontaktperson,
-            startDato, månedInntekt, opprettetTidspunkt, refusjonsendringer, naturalytelser,
-            ingenBortfaltNaturalytelse, ingenGjenopptattNaturalytelse, endringsarsaker, antallRefusjonsperioder);
+        return Objects.hash(avsenderSystem, navnSøker, personnummer, arbeidsgiverIdent, arbeidsgiverNavn, kontaktperson, månedInntekt,
+            opprettetTidspunkt, endringsarsaker, fraværsperioder, harUtbetaltLønn);
     }
 
     public void anonymiser() {
@@ -136,10 +102,10 @@ public class InntektsmeldingPdfData {
     }
 
     public static class Builder {
-        private InntektsmeldingPdfData kladd;
+        private OmsorgspengerInntektsmeldingPdfData kladd;
 
         public Builder() {
-            kladd = new InntektsmeldingPdfData();
+            kladd = new OmsorgspengerInntektsmeldingPdfData();
         }
 
         public Builder medAvsenderSystem(String avsenderSystem) {
@@ -157,11 +123,6 @@ public class InntektsmeldingPdfData {
             return this;
         }
 
-        public Builder medYtelseNavn(Ytelsetype ytelsenavn) {
-            this.kladd.ytelsetype = ytelsenavn;
-            return this;
-        }
-
         public Builder medArbeidsgiverIdent(String arbeidsgiverIdent) {
             this.kladd.arbeidsgiverIdent = arbeidsgiverIdent;
             return this;
@@ -169,11 +130,6 @@ public class InntektsmeldingPdfData {
 
         public Builder medArbeidsgiverNavn(String arbeidsgiverNavn) {
             this.kladd.arbeidsgiverNavn = arbeidsgiverNavn;
-            return this;
-        }
-
-        public Builder medStartDato(LocalDate startDato) {
-            this.kladd.startDato = FormatUtils.formaterDatoMedNavnPåUkedag(startDato);
             return this;
         }
 
@@ -187,26 +143,6 @@ public class InntektsmeldingPdfData {
             return this;
         }
 
-        public Builder medRefusjonsendringer(List<RefusjonsendringPeriode> refusjonsperioder) {
-            this.kladd.refusjonsendringer = refusjonsperioder;
-            return this;
-        }
-
-        public Builder medNaturalytelser(List<NaturalYtelse> naturalYtelser) {
-            this.kladd.naturalytelser = naturalYtelser;
-            return this;
-        }
-
-        public Builder medIngenBortfaltNaturalytelse(boolean ingenBortfalt) {
-            this.kladd.ingenBortfaltNaturalytelse = ingenBortfalt;
-            return this;
-        }
-
-        public Builder medIngenGjenopptattNaturalytelse(boolean ingenGjennopptatt) {
-            this.kladd.ingenGjenopptattNaturalytelse = ingenGjennopptatt;
-            return this;
-        }
-
         public Builder medKontaktperson(Kontaktperson kontaktperson) {
             this.kladd.kontaktperson = kontaktperson;
             return this;
@@ -217,12 +153,17 @@ public class InntektsmeldingPdfData {
             return this;
         }
 
-        public Builder medAntallRefusjonsperioder(int antallRefusjonsperioder) {
-            this.kladd.antallRefusjonsperioder = antallRefusjonsperioder;
+        public Builder medFraværsperioder(List<FraværsPeriode> fraværsperioder) {
+            this.kladd.fraværsperioder = fraværsperioder;
             return this;
         }
 
-        public InntektsmeldingPdfData build() {
+        public Builder medHarUtbetaltLønn(String harUtbetaltLønn) {
+            this.kladd.harUtbetaltLønn = harUtbetaltLønn;
+            return this;
+        }
+
+        public OmsorgspengerInntektsmeldingPdfData build() {
             return kladd;
         }
     }

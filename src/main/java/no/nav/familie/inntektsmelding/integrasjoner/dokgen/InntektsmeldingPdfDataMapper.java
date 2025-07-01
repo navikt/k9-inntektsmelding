@@ -1,6 +1,5 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
-import static no.nav.familie.inntektsmelding.integrasjoner.dokgen.InntektsmeldingPdfData.formaterDatoForLister;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,12 +8,13 @@ import java.util.Comparator;
 import java.util.List;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
+import no.nav.familie.inntektsmelding.utils.FormatUtils;
 import no.nav.familie.inntektsmelding.utils.mapper.NaturalYtelseMapper;
+import no.nav.familie.inntektsmelding.utils.mapper.PdfDataMapperUtil;
 import no.nav.vedtak.konfig.Tid;
 
 public class InntektsmeldingPdfDataMapper {
@@ -38,11 +38,11 @@ public class InntektsmeldingPdfDataMapper {
             .medOpprettetTidspunkt(inntektsmelding.getOpprettetTidspunkt())
             .medStartDato(startdato)
             .medMånedInntekt(inntektsmelding.getMånedInntekt())
-            .medKontaktperson(mapKontaktperson(inntektsmelding))
+            .medKontaktperson(PdfDataMapperUtil.mapKontaktperson(inntektsmelding))
             .medNaturalytelser(mapNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
             .medIngenBortfaltNaturalytelse(erIngenBortalteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
             .medIngenGjenopptattNaturalytelse(erIngenGjenopptatteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
-            .medEndringsårsaker(mapEndringsårsaker(inntektsmelding.getEndringsårsaker()));
+            .medEndringsårsaker(PdfDataMapperUtil.mapEndringsårsaker(inntektsmelding.getEndringsårsaker()));
 
         if (inntektsmelding.getMånedRefusjon() != null) {
             var opphørsdato = inntektsmelding.getOpphørsdatoRefusjon() != null ? inntektsmelding.getOpphørsdatoRefusjon() : null;
@@ -54,17 +54,6 @@ public class InntektsmeldingPdfDataMapper {
         }
 
         return imDokumentdataBuilder.build();
-    }
-
-    private static List<Endringsarsak> mapEndringsårsaker(List<EndringsårsakEntitet> endringsårsaker) {
-        return endringsårsaker.stream()
-            .map( endringsårsakEntitet -> new Endringsarsak(endringsårsakEntitet.getÅrsak().getBeskrivelse(), formaterDatoForLister(endringsårsakEntitet.getFom().orElse(null)), formaterDatoForLister(endringsårsakEntitet.getTom().orElse(null)),
-                formaterDatoForLister(endringsårsakEntitet.getBleKjentFom().orElse(null))))
-            .toList();
-    }
-
-    private static Kontaktperson mapKontaktperson(InntektsmeldingEntitet inntektsmelding) {
-        return new Kontaktperson(inntektsmelding.getKontaktperson().getNavn(), inntektsmelding.getKontaktperson().getTelefonnummer());
     }
 
     private static boolean erIngenGjenopptatteNaturalYtelser(List<BortaltNaturalytelseEntitet> naturalYtelser) {
@@ -82,7 +71,7 @@ public class InntektsmeldingPdfDataMapper {
     }
 
     private static NaturalYtelse opprettNaturalytelserTilBrev(NaturalYtelseMapper.NaturalYtelse bn) {
-        return new NaturalYtelse(formaterDatoForLister(bn.fom()),
+        return new NaturalYtelse(FormatUtils.formaterDatoForLister(bn.fom()),
             mapTypeTekst(bn.type()),
             bn.beløp(),
             bn.bortfallt());
@@ -119,15 +108,15 @@ public class InntektsmeldingPdfDataMapper {
         List<RefusjonsendringPeriode> refusjonsendringerTilBrev = new ArrayList<>();
 
         //første perioden
-        refusjonsendringerTilBrev.add(new RefusjonsendringPeriode(formaterDatoForLister(startdato), startdato, refusjonsbeløp));
+        refusjonsendringerTilBrev.add(new RefusjonsendringPeriode(FormatUtils.formaterDatoForLister(startdato), startdato, refusjonsbeløp));
 
         refusjonsendringerTilBrev.addAll(
-            refusjonsendringer.stream().map(rpe -> new RefusjonsendringPeriode(formaterDatoForLister(rpe.getFom()), rpe.getFom(), rpe.getRefusjonPrMnd()))
+            refusjonsendringer.stream().map(rpe -> new RefusjonsendringPeriode(FormatUtils.formaterDatoForLister(rpe.getFom()), rpe.getFom(), rpe.getRefusjonPrMnd()))
             .toList());
 
         if (opphørsdato != null && !opphørsdato.equals(Tid.TIDENES_ENDE)) {
             // Da opphørsdato er siste dag med refusjon må vi legge til denne mappingen for å få det rett ut i PDF, da vi ønsker å vise når første dag uten refusjon er
-            refusjonsendringerTilBrev.add(new RefusjonsendringPeriode(formaterDatoForLister(opphørsdato.plusDays(1)), opphørsdato.plusDays(1), BigDecimal.ZERO));
+            refusjonsendringerTilBrev.add(new RefusjonsendringPeriode(FormatUtils.formaterDatoForLister(opphørsdato.plusDays(1)), opphørsdato.plusDays(1), BigDecimal.ZERO));
         }
 
         return refusjonsendringerTilBrev.stream()
