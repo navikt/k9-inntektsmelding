@@ -169,6 +169,15 @@ public class ForespørselEntitet {
             .toList();
     }
 
+    public void setEtterspurtePerioder(List<PeriodeDto> etterspurtePerioder) {
+        if (etterspurtePerioder != null) {
+            this.etterspurtePerioder.clear();
+            etterspurtePerioder.forEach(this::leggTilEtterspurtPeriode);
+        } else {
+            this.etterspurtePerioder = new ArrayList<>();
+        }
+    }
+
     private void leggTilEtterspurtPeriode(PeriodeDto etterspurtPeriode) {
         if (etterspurtePerioderInneholderNyPeriode(etterspurtPeriode)){
             // Dette burde ikke skje, validering skal være gjort i OppdaterForespørselDto

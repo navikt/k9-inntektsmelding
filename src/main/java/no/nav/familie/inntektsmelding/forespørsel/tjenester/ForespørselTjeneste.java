@@ -89,4 +89,8 @@ public class ForespørselTjeneste {
     public List<ForespørselEntitet> finnAlleForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
         return forespørselRepository.finnAlleForespørsler(aktørId, ytelsetype, orgnr);
     }
+
+    public void oppdaterForespørselMedNyeEtterspurtePerioder(UUID forespørselUUID, List<PeriodeDto> etterspurtePerioder) {
+        forespørselRepository.oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUUID, etterspurtePerioder);
+    }
 }

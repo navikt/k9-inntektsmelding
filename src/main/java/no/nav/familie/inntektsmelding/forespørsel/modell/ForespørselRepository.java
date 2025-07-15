@@ -149,4 +149,16 @@ public class ForespørselRepository {
             .setParameter("orgnr", orgnr);
         return query.getResultList();
     }
+
+    public void oppdaterForespørselMedNyeEtterspurtePerioder(UUID forespørselUUID, List<PeriodeDto> etterspurtePerioder) {
+        var forespørselOpt = hentForespørsel(forespørselUUID);
+        if (forespørselOpt.isPresent()) {
+            var forespørsel = forespørselOpt.get();
+            forespørsel.setEtterspurtePerioder(etterspurtePerioder);
+            entityManager.merge(forespørsel);
+            entityManager.flush();
+        } else {
+            LOG.warn("Forespørsel med UUID {} ble ikke funnet for oppdatering av etterspurte perioder.", forespørselUUID);
+        }
+    }
 }
