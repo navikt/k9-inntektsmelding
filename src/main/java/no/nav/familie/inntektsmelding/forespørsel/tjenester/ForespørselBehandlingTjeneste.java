@@ -127,6 +127,12 @@ public class ForespørselBehandlingTjeneste {
             taskGruppe.addNesteParallell(opprettForespørselTask);
         }
 
+        // Forespørsler som skal oppdateres
+        if (ytelsetype == Ytelsetype.OMSORGSPENGER) {
+            var skalOppdateres = utledForespørslerSomSkalOppdateres(forespørsler, eksisterendeForespørsler);
+            // TODO: utfør oppdatering av foresørslene
+        }
+
         // Forespørsler som skal settes til utgått
         var skalSettesUtgått = utledForespørslerSomSkalSettesUtgått(forespørsler, eksisterendeForespørsler);
         for (ForespørselEntitet forespørsel : skalSettesUtgått) {
@@ -160,6 +166,15 @@ public class ForespørselBehandlingTjeneste {
             .filter(f -> finnEksisterendeForespørsel(f,
                 eksisterendeForespørsler,
                 List.of(ForespørselStatus.UNDER_BEHANDLING, ForespørselStatus.FERDIG)).isEmpty())
+            .toList();
+    }
+
+    List<OppdaterForespørselDto> utledForespørslerSomSkalOppdateres(List<OppdaterForespørselDto> forespørsler,
+                                                                    List<ForespørselEntitet> eksisterendeForespørsler) {
+        return forespørsler.stream()
+            .filter(forespørsel -> forespørsel.aksjon() == ForespørselAksjon.OPPRETT)
+            .filter(forespørsel ->
+                finnEksisterendeForespørselMedUlikEtterspurtePerioder(forespørsel, eksisterendeForespørsler).isPresent())
             .toList();
     }
 
@@ -208,6 +223,17 @@ public class ForespørselBehandlingTjeneste {
             .filter(f -> f.getSkjæringstidspunkt().equals(forespørselDto.skjæringstidspunkt()))
             .filter(f -> f.getOrganisasjonsnummer().equals(forespørselDto.orgnr().orgnr()))
             .filter(f -> statuser.contains(f.getStatus()))
+            .findFirst();
+    }
+
+    private static Optional<ForespørselEntitet> finnEksisterendeForespørselMedUlikEtterspurtePerioder(OppdaterForespørselDto forespørselDto,
+                                                                                                      List<ForespørselEntitet> eksisterendeForespørsler) {
+        return eksisterendeForespørsler.stream()
+            .filter(f -> f.getSkjæringstidspunkt().equals(forespørselDto.skjæringstidspunkt()))
+            .filter(f -> f.getOrganisasjonsnummer().equals(forespørselDto.orgnr().orgnr()))
+            .filter(f -> f.getStatus().equals(ForespørselStatus.UNDER_BEHANDLING))
+            .filter(f -> !f.getEtterspurtePerioder().stream().sorted(Comparator.comparing(PeriodeDto::fom).thenComparing(PeriodeDto::tom)).toList()
+                .equals(forespørselDto.etterspurtePerioder().stream().sorted(Comparator.comparing(PeriodeDto::fom).thenComparing(PeriodeDto::tom)).toList()))
             .findFirst();
     }
 
