@@ -58,7 +58,6 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
 
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(saksnummer, organisasjonsnummer, skjæringstidspunkt);
 
-        // TODO: Sjekk om det er det har kommet nye etterspurtePerioder som ikke er i eksisterende forespørsel. Oppdater i så fall eksisterende forespørsel med nye perioder.
         if (eksisterendeForespørsler.stream().anyMatch(eksisterende -> !eksisterende.getStatus().equals(ForespørselStatus.UTGÅTT))) {
             LOG.info("Forespørsel finnes allerede, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
                 organisasjonsnummer.orgnr(), skjæringstidspunkt, saksnummer.saksnr(), ytelsetype);
@@ -88,14 +87,14 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
     }
 
     public static ProsessTaskData lagOpprettForespørselTaskData(Ytelsetype ytelsetype,
-                                                          AktørIdEntitet aktørId,
-                                                          SaksnummerDto saksnummer,
-                                                          OppdaterForespørselDto forespørselDto) {
+                                                                AktørIdEntitet aktørId,
+                                                                SaksnummerDto saksnummer,
+                                                                OppdaterForespørselDto forespørselDto) {
         var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
         taskdata.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
         taskdata.setAktørId(aktørId.getAktørId());
         taskdata.setSaksnummer(saksnummer.saksnr());
-        taskdata.setProperty(OpprettForespørselTask.ORGNR,  forespørselDto.orgnr().orgnr());
+        taskdata.setProperty(OpprettForespørselTask.ORGNR, forespørselDto.orgnr().orgnr());
         taskdata.setProperty(OpprettForespørselTask.STP, forespørselDto.skjæringstidspunkt().toString());
         if (forespørselDto.etterspurtePerioder() != null) {
             try {
