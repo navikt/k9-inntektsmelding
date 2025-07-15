@@ -42,35 +42,29 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         Ytelsetype ytelseType = Ytelsetype.valueOf(prosessTaskData.getPropertyValue(YTELSETYPE));
-        UUID forespørselUuid = UUID.fromString(prosessTaskData.getPropertyValue(FORESPØRSEL_UUID));
-        List<PeriodeDto> etterspurtePerioder = hentEtterspurtePerioder(prosessTaskData, ytelseType);
 
         if (ytelseType != Ytelsetype.OMSORGSPENGER) {
             throw new IllegalStateException("Støtter kun oppdatering av forespørsel for OMSORGSPENGER, fikk: " + ytelseType);
         }
 
-        if (etterspurtePerioder == null) {
-            throw new IllegalStateException("Etterspurte perioder må finnes for oppdatering av forespørsel for OMSORGSPENGER");
-        }
-
-        // Logikk for oppdatering av forespørsel
+        UUID forespørselUuid = UUID.fromString(prosessTaskData.getPropertyValue(FORESPØRSEL_UUID));
+        List<PeriodeDto> etterspurtePerioder = hentEtterspurtePerioder(prosessTaskData);
         forespørselTjeneste.oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUuid, etterspurtePerioder);
     }
 
-    private List<PeriodeDto> hentEtterspurtePerioder(ProsessTaskData prosessTaskData, Ytelsetype ytelsetype) {
+    private List<PeriodeDto> hentEtterspurtePerioder(ProsessTaskData prosessTaskData) {
         List<PeriodeDto> etterspurtePerioder;
-        if (ytelsetype != Ytelsetype.OMSORGSPENGER) {
-            return null;
-        }
 
         try {
-            etterspurtePerioder = OBJECT_MAPPER.readValue(
-                prosessTaskData.getPayloadAsString(),
-                OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class)
-            );
+            etterspurtePerioder = OBJECT_MAPPER.readValue(prosessTaskData.getPayloadAsString(), OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class));
+
+            if (etterspurtePerioder == null) {
+                throw new IllegalStateException("Etterspurte perioder må finnes for oppdatering av forespørsel for OMSORGSPENGER");
+            }
+
             return etterspurtePerioder;
         } catch (Exception e) {
-            throw new RuntimeException("Kunne ikke deserialisere etterspurtePerioder for ytelse: " + ytelsetype, e);
+            throw new RuntimeException("Kunne ikke deserialisere etterspurtePerioder", e);
         }
     }
 
