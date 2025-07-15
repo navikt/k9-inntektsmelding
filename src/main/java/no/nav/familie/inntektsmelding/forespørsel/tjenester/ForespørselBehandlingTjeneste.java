@@ -6,6 +6,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OppdaterForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
@@ -30,6 +32,7 @@ import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
+import no.nav.familie.inntektsmelding.typer.dto.ForespørselOppdatering;
 import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
@@ -130,7 +133,10 @@ public class ForespørselBehandlingTjeneste {
         // Forespørsler som skal oppdateres
         if (ytelsetype == Ytelsetype.OMSORGSPENGER) {
             var skalOppdateres = utledForespørslerSomSkalOppdateres(forespørsler, eksisterendeForespørsler);
-            // TODO: utfør oppdatering av foresørslene
+            for (ForespørselOppdatering forespørsel : skalOppdateres) {
+                var oppdaterForespørselTask = OppdaterForespørselTask.lagOppdaterTaskData(forespørsel.forespørselUuid(), ytelsetype, forespørsel.oppdaterDto().etterspurtePerioder());
+                taskGruppe.addNesteParallell(oppdaterForespørselTask);
+            }
         }
 
         // Forespørsler som skal settes til utgått
@@ -169,12 +175,19 @@ public class ForespørselBehandlingTjeneste {
             .toList();
     }
 
-    List<OppdaterForespørselDto> utledForespørslerSomSkalOppdateres(List<OppdaterForespørselDto> forespørsler,
-                                                                    List<ForespørselEntitet> eksisterendeForespørsler) {
-        return forespørsler.stream()
-            .filter(forespørsel -> forespørsel.aksjon() == ForespørselAksjon.OPPRETT)
-            .filter(forespørsel ->
-                finnEksisterendeForespørselMedUlikEtterspurtePerioder(forespørsel, eksisterendeForespørsler).isPresent())
+    public List<ForespørselOppdatering> utledForespørslerSomSkalOppdateres(List<OppdaterForespørselDto> forespørselDtoer,
+                                                                           List<ForespørselEntitet> eksisterendeForespørsler) {
+        if (forespørselDtoer.isEmpty() || eksisterendeForespørsler.isEmpty()) {
+            return List.of();
+        }
+
+        return forespørselDtoer.stream()
+            .filter(forespørselDto -> forespørselDto.aksjon() == ForespørselAksjon.OPPRETT) // Kun oppdater forespørsler med OPPRETT-aksjon
+            .map(forespørselDto -> {
+                Optional<ForespørselEntitet> eksisterendeForespørselEntitet = finnEksisterendeForespørselMedUlikEtterspurtePerioder(forespørselDto, eksisterendeForespørsler);
+                return eksisterendeForespørselEntitet.map(forspørsel -> new ForespørselOppdatering(forespørselDto, forspørsel.getUuid())).orElse(null);
+            })
+            .filter(Objects::nonNull)
             .toList();
     }
 

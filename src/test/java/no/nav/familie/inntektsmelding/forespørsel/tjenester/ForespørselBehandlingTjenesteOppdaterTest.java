@@ -71,7 +71,7 @@ class ForespørselBehandlingTjenesteOppdaterTest extends EntityManagerAwareTest 
         var forespørslerSomSkalOppdateres = forespørselBehandlingTjeneste.utledForespørslerSomSkalOppdateres(List.of(forespørslerDto), List.of(eksisterendeForespørsel));
 
         assertThat(forespørslerSomSkalOppdateres).hasSize(1);
-        assertThat(forespørslerSomSkalOppdateres.get(0).etterspurtePerioder()).isEqualTo(nyePerioder);
+        assertThat(forespørslerSomSkalOppdateres.getFirst().oppdaterDto().etterspurtePerioder()).isEqualTo(nyePerioder);
     }
 
     @Test
@@ -137,6 +137,7 @@ class ForespørselBehandlingTjenesteOppdaterTest extends EntityManagerAwareTest 
         var forespørslerSomSkalOppdateres = forespørselBehandlingTjeneste.utledForespørslerSomSkalOppdateres(List.of(forespørslerDto), List.of(eksisterendeForespørsel));
 
         assertThat(forespørslerSomSkalOppdateres).hasSize(1);
+        assertThat(forespørslerSomSkalOppdateres.getFirst().oppdaterDto().etterspurtePerioder()).isEqualTo(nyePerioder);
     }
 
     @Test
@@ -149,6 +150,7 @@ class ForespørselBehandlingTjenesteOppdaterTest extends EntityManagerAwareTest 
         var forespørslerSomSkalOppdateres = forespørselBehandlingTjeneste.utledForespørslerSomSkalOppdateres(List.of(forespørslerDto), List.of(eksisterendeForespørsel));
 
         assertThat(forespørslerSomSkalOppdateres).hasSize(1);
+        assertThat(forespørslerSomSkalOppdateres.getFirst().oppdaterDto().etterspurtePerioder()).isEqualTo(nyePerioder);
     }
 
     @Test
@@ -161,6 +163,7 @@ class ForespørselBehandlingTjenesteOppdaterTest extends EntityManagerAwareTest 
         var forespørslerSomSkalOppdateres = forespørselBehandlingTjeneste.utledForespørslerSomSkalOppdateres(List.of(forespørslerDto), List.of(eksisterendeForespørsel));
 
         assertThat(forespørslerSomSkalOppdateres).hasSize(1);
+        assertThat(forespørslerSomSkalOppdateres.getFirst().oppdaterDto().etterspurtePerioder()).isEqualTo(nyePerioder);
     }
 
     @Test

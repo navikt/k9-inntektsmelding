@@ -68,11 +68,11 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
         }
     }
 
-    public static ProsessTaskData opprettTaskData(String forespørselUuid,
-                                                  Ytelsetype ytelseType,
-                                                  List<PeriodeDto> etterspurtePerioder) {
+    public static ProsessTaskData lagOppdaterTaskData(UUID forespørselUuid,
+                                                      Ytelsetype ytelseType,
+                                                      List<PeriodeDto> etterspurtePerioder) {
         ProsessTaskData taskData = ProsessTaskData.forProsessTask(OppdaterForespørselTask.class);
-        taskData.setProperty(FORESPØRSEL_UUID, forespørselUuid);
+        taskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
         taskData.setProperty(YTELSETYPE, ytelseType.name());
 
         if (etterspurtePerioder != null) {
