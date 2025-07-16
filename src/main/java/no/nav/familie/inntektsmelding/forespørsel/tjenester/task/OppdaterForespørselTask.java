@@ -25,8 +25,8 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterForespørselTask.class);
     private static final ObjectMapper OBJECT_MAPPER = DefaultJsonMapper.getObjectMapper();
 
-    static final String FORESPØRSEL_UUID = "forespoersel_uuid";
-    static final String YTELSETYPE = "ytelsetype";
+    public static final String FORESPØRSEL_UUID = "forespoersel_uuid";
+    public static final String YTELSETYPE = "ytelsetype";
 
     private ForespørselTjeneste forespørselTjeneste;
 

@@ -21,11 +21,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OppdaterForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
@@ -46,6 +49,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith({JpaExtension.class, MockitoExtension.class})
 class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
@@ -60,6 +64,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusYears(1);
     private static final LocalDate FØRSTE_UTTAKSDATO = LocalDate.now().minusYears(1).plusDays(1);
     private static final Ytelsetype YTELSETYPE = Ytelsetype.PLEIEPENGER_SYKT_BARN;
+    private static final ObjectMapper OBJECT_MAPPER = DefaultJsonMapper.getObjectMapper();
 
     @Mock
     private ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
@@ -205,6 +210,38 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
         verifyNoInteractions(prosessTaskTjeneste);
+    }
+
+    @Test
+    void skal_oppdatere_forespørsel_dersom_det_eksisterer_en_for_samme_stp_men_med_andre_eksisterende_perioder() throws Exception {
+        var etterspurtePerioder = List.of(new PeriodeDto(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10)));
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.OMSORGSPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER, SKJÆRINGSTIDSPUNKT, etterspurtePerioder);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+
+        var nyeEtterspurtePerioder = List.of(new PeriodeDto(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10)), new PeriodeDto(SKJÆRINGSTIDSPUNKT.plusDays(5), SKJÆRINGSTIDSPUNKT.plusDays(15)));
+        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.OPPRETT, nyeEtterspurtePerioder));
+        forespørselBehandlingTjeneste.oppdaterForespørsler(Ytelsetype.OMSORGSPENGER, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
+
+        // Assert
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskGruppe = captor.getValue();
+        assertThat(taskGruppe.getTasks()).hasSize(1);
+        var taskdata = taskGruppe.getTasks().getFirst().task();
+        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OppdaterForespørselTask.class));
+        assertThat(taskdata.getPropertyValue(OppdaterForespørselTask.YTELSETYPE)).isEqualTo(Ytelsetype.OMSORGSPENGER.toString());
+        assertThat(taskdata.getPropertyValue(OppdaterForespørselTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+
+        // Verifiser at payload inneholder riktige perioder
+        List<PeriodeDto> deserialisertePerioder = OBJECT_MAPPER.readValue(
+            taskdata.getPayloadAsString(),
+            OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class)
+        );
+        assertEquals(nyeEtterspurtePerioder.size(), deserialisertePerioder.size());
+        assertEquals(nyeEtterspurtePerioder.get(0).fom(), deserialisertePerioder.get(0).fom());
+        assertEquals(nyeEtterspurtePerioder.get(0).tom(), deserialisertePerioder.get(0).tom());
+        assertEquals(nyeEtterspurtePerioder.get(1).fom(), deserialisertePerioder.get(1).fom());
+        assertEquals(nyeEtterspurtePerioder.get(1).tom(), deserialisertePerioder.get(1).tom());
     }
 
     @Test
