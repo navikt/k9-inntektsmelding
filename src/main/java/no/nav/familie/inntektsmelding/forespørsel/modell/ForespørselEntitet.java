@@ -170,12 +170,11 @@ public class ForespørselEntitet {
     }
 
     public void setEtterspurtePerioder(List<PeriodeDto> etterspurtePerioder) {
-        if (etterspurtePerioder != null) {
-            this.etterspurtePerioder.clear();
-            etterspurtePerioder.forEach(this::leggTilEtterspurtPeriode);
-        } else {
-            this.etterspurtePerioder = new ArrayList<>();
+        if (etterspurtePerioder == null) {
+            throw new IllegalArgumentException("Etterspurte perioder kan ikke være null");
         }
+        this.etterspurtePerioder.clear();
+        etterspurtePerioder.forEach(this::leggTilEtterspurtPeriode);
     }
 
     private void leggTilEtterspurtPeriode(PeriodeDto etterspurtPeriode) {
