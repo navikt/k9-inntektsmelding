@@ -25,8 +25,8 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterForespørselTask.class);
     private static final ObjectMapper OBJECT_MAPPER = DefaultJsonMapper.getObjectMapper();
 
-    public static final String YTELSETYPE = "ytelsetype";
-    public static final String FORESPØRSEL_UUID = "forespoersel_uuid";
+    static final String FORESPØRSEL_UUID = "forespoersel_uuid";
+    static final String YTELSETYPE = "ytelsetype";
 
     private ForespørselTjeneste forespørselTjeneste;
 
@@ -57,11 +57,6 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
 
         try {
             etterspurtePerioder = OBJECT_MAPPER.readValue(prosessTaskData.getPayloadAsString(), OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class));
-
-            if (etterspurtePerioder == null) {
-                throw new IllegalStateException("Etterspurte perioder må finnes for oppdatering av forespørsel for OMSORGSPENGER");
-            }
-
             return etterspurtePerioder;
         } catch (Exception e) {
             throw new RuntimeException("Kunne ikke deserialisere etterspurtePerioder", e);
