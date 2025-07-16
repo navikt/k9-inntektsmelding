@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -38,6 +39,7 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -405,7 +407,24 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(dto2.ytelsetype()).isEqualTo(forespørsel2sak1.getYtelseType().toString());
         assertThat(dto2.uuid()).isEqualTo(forespørsel2sak1.getUuid());
         assertThat(dto2.arbeidsgiverident()).isEqualTo(forespørsel2sak1.getOrganisasjonsnummer());
+    }
 
+    @Test
+    void skal_oppdatere_forespørsel_med_nye_etterspurte_perioder() {
+        var etterspurtePerioder = List.of(new PeriodeDto(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(4)));
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.OMSORGSPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER, SKJÆRINGSTIDSPUNKT, etterspurtePerioder);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+
+        var nyeEtterspurtePerioder = List.of(
+            new PeriodeDto(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(4)),
+            new PeriodeDto(SKJÆRINGSTIDSPUNKT.plusDays(5), SKJÆRINGSTIDSPUNKT.plusDays(10)));
+
+        forespørselRepository.oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUuid, nyeEtterspurtePerioder);
+
+        clearHibernateCache();
+
+        var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
+        assertEquals(nyeEtterspurtePerioder, lagret.map( ForespørselEntitet::getEtterspurtePerioder).get());
     }
 
     private void clearHibernateCache() {
