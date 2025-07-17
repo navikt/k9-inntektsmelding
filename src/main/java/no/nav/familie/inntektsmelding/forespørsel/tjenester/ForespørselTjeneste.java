@@ -90,7 +90,7 @@ public class ForespørselTjeneste {
         return forespørselRepository.finnAlleForespørsler(aktørId, ytelsetype, orgnr);
     }
 
-    public void oppdaterForespørselMedNyeEtterspurtePerioder(UUID forespørselUUID, List<PeriodeDto> etterspurtePerioder) {
-        forespørselRepository.oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUUID, etterspurtePerioder);
+    public void oppdaterForespørselMedNyeEtterspurtePerioder(UUID forespørselUuid, List<PeriodeDto> etterspurtePerioder) {
+        forespørselRepository.oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUuid, etterspurtePerioder);
     }
 }

@@ -150,15 +150,15 @@ public class ForespørselRepository {
         return query.getResultList();
     }
 
-    public void oppdaterForespørselMedNyeEtterspurtePerioder(UUID forespørselUUID, List<PeriodeDto> etterspurtePerioder) {
-        var forespørselOpt = hentForespørsel(forespørselUUID);
+    public void oppdaterForespørselMedNyeEtterspurtePerioder(UUID forespørselUuid, List<PeriodeDto> etterspurtePerioder) {
+        var forespørselOpt = hentForespørsel(forespørselUuid);
         if (forespørselOpt.isPresent()) {
             var forespørsel = forespørselOpt.get();
             forespørsel.setEtterspurtePerioder(etterspurtePerioder);
             entityManager.merge(forespørsel);
             entityManager.flush();
         } else {
-            LOG.warn("Forespørsel med UUID {} ble ikke funnet for oppdatering av etterspurte perioder.", forespørselUUID);
+            throw new IllegalStateException("Forventet å finne en forespørsel for oppgitt uuid " + forespørselUuid);
         }
     }
 }
