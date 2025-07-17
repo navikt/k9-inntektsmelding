@@ -213,7 +213,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_oppdatere_forespørsel_dersom_det_eksisterer_en_for_samme_stp_men_med_andre_eksisterende_perioder() throws Exception {
+    void skal_oppdatere_forespørsel_for_omsorgspenger_dersom_det_eksisterer_en_for_samme_stp_men_med_andre_eksisterende_perioder() throws Exception {
         var etterspurtePerioder = List.of(new PeriodeDto(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10)));
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.OMSORGSPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER, SKJÆRINGSTIDSPUNKT, etterspurtePerioder);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
