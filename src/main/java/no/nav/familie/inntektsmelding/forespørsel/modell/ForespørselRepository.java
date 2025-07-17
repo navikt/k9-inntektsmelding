@@ -51,7 +51,7 @@ public class ForespørselRepository {
         if (forespørselOpt.isPresent()) {
             var forespørsel = forespørselOpt.get();
             forespørsel.setOppgaveId(oppgaveId);
-            entityManager.persist(forespørsel);
+            entityManager.merge(forespørsel);
             entityManager.flush();
         }
     }
@@ -61,7 +61,7 @@ public class ForespørselRepository {
         if (forespørselOpt.isPresent()) {
             var forespørsel = forespørselOpt.get();
             forespørsel.setArbeidsgiverNotifikasjonSakId(arbeidsgiverNotifikasjonSakId);
-            entityManager.persist(forespørsel);
+            entityManager.merge(forespørsel);
             entityManager.flush();
         }
     }
@@ -85,9 +85,9 @@ public class ForespørselRepository {
             .setParameter("SAK_ID", arbeidsgiverNotifikasjonSakId);
         var resultList = query.getResultList();
 
-        resultList.forEach(f -> {
-            f.setStatus(ForespørselStatus.FERDIG);
-            entityManager.persist(f);
+        resultList.forEach(forespørsel -> {
+            forespørsel.setStatus(ForespørselStatus.FERDIG);
+            entityManager.merge(forespørsel);
         });
         entityManager.flush();
     }
@@ -97,9 +97,9 @@ public class ForespørselRepository {
             .setParameter("SAK_ID", arbeidsgiverNotifikasjonSakId);
         var resultList = query.getResultList();
 
-        resultList.forEach(f -> {
-            f.setStatus(ForespørselStatus.UTGÅTT);
-            entityManager.persist(f);
+        resultList.forEach(forespørsel -> {
+            forespørsel.setStatus(ForespørselStatus.UTGÅTT);
+            entityManager.merge(forespørsel);
         });
         entityManager.flush();
     }
@@ -148,5 +148,17 @@ public class ForespørselRepository {
             .setParameter("ytelseType", ytelsetype)
             .setParameter("orgnr", orgnr);
         return query.getResultList();
+    }
+
+    public void oppdaterForespørselMedNyeEtterspurtePerioder(UUID forespørselUuid, List<PeriodeDto> etterspurtePerioder) {
+        var forespørselOpt = hentForespørsel(forespørselUuid);
+        if (forespørselOpt.isPresent()) {
+            var forespørsel = forespørselOpt.get();
+            forespørsel.setEtterspurtePerioder(etterspurtePerioder);
+            entityManager.merge(forespørsel);
+            entityManager.flush();
+        } else {
+            throw new IllegalStateException("Forventet å finne en forespørsel for oppgitt uuid " + forespørselUuid);
+        }
     }
 }
