@@ -182,7 +182,7 @@ public class ForespørselBehandlingTjeneste {
         }
 
         return forespørselDtoer.stream()
-            .filter(forespørselDto -> forespørselDto.aksjon() == ForespørselAksjon.OPPRETT) // Kun oppdater forespørsler med OPPRETT-aksjon
+            .filter(forespørselDto -> forespørselDto.aksjon() == ForespørselAksjon.OPPRETT || forespørselDto.aksjon() == ForespørselAksjon.BEHOLD)
             .map(forespørselDto -> {
                 Optional<ForespørselEntitet> eksisterendeForespørselEntitet = finnEksisterendeForespørselMedUlikEtterspurtePerioder(forespørselDto, eksisterendeForespørsler);
                 return eksisterendeForespørselEntitet.map(forspørsel -> new ForespørselOppdatering(forespørselDto, forspørsel.getUuid())).orElse(null);
