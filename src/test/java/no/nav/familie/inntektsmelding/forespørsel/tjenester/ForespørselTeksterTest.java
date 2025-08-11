@@ -9,15 +9,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
-
-import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
-
 import org.junit.jupiter.api.Test;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 
 class ForespørselTeksterTest {
 
@@ -66,6 +65,17 @@ class ForespørselTeksterTest {
             new DelvisFraværsPeriodeEntitet(LocalDate.of(2025, 4, 2), BigDecimal.valueOf(4)));
         String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, delvisFravær);
         var forventetTekst = "For 7 dager i mars, 1 dag i april.";
+        assertEquals(forventetTekst, statusTekst);
+    }
+
+    @Test
+    void lagTilleggsInformasjon_OmsorgspengerRefusjon_etterspurte_perioder() {
+        List<PeriodeDto> etterspurtePerioder = List.of(
+            new PeriodeDto(LocalDate.of(2025, 3, 25), LocalDate.of(2025, 3, 27)),
+            new PeriodeDto(LocalDate.of(2025, 3, 29), LocalDate.of(2025, 3, 31)),
+            new PeriodeDto(LocalDate.of(2025, 4, 2), LocalDate.of(2025, 4, 2)));
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(etterspurtePerioder);
+        var forventetTekst = "For 6 dager i mars, 1 dag i april.";
         assertEquals(forventetTekst, statusTekst);
     }
 
