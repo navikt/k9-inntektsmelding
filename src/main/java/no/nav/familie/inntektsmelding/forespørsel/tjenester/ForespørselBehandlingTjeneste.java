@@ -321,7 +321,10 @@ public class ForespørselBehandlingTjeneste {
             ForespørselTekster.lagSaksTittelInntektsmelding(person.mapFulltNavn(), person.fødselsdato()),
             skjemaUri);
 
-        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(arbeidsgiverNotifikasjonSakId, ForespørselTekster.lagTilleggsInformasjonOrdinær(skjæringstidspunkt));
+        String tilleggsinformasjon = (ytelsetype == Ytelsetype.OMSORGSPENGER)
+                                     ? ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(etterspurtePerioder) : ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.ORDINÆR_INNSENDING, skjæringstidspunkt);
+
+        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(arbeidsgiverNotifikasjonSakId, tilleggsinformasjon);
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
 

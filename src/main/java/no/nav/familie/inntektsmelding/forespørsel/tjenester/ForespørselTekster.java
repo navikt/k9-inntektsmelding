@@ -12,16 +12,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 
 class ForespørselTekster {
     private static final String OPPGAVE_TEKST_NY = "Innsending av inntektsmelding for %s";
@@ -52,10 +52,18 @@ class ForespørselTekster {
         };
     }
 
+    public static String lagTilleggsInformasjonForOmsorgspenger(List<PeriodeDto> etterspurtePerioder) {
+        List<LocalDate> fravær = sammenstillFravær(etterspurtePerioder);
+        return lagTilleggsInformasjonMedFravær(fravær);
+    }
+
     public static String lagTilleggsInformasjonForOmsorgspenger(List<FraværsPeriodeEntitet> fraværsPerioder,
                                                                 List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
         List<LocalDate> fravær = sammenstillFravær(fraværsPerioder, delvisFraværDag);
+        return lagTilleggsInformasjonMedFravær(fravær);
+    }
 
+    public static String lagTilleggsInformasjonMedFravær(List<LocalDate> fravær) {
         Map<Month, Long> fraværPerMåned = fravær
             .stream()
             .collect(Collectors.groupingBy(Month::from, Collectors.counting()));
@@ -98,6 +106,19 @@ class ForespørselTekster {
         fravær.sort(Comparator.naturalOrder());
         return fravær;
     }
+
+    private static List<LocalDate> sammenstillFravær(List<PeriodeDto> etterspurtePerioder) {
+        List<LocalDate> fravær = new ArrayList<>();
+        for (PeriodeDto etterspurtPeriode : etterspurtePerioder) {
+            LocalDate etterspurtDato = etterspurtPeriode.fom();
+            while (etterspurtDato.isBefore(etterspurtPeriode.tom()) || etterspurtDato.isEqual(etterspurtPeriode.tom())) {
+                fravær.add(etterspurtDato);
+                etterspurtDato = etterspurtDato.plusDays(1);
+            }
+        }
+        return fravær;
+    }
+
     public static String lagOppgaveTekst(Ytelsetype ytelseType) {
         return String.format(OPPGAVE_TEKST_NY, mapYtelsestypeNavn(ytelseType));
     }
