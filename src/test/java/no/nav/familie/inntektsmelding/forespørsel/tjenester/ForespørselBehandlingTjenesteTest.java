@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -227,10 +228,53 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         verify(prosessTaskTjeneste).lagre(captor.capture());
         var taskGruppe = captor.getValue();
         assertThat(taskGruppe.getTasks()).hasSize(1);
+        // verifiser at vi ikke oppretter noen tasker av typen OpprettForespørselTask
+        assertTrue(taskGruppe.getTasks().stream().noneMatch(task -> task.task().taskType().equals(TaskType.forProsessTask(OpprettForespørselTask.class))));
         var taskdata = taskGruppe.getTasks().getFirst().task();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OppdaterForespørselTask.class));
         assertThat(taskdata.getPropertyValue(OppdaterForespørselTask.YTELSETYPE)).isEqualTo(Ytelsetype.OMSORGSPENGER.toString());
         assertThat(taskdata.getPropertyValue(OppdaterForespørselTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+
+        // Verifiser at payload inneholder riktige perioder
+        List<PeriodeDto> deserialisertePerioder = OBJECT_MAPPER.readValue(
+            taskdata.getPayloadAsString(),
+            OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class)
+        );
+        assertEquals(nyeEtterspurtePerioder.size(), deserialisertePerioder.size());
+        assertEquals(nyeEtterspurtePerioder.get(0).fom(), deserialisertePerioder.get(0).fom());
+        assertEquals(nyeEtterspurtePerioder.get(0).tom(), deserialisertePerioder.get(0).tom());
+        assertEquals(nyeEtterspurtePerioder.get(1).fom(), deserialisertePerioder.get(1).fom());
+        assertEquals(nyeEtterspurtePerioder.get(1).tom(), deserialisertePerioder.get(1).tom());
+    }
+
+    @Test
+    void skal_oppdatere_forespørsel_for_omsorgspenger_dersom_det_eksisterer_en_for_samme_stp_men_med_andre_eksisterende_perioder_feridg() throws Exception {
+        var etterspurtePerioder = List.of(new PeriodeDto(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10)));
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, Ytelsetype.OMSORGSPENGER, AKTØR_ID, BRREG_ORGNUMMER, SAKSNUMMMER, SKJÆRINGSTIDSPUNKT, etterspurtePerioder);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+
+        // Setter forespørsel status til ferdig for å simulere at den er behandlet
+        forespørselRepository.ferdigstillForespørsel(SAK_ID);
+
+        var nyeEtterspurtePerioder = List.of(new PeriodeDto(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusDays(10)), new PeriodeDto(SKJÆRINGSTIDSPUNKT.plusDays(5), SKJÆRINGSTIDSPUNKT.plusDays(15)));
+        var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.OPPRETT, nyeEtterspurtePerioder));
+        forespørselBehandlingTjeneste.oppdaterForespørsler(Ytelsetype.OMSORGSPENGER, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
+
+        // Assert
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskGruppe = captor.getValue();
+        assertThat(taskGruppe.getTasks()).hasSize(1);
+        // verifiser at vi ikke oppretter noen tasker av typen OppdaterForespørselTask
+        assertTrue(taskGruppe.getTasks().stream().noneMatch(task -> task.task().taskType().equals(TaskType.forProsessTask(OppdaterForespørselTask.class))));
+
+        var taskdata = taskGruppe.getTasks().getFirst().task();
+        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OpprettForespørselTask.class));
+        assertThat(taskdata.getPropertyValue(OpprettForespørselTask.YTELSETYPE)).isEqualTo(Ytelsetype.OMSORGSPENGER.toString());
+        assertThat(taskdata.getPropertyValue(OpprettForespørselTask.ORGNR)).isEqualTo(BRREG_ORGNUMMER);
+        assertThat(taskdata.getSaksnummer()).isEqualTo(SAKSNUMMMER);
+        assertThat(taskdata.getAktørId()).isEqualTo(AKTØR_ID);
+        assertThat(taskdata.getPropertyValue(OpprettForespørselTask.STP)).isEqualTo(SKJÆRINGSTIDSPUNKT.toString());
 
         // Verifiser at payload inneholder riktige perioder
         List<PeriodeDto> deserialisertePerioder = OBJECT_MAPPER.readValue(
