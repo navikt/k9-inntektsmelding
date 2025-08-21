@@ -132,10 +132,18 @@ public class ForespørselBehandlingTjeneste {
 
         // Forespørsler som skal oppdateres
         if (ytelsetype == Ytelsetype.OMSORGSPENGER) {
-            var skalOppdateres = utledForespørslerSomSkalOppdateres(forespørsler, eksisterendeForespørsler);
-            for (ForespørselOppdatering forespørsel : skalOppdateres) {
+            // oppdater forespørsler som er under behandling og har endret etterspurte perioder
+            var forespørslerSomSkalOppdateres = utledForespørslerSomSkalOppdateres(forespørsler, eksisterendeForespørsler);
+            for (ForespørselOppdatering forespørsel : forespørslerSomSkalOppdateres) {
                 var oppdaterForespørselTask = OppdaterForespørselTask.lagOppdaterTaskData(forespørsel.forespørselUuid(), ytelsetype, forespørsel.oppdaterDto().etterspurtePerioder());
                 taskGruppe.addNesteParallell(oppdaterForespørselTask);
+            }
+
+            // opprett nye forspørsler hvis en eksisterende fedig behanlet forespørsel har endret etterspurte perioder
+            var forespørslerSomSkalOpprettes = utledForespørslerSomErFerdigeMenSomHarUlikeEtterspurtePerioder(forespørsler, eksisterendeForespørsler);
+            for (ForespørselOppdatering forespørsel : forespørslerSomSkalOpprettes) {
+                var opprettForespørselTask = OpprettForespørselTask.lagOpprettForespørselTaskData(ytelsetype, aktørId, saksnummer, forespørsel.oppdaterDto());
+                taskGruppe.addNesteParallell(opprettForespørselTask);
             }
         }
 
@@ -184,7 +192,23 @@ public class ForespørselBehandlingTjeneste {
         return forespørselDtoer.stream()
             .filter(forespørselDto -> forespørselDto.aksjon() == ForespørselAksjon.OPPRETT || forespørselDto.aksjon() == ForespørselAksjon.BEHOLD)
             .map(forespørselDto -> {
-                Optional<ForespørselEntitet> eksisterendeForespørselEntitet = finnEksisterendeForespørselMedUlikEtterspurtePerioder(forespørselDto, eksisterendeForespørsler);
+                Optional<ForespørselEntitet> eksisterendeForespørselEntitet = finnEksisterendeForespørselMedUlikEtterspurtePerioderSomErUnderBehandling(forespørselDto, eksisterendeForespørsler);
+                return eksisterendeForespørselEntitet.map(forspørsel -> new ForespørselOppdatering(forespørselDto, forspørsel.getUuid())).orElse(null);
+            })
+            .filter(Objects::nonNull)
+            .toList();
+    }
+
+    public List<ForespørselOppdatering> utledForespørslerSomErFerdigeMenSomHarUlikeEtterspurtePerioder(List<OppdaterForespørselDto> forespørselDtoer,
+                                                                                                       List<ForespørselEntitet> eksisterendeForespørsler) {
+        if (forespørselDtoer.isEmpty() || eksisterendeForespørsler.isEmpty()) {
+            return List.of();
+        }
+
+        return forespørselDtoer.stream()
+            .filter(forespørselDto -> forespørselDto.aksjon() == ForespørselAksjon.OPPRETT || forespørselDto.aksjon() == ForespørselAksjon.BEHOLD)
+            .map(forespørselDto -> {
+                Optional<ForespørselEntitet> eksisterendeForespørselEntitet = finnEksisterendeForespørselMedUlikEtterspurtePerioderSomErFerdig(forespørselDto, eksisterendeForespørsler);
                 return eksisterendeForespørselEntitet.map(forspørsel -> new ForespørselOppdatering(forespørselDto, forspørsel.getUuid())).orElse(null);
             })
             .filter(Objects::nonNull)
@@ -239,12 +263,23 @@ public class ForespørselBehandlingTjeneste {
             .findFirst();
     }
 
-    private static Optional<ForespørselEntitet> finnEksisterendeForespørselMedUlikEtterspurtePerioder(OppdaterForespørselDto forespørselDto,
-                                                                                                      List<ForespørselEntitet> eksisterendeForespørsler) {
+    private static Optional<ForespørselEntitet> finnEksisterendeForespørselMedUlikEtterspurtePerioderSomErUnderBehandling(OppdaterForespørselDto forespørselDto,
+                                                                                                                          List<ForespørselEntitet> eksisterendeForespørsler) {
         return eksisterendeForespørsler.stream()
             .filter(f -> f.getSkjæringstidspunkt().equals(forespørselDto.skjæringstidspunkt()))
             .filter(f -> f.getOrganisasjonsnummer().equals(forespørselDto.orgnr().orgnr()))
             .filter(f -> f.getStatus().equals(ForespørselStatus.UNDER_BEHANDLING))
+            .filter(f -> !f.getEtterspurtePerioder().stream().sorted(Comparator.comparing(PeriodeDto::fom).thenComparing(PeriodeDto::tom)).toList()
+                .equals(forespørselDto.etterspurtePerioder().stream().sorted(Comparator.comparing(PeriodeDto::fom).thenComparing(PeriodeDto::tom)).toList()))
+            .findFirst();
+    }
+
+    private static Optional<ForespørselEntitet> finnEksisterendeForespørselMedUlikEtterspurtePerioderSomErFerdig(OppdaterForespørselDto forespørselDto,
+                                                                                                                          List<ForespørselEntitet> eksisterendeForespørsler) {
+        return eksisterendeForespørsler.stream()
+            .filter(f -> f.getSkjæringstidspunkt().equals(forespørselDto.skjæringstidspunkt()))
+            .filter(f -> f.getOrganisasjonsnummer().equals(forespørselDto.orgnr().orgnr()))
+            .filter(f -> f.getStatus().equals(ForespørselStatus.FERDIG))
             .filter(f -> !f.getEtterspurtePerioder().stream().sorted(Comparator.comparing(PeriodeDto::fom).thenComparing(PeriodeDto::tom)).toList()
                 .equals(forespørselDto.etterspurtePerioder().stream().sorted(Comparator.comparing(PeriodeDto::fom).thenComparing(PeriodeDto::tom)).toList()))
             .findFirst();

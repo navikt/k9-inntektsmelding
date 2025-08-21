@@ -28,7 +28,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 @ExtendWith({JpaExtension.class, MockitoExtension.class})
-class ForespørselBehandlingTjenesteOppdaterTest extends EntityManagerAwareTest {
+class UtledForespørslerSomSkalOppdateresTest extends EntityManagerAwareTest {
 
     private static final String BRREG_ORGNUMMER = "974760673";
     private static final String AKTØR_ID = "1234567891234";
