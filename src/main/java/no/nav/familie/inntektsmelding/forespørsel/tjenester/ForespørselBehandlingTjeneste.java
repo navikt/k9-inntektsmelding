@@ -257,6 +257,17 @@ public class ForespørselBehandlingTjeneste {
                 forespørselDto.skjæringstidspunkt().equals(eksisterendeForespørsel.getSkjæringstidspunkt()));
     }
 
+    public void oppdaterForespørselMedNyeEtterspurtePerioder(UUID forespørselUuid, List<PeriodeDto> etterspurtePerioder) {
+        ForespørselEntitet forespørsel = forespørselTjeneste.hentForespørsel(forespørselUuid)
+            .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for UUID: " + forespørselUuid));
+
+        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(forespørsel.getArbeidsgiverNotifikasjonSakId(),
+            ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(etterspurtePerioder));
+
+        LOG.info("Oppdaterer forespørsel med nye etterspurte perioder, uuid: {}, perioder: {}", forespørselUuid, etterspurtePerioder);
+        forespørselTjeneste.oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUuid, etterspurtePerioder);
+    }
+
     public void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel, boolean skalOppdatereArbeidsgiverNotifikasjon) {
         if (skalOppdatereArbeidsgiverNotifikasjon) {
             eksisterendeForespørsel.getOppgaveId().ifPresent(oppgaveId -> arbeidsgiverNotifikasjon.oppgaveUtgått(oppgaveId, OffsetDateTime.now()));

@@ -15,14 +15,14 @@ import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class OppdaterForespørselTaskTest {
 
-    private ForespørselTjeneste forespørselTjeneste;
+    private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private OppdaterForespørselTask task;
     private UUID forespørselUuid;
     private List<PeriodeDto> etterspurtePerioder;
@@ -30,8 +30,8 @@ class OppdaterForespørselTaskTest {
 
     @BeforeEach
     void setUp() {
-        forespørselTjeneste = Mockito.mock(ForespørselTjeneste.class);
-        task = new OppdaterForespørselTask(forespørselTjeneste);
+        forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
+        task = new OppdaterForespørselTask(forespørselBehandlingTjeneste);
         forespørselUuid = UUID.randomUUID();
 
         // Oppretter test perioder
@@ -50,7 +50,7 @@ class OppdaterForespørselTaskTest {
         task.doTask(taskdata);
 
         // Assert
-        verify(forespørselTjeneste).oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUuid, etterspurtePerioder);
+        verify(forespørselBehandlingTjeneste).oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUuid, etterspurtePerioder);
     }
 
     @Test
@@ -61,7 +61,7 @@ class OppdaterForespørselTaskTest {
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> task.doTask(taskdata));
         assertEquals("Støtter kun oppdatering av forespørsel for OMSORGSPENGER, fikk: PLEIEPENGER_SYKT_BARN", exception.getMessage());
-        verifyNoInteractions(forespørselTjeneste);
+        verifyNoInteractions(forespørselBehandlingTjeneste);
     }
 
     @Test
@@ -72,7 +72,7 @@ class OppdaterForespørselTaskTest {
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> task.doTask(taskdata));
         assertEquals("Kunne ikke deserialisere etterspurtePerioder", exception.getMessage());
-        verifyNoInteractions(forespørselTjeneste);
+        verifyNoInteractions(forespørselBehandlingTjeneste);
     }
 
     @Test
