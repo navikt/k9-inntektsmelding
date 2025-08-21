@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -28,15 +28,15 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
     public static final String FORESPØRSEL_UUID = "forespoersel_uuid";
     public static final String YTELSETYPE = "ytelsetype";
 
-    private ForespørselTjeneste forespørselTjeneste;
+    private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
     OppdaterForespørselTask() {
         // CDI
     }
 
     @Inject
-    public OppdaterForespørselTask(ForespørselTjeneste forespoerselTjeneste) {
-        this.forespørselTjeneste = forespoerselTjeneste;
+    public OppdaterForespørselTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
+        this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
 
         UUID forespørselUuid = UUID.fromString(prosessTaskData.getPropertyValue(FORESPØRSEL_UUID));
         List<PeriodeDto> etterspurtePerioder = hentEtterspurtePerioder(prosessTaskData);
-        forespørselTjeneste.oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUuid, etterspurtePerioder);
+        forespørselBehandlingTjeneste.oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUuid, etterspurtePerioder);
     }
 
     private List<PeriodeDto> hentEtterspurtePerioder(ProsessTaskData prosessTaskData) {
