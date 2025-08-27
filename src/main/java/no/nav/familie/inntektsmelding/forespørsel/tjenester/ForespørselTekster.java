@@ -32,7 +32,10 @@ class ForespørselTekster {
     private static final String TILLEGGSINFORMASJON_UTFØRT_EKSTERN = "Utført i Altinn eller i bedriftens lønns- og personalsystem for første fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_UTGÅTT = "Du trenger ikke lenger sende inntektsmelding for første fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_ORDINÆR = "For første fraværsdag %s";
-    private static final String TILLEGGSINFORMASJON_OMS = "For %s.";
+    private static final String TILLEGGSINFORMASJON_OMS = "For %s";
+
+    private static final String TILLEGGSINFORMASJON_FOR_FRAVÆRSDAG = "For fraværsdag %s";
+    private static final String TILLEGGSINFORMASJON_FOR_FRAVÆRSPERIODE = "For fraværsperiode %s–%s";
 
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselTekster.class);
 
@@ -52,18 +55,31 @@ class ForespørselTekster {
         };
     }
 
+    // Denne teksten brukes for omsorgspenger direkte utbetaling
     public static String lagTilleggsInformasjonForOmsorgspenger(List<PeriodeDto> etterspurtePerioder) {
+        if (etterspurtePerioder.size() == 1) {
+            PeriodeDto periode = etterspurtePerioder.get(0);
+            if (periode.fom().isEqual(periode.tom())) {
+                return String.format(TILLEGGSINFORMASJON_FOR_FRAVÆRSDAG, periode.fom().format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+            } else {
+                return String.format(TILLEGGSINFORMASJON_FOR_FRAVÆRSPERIODE,
+                    periode.fom().format(DateTimeFormatter.ofPattern("dd.MM.yy")),
+                    periode.tom().format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+            }
+        }
+
         List<LocalDate> fravær = sammenstillFravær(etterspurtePerioder);
-        return lagTilleggsInformasjonMedFravær(fravær);
+        return lagTilleggsInformasjonMedOppsummertFravær(fravær);
     }
 
+    // Denne teksten brukes for omsorgspenger refusjon
     public static String lagTilleggsInformasjonForOmsorgspenger(List<FraværsPeriodeEntitet> fraværsPerioder,
                                                                 List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
         List<LocalDate> fravær = sammenstillFravær(fraværsPerioder, delvisFraværDag);
-        return lagTilleggsInformasjonMedFravær(fravær);
+        return lagTilleggsInformasjonMedOppsummertFravær(fravær);
     }
 
-    public static String lagTilleggsInformasjonMedFravær(List<LocalDate> fravær) {
+    public static String lagTilleggsInformasjonMedOppsummertFravær(List<LocalDate> fravær) {
         Map<Month, Long> fraværPerMåned = fravær
             .stream()
             .collect(Collectors.groupingBy(Month::from, Collectors.counting()));
