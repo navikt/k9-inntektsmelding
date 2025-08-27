@@ -56,6 +56,16 @@ class ForespørselTeksterTest {
     }
 
     @Test
+    void lagTilleggsInformasjon_OmsorgspengerRefusjon_1_periode() {
+        List<FraværsPeriodeEntitet> fraværsPerioder = List.of(
+            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 29), LocalDate.of(2025, 3, 31))));
+        List<DelvisFraværsPeriodeEntitet> delvisFravær = List.of();
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, delvisFravær);
+        var forventetTekst = "For fraværsperiode 29.03.25–31.03.25";
+        assertEquals(forventetTekst, statusTekst);
+    }
+
+    @Test
     void lagTilleggsInformasjon_OmsorgspengerRefusjon() {
         List<FraværsPeriodeEntitet> fraværsPerioder = List.of(
             new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 25), LocalDate.of(2025, 3, 27))),
@@ -64,7 +74,25 @@ class ForespørselTeksterTest {
             new DelvisFraværsPeriodeEntitet(LocalDate.of(2025, 3, 23), BigDecimal.valueOf(2)),
             new DelvisFraværsPeriodeEntitet(LocalDate.of(2025, 4, 2), BigDecimal.valueOf(4)));
         String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, delvisFravær);
-        var forventetTekst = "For 7 dager i mars, 1 dag i april.";
+        var forventetTekst = "For 7 dager i mars, 1 dag i april";
+        assertEquals(forventetTekst, statusTekst);
+    }
+
+    @Test
+    void lagTilleggsInformasjon_OmsorgspengerRefusjon_1_etterspurt_periode_dag() {
+        List<PeriodeDto> etterspurtePerioder = List.of(
+            new PeriodeDto(LocalDate.of(2025, 4, 2), LocalDate.of(2025, 4, 2)));
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(etterspurtePerioder);
+        var forventetTekst = "For fraværsdag 02.04.25";
+        assertEquals(forventetTekst, statusTekst);
+    }
+
+    @Test
+    void lagTilleggsInformasjon_OmsorgspengerRefusjon_1_etterspurt_periode() {
+        List<PeriodeDto> etterspurtePerioder = List.of(
+            new PeriodeDto(LocalDate.of(2025, 4, 2), LocalDate.of(2025, 4, 5)));
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(etterspurtePerioder);
+        var forventetTekst = "For fraværsperiode 02.04.25–05.04.25";
         assertEquals(forventetTekst, statusTekst);
     }
 
@@ -75,7 +103,7 @@ class ForespørselTeksterTest {
             new PeriodeDto(LocalDate.of(2025, 3, 29), LocalDate.of(2025, 3, 31)),
             new PeriodeDto(LocalDate.of(2025, 4, 2), LocalDate.of(2025, 4, 2)));
         String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(etterspurtePerioder);
-        var forventetTekst = "For 6 dager i mars, 1 dag i april.";
+        var forventetTekst = "For 6 dager i mars, 1 dag i april";
         assertEquals(forventetTekst, statusTekst);
     }
 

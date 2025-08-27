@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -32,7 +31,10 @@ class ForespørselTekster {
     private static final String TILLEGGSINFORMASJON_UTFØRT_EKSTERN = "Utført i Altinn eller i bedriftens lønns- og personalsystem for første fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_UTGÅTT = "Du trenger ikke lenger sende inntektsmelding for første fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_ORDINÆR = "For første fraværsdag %s";
-    private static final String TILLEGGSINFORMASJON_OMS = "For %s.";
+    private static final String TILLEGGSINFORMASJON_OMS = "For %s";
+
+    private static final String TILLEGGSINFORMASJON_FOR_FRAVÆRSDAG = "For fraværsdag %s";
+    private static final String TILLEGGSINFORMASJON_FOR_FRAVÆRSPERIODE = "For fraværsperiode %s–%s";
 
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselTekster.class);
 
@@ -52,18 +54,50 @@ class ForespørselTekster {
         };
     }
 
-    public static String lagTilleggsInformasjonForOmsorgspenger(List<PeriodeDto> etterspurtePerioder) {
-        List<LocalDate> fravær = sammenstillFravær(etterspurtePerioder);
-        return lagTilleggsInformasjonMedFravær(fravær);
-    }
-
     public static String lagTilleggsInformasjonForOmsorgspenger(List<FraværsPeriodeEntitet> fraværsPerioder,
                                                                 List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
-        List<LocalDate> fravær = sammenstillFravær(fraværsPerioder, delvisFraværDag);
-        return lagTilleggsInformasjonMedFravær(fravær);
+        List<PeriodeDto> alleFraværsperioder = finnAlleFraværsPerioder(fraværsPerioder, delvisFraværDag);
+        return lagTilleggsInformasjonForOmsorgspenger(alleFraværsperioder);
     }
 
-    public static String lagTilleggsInformasjonMedFravær(List<LocalDate> fravær) {
+    public static String lagTilleggsInformasjonForOmsorgspenger(List<PeriodeDto> etterspurtePerioder) {
+        if (etterspurtePerioder.size() == 1) {
+            PeriodeDto periode = etterspurtePerioder.get(0);
+            if (periode.fom().isEqual(periode.tom())) {
+                return String.format(TILLEGGSINFORMASJON_FOR_FRAVÆRSDAG, periode.fom().format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+            } else {
+                return String.format(TILLEGGSINFORMASJON_FOR_FRAVÆRSPERIODE,
+                    periode.fom().format(DateTimeFormatter.ofPattern("dd.MM.yy")),
+                    periode.tom().format(DateTimeFormatter.ofPattern("dd.MM.yy")));
+            }
+        }
+
+        List<LocalDate> fravær = sammenstillFravær(etterspurtePerioder);
+        return lagTilleggsInformasjonMedOppsummertFravær(fravær);
+    }
+
+    private static List<PeriodeDto> finnAlleFraværsPerioder(List<FraværsPeriodeEntitet> fraværsPerioder,
+                                                            List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
+        List<PeriodeDto> alleFraværsperioder = new ArrayList<>(fraværsPerioder.stream()
+            .map(fraværsPeriode -> new PeriodeDto(fraværsPeriode.getPeriode().getFom(), fraværsPeriode.getPeriode().getTom()))
+            .toList());
+
+        for (DelvisFraværsPeriodeEntitet delvisFravær : delvisFraværDag) {
+            if (!finnesDelvisFraværsdagenIEnAvPeriodene(delvisFravær, alleFraværsperioder)) {
+                alleFraværsperioder.add(new PeriodeDto(delvisFravær.getDato(), delvisFravær.getDato()));
+            }
+        }
+        return alleFraværsperioder;
+    }
+
+    private static boolean finnesDelvisFraværsdagenIEnAvPeriodene(DelvisFraværsPeriodeEntitet fraværsdag, List<PeriodeDto> perioder) {
+        return perioder.stream().anyMatch(periode ->
+            (fraværsdag.getDato().isEqual(periode.fom()) || fraværsdag.getDato().isAfter(periode.fom())) &&
+                (fraværsdag.getDato().isEqual(periode.tom()) || fraværsdag.getDato().isBefore(periode.tom()))
+        );
+    }
+
+    private static String lagTilleggsInformasjonMedOppsummertFravær(List<LocalDate> fravær) {
         Map<Month, Long> fraværPerMåned = fravær
             .stream()
             .collect(Collectors.groupingBy(Month::from, Collectors.counting()));
@@ -73,7 +107,10 @@ class ForespørselTekster {
                 .entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
-                .map(måned -> String.format("%s %s i %s", måned.getValue(), dagEllerDager(måned.getValue()), måned.getKey().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("NO"))))
+                .map(måned -> String.format("%s %s i %s",
+                    måned.getValue(),
+                    dagEllerDager(måned.getValue()),
+                    måned.getKey().getDisplayName(TextStyle.FULL, Locale.forLanguageTag("NO"))))
                 .collect(Collectors.joining(", ")));
 
 
@@ -87,24 +124,6 @@ class ForespørselTekster {
 
     private static String dagEllerDager(long antallDager) {
         return antallDager == 1 ? "dag" : "dager";
-    }
-
-    private static List<LocalDate> sammenstillFravær(List<FraværsPeriodeEntitet> fraværsPerioder,
-                                              List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
-        List<LocalDate> fravær = new ArrayList<>();
-        for (FraværsPeriodeEntitet fraværsPeriode : fraværsPerioder) {
-            LocalDate fraværsDato = fraværsPeriode.getPeriode().getFom();
-            while (fraværsDato.isBefore(fraværsPeriode.getPeriode().getTom()) || fraværsDato.isEqual(fraværsPeriode.getPeriode().getTom())) {
-                fravær.add(fraværsDato);
-                fraværsDato = fraværsDato.plusDays(1);
-            }
-        }
-        fravær.addAll(delvisFraværDag
-            .stream()
-            .map(DelvisFraværsPeriodeEntitet::getDato)
-            .toList());
-        fravær.sort(Comparator.naturalOrder());
-        return fravær;
     }
 
     private static List<LocalDate> sammenstillFravær(List<PeriodeDto> etterspurtePerioder) {
