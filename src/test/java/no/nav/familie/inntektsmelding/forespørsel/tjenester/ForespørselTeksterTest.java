@@ -56,6 +56,16 @@ class ForespørselTeksterTest {
     }
 
     @Test
+    void lagTilleggsInformasjon_OmsorgspengerRefusjon_1_periode() {
+        List<FraværsPeriodeEntitet> fraværsPerioder = List.of(
+            new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 29), LocalDate.of(2025, 3, 31))));
+        List<DelvisFraværsPeriodeEntitet> delvisFravær = List.of();
+        String statusTekst = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, delvisFravær);
+        var forventetTekst = "For fraværsperiode 29.03.25–31.03.25";
+        assertEquals(forventetTekst, statusTekst);
+    }
+
+    @Test
     void lagTilleggsInformasjon_OmsorgspengerRefusjon() {
         List<FraværsPeriodeEntitet> fraværsPerioder = List.of(
             new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(LocalDate.of(2025, 3, 25), LocalDate.of(2025, 3, 27))),
