@@ -4,18 +4,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.enterprise.context.ApplicationScoped;
-
-import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -63,6 +63,12 @@ public class GjenåpneForespørselTask implements ProsessTaskHandler {
         }
 
         forespørselBehandlingTjeneste.gjenåpneForespørsel(forespørsel);
-        //TODO metrikker?
+    }
+
+    public static ProsessTaskData lagGjenåpneForespørselTask(UUID forespørselUuid, SaksnummerDto saksnummerDto) {
+        ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
+        prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
+        prosessTaskData.setSaksnummer(saksnummerDto.saksnr());
+        return prosessTaskData;
     }
 }
