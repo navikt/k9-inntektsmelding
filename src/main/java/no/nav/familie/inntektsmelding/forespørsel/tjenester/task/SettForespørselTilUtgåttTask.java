@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
-import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -53,7 +53,12 @@ public class SettForespørselTilUtgåttTask implements ProsessTaskHandler {
 
         boolean skalOppdatereArbeidsgiverNotifikasjon = forespørsel.getStatus() == ForespørselStatus.UNDER_BEHANDLING;
         forespørselBehandlingTjeneste.settForespørselTilUtgått(forespørsel, skalOppdatereArbeidsgiverNotifikasjon);
-        // TODO: Opprett egen metrikk for lukking som ikke er ekstern
-        //MetrikkerTjeneste.loggForespørselLukkEkstern(forespørsel);
+    }
+
+    public static ProsessTaskData lagSettTilUtgåttTask(UUID forespørselUuid, SaksnummerDto saksnummer) {
+        ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
+        prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
+        prosessTaskData.setSaksnummer(saksnummer.saksnr());
+        return prosessTaskData;
     }
 }

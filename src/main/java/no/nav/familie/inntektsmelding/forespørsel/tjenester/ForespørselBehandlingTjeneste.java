@@ -39,7 +39,6 @@ import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -142,18 +141,14 @@ public class ForespørselBehandlingTjeneste {
         // Forespørsler som skal settes til utgått
         var skalSettesUtgått = utledForespørslerSomSkalSettesUtgått(forespørsler, eksisterendeForespørsler);
         for (ForespørselEntitet forespørsel : skalSettesUtgått) {
-            var settForespørselTilUtgåttTask = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
-            settForespørselTilUtgåttTask.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørsel.getUuid().toString());
-            settForespørselTilUtgåttTask.setSaksnummer(saksnummer.saksnr());
+            var settForespørselTilUtgåttTask = SettForespørselTilUtgåttTask.lagSettTilUtgåttTask(forespørsel.getUuid(), saksnummer);
             taskGruppe.addNesteParallell(settForespørselTilUtgåttTask);
         }
 
         // Forespørsler som skal gjenåpnes
         var skalGjenåpnes = utledForespørslerSomSkalGjenåpnes(forespørsler, eksisterendeForespørsler);
         for (ForespørselEntitet forespørsel : skalGjenåpnes) {
-            var gjenåpneForespørselTask = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
-            gjenåpneForespørselTask.setProperty(GjenåpneForespørselTask.FORESPØRSEL_UUID, forespørsel.getUuid().toString());
-            gjenåpneForespørselTask.setSaksnummer(saksnummer.saksnr());
+            var gjenåpneForespørselTask = GjenåpneForespørselTask.lagGjenåpneForespørselTask(forespørsel.getUuid(), saksnummer);
             taskGruppe.addNesteParallell(gjenåpneForespørselTask);
         }
 
