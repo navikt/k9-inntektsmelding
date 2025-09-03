@@ -75,9 +75,9 @@ public class RefusjonOmsorgsdagerRest {
     @Tilgangskontrollert
     public Response hentInnloggetBruker(
         @Parameter(description = "Datapakke som inneholder ytelsestypen og organisasjonsnummeret til den innloggede brukeren")
-        @NotNull @Valid HentInnloggetBrukerRequestDto dto
+        @NotNull @Valid HentInnloggetBrukerRequest request
     ) {
-        var response = refusjonOmsorgsdagerService.hentInnloggetBruker(dto.organisasjonsnummer());
+        var response = refusjonOmsorgsdagerService.hentInnloggetBruker(request.organisasjonsnummer());
         return Response.ok(response).build();
     }
 
@@ -89,9 +89,9 @@ public class RefusjonOmsorgsdagerRest {
     @Tilgangskontrollert
     public Response hentInntektsopplysninger(
         @Parameter(description = "Datapakke som inneholder fødselsnummeret og skjæringstidspunktet til en arbeidstaker")
-        @NotNull @Valid HentInntektsopplysningerRequestDto dto
+        @NotNull @Valid HentInntektsopplysningerRequest request
     ) {
-        var inntektsopplysninger = refusjonOmsorgsdagerService.hentInntektsopplysninger(dto.fødselsnummer(), dto.organisasjonsnummer(), LocalDate.parse(dto.skjæringstidspunkt()));
+        var inntektsopplysninger = refusjonOmsorgsdagerService.hentInntektsopplysninger(request.fødselsnummer(), request.organisasjonsnummer(), LocalDate.parse(request.skjæringstidspunkt()));
 
         if (inntektsopplysninger == null) {
             return Response.status(Response.Status.NOT_FOUND).build();

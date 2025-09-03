@@ -24,7 +24,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponseDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponseDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -123,7 +123,7 @@ class RefusjonOmsorgsdagerServiceTest {
 
         var response = service.hentInntektsopplysninger(fødselsnummer, "999999999", LocalDate.now());
 
-        assertEquals(new HentInntektsopplysningerResponseDto(new BigDecimal(10000), List.of()), response);
+        assertEquals(new HentInntektsopplysningerResponse(new BigDecimal(10000), List.of()), response);
     }
 
     @Test

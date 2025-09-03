@@ -68,7 +68,7 @@ class RefusjonOmsorgsdagerRestTest {
 
         when(refusjonOmsorgsdagerServiceMock.hentInnloggetBruker(any())).thenReturn(innloggetBruker);
 
-        var response = rest.hentInnloggetBruker(new HentInnloggetBrukerRequestDto(Ytelsetype.OMSORGSPENGER, "123456789"));
+        var response = rest.hentInnloggetBruker(new HentInnloggetBrukerRequest(Ytelsetype.OMSORGSPENGER, "123456789"));
         assertEquals(response.getEntity(), innloggetBruker);
     }
 
@@ -78,9 +78,9 @@ class RefusjonOmsorgsdagerRestTest {
         var organisasjonsnummer = "999999999";
         var skjæringstidspunkt = LocalDate.parse("2025-01-01");
 
-        var inntektsopplysninger = new HentInntektsopplysningerResponseDto(
+        var inntektsopplysninger = new HentInntektsopplysningerResponse(
             new BigDecimal(100000),
-            List.of(new HentInntektsopplysningerResponseDto.MånedsinntektDto(
+            List.of(new HentInntektsopplysningerResponse.MånedsinntektDto(
                 LocalDate.of(2025, 1, 1),
                 LocalDate.of(2025, 2, 1),
                 new BigDecimal(100000),
@@ -89,7 +89,7 @@ class RefusjonOmsorgsdagerRestTest {
         );
         when(refusjonOmsorgsdagerServiceMock.hentInntektsopplysninger(personIdent, organisasjonsnummer, skjæringstidspunkt)).thenReturn(inntektsopplysninger);
 
-        var response = rest.hentInntektsopplysninger(new HentInntektsopplysningerRequestDto(personIdent, organisasjonsnummer, "2025-01-01"));
+        var response = rest.hentInntektsopplysninger(new HentInntektsopplysningerRequest(personIdent, organisasjonsnummer, "2025-01-01"));
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(inntektsopplysninger, response.getEntity());
@@ -103,7 +103,7 @@ class RefusjonOmsorgsdagerRestTest {
 
         when(refusjonOmsorgsdagerServiceMock.hentInntektsopplysninger(personIdent, organisasjonsnummer, skjæringstidspunkt)).thenReturn(null);
 
-        var response = rest.hentInntektsopplysninger(new HentInntektsopplysningerRequestDto(personIdent, organisasjonsnummer, "2025-01-01"));
+        var response = rest.hentInntektsopplysninger(new HentInntektsopplysningerRequest(personIdent, organisasjonsnummer, "2025-01-01"));
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
         assertNull(response.getEntity());

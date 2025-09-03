@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Pattern;
 
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 
-public record HentInntektsopplysningerRequestDto(
+public record HentInntektsopplysningerRequest(
     @NotNull @Valid PersonIdent fødselsnummer,
     @NotNull @Pattern(regexp = "^\\d{9}$") @Valid String organisasjonsnummer,
     @NotNull String skjæringstidspunkt
