@@ -71,7 +71,7 @@ public class InntektsmeldingDialogRest {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
         LOG.info("Henter forespørsel med uuid {}", forespørselUuid);
-        var dto = inntektsmeldingTjeneste.lagDialogDto(forespørselUuid);
+        var dto = inntektsmeldingTjeneste.hentOpplysninger(forespørselUuid);
         return Response.ok(dto).build();
 
     }

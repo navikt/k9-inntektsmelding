@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselStatusDto;
 import no.nav.familie.inntektsmelding.typer.dto.InnsenderDto;
 import no.nav.familie.inntektsmelding.typer.dto.InntektsopplysningerDto;
@@ -14,7 +15,7 @@ import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.PersonInfoDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
-public record InntektsmeldingDialogDto(@Valid @NotNull PersonInfoDto person,
+public record HentOpplysningerResponse(@Valid @NotNull PersonInfoDto person,
                                        @Valid @NotNull OrganisasjonInfoDto arbeidsgiver,
                                        @Valid @NotNull InnsenderDto innsender,
                                        @Valid @NotNull InntektsopplysningerDto inntektsopplysninger,

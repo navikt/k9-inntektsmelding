@@ -114,7 +114,7 @@ class InntektsmeldingTjenesteTest {
             List.of(inntekt1, inntekt2, inntekt3)));
 
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.lagDialogDto(uuid);
+        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(uuid);
 
         // Assert
         assertThat(imDialogDto.skjæringstidspunkt()).isEqualTo(forespørsel.getSkjæringstidspunkt());
@@ -180,7 +180,7 @@ class InntektsmeldingTjenesteTest {
             List.of()));
 
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.lagDialogDto(uuid);
+        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(uuid);
 
         // Assert
         assertThat(imDialogDto.skjæringstidspunkt()).isEqualTo(forespørsel.getSkjæringstidspunkt());
@@ -252,7 +252,7 @@ class InntektsmeldingTjenesteTest {
             LocalDate.now(),
             organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.lagArbeidsgiverinitiertDialogDto(fødselsnummer,
+        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(fødselsnummer,
             ytelsetype,
             førsteFraværsdag,
             organisasjonsnummer);
@@ -291,7 +291,7 @@ class InntektsmeldingTjenesteTest {
             LocalDate.now(),
             organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.lagArbeidsgiverinitiertDialogDto(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
+        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
 
         // Assert
         assertThat(imDialogDto.person().aktørId()).isEqualTo(aktørId.getAktørId());

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
-import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SlåOppArbeidstakerResponseDto;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
@@ -68,7 +68,7 @@ public class InntektsmeldingTjeneste {
         this.arbeidstakerTjeneste = arbeidstakerTjeneste;
     }
 
-    public InntektsmeldingDialogDto lagDialogDto(UUID forespørselUuid) {
+    public HentOpplysningerResponse hentOpplysninger(UUID forespørselUuid) {
         var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException(
                 "Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
@@ -80,7 +80,7 @@ public class InntektsmeldingTjeneste {
             forespørsel.getSkjæringstidspunkt(),
             forespørsel.getOrganisasjonsnummer());
 
-        return new InntektsmeldingDialogDto(personInfo,
+        return new HentOpplysningerResponse(personInfo,
             organisasjonInfo,
             innsender,
             inntektsopplysninger,
@@ -92,10 +92,10 @@ public class InntektsmeldingTjeneste {
             forespørsel.getEtterspurtePerioder());
     }
 
-    public InntektsmeldingDialogDto lagArbeidsgiverinitiertDialogDto(PersonIdent fødselsnummer,
-                                                                     Ytelsetype ytelsetype,
-                                                                     LocalDate førsteFraværsdag,
-                                                                     OrganisasjonsnummerDto organisasjonsnummer) {
+    public HentOpplysningerResponse hentOpplysninger(PersonIdent fødselsnummer,
+                                                     Ytelsetype ytelsetype,
+                                                     LocalDate førsteFraværsdag,
+                                                     OrganisasjonsnummerDto organisasjonsnummer) {
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
 
         var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(personInfo.aktørId(),
@@ -108,14 +108,14 @@ public class InntektsmeldingTjeneste {
 
         if (!forespørslerSomMatcherFraværsdag.isEmpty()) {
             var forespørsel = forespørslerSomMatcherFraværsdag.getFirst();
-            return lagDialogDto(forespørsel.getUuid());
+            return hentOpplysninger(forespørsel.getUuid());
         }
 
         var personDto = new PersonInfoDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
         var organisasjonInfo = finnOrganisasjonInfo(organisasjonsnummer.orgnr());
         var innsender = finnInnsender();
         var inntektsopplysninger = finnInntektsopplysninger(null, personInfo.aktørId(), førsteFraværsdag, organisasjonsnummer.orgnr());
-        return new InntektsmeldingDialogDto(personDto,
+        return new HentOpplysningerResponse(personDto,
             organisasjonInfo,
             innsender,
             inntektsopplysninger,
