@@ -38,13 +38,13 @@ class RefusjonOmsorgsdagerRestTest {
     @Test
     void slå_opp_arbeidstaker_skal_returnere_ok_response_når_arbeidstaker_finnes() {
         var fnr = PersonIdent.fra("12345678910");
-        var dto = new SlåOppArbeidstakerRequestDto(fnr, Ytelsetype.OMSORGSPENGER);
-        var arbeidsforhold = List.of(new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto("999999999", "Arbeidsgiver AS"));
-        var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto(new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "10107400090", "12345"), arbeidsforhold);
+        var request = new SlåOppArbeidstakerRequest(fnr, Ytelsetype.OMSORGSPENGER);
+        var arbeidsforhold = List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto("999999999", "Arbeidsgiver AS"));
+        var arbeidstakerInfo = new SlåOppArbeidstakerResponse(new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "10107400090", "12345"), arbeidsforhold);
 
         when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr)).thenReturn(arbeidstakerInfo);
 
-        var response = rest.slåOppArbeidstaker(dto);
+        var response = rest.slåOppArbeidstaker(request);
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(arbeidstakerInfo, response.getEntity());
@@ -53,22 +53,22 @@ class RefusjonOmsorgsdagerRestTest {
     @Test
     void slå_opp_arbeidstaker_skal_returnere_not_found_når_arbeidstaker_ikke_finnes() {
         var fnr = PersonIdent.fra("12345678910");
-        var dto = new SlåOppArbeidstakerRequestDto(fnr, Ytelsetype.OMSORGSPENGER);
+        var request = new SlåOppArbeidstakerRequest(fnr, Ytelsetype.OMSORGSPENGER);
 
         when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr)).thenReturn(null);
 
-        var response = rest.slåOppArbeidstaker(dto);
+        var response = rest.slåOppArbeidstaker(request);
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     @Test
     void hent_innlogget_bruker_returnerer_ok() {
-        var innloggetBruker = new InnloggetBrukerDto("fornavn", "mellomnavn", "etternavn", "81549300", "123456789", "organisasjonsnavn");
+        var innloggetBruker = new HentInnloggetBrukerResponse("fornavn", "mellomnavn", "etternavn", "81549300", "123456789", "organisasjonsnavn");
 
         when(refusjonOmsorgsdagerServiceMock.hentInnloggetBruker(any())).thenReturn(innloggetBruker);
 
-        var response = rest.hentInnloggetBruker(new HentInnloggetBrukerRequestDto(Ytelsetype.OMSORGSPENGER, "123456789"));
+        var response = rest.hentInnloggetBruker(new HentInnloggetBrukerRequest(Ytelsetype.OMSORGSPENGER, "123456789"));
         assertEquals(response.getEntity(), innloggetBruker);
     }
 
@@ -78,9 +78,9 @@ class RefusjonOmsorgsdagerRestTest {
         var organisasjonsnummer = "999999999";
         var skjæringstidspunkt = LocalDate.parse("2025-01-01");
 
-        var inntektsopplysninger = new HentInntektsopplysningerResponseDto(
+        var inntektsopplysninger = new HentInntektsopplysningerResponse(
             new BigDecimal(100000),
-            List.of(new HentInntektsopplysningerResponseDto.MånedsinntektDto(
+            List.of(new HentInntektsopplysningerResponse.MånedsinntektDto(
                 LocalDate.of(2025, 1, 1),
                 LocalDate.of(2025, 2, 1),
                 new BigDecimal(100000),
@@ -89,7 +89,7 @@ class RefusjonOmsorgsdagerRestTest {
         );
         when(refusjonOmsorgsdagerServiceMock.hentInntektsopplysninger(personIdent, organisasjonsnummer, skjæringstidspunkt)).thenReturn(inntektsopplysninger);
 
-        var response = rest.hentInntektsopplysninger(new HentInntektsopplysningerRequestDto(personIdent, organisasjonsnummer, "2025-01-01"));
+        var response = rest.hentInntektsopplysninger(new HentInntektsopplysningerRequest(personIdent, organisasjonsnummer, "2025-01-01"));
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(inntektsopplysninger, response.getEntity());
@@ -103,7 +103,7 @@ class RefusjonOmsorgsdagerRestTest {
 
         when(refusjonOmsorgsdagerServiceMock.hentInntektsopplysninger(personIdent, organisasjonsnummer, skjæringstidspunkt)).thenReturn(null);
 
-        var response = rest.hentInntektsopplysninger(new HentInntektsopplysningerRequestDto(personIdent, organisasjonsnummer, "2025-01-01"));
+        var response = rest.hentInntektsopplysninger(new HentInntektsopplysningerRequest(personIdent, organisasjonsnummer, "2025-01-01"));
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
         assertNull(response.getEntity());

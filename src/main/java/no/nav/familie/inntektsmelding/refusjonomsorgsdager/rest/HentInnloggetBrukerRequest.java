@@ -6,6 +6,6 @@ import jakarta.validation.constraints.Pattern;
 
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
-public record HentInnloggetBrukerRequestDto(@NotNull Ytelsetype ytelseType,
-                                            @NotNull @Pattern(regexp = "^\\d{9}$") @Valid String organisasjonsnummer) {
+public record HentInnloggetBrukerRequest(@NotNull Ytelsetype ytelseType,
+                                         @NotNull @Pattern(regexp = "^\\d{9}$") @Valid String organisasjonsnummer) {
 }

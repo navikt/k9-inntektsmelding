@@ -24,9 +24,9 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponseDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerDto;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponseDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponse;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,9 +66,9 @@ class RefusjonOmsorgsdagerServiceTest {
         var førsteFraværsdag = LocalDate.now();
         var arbeidsforhold = List.of(new ArbeidsforholdDto(orgnummer, "ARB-1"), new ArbeidsforholdDto(orgnummer, "ARB-2"));
 
-        var forventetArbeidstakerInfo = new SlåOppArbeidstakerResponseDto(
-            new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()),
-            List.of(new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(orgnummer, "Arbeidsgiver AS")));
+        var forventetArbeidstakerInfo = new SlåOppArbeidstakerResponse(
+            new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()),
+            List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto(orgnummer, "Arbeidsgiver AS")));
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag)).thenReturn(arbeidsforhold);
@@ -98,9 +98,17 @@ class RefusjonOmsorgsdagerServiceTest {
         var innloggetBruker = new InnloggetBrukerDto("fornavn", "mellomnavn", "etternavn", "81549300", "123456789", "organisasjonsnavn");
 
         when(innloggetBrukerTjenesteMock.hentInnloggetBruker(any(), any())).thenReturn(innloggetBruker);
-
         var response = service.hentInnloggetBruker("123456789");
-        assertEquals(response, innloggetBruker);
+
+        var forventetResponse = new no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInnloggetBrukerResponse(
+            innloggetBruker.fornavn(),
+            innloggetBruker.mellomnavn(),
+            innloggetBruker.etternavn(),
+            innloggetBruker.telefon(),
+            innloggetBruker.organisasjonsnummer(),
+            innloggetBruker.organisasjonsnavn()
+        );
+        assertEquals(response, forventetResponse);
     }
 
     @Test
@@ -123,7 +131,7 @@ class RefusjonOmsorgsdagerServiceTest {
 
         var response = service.hentInntektsopplysninger(fødselsnummer, "999999999", LocalDate.now());
 
-        assertEquals(new HentInntektsopplysningerResponseDto(new BigDecimal(10000), List.of()), response);
+        assertEquals(new HentInntektsopplysningerResponse(new BigDecimal(10000), List.of()), response);
     }
 
     @Test
