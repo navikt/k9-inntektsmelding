@@ -57,9 +57,9 @@ public class RefusjonOmsorgsdagerRest {
     public Response slåOppArbeidstaker(
         @Parameter(description = "Datapakke som inneholder fødselsnummeret til en arbeidstaker")
         @NotNull @Valid
-        SlåOppArbeidstakerRequestDto dto
+        SlåOppArbeidstakerRequest request
     ) {
-        var response = refusjonOmsorgsdagerService.hentArbeidstaker(dto.fødselsnummer());
+        var response = refusjonOmsorgsdagerService.hentArbeidstaker(request.fødselsnummer());
         if (response == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

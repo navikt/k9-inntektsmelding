@@ -20,7 +20,7 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerDto;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponseDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponse;
 
 @ApplicationScoped
 public class RefusjonOmsorgsdagerService {
@@ -44,15 +44,15 @@ public class RefusjonOmsorgsdagerService {
         // CDI
     }
 
-    public SlåOppArbeidstakerResponseDto hentArbeidstaker(PersonIdent fødselsnummer) {
+    public SlåOppArbeidstakerResponse hentArbeidstaker(PersonIdent fødselsnummer) {
         LOG.info("Slår opp arbeidstaker");
 
-        var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now());
-        var unikeArbeidsforhold = filtrerUnikeArbeidsforhold(arbeidsforhold);
+        var alleArbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now());
+        var unikeArbeidsforhold = filtrerUnikeArbeidsforhold(alleArbeidsforhold);
         var arbeidsforholdMedOrgnavn = unikeArbeidsforhold.stream()
-            .map(arbeidsforholdDto -> new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(
-                arbeidsforholdDto.organisasjonsnummer(),
-                organisasjonTjeneste.finnOrganisasjon(arbeidsforholdDto.organisasjonsnummer()).navn()
+            .map(arbeidsforhold -> new SlåOppArbeidstakerResponse.ArbeidsforholdDto(
+                arbeidsforhold.organisasjonsnummer(),
+                organisasjonTjeneste.finnOrganisasjon(arbeidsforhold.organisasjonsnummer()).navn()
             ))
             .toList();
 
@@ -61,8 +61,8 @@ public class RefusjonOmsorgsdagerService {
             return null;
         }
 
-        return new SlåOppArbeidstakerResponseDto(
-            new SlåOppArbeidstakerResponseDto.Personinformasjon(
+        return new SlåOppArbeidstakerResponse(
+            new SlåOppArbeidstakerResponse.Personinformasjon(
                 personInfo.fornavn(),
                 personInfo.mellomnavn(),
                 personInfo.etternavn(),

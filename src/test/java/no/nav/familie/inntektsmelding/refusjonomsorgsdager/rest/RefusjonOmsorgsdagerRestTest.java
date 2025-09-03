@@ -38,13 +38,13 @@ class RefusjonOmsorgsdagerRestTest {
     @Test
     void slå_opp_arbeidstaker_skal_returnere_ok_response_når_arbeidstaker_finnes() {
         var fnr = PersonIdent.fra("12345678910");
-        var dto = new SlåOppArbeidstakerRequestDto(fnr, Ytelsetype.OMSORGSPENGER);
-        var arbeidsforhold = List.of(new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto("999999999", "Arbeidsgiver AS"));
-        var arbeidstakerInfo = new SlåOppArbeidstakerResponseDto(new SlåOppArbeidstakerResponseDto.Personinformasjon("fornavn", "mellomnavn", "etternavn", "10107400090", "12345"), arbeidsforhold);
+        var request = new SlåOppArbeidstakerRequest(fnr, Ytelsetype.OMSORGSPENGER);
+        var arbeidsforhold = List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto("999999999", "Arbeidsgiver AS"));
+        var arbeidstakerInfo = new SlåOppArbeidstakerResponse(new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "10107400090", "12345"), arbeidsforhold);
 
         when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr)).thenReturn(arbeidstakerInfo);
 
-        var response = rest.slåOppArbeidstaker(dto);
+        var response = rest.slåOppArbeidstaker(request);
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(arbeidstakerInfo, response.getEntity());
@@ -53,11 +53,11 @@ class RefusjonOmsorgsdagerRestTest {
     @Test
     void slå_opp_arbeidstaker_skal_returnere_not_found_når_arbeidstaker_ikke_finnes() {
         var fnr = PersonIdent.fra("12345678910");
-        var dto = new SlåOppArbeidstakerRequestDto(fnr, Ytelsetype.OMSORGSPENGER);
+        var request = new SlåOppArbeidstakerRequest(fnr, Ytelsetype.OMSORGSPENGER);
 
         when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr)).thenReturn(null);
 
-        var response = rest.slåOppArbeidstaker(dto);
+        var response = rest.slåOppArbeidstaker(request);
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
