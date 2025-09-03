@@ -22,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
-import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
@@ -34,6 +33,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
+import no.nav.familie.inntektsmelding.typer.dto.MånedsinntektDto;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
@@ -137,17 +137,17 @@ class InntektsmeldingTjenesteTest {
         assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).hasSize(3);
         assertThat(imDialogDto.inntektsopplysninger().gjennomsnittLønn()).isEqualByComparingTo(BigDecimal.valueOf(52_000));
         assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).contains(
-            new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(LocalDate.of(2024, 3, 1),
+            new MånedsinntektDto(LocalDate.of(2024, 3, 1),
                 LocalDate.of(2024, 3, 31),
                 BigDecimal.valueOf(52_000),
                 MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
         assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).contains(
-            new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(LocalDate.of(2024, 4, 1),
+            new MånedsinntektDto(LocalDate.of(2024, 4, 1),
                 LocalDate.of(2024, 4, 30),
                 BigDecimal.valueOf(52_000),
                 MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
         assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).contains(
-            new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(LocalDate.of(2024, 5, 1),
+            new MånedsinntektDto(LocalDate.of(2024, 5, 1),
                 LocalDate.of(2024, 5, 31),
                 BigDecimal.valueOf(52_000),
                 MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
