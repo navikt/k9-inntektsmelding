@@ -98,9 +98,17 @@ class RefusjonOmsorgsdagerServiceTest {
         var innloggetBruker = new InnloggetBrukerDto("fornavn", "mellomnavn", "etternavn", "81549300", "123456789", "organisasjonsnavn");
 
         when(innloggetBrukerTjenesteMock.hentInnloggetBruker(any(), any())).thenReturn(innloggetBruker);
-
         var response = service.hentInnloggetBruker("123456789");
-        assertEquals(response, innloggetBruker);
+
+        var forventetResponse = new no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInnloggetBrukerResponse(
+            innloggetBruker.fornavn(),
+            innloggetBruker.mellomnavn(),
+            innloggetBruker.etternavn(),
+            innloggetBruker.telefon(),
+            innloggetBruker.organisasjonsnummer(),
+            innloggetBruker.organisasjonsnavn()
+        );
+        assertEquals(response, forventetResponse);
     }
 
     @Test
