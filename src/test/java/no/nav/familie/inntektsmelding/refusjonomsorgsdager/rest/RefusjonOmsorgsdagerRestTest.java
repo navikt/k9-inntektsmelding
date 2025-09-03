@@ -64,7 +64,7 @@ class RefusjonOmsorgsdagerRestTest {
 
     @Test
     void hent_innlogget_bruker_returnerer_ok() {
-        var innloggetBruker = new InnloggetBrukerDto("fornavn", "mellomnavn", "etternavn", "81549300", "123456789", "organisasjonsnavn");
+        var innloggetBruker = new HentInnloggetBrukerResponse("fornavn", "mellomnavn", "etternavn", "81549300", "123456789", "organisasjonsnavn");
 
         when(refusjonOmsorgsdagerServiceMock.hentInnloggetBruker(any())).thenReturn(innloggetBruker);
 

@@ -18,8 +18,8 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInnloggetBrukerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponse;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponse;
 
 @ApplicationScoped
@@ -32,7 +32,11 @@ public class RefusjonOmsorgsdagerService {
     private final static Logger LOG = LoggerFactory.getLogger(RefusjonOmsorgsdagerService.class);
 
     @Inject
-    public RefusjonOmsorgsdagerService(ArbeidstakerTjeneste arbeidstakerTjeneste, PersonTjeneste personTjeneste, InntektTjeneste inntektTjeneste, InnloggetBrukerTjeneste innloggetBrukerTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
+    public RefusjonOmsorgsdagerService(ArbeidstakerTjeneste arbeidstakerTjeneste,
+                                       PersonTjeneste personTjeneste,
+                                       InntektTjeneste inntektTjeneste,
+                                       InnloggetBrukerTjeneste innloggetBrukerTjeneste,
+                                       OrganisasjonTjeneste organisasjonTjeneste) {
         this.arbeidstakerTjeneste = arbeidstakerTjeneste;
         this.personTjeneste = personTjeneste;
         this.inntektTjeneste = inntektTjeneste;
@@ -80,11 +84,22 @@ public class RefusjonOmsorgsdagerService {
             .collect(Collectors.toList());
     }
 
-    public InnloggetBrukerDto hentInnloggetBruker(String organisasjonsnummer) {
-        return innloggetBrukerTjeneste.hentInnloggetBruker(Ytelsetype.OMSORGSPENGER, organisasjonsnummer);
+    public HentInnloggetBrukerResponse hentInnloggetBruker(String organisasjonsnummer) {
+        var innloggetBruker = innloggetBrukerTjeneste.hentInnloggetBruker(Ytelsetype.OMSORGSPENGER, organisasjonsnummer);
+
+        return new HentInnloggetBrukerResponse(
+            innloggetBruker.fornavn(),
+            innloggetBruker.mellomnavn(),
+            innloggetBruker.etternavn(),
+            innloggetBruker.telefon(),
+            innloggetBruker.organisasjonsnummer(),
+            innloggetBruker.organisasjonsnavn()
+        );
     }
 
-    public HentInntektsopplysningerResponse hentInntektsopplysninger(PersonIdent fødselsnummer, String organisasjonsnummer, LocalDate skjæringstidspunkt) {
+    public HentInntektsopplysningerResponse hentInntektsopplysninger(PersonIdent fødselsnummer,
+                                                                     String organisasjonsnummer,
+                                                                     LocalDate skjæringstidspunkt) {
         var person = personTjeneste.hentPersonFraIdent(fødselsnummer);
         var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(
             fødselsnummer,
@@ -99,7 +114,7 @@ public class RefusjonOmsorgsdagerService {
             LocalDate.now(),
             organisasjonsnummer
         );
-        var inntekterPerMåned  = inntekt.måneder()
+        var inntekterPerMåned = inntekt.måneder()
             .stream()
             .map(i -> new HentInntektsopplysningerResponse.MånedsinntektDto(i.månedÅr().atDay(1),
                 i.månedÅr().atEndOfMonth(),
