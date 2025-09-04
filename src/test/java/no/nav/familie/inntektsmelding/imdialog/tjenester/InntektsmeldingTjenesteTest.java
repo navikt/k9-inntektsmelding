@@ -1,7 +1,6 @@
 package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -20,11 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
-import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogDto;
-import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
@@ -33,17 +30,14 @@ import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTje
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
-import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
-import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.MånedsinntektDto;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
@@ -70,8 +64,6 @@ class InntektsmeldingTjenesteTest {
     private K9DokgenTjeneste k9DokgenTjeneste;
     @Mock
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
-    @Mock
-    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
@@ -89,7 +81,7 @@ class InntektsmeldingTjenesteTest {
     @BeforeEach
     void setUp() {
         inntektsmeldingTjeneste = new InntektsmeldingTjeneste(forespørselBehandlingTjeneste, inntektsmeldingRepository, personTjeneste,
-            organisasjonTjeneste, inntektTjeneste, k9DokgenTjeneste, prosessTaskTjeneste, arbeidstakerTjeneste);
+            organisasjonTjeneste, inntektTjeneste, k9DokgenTjeneste, arbeidstakerTjeneste);
     }
 
     @Test
@@ -122,7 +114,7 @@ class InntektsmeldingTjenesteTest {
             List.of(inntekt1, inntekt2, inntekt3)));
 
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.lagDialogDto(uuid);
+        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(uuid);
 
         // Assert
         assertThat(imDialogDto.skjæringstidspunkt()).isEqualTo(forespørsel.getSkjæringstidspunkt());
@@ -145,17 +137,17 @@ class InntektsmeldingTjenesteTest {
         assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).hasSize(3);
         assertThat(imDialogDto.inntektsopplysninger().gjennomsnittLønn()).isEqualByComparingTo(BigDecimal.valueOf(52_000));
         assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).contains(
-            new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(LocalDate.of(2024, 3, 1),
+            new MånedsinntektDto(LocalDate.of(2024, 3, 1),
                 LocalDate.of(2024, 3, 31),
                 BigDecimal.valueOf(52_000),
                 MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
         assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).contains(
-            new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(LocalDate.of(2024, 4, 1),
+            new MånedsinntektDto(LocalDate.of(2024, 4, 1),
                 LocalDate.of(2024, 4, 30),
                 BigDecimal.valueOf(52_000),
                 MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
         assertThat(imDialogDto.inntektsopplysninger().månedsinntekter()).contains(
-            new InntektsmeldingDialogDto.InntektsopplysningerDto.MånedsinntektDto(LocalDate.of(2024, 5, 1),
+            new MånedsinntektDto(LocalDate.of(2024, 5, 1),
                 LocalDate.of(2024, 5, 31),
                 BigDecimal.valueOf(52_000),
                 MånedslønnStatus.BRUKT_I_GJENNOMSNITT));
@@ -188,7 +180,7 @@ class InntektsmeldingTjenesteTest {
             List.of()));
 
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.lagDialogDto(uuid);
+        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(uuid);
 
         // Assert
         assertThat(imDialogDto.skjæringstidspunkt()).isEqualTo(forespørsel.getSkjæringstidspunkt());
@@ -207,38 +199,6 @@ class InntektsmeldingTjenesteTest {
         assertThat(imDialogDto.innsender().etternavn()).isEqualTo(innsenderEtternavn);
         assertThat(imDialogDto.innsender().mellomnavn()).isNull();
         assertThat(imDialogDto.innsender().telefon()).isEqualTo(innsenderTelefonnummer);
-    }
-
-    @Test
-    void skal_ikke_godta_im_på_utgått_forespørrsel() {
-        // Arrange
-        var uuid = UUID.randomUUID();
-        var forespørsel = ForespørselMapper.mapForespørsel("999999999",
-            LocalDate.now(),
-            "9999999999999",
-            Ytelsetype.PLEIEPENGER_SYKT_BARN,
-            "123",
-            null,
-            null);
-        forespørsel.setStatus(ForespørselStatus.UTGÅTT);
-        when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
-        var innsendingDto = new SendInntektsmeldingRequestDto(uuid,
-            new AktørIdDto("9999999999999"),
-            YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
-            new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Navn", "123"),
-            LocalDate.now(),
-            BigDecimal.valueOf(10000),
-            List.of(),
-            List.of(),
-            List.of(),
-            null);
-
-        // Act
-        var ex = assertThrows(IllegalStateException.class, () -> inntektsmeldingTjeneste.mottaInntektsmelding(innsendingDto));
-
-        // Assert
-        assertThat(ex.getMessage()).contains("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
     }
 
     @Test
@@ -292,7 +252,7 @@ class InntektsmeldingTjenesteTest {
             LocalDate.now(),
             organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.lagArbeidsgiverinitiertDialogDto(fødselsnummer,
+        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(fødselsnummer,
             ytelsetype,
             førsteFraværsdag,
             organisasjonsnummer);
@@ -331,7 +291,7 @@ class InntektsmeldingTjenesteTest {
             LocalDate.now(),
             organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.lagArbeidsgiverinitiertDialogDto(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
+        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
 
         // Assert
         assertThat(imDialogDto.person().aktørId()).isEqualTo(aktørId.getAktørId());

@@ -18,18 +18,17 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
-
-import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingMottakTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @AutentisertMedTokenX
 @RequestScoped
@@ -48,6 +47,7 @@ public class InntektsmeldingDialogRest {
     private static final String LAST_NED_PDF = "/last-ned-pdf";
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private InntektsmeldingMottakTjeneste inntektsmeldingMottakTjeneste;
     private Tilgang tilgang;
 
     InntektsmeldingDialogRest() {
@@ -55,8 +55,11 @@ public class InntektsmeldingDialogRest {
     }
 
     @Inject
-    public InntektsmeldingDialogRest(InntektsmeldingTjeneste inntektsmeldingTjeneste, Tilgang tilgang) {
+    public InntektsmeldingDialogRest(InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                     InntektsmeldingMottakTjeneste inntektsmeldingMottakTjeneste,
+                                     Tilgang tilgang) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.inntektsmeldingMottakTjeneste = inntektsmeldingMottakTjeneste;
         this.tilgang = tilgang;
     }
 
@@ -68,7 +71,7 @@ public class InntektsmeldingDialogRest {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
         LOG.info("Henter forespørsel med uuid {}", forespørselUuid);
-        var dto = inntektsmeldingTjeneste.lagDialogDto(forespørselUuid);
+        var dto = inntektsmeldingTjeneste.hentOpplysninger(forespørselUuid);
         return Response.ok(dto).build();
 
     }
@@ -112,7 +115,7 @@ public class InntektsmeldingDialogRest {
     public Response sendInntektsmelding(@NotNull @Valid SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(sendInntektsmeldingRequestDto.foresporselUuid());
         LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequestDto.foresporselUuid());
-        return Response.ok(inntektsmeldingTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto)).build();
+        return Response.ok(inntektsmeldingMottakTjeneste.mottaInntektsmelding(sendInntektsmeldingRequestDto)).build();
     }
 
     @POST
@@ -122,7 +125,7 @@ public class InntektsmeldingDialogRest {
     public Response sendInntektsmeldingForOmsorgspengerRefusjon(@NotNull @Valid SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident()));
         LOG.info("Mottok inntektsmelding for omsorgspenger refusjon for aktørId {}", sendInntektsmeldingRequestDto.aktorId());
-        return Response.ok(inntektsmeldingTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(sendInntektsmeldingRequestDto)).build();
+        return Response.ok(inntektsmeldingMottakTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(sendInntektsmeldingRequestDto)).build();
 
     }
 
