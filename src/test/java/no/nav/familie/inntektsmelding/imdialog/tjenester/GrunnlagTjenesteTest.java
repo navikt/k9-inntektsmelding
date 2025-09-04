@@ -21,8 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
-import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
-import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
@@ -46,14 +44,12 @@ import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 @ExtendWith(MockitoExtension.class)
-class InntektsmeldingTjenesteTest {
+class GrunnlagTjenesteTest {
 
     private static final String INNMELDER_UID = "12324312345";
 
     @Mock
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    @Mock
-    private InntektsmeldingRepository inntektsmeldingRepository;
     @Mock
     private PersonTjeneste personTjeneste;
     @Mock
@@ -61,11 +57,9 @@ class InntektsmeldingTjenesteTest {
     @Mock
     private InntektTjeneste inntektTjeneste;
     @Mock
-    private K9DokgenTjeneste k9DokgenTjeneste;
-    @Mock
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
 
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private GrunnlagTjeneste grunnlagTjeneste;
 
     @BeforeAll
     static void beforeAll() {
@@ -80,12 +74,11 @@ class InntektsmeldingTjenesteTest {
 
     @BeforeEach
     void setUp() {
-        inntektsmeldingTjeneste = new InntektsmeldingTjeneste(forespørselBehandlingTjeneste, inntektsmeldingRepository, personTjeneste,
-            organisasjonTjeneste, inntektTjeneste, k9DokgenTjeneste, arbeidstakerTjeneste);
+        grunnlagTjeneste = new GrunnlagTjeneste(forespørselBehandlingTjeneste, personTjeneste, organisasjonTjeneste, inntektTjeneste, arbeidstakerTjeneste);
     }
 
     @Test
-    void skal_lage_dto() {
+    void skal_hente_opplysninger() {
         // Arrange
         var uuid = UUID.randomUUID();
         var forespørsel = ForespørselMapper.mapForespørsel("999999999",
@@ -114,7 +107,7 @@ class InntektsmeldingTjenesteTest {
             List.of(inntekt1, inntekt2, inntekt3)));
 
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(uuid);
+        var imDialogDto = grunnlagTjeneste.hentOpplysninger(uuid);
 
         // Assert
         assertThat(imDialogDto.skjæringstidspunkt()).isEqualTo(forespørsel.getSkjæringstidspunkt());
@@ -154,7 +147,7 @@ class InntektsmeldingTjenesteTest {
     }
 
     @Test
-    void skal_lage_dto_med_første_uttaksdato() {
+    void skal_hente_opplysninger_med_første_uttaksdato() {
         // Arrange
         var uuid = UUID.randomUUID();
         var forespørsel = ForespørselMapper.mapForespørsel("999999999",
@@ -180,7 +173,7 @@ class InntektsmeldingTjenesteTest {
             List.of()));
 
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(uuid);
+        var imDialogDto = grunnlagTjeneste.hentOpplysninger(uuid);
 
         // Assert
         assertThat(imDialogDto.skjæringstidspunkt()).isEqualTo(forespørsel.getSkjæringstidspunkt());
@@ -214,7 +207,7 @@ class InntektsmeldingTjenesteTest {
             "ARB-001")));
         when(organisasjonTjeneste.finnOrganisasjon(orgnr)).thenReturn(new Organisasjon("Bedriften", orgnr));
         // Act
-        var response = inntektsmeldingTjeneste.finnArbeidsforholdForFnr(fnr, Ytelsetype.PLEIEPENGER_SYKT_BARN, LocalDate.now()).orElse(null);
+        var response = grunnlagTjeneste.finnArbeidsforholdForFnr(fnr, Ytelsetype.PLEIEPENGER_SYKT_BARN, LocalDate.now()).orElse(null);
 
         // Assert
         assertThat(response).isNotNull();
@@ -252,7 +245,7 @@ class InntektsmeldingTjenesteTest {
             LocalDate.now(),
             organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(fødselsnummer,
+        var imDialogDto = grunnlagTjeneste.hentOpplysninger(fødselsnummer,
             ytelsetype,
             førsteFraværsdag,
             organisasjonsnummer);
@@ -291,7 +284,7 @@ class InntektsmeldingTjenesteTest {
             LocalDate.now(),
             organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
-        var imDialogDto = inntektsmeldingTjeneste.hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
+        var imDialogDto = grunnlagTjeneste.hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
 
         // Assert
         assertThat(imDialogDto.person().aktørId()).isEqualTo(aktørId.getAktørId());

@@ -21,6 +21,7 @@ import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.imdialog.tjenester.GrunnlagTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingMottakTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -48,6 +49,7 @@ public class InntektsmeldingDialogRest {
 
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private InntektsmeldingMottakTjeneste inntektsmeldingMottakTjeneste;
+    private GrunnlagTjeneste grunnlagTjeneste;
     private Tilgang tilgang;
 
     InntektsmeldingDialogRest() {
@@ -57,9 +59,11 @@ public class InntektsmeldingDialogRest {
     @Inject
     public InntektsmeldingDialogRest(InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                      InntektsmeldingMottakTjeneste inntektsmeldingMottakTjeneste,
+                                     GrunnlagTjeneste grunnlagTjeneste,
                                      Tilgang tilgang) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.inntektsmeldingMottakTjeneste = inntektsmeldingMottakTjeneste;
+        this.grunnlagTjeneste = grunnlagTjeneste;
         this.tilgang = tilgang;
     }
 
@@ -71,7 +75,7 @@ public class InntektsmeldingDialogRest {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(forespørselUuid);
 
         LOG.info("Henter forespørsel med uuid {}", forespørselUuid);
-        var dto = inntektsmeldingTjeneste.hentOpplysninger(forespørselUuid);
+        var dto = grunnlagTjeneste.hentOpplysninger(forespørselUuid);
         return Response.ok(dto).build();
 
     }
