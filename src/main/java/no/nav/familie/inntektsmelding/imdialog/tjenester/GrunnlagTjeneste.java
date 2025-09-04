@@ -60,15 +60,12 @@ public class GrunnlagTjeneste {
 
     public HentOpplysningerResponse hentOpplysninger(UUID forespørselUuid) {
         var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
-            .orElseThrow(() -> new IllegalStateException(
-                "Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
+            .orElseThrow(() -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
+
         var personInfo = finnPerson(forespørsel.getAktørId());
         var organisasjonInfo = finnOrganisasjonInfo(forespørsel.getOrganisasjonsnummer());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(),
-            forespørsel.getAktørId(),
-            forespørsel.getSkjæringstidspunkt(),
-            forespørsel.getOrganisasjonsnummer());
+        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(), forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer());
 
         return new HentOpplysningerResponse(personInfo,
             organisasjonInfo,
@@ -122,23 +119,25 @@ public class GrunnlagTjeneste {
         if (!KontekstHolder.harKontekst() || !IdentType.EksternBruker.equals(KontekstHolder.getKontekst().getIdentType())) {
             throw new IllegalStateException("Mangler innlogget bruker kontekst.");
         }
+
         var pid = KontekstHolder.getKontekst().getUid();
         var personInfo = personTjeneste.hentPersonFraIdent(PersonIdent.fra(pid));
-        return new InnsenderDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(),
-            personInfo.telefonnummer());
+
+        return new InnsenderDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.telefonnummer());
     }
 
     private InntektsopplysningerDto finnInntektsopplysninger(UUID uuid,
                                                              AktørIdEntitet aktørId,
                                                              LocalDate skjæringstidspunkt,
                                                              String organisasjonsnummer) {
-        var inntektsopplysninger = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(),
-            organisasjonsnummer);
+        var inntektsopplysninger = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer);
+
         if (uuid == null) {
             LOG.info("Inntektsopplysninger for aktørId {} var {}", aktørId, inntektsopplysninger);
         } else {
             LOG.info("Inntektsopplysninger for forespørsel {} var {}", uuid, inntektsopplysninger);
         }
+
         var inntekter = inntektsopplysninger.måneder()
             .stream()
             .map(i -> new MånedsinntektDto(i.månedÅr().atDay(1),
@@ -146,6 +145,7 @@ public class GrunnlagTjeneste {
                 i.beløp(),
                 i.status()))
             .toList();
+
         return new InntektsopplysningerDto(inntektsopplysninger.gjennomsnitt(), inntekter);
     }
 
