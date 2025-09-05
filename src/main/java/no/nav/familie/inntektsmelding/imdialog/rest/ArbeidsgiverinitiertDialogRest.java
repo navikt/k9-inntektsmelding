@@ -49,7 +49,7 @@ public class ArbeidsgiverinitiertDialogRest {
     @Path(HENT_ARBEIDSFORHOLD)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
-    public Response hentArbeidsforhold(@Valid @NotNull HentArbeidsgiverRequest request) {
+    public Response hentArbeidsforhold(@Valid @NotNull HentArbeidsforholdRequest request) {
         if (erProd) {
             throw new IllegalStateException("Ugyldig kall på restpunkt som ikke er lansert");
         }
