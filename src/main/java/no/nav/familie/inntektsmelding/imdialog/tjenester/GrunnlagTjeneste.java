@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerResponse;
-import no.nav.familie.inntektsmelding.imdialog.rest.SlåOppArbeidstakerResponseDto;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -163,8 +163,8 @@ public class GrunnlagTjeneste {
         return new PersonInfoDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
     }
 
-    public Optional<SlåOppArbeidstakerResponseDto> finnArbeidsforholdForFnr(PersonIdent fødselsnummer, Ytelsetype ytelsetype,
-                                                                            LocalDate førsteFraværsdag) {
+    public Optional<HentArbeidsforholdResponse> finnArbeidsforholdForFnr(PersonIdent fødselsnummer, Ytelsetype ytelsetype,
+                                                                         LocalDate førsteFraværsdag) {
         // TODO Skal vi sjekke noe mtp kode 6/7
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
         if (personInfo == null) {
@@ -174,11 +174,13 @@ public class GrunnlagTjeneste {
         if (arbeidsforholdBrukerHarTilgangTil.isEmpty()) {
             return Optional.empty();
         }
+
         var arbeidsforholdDto = arbeidsforholdBrukerHarTilgangTil.stream()
-            .map(a -> new SlåOppArbeidstakerResponseDto.ArbeidsforholdDto(organisasjonTjeneste.finnOrganisasjon(a.organisasjonsnummer()).navn(),
+            .map(a -> new HentArbeidsforholdResponse.ArbeidsforholdDto(organisasjonTjeneste.finnOrganisasjon(a.organisasjonsnummer()).navn(),
                 a.organisasjonsnummer()))
             .collect(Collectors.toSet());
-        return Optional.of(new SlåOppArbeidstakerResponseDto(personInfo.fornavn(),
+
+        return Optional.of(new HentArbeidsforholdResponse(personInfo.fornavn(),
             personInfo.mellomnavn(),
             personInfo.etternavn(),
             arbeidsforholdDto));
