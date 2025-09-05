@@ -245,7 +245,7 @@ class GrunnlagTjenesteTest {
             LocalDate.now(),
             organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
-        var imDialogDto = grunnlagTjeneste.hentOpplysninger(fødselsnummer,
+        var imDialogDto = grunnlagTjeneste.hentOpplysningerForNyansatt(fødselsnummer,
             ytelsetype,
             førsteFraværsdag,
             organisasjonsnummer);
@@ -284,7 +284,7 @@ class GrunnlagTjenesteTest {
             LocalDate.now(),
             organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
-        var imDialogDto = grunnlagTjeneste.hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
+        var imDialogDto = grunnlagTjeneste.hentOpplysningerForNyansatt(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
 
         // Assert
         assertThat(imDialogDto.person().aktørId()).isEqualTo(aktørId.getAktørId());

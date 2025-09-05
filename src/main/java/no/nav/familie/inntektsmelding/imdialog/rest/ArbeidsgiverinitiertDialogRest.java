@@ -67,7 +67,7 @@ public class ArbeidsgiverinitiertDialogRest {
             throw new IllegalStateException("Ugyldig kall på restpunkt som ikke er lansert");
         }
         LOG.info("Henter opplysninger for søker");
-        var hentOpplysningerResponse = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag(), request.organisasjonsnummer());
+        var hentOpplysningerResponse = grunnlagTjeneste.hentOpplysningerForNyansatt(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag(), request.organisasjonsnummer());
         return Response.ok(hentOpplysningerResponse).build();
     }
 }

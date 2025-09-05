@@ -17,6 +17,7 @@ import no.nav.familie.inntektsmelding.imdialog.rest.SlåOppArbeidstakerResponseD
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -59,15 +60,12 @@ public class GrunnlagTjeneste {
 
     public HentOpplysningerResponse hentOpplysninger(UUID forespørselUuid) {
         var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
-            .orElseThrow(() -> new IllegalStateException(
-                "Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
+            .orElseThrow(() -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
+
         var personInfo = finnPerson(forespørsel.getAktørId());
         var organisasjonInfo = finnOrganisasjonInfo(forespørsel.getOrganisasjonsnummer());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(),
-            forespørsel.getAktørId(),
-            forespørsel.getSkjæringstidspunkt(),
-            forespørsel.getOrganisasjonsnummer());
+        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(), forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer());
 
         return new HentOpplysningerResponse(personInfo,
             organisasjonInfo,
@@ -81,30 +79,30 @@ public class GrunnlagTjeneste {
             forespørsel.getEtterspurtePerioder());
     }
 
-    public HentOpplysningerResponse hentOpplysninger(PersonIdent fødselsnummer,
-                                                     Ytelsetype ytelsetype,
-                                                     LocalDate førsteFraværsdag,
-                                                     OrganisasjonsnummerDto organisasjonsnummer) {
+    // Hvis en bruker har byttet jobb mens de mottar en ytelse, kan det hende at k9-sak ikke har opprettet en forespørsel for den nye arbeidsgiveren.
+    // Da må arbeidsgiver sende kunne sende innteksmelding uten at det finnes en forespørsel.
+    public HentOpplysningerResponse hentOpplysningerForNyansatt(PersonIdent fødselsnummer,
+                                                                Ytelsetype ytelsetype,
+                                                                LocalDate førsteFraværsdag,
+                                                                OrganisasjonsnummerDto organisasjonsnummer) {
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
 
-        var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(personInfo.aktørId(),
-            ytelsetype,
-            organisasjonsnummer.orgnr());
+        var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
         var forespørslerSomMatcherFraværsdag = eksisterendeForepørsler.stream()
-            .filter(f -> førsteFraværsdag.equals(f.getFørsteUttaksdato()
-                .orElse(f.getSkjæringstidspunkt()))) // TODO: sjekk for et større intervall etterhvert
+            .filter(f -> førsteFraværsdag.equals(f.getSkjæringstidspunkt())) // TODO: hva her burde vi kanskje legge inn et godkjent intervall?
             .toList();
 
+        // Hvis k9-sak har opprettet forespørsel så bruker vi vanlig flyt
         if (!forespørslerSomMatcherFraværsdag.isEmpty()) {
-            var forespørsel = forespørslerSomMatcherFraværsdag.getFirst();
+            var forespørsel = forespørslerSomMatcherFraværsdag.getFirst(); // TODO: blir det alltid riktig å velge den første?
             return hentOpplysninger(forespørsel.getUuid());
         }
 
-        var personDto = new PersonInfoDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
         var organisasjonInfo = finnOrganisasjonInfo(organisasjonsnummer.orgnr());
         var innsender = finnInnsender();
         var inntektsopplysninger = finnInntektsopplysninger(null, personInfo.aktørId(), førsteFraværsdag, organisasjonsnummer.orgnr());
-        return new HentOpplysningerResponse(personDto,
+
+        return new HentOpplysningerResponse(lagPersonInfoDto(personInfo),
             organisasjonInfo,
             innsender,
             inntektsopplysninger,
@@ -121,23 +119,25 @@ public class GrunnlagTjeneste {
         if (!KontekstHolder.harKontekst() || !IdentType.EksternBruker.equals(KontekstHolder.getKontekst().getIdentType())) {
             throw new IllegalStateException("Mangler innlogget bruker kontekst.");
         }
+
         var pid = KontekstHolder.getKontekst().getUid();
         var personInfo = personTjeneste.hentPersonFraIdent(PersonIdent.fra(pid));
-        return new InnsenderDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(),
-            personInfo.telefonnummer());
+
+        return new InnsenderDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.telefonnummer());
     }
 
     private InntektsopplysningerDto finnInntektsopplysninger(UUID uuid,
                                                              AktørIdEntitet aktørId,
                                                              LocalDate skjæringstidspunkt,
                                                              String organisasjonsnummer) {
-        var inntektsopplysninger = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(),
-            organisasjonsnummer);
+        var inntektsopplysninger = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer);
+
         if (uuid == null) {
             LOG.info("Inntektsopplysninger for aktørId {} var {}", aktørId, inntektsopplysninger);
         } else {
             LOG.info("Inntektsopplysninger for forespørsel {} var {}", uuid, inntektsopplysninger);
         }
+
         var inntekter = inntektsopplysninger.måneder()
             .stream()
             .map(i -> new MånedsinntektDto(i.månedÅr().atDay(1),
@@ -145,6 +145,7 @@ public class GrunnlagTjeneste {
                 i.beløp(),
                 i.status()))
             .toList();
+
         return new InntektsopplysningerDto(inntektsopplysninger.gjennomsnitt(), inntekter);
     }
 
@@ -155,8 +156,11 @@ public class GrunnlagTjeneste {
 
     private PersonInfoDto finnPerson(AktørIdEntitet aktørId) {
         var personInfo = personTjeneste.hentPersonInfoFraAktørId(aktørId);
-        return new PersonInfoDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(),
-            personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
+        return lagPersonInfoDto(personInfo);
+    }
+
+    private static PersonInfoDto lagPersonInfoDto(PersonInfo personInfo) {
+        return new PersonInfoDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
     }
 
     public Optional<SlåOppArbeidstakerResponseDto> finnArbeidsforholdForFnr(PersonIdent fødselsnummer, Ytelsetype ytelsetype,
