@@ -31,6 +31,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
+import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.dto.MånedsinntektDto;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
@@ -92,12 +93,12 @@ class GrunnlagTjenesteTest {
         when(organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer())).thenReturn(
             new Organisasjon("Bedriften", forespørsel.getOrganisasjonsnummer()));
         when(personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId())).thenReturn(
-            new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), forespørsel.getAktørId(), LocalDate.now(), null));
+            new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), forespørsel.getAktørId(), LocalDate.now(), null, null));
         var innsenderNavn = "Ine";
         var innsenderEtternavn = "Sender";
         var innsenderTelefonnummer = "+4711111111";
         when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID))).thenReturn(
-            new PersonInfo(innsenderNavn, null, innsenderEtternavn, new PersonIdent(INNMELDER_UID), null, LocalDate.now(), innsenderTelefonnummer));
+            new PersonInfo(innsenderNavn, null, innsenderEtternavn, new PersonIdent(INNMELDER_UID), null, LocalDate.now(), innsenderTelefonnummer, Kjønn.KVINNE));
         var inntekt1 = new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(52000), YearMonth.of(2024, 3), MånedslønnStatus.BRUKT_I_GJENNOMSNITT);
         var inntekt2 = new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(52000), YearMonth.of(2024, 4), MånedslønnStatus.BRUKT_I_GJENNOMSNITT);
         var inntekt3 = new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(52000), YearMonth.of(2024, 5), MånedslønnStatus.BRUKT_I_GJENNOMSNITT);
@@ -161,12 +162,12 @@ class GrunnlagTjenesteTest {
         when(organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer())).thenReturn(
             new Organisasjon("Bedriften", forespørsel.getOrganisasjonsnummer()));
         when(personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId())).thenReturn(
-            new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), forespørsel.getAktørId(), LocalDate.now(), null));
+            new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), forespørsel.getAktørId(), LocalDate.now(), null, null));
         var innsenderNavn = "Ine";
         var innsenderEtternavn = "Sender";
         var innsenderTelefonnummer = "+4711111111";
         when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID))).thenReturn(
-            new PersonInfo(innsenderNavn, null, innsenderEtternavn, new PersonIdent(INNMELDER_UID), null, LocalDate.now(), innsenderTelefonnummer));
+            new PersonInfo(innsenderNavn, null, innsenderEtternavn, new PersonIdent(INNMELDER_UID), null, LocalDate.now(), innsenderTelefonnummer, Kjønn.KVINNE));
         when(inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
             forespørsel.getOrganisasjonsnummer())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000),
             forespørsel.getOrganisasjonsnummer(),
@@ -201,7 +202,7 @@ class GrunnlagTjenesteTest {
         var førsteFraværsdag = LocalDate.now();
         var aktørId = new AktørIdEntitet("9999999999999");
         when(personTjeneste.hentPersonFraIdent(fnr)).thenReturn(
-            new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null));
+            new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null, Kjønn.KVINNE));
         var orgnr = "999999999";
         when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag)).thenReturn(List.of(new ArbeidsforholdDto(orgnr,
             "ARB-001")));
@@ -233,10 +234,10 @@ class GrunnlagTjenesteTest {
             "123",
             førsteFraværsdag.plusWeeks(1),
             null);
-        var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null);
+        var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE);
         when(personTjeneste.hentPersonFraIdent(fødselsnummer)).thenReturn(personInfo);
         when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID))).thenReturn(
-            new PersonInfo("Ine", null, "Sender", new PersonIdent(INNMELDER_UID), null, LocalDate.now(), "+4711111111"));
+            new PersonInfo("Ine", null, "Sender", new PersonIdent(INNMELDER_UID), null, LocalDate.now(), "+4711111111", Kjønn.KVINNE));
         when(forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften",
             organisasjonsnummer.orgnr()));
@@ -270,11 +271,11 @@ class GrunnlagTjenesteTest {
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var aktørId = new AktørIdEntitet("9999999999999");
         var forespørsel = ForespørselMapper.mapForespørsel("999999999", førsteFraværsdag, aktørId.getAktørId(), ytelsetype, "123", førsteFraværsdag, null);
-        var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null);
+        var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE);
         when(personTjeneste.hentPersonFraIdent(fødselsnummer)).thenReturn(personInfo);
         when(personTjeneste.hentPersonInfoFraAktørId(aktørId)).thenReturn(personInfo);
         when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID))).thenReturn(
-            new PersonInfo("Ine", null, "Sender", new PersonIdent(INNMELDER_UID), null, LocalDate.now(), "+4711111111"));
+            new PersonInfo("Ine", null, "Sender", new PersonIdent(INNMELDER_UID), null, LocalDate.now(), "+4711111111", Kjønn.KVINNE));
         when(forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of(forespørsel));
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørsel.getUuid())).thenReturn(Optional.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften",

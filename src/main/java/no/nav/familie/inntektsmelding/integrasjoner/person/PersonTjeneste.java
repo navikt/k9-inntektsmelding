@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.pdl.Foedselsdato;
 import no.nav.pdl.FoedselsdatoResponseProjection;
@@ -22,6 +23,8 @@ import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.IdentlisteResponseProjection;
+import no.nav.pdl.KjoennResponseProjection;
+import no.nav.pdl.KjoennType;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
@@ -60,7 +63,7 @@ public class PersonTjeneste {
         var person = pdlKlient.hentPerson(utledYtelse(), request, projection);
 
         var navn = person.getNavn().getFirst();
-        return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId, mapFødselsdato(person), null);
+        return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId, mapFødselsdato(person), null, null);
     }
 
     public PersonInfo hentPersonFraIdent(PersonIdent personIdent) {
@@ -68,15 +71,24 @@ public class PersonTjeneste {
         request.setIdent(personIdent.getIdent());
 
         var projection = new PersonResponseProjection().navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
+            .kjoenn(new KjoennResponseProjection().kjoenn())
             .telefonnummer(new TelefonnummerResponseProjection().landskode().nummer())
             .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
 
         var aktørId = finnAktørIdForIdent(personIdent);
         var person = pdlKlient.hentPerson(utledYtelse(), request, projection);
         var navn = person.getNavn().getFirst();
+        var kjønn = person.getKjoenn() == null || person.getKjoenn().isEmpty() ? Kjønn.UKJENT : mapKjønn(person.getKjoenn().getFirst().getKjoenn());
 
-        return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId.orElse(null), mapFødselsdato(person),
-            mapTelefonnummer(person));
+        return new PersonInfo(navn.getFornavn(), navn.getMellomnavn(), navn.getEtternavn(), personIdent, aktørId.orElse(null), mapFødselsdato(person), mapTelefonnummer(person), kjønn);
+    }
+
+    private Kjønn mapKjønn(KjoennType kjoennType) {
+        return switch (kjoennType) {
+            case MANN -> Kjønn.MANN;
+            case KVINNE -> Kjønn.KVINNE;
+            default -> Kjønn.UKJENT;
+        };
     }
 
     private Optional<AktørIdEntitet> finnAktørIdForIdent(PersonIdent personIdent) {

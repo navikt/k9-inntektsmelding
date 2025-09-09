@@ -27,6 +27,7 @@ import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDt
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponse;
+import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,7 +71,7 @@ class RefusjonOmsorgsdagerServiceTest {
             new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()),
             List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto(orgnummer, "Arbeidsgiver AS")));
 
-        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null));
+        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag)).thenReturn(arbeidsforhold);
         when(organisasjonTjenesteMock.finnOrganisasjon(orgnummer)).thenReturn(new Organisasjon( "Arbeidsgiver AS", orgnummer));
 
@@ -122,7 +123,8 @@ class RefusjonOmsorgsdagerServiceTest {
             fødselsnummer,
             null,
             LocalDate.now(),
-            null));
+            null,
+            Kjønn.KVINNE));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer,
             LocalDate.now())).thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, "ARB-1")));
         when(inntektTjenesteMock.hentInntekt(any(), any(), any(), any())).thenReturn(new Inntektsopplysninger(new BigDecimal(10000),
@@ -145,7 +147,8 @@ class RefusjonOmsorgsdagerServiceTest {
             fødselsnummer,
             null,
             LocalDate.now(),
-            null));
+            null,
+            Kjønn.KVINNE));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer,
             LocalDate.now())).thenReturn(List.of());
 
