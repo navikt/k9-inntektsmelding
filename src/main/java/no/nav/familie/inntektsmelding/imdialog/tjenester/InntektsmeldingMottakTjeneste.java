@@ -111,10 +111,11 @@ public class InntektsmeldingMottakTjeneste {
         return InntektsmeldingMapper.mapFraEntitet(imEntitet, forespørselUuid);
     }
 
-    private InntektsmeldingResponseDto mottaArbeidsgiverInitiertNyansattInntektsmelding(SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
+    public InntektsmeldingResponseDto mottaArbeidsgiverInitiertNyansattInntektsmelding(SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
         var finnesForespørselFraFør = sendInntektsmeldingRequestDto.foresporselUuid() != null;
         if (finnesForespørselFraFør) {
             // Endring av allerede innsendt inntektsmelding skal følge vanlig flyt
+            // TODO: må vi sette riktig fagsagsnummer her?
             return mottaInntektsmelding(sendInntektsmeldingRequestDto);
         }
 
