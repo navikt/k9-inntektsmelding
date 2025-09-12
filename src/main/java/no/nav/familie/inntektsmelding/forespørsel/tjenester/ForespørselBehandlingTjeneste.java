@@ -72,6 +72,13 @@ public class ForespørselBehandlingTjeneste {
         this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
     }
 
+    public ForespørselEntitet ferdigstillForespørsel(UUID forespørselUuid,
+                                       AktørIdEntitet aktørId,
+                                       OrganisasjonsnummerDto organisasjonsnummer,
+                                       LukkeÅrsak lukkeÅrsak) {
+        return ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, lukkeÅrsak, List.of(), List.of());
+    }
+
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
                                                      AktørIdEntitet aktorId,
                                                      OrganisasjonsnummerDto organisasjonsnummerDto,
@@ -353,31 +360,44 @@ public class ForespørselBehandlingTjeneste {
         forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
     }
 
+    public UUID opprettForespørselForArbeidsgiverInitiertInntektsmelding(AktørIdEntitet aktørId,
+                                                                         OrganisasjonsnummerDto organisasjonsnummer,
+                                                                         LocalDate skjæringstidspunkt,
+                                                                         Ytelsetype ytelsetype) {
+        LOG.info("Oppretter forespørsel for arbeidsgiverinitiert inntektsmelding, orgnr: {}, stp: {}, aktørId: {}, ytelse: {}", organisasjonsnummer.orgnr(), skjæringstidspunkt, aktørId.getAktørId(), ytelsetype);
+
+        // opprettt forespørsel i databasen
+        var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, ytelsetype);
+
+        // opprett sak på min side arbeidsgiver
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
+        var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
+        var inntektsmeldingOppsummeringsUri = lagUriForInntektsmeldingOppsummering(forespørselUuid);
+        var sakstittel = ForespørselTekster.lagSaksTittelInntektsmelding(person.mapFulltNavn(), person.fødselsdato());
+        var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(forespørselUuid.toString(), merkelapp, organisasjonsnummer.orgnr(), sakstittel, inntektsmeldingOppsummeringsUri);
+
+        // oppdater forespørsel med sakId fra min side arbeidsgiver
+        forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(forespørselUuid, arbeidsgiverNotifikasjonSakId);
+
+        return forespørselUuid;
+    }
+
     public UUID opprettForespørselForOmsorgspengerRefusjonIm(AktørIdEntitet aktørId,
                                                              OrganisasjonsnummerDto organisasjonsnummer,
                                                              LocalDate skjæringstidspunkt) {
-        LOG.info("Oppretter forespørsel for omsorgspenger refusjon, orgnr: {}, stp: {}, ytelse: {}",
-            organisasjonsnummer,
-            skjæringstidspunkt,
-            Ytelsetype.OMSORGSPENGER);
+        LOG.info("Oppretter forespørsel for omsorgspenger refusjon, orgnr: {}, stp: {}, ytelse: {}", organisasjonsnummer, skjæringstidspunkt, Ytelsetype.OMSORGSPENGER);
 
-        var uuid = forespørselTjeneste.opprettForespørselOmsorgspengerRefusjon(skjæringstidspunkt,
-            aktørId,
-            organisasjonsnummer,
-            skjæringstidspunkt);
+        var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, Ytelsetype.OMSORGSPENGER);
 
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = Merkelapp.REFUSJONSKRAV_OMP;
-        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + uuid);
-        var fagerSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
-            merkelapp,
-            organisasjonsnummer.orgnr(),
-            ForespørselTekster.lagSaksTittelRefusjonskrav(person.mapFulltNavn(), person.fødselsdato()),
-            skjemaUri);
+        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + forespørselUuid);
+        var sakstittel = ForespørselTekster.lagSaksTittelRefusjonskrav(person.mapFulltNavn(), person.fødselsdato());
+        var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(forespørselUuid.toString(), merkelapp, organisasjonsnummer.orgnr(), sakstittel, skjemaUri);
 
-        forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, fagerSakId);
+        forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(forespørselUuid, arbeidsgiverNotifikasjonSakId);
 
-        return uuid;
+        return forespørselUuid;
     }
 
     public void lukkForespørsel(SaksnummerDto saksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
@@ -466,5 +486,9 @@ public class ForespørselBehandlingTjeneste {
         if (!forespørsel.getAktørId().equals(aktorId)) {
             throw new IllegalStateException("AktørId for bruker var ikke like");
         }
+    }
+
+    private URI lagUriForInntektsmeldingOppsummering(UUID forespørselUuid) {
+        return URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
     }
 }

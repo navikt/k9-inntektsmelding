@@ -40,12 +40,12 @@ public class ForespørselTjeneste {
             saksnummer.saksnr(), førsteUttaksdato, etterspurtePerioder);
     }
 
-    public UUID opprettForespørselOmsorgspengerRefusjon(LocalDate skjæringstidspunkt,
-                                                        AktørIdEntitet brukerAktørId,
-                                                        OrganisasjonsnummerDto orgnr,
-                                                        LocalDate førsteUttaksdato) {
-        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, Ytelsetype.OMSORGSPENGER, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            null, førsteUttaksdato, null);
+    public UUID opprettForespørselUtenFagsaksnummer(LocalDate skjæringstidspunkt,
+                                                    AktørIdEntitet brukerAktørId,
+                                                    OrganisasjonsnummerDto orgnr,
+                                                    Ytelsetype ytelsetype) {
+        return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelsetype, brukerAktørId.getAktørId(), orgnr.orgnr(),
+            null, skjæringstidspunkt, null);
     }
 
     public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {

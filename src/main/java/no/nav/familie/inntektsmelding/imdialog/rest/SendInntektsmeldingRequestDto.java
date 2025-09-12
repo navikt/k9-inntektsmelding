@@ -47,7 +47,7 @@ public record SendInntektsmeldingRequestDto(@Valid UUID foresporselUuid,
                                             LocalDate bleKjentFom) {
     }
 
-    public record KontaktpersonRequestDto(@Size(max = 100) @NotNull String navn,
+    public record KontaktpersonRequestDto(@NotNull @Size(max = 100) String navn,
                                           @NotNull @Size(max = 100) String telefonnummer) {
     }
 }
