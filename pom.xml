@@ -17,6 +17,8 @@
         <felles.version>7.5.10</felles.version>
         <prosesstask.version>5.1.11</prosesstask.version>
         <fp-kontrakter.version>9.3.8</fp-kontrakter.version>
+
+        <k9-sak.version>5.4.25</k9-sak.version>
     </properties>
 
     <dependencyManagement>
@@ -64,6 +66,11 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+            <dependency>
+                <groupId>no.nav.k9.sak</groupId>
+                <artifactId>kontrakt</artifactId>
+                <version>${k9-sak.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -104,7 +111,10 @@
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>inntektsmelding-v1</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>no.nav.k9.sak</groupId>
+            <artifactId>kontrakt</artifactId>
+        </dependency>
 
         <!-- CDI -->
         <dependency>
