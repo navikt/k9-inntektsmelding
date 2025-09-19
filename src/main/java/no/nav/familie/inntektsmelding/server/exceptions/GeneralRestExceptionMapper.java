@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
@@ -29,6 +30,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
                 LOG.warn("Tilgangsfeil: {}", exceptionMelding);
                 return ikkeTilgang("Mangler tilgang");
             }
+            if (feil instanceof FunksjonellException) {
+                var exceptionMelding = getExceptionMelding(feil);
+                if (exceptionMelding.contains("INGEN_SAK_FUNNET")) {
+                    LOG.info("Ingen sak funnet feil: {}", exceptionMelding);
+                    return ingenSakFunnet();
+                }
+            }
             loggTilApplikasjonslogg(feil);
             return serverError("Serverfeil");
         } finally {
@@ -43,6 +51,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     private static Response ikkeTilgang(String feilmelding) {
         return Response.status(Response.Status.FORBIDDEN)
             .entity(new FeilDto(FeilType.MANGLER_TILGANG_FEIL, feilmelding, MDCOperations.getCallId()))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
+    }
+
+    private static Response ingenSakFunnet() {
+        return Response.status(Response.Status.FORBIDDEN)
+            .entity(new FeilDto(FeilType.INGEN_SAK_FUNNET, "Ingen sak funnet", MDCOperations.getCallId()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
