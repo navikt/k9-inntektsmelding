@@ -22,7 +22,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, scopesProperty = "k9sak.scopes", scopesDefault = "api://dev-fss.k9saksbehandling.k9-sak/.default", endpointDefault = "http://k9-sak", endpointProperty = "k9sak.url")
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, scopesProperty = "k9sak.scopes", scopesDefault = "api://dev-fss.k9saksbehandling.k9-sak/.default", endpointDefault = "https://k9-sak.dev-fss-pub.nais.io/k9/sak/api", endpointProperty = "k9sak.url")
 public class K9SakKlient {
     private static final String K9SAK_FAKSAKINFO_PATH = "/fagsak/match";
     private static final Logger LOG = LoggerFactory.getLogger(K9SakKlient.class);
