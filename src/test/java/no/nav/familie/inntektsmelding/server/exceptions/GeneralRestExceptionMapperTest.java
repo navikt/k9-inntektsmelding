@@ -2,8 +2,6 @@ package no.nav.familie.inntektsmelding.server.exceptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import no.nav.vedtak.log.mdc.MDCOperations;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +12,7 @@ import ch.qos.logback.classic.Level;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.MemoryAppender;
 
 @Execution(ExecutionMode.SAME_THREAD)
@@ -61,6 +60,22 @@ class GeneralRestExceptionMapperTest {
             assertThat(feilDto.feilmelding()).isEqualTo("Serverfeil");
             assertThat(feilDto.callId()).isEqualTo(callId);
             assertThat(logSniffer.search("en funksjonell feilmelding", Level.WARN)).hasSize(1);
+        }
+    }
+
+    @Test
+    void skalMappeFunksjonellFeilSakIkkeFunnet() {
+        var callId = MDCOperations.generateCallId();
+        MDCOperations.putCallId(callId);
+        try (var response = exceptionMapper.toResponse(funksjonellFeilSakIkkeFunnet())) {
+            assertThat(response.getStatus()).isEqualTo(403);
+            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+            var feilDto = (FeilDto) response.getEntity();
+
+            assertThat(feilDto.type()).isEqualTo(FeilType.INGEN_SAK_FUNNET);
+            assertThat(feilDto.callId()).isEqualTo(callId);
+            assertThat(feilDto.feilmelding()).isEqualTo("Ingen sak funnet");
+            assertThat(logSniffer.search("Ingen sak funnet feil", Level.INFO)).hasSize(1);
         }
     }
 
@@ -142,4 +157,7 @@ class GeneralRestExceptionMapperTest {
         return new ManglerTilgangException("MANGLER_TILGANG_FEIL", "ManglerTilgangFeilmeldingKode");
     }
 
+    private static FunksjonellException funksjonellFeilSakIkkeFunnet() {
+        return new FunksjonellException("INGEN_SAK_FUNNET", "en egen funksjonell melding", null);
+    }
 }
