@@ -3,12 +3,12 @@ package no.nav.familie.inntektsmelding.integrasjoner.k9sak;
 import java.net.URI;
 import java.util.List;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.core.UriBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.UriBuilder;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.k9.kodeverk.behandling.FagsakYtelseType;
 import no.nav.k9.sak.kontrakt.fagsak.FagsakInfoDto;
@@ -27,14 +27,15 @@ public class K9SakKlient {
     private static final String K9SAK_FAKSAKINFO_PATH = "/fagsak/match";
     private static final Logger LOG = LoggerFactory.getLogger(K9SakKlient.class);
 
-    private RestClient restClient;
-    private RestConfig restConfig;
+    private final RestClient restClient;
+    private final RestConfig restConfig;
 
+    @Inject
     public K9SakKlient() {
-        // CDI
+        this(RestClient.client());
     }
 
-    public K9SakKlient(RestClient restClient, RestConfig restConfig) {
+    public K9SakKlient(RestClient restClient) {
         this.restClient = restClient;
         this.restConfig = RestConfig.forClient(this.getClass());
     }
