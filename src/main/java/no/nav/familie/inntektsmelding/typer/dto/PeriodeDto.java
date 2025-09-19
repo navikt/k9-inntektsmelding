@@ -12,4 +12,8 @@ public record PeriodeDto(@NotNull LocalDate fom,
     private boolean isValid() {
         return fom.isBefore(tom) || fom.isEqual(tom);
     }
+
+    public boolean inneholderDato(LocalDate dato) {
+        return (dato.isEqual(fom) || dato.isAfter(fom)) && (dato.isEqual(tom) || dato.isBefore(tom));
+    }
 }
