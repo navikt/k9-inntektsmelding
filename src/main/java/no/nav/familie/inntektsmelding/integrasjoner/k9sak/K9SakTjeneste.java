@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.integrasjoner.k9sak;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -19,6 +20,7 @@ public class K9SakTjeneste {
         // CDI
     }
 
+    @Inject
     public K9SakTjeneste(K9SakKlient klient) {
         this.klient = klient;
     }
