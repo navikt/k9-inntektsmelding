@@ -33,9 +33,17 @@ public class K9SakTjeneste {
                 new FagsakInfo(
                     new SaksnummerDto(k9Fagsak.getSaksnummer().getVerdi()),
                     mapYtelsetype(k9Fagsak.getYtelseType()),
-                    new PeriodeDto(k9Fagsak.getGyldigPeriode().getFom(), k9Fagsak.getGyldigPeriode().getTom())
+                    new PeriodeDto(k9Fagsak.getGyldigPeriode().getFom(), k9Fagsak.getGyldigPeriode().getTom()),
+                    mapSøknadsperiode(k9Fagsak)
                 )
             ).toList();
+    }
+
+    private static List<PeriodeDto> mapSøknadsperiode(FagsakInfoDto k9Fagsak) {
+        return k9Fagsak.getSøknadsperioder()
+            .stream()
+            .map(søknadsPeriode -> new PeriodeDto(søknadsPeriode.getFom(), søknadsPeriode.getTom()))
+            .toList();
     }
 
     private Ytelsetype mapYtelsetype(FagsakYtelseType fagsagYtelseType) {
