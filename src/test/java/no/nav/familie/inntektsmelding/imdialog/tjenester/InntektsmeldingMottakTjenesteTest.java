@@ -27,6 +27,7 @@ import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.KontaktpersonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -84,7 +85,7 @@ class InntektsmeldingMottakTjenesteTest {
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Navn", "123"),
+            new KontaktpersonDto("Navn", "123"),
             LocalDate.now(),
             BigDecimal.valueOf(10000),
             List.of(),

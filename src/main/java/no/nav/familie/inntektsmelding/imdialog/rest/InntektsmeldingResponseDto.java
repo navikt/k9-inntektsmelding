@@ -18,6 +18,7 @@ import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakerDto;
+import no.nav.familie.inntektsmelding.typer.dto.KontaktpersonDto;
 import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
@@ -28,7 +29,7 @@ public record InntektsmeldingResponseDto(
     @NotNull @Valid AktørIdDto aktorId,
     @NotNull @Valid YtelseTypeDto ytelse,
     @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
-    @NotNull @Valid SendInntektsmeldingRequestDto.KontaktpersonRequestDto kontaktperson,
+    @NotNull @Valid KontaktpersonDto kontaktperson,
     @NotNull LocalDate startdato,
     @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
     @NotNull LocalDateTime opprettetTidspunkt,

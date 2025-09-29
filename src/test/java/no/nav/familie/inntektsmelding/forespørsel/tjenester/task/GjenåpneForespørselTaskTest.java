@@ -21,7 +21,6 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
-import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -29,6 +28,7 @@ import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakerDto;
+import no.nav.familie.inntektsmelding.typer.dto.KontaktpersonDto;
 import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -43,7 +43,7 @@ class GjenåpneForespørselTaskTest {
         mock(AktørIdDto.class),
         mock(YtelseTypeDto.class),
         mock(ArbeidsgiverDto.class),
-        mock(SendInntektsmeldingRequestDto.KontaktpersonRequestDto.class),
+        mock(KontaktpersonDto.class),
         LocalDate.now(),
         new BigDecimal("50000.00"),
         LocalDateTime.now(),

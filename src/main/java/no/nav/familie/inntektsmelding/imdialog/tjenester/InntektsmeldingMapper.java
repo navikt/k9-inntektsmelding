@@ -28,6 +28,7 @@ import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakerDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
+import no.nav.familie.inntektsmelding.typer.dto.KontaktpersonDto;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
@@ -117,7 +118,7 @@ public class InntektsmeldingMapper {
             new AktørIdDto(imEntitet.getAktørId().getAktørId()),
             KodeverkMapper.mapYtelsetype(imEntitet.getYtelsetype()),
             new ArbeidsgiverDto(imEntitet.getArbeidsgiverIdent()),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto(imEntitet.getKontaktperson().getNavn(), imEntitet.getKontaktperson().getTelefonnummer()),
+            new KontaktpersonDto(imEntitet.getKontaktperson().getNavn(), imEntitet.getKontaktperson().getTelefonnummer()),
             imEntitet.getStartDato(),
             imEntitet.getMånedInntekt(),
             imEntitet.getOpprettetTidspunkt(),

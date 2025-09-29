@@ -33,6 +33,7 @@ import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakerDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
+import no.nav.familie.inntektsmelding.typer.dto.KontaktpersonDto;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
 import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
@@ -57,7 +58,7 @@ class InntektsmeldingMapperTest {
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
             Collections.emptyList(),
@@ -90,7 +91,7 @@ class InntektsmeldingMapperTest {
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
             Arrays.asList(new RefusjonDto(LocalDate.now(), BigDecimal.valueOf(5000)),
@@ -124,7 +125,7 @@ class InntektsmeldingMapperTest {
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
             Arrays.asList(new RefusjonDto(LocalDate.now(), BigDecimal.valueOf(5000)),
@@ -161,7 +162,7 @@ class InntektsmeldingMapperTest {
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
             Arrays.asList(new RefusjonDto(LocalDate.now(), BigDecimal.valueOf(5000)),
@@ -220,7 +221,7 @@ class InntektsmeldingMapperTest {
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.OMSORGSPENGER,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
             Collections.emptyList(),
@@ -262,7 +263,7 @@ class InntektsmeldingMapperTest {
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.OMSORGSPENGER,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
             Collections.emptyList(),
