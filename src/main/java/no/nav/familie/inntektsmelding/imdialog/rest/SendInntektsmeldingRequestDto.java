@@ -16,6 +16,7 @@ import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
+import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
 public record SendInntektsmeldingRequestDto(@Valid UUID foresporselUuid,
@@ -24,18 +25,13 @@ public record SendInntektsmeldingRequestDto(@Valid UUID foresporselUuid,
                                             @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
                                             @NotNull @Valid KontaktpersonRequestDto kontaktperson,
                                             @NotNull LocalDate startdato,
-                                            @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
-                                            @NotNull List<@Valid Refusjon> refusjon,
-                                            @NotNull List<@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder,
-                                            @NotNull List<@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker,
-                                            @Valid OmsorgspengerRequestDto omsorgspenger) {
+                                            @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,  // toss it
+                                            @NotNull List<@Valid RefusjonDto> refusjon,
+                                            @NotNull List<@Valid BortfaltNaturalytelseRequestDto> bortfaltNaturalytelsePerioder, // toss
+                                            @NotNull List<@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker, // toos it
+                                            @Valid OmsorgspengerRequestDto omsorgspenger) { // toss it
 
-    public record Refusjon(@NotNull LocalDate fom,
-                           @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
-    }
-
-
-    public record BortfaltNaturalytelseRequestDto(@NotNull LocalDate fom,
+ public record BortfaltNaturalytelseRequestDto(@NotNull LocalDate fom,
                                                   LocalDate tom,
                                                   @NotNull NaturalytelsetypeDto naturalytelsetype,
                                                   @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {

@@ -18,8 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
@@ -27,6 +27,7 @@ import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -44,7 +45,7 @@ class GjenåpneForespørselTaskTest {
         LocalDate.now(),
         new BigDecimal("50000.00"),
         LocalDateTime.now(),
-        List.of(mock(SendInntektsmeldingRequestDto.Refusjon.class)),
+        List.of(mock(RefusjonDto.class)),
         List.of(mock(SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto.class)),
         List.of(mock(SendInntektsmeldingRequestDto.EndringsårsakerRequestDto.class)),
         null

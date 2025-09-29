@@ -28,6 +28,7 @@ import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
+import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
@@ -74,7 +75,7 @@ public class InntektsmeldingMapper {
             && !forespørsel.getEtterspurtePerioder().isEmpty();
     }
 
-    private static Optional<BigDecimal> finnFørsteRefusjon(List<SendInntektsmeldingRequestDto.Refusjon> refusjon, LocalDate startdato) {
+    private static Optional<BigDecimal> finnFørsteRefusjon(List<RefusjonDto> refusjon, LocalDate startdato) {
         if (refusjon.isEmpty()) {
             return Optional.empty();
         }
@@ -172,23 +173,23 @@ public class InntektsmeldingMapper {
         return omsorgspenger;
     }
 
-    private static List<SendInntektsmeldingRequestDto.Refusjon> mapRefusjonerTilDto(InntektsmeldingEntitet entitet) {
-        List<SendInntektsmeldingRequestDto.Refusjon> refusjoner = new ArrayList<>();
+    private static List<RefusjonDto> mapRefusjonerTilDto(InntektsmeldingEntitet entitet) {
+        List<RefusjonDto> refusjoner = new ArrayList<>();
         if (entitet.getMånedRefusjon() != null) {
-            refusjoner.add(new SendInntektsmeldingRequestDto.Refusjon(entitet.getStartDato(), entitet.getMånedRefusjon()));
+            refusjoner.add(new RefusjonDto(entitet.getStartDato(), entitet.getMånedRefusjon()));
         }
         // Frontend forventer at opphørsdato mappes til en liste der fom = første dag uten refusjon, må derfor legge på en dag.
         if (entitet.getOpphørsdatoRefusjon() != null && !entitet.getOpphørsdatoRefusjon().equals(Tid.TIDENES_ENDE)) {
-            refusjoner.add(new SendInntektsmeldingRequestDto.Refusjon(entitet.getOpphørsdatoRefusjon().plusDays(1), BigDecimal.ZERO));
+            refusjoner.add(new RefusjonDto(entitet.getOpphørsdatoRefusjon().plusDays(1), BigDecimal.ZERO));
         }
         entitet.getRefusjonsendringer()
             .stream()
-            .map(i -> new SendInntektsmeldingRequestDto.Refusjon(i.getFom(), i.getRefusjonPrMnd()))
+            .map(i -> new RefusjonDto(i.getFom(), i.getRefusjonPrMnd()))
             .forEach(refusjoner::add);
-        return refusjoner.stream().sorted(Comparator.comparing(SendInntektsmeldingRequestDto.Refusjon::fom)).toList();
+        return refusjoner.stream().sorted(Comparator.comparing(RefusjonDto::fom)).toList();
     }
 
-    private static Optional<LocalDate> finnOpphørsdato(List<SendInntektsmeldingRequestDto.Refusjon> refusjonsendringRequestDtos,
+    private static Optional<LocalDate> finnOpphørsdato(List<RefusjonDto> refusjonsendringRequestDtos,
                                                        LocalDate startdato) {
         var sisteEndring = finnSisteEndring(refusjonsendringRequestDtos, startdato);
         // Hvis siste endring setter refusjon til 0 er det å regne som opphør av refusjon,
@@ -196,16 +197,16 @@ public class InntektsmeldingMapper {
         return sisteEndring.filter(en -> en.beløp().compareTo(BigDecimal.ZERO) == 0).map(sr -> sr.fom().minusDays(1));
     }
 
-    private static Optional<SendInntektsmeldingRequestDto.Refusjon> finnSisteEndring(List<SendInntektsmeldingRequestDto.Refusjon> refusjonsendringRequestDtos,
+    private static Optional<RefusjonDto> finnSisteEndring(List<RefusjonDto> refusjonsendringRequestDtos,
                                                                                      LocalDate startdato) {
         return refusjonsendringRequestDtos.stream()
             .filter(r -> !r.fom().equals(startdato))
-            .max(Comparator.comparing(SendInntektsmeldingRequestDto.Refusjon::fom));
+            .max(Comparator.comparing(RefusjonDto::fom));
     }
 
     private static List<RefusjonsendringEntitet> mapRefusjonsendringer(LocalDate startdato,
                                                                        LocalDate opphørsdato,
-                                                                       List<SendInntektsmeldingRequestDto.Refusjon> refusjonsendringRequestDto) {
+                                                                       List<RefusjonDto> refusjonsendringRequestDto) {
         // Opphør og start ligger på egne felter, så disse skal ikke mappes som endringer.
         // Merk at opphørsdato er dagen før endring som opphører refusjon, derfor må vi legge til en dag.
         return refusjonsendringRequestDto.stream()

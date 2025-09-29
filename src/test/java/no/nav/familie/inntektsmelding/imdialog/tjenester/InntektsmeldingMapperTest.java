@@ -32,6 +32,7 @@ import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
+import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
@@ -90,8 +91,8 @@ class InntektsmeldingMapperTest {
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
-            Arrays.asList(new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now(), BigDecimal.valueOf(5000)),
-                new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
+            Arrays.asList(new RefusjonDto(LocalDate.now(), BigDecimal.valueOf(5000)),
+                new RefusjonDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.emptyList(),
             Collections.emptyList(),
             null);
@@ -124,9 +125,9 @@ class InntektsmeldingMapperTest {
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
-            Arrays.asList(new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now(), BigDecimal.valueOf(5000)),
-                new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now().plusDays(5), BigDecimal.valueOf(4000)),
-                new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
+            Arrays.asList(new RefusjonDto(LocalDate.now(), BigDecimal.valueOf(5000)),
+                new RefusjonDto(LocalDate.now().plusDays(5), BigDecimal.valueOf(4000)),
+                new RefusjonDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.emptyList(),
             Collections.emptyList(),
             null);
@@ -161,8 +162,8 @@ class InntektsmeldingMapperTest {
             new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
-            Arrays.asList(new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now(), BigDecimal.valueOf(5000)),
-                new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
+            Arrays.asList(new RefusjonDto(LocalDate.now(), BigDecimal.valueOf(5000)),
+                new RefusjonDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.singletonList(
                 new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(LocalDate.now(),
                     Tid.TIDENES_ENDE,
