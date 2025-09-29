@@ -21,7 +21,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
-import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
@@ -42,30 +42,30 @@ public class InntektsmeldingMapper {
         // Skjuler default konstruktør
     }
 
-    public static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingRequestDto dto, ForespørselEntitet forespørsel) {
+    public static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingRequest request, ForespørselEntitet forespørsel) {
         // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne lista.
-        var refusjonPrMnd = finnFørsteRefusjon(dto.refusjon(), dto.startdato()).orElse(null);
-        var opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(dto.refusjon(), dto.startdato()).orElse(Tid.TIDENES_ENDE);
+        var refusjonPrMnd = finnFørsteRefusjon(request.refusjon(), request.startdato()).orElse(null);
+        var opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(request.refusjon(), request.startdato()).orElse(Tid.TIDENES_ENDE);
         var inntektsmeldingBuilder = InntektsmeldingEntitet.builder()
-            .medAktørId(new AktørIdEntitet(dto.aktorId().id()))
-            .medArbeidsgiverIdent(dto.arbeidsgiverIdent().ident())
-            .medMånedInntekt(dto.inntekt())
+            .medAktørId(new AktørIdEntitet(request.aktorId().id()))
+            .medArbeidsgiverIdent(request.arbeidsgiverIdent().ident())
+            .medMånedInntekt(request.inntekt())
             .medKildesystem(Kildesystem.ARBEIDSGIVERPORTAL)
             .medMånedRefusjon(refusjonPrMnd)
             .medRefusjonOpphørsdato(opphørsdato)
-            .medStartDato(dto.startdato())
-            .medYtelsetype(KodeverkMapper.mapYtelsetype(dto.ytelse()))
-            .medKontaktperson(mapKontaktPerson(dto))
-            .medEndringsårsaker(mapEndringsårsaker(dto.endringAvInntektÅrsaker()))
-            .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(dto.bortfaltNaturalytelsePerioder()))
-            .medRefusjonsendringer(mapRefusjonsendringer(dto.startdato(), opphørsdato, dto.refusjon()))
+            .medStartDato(request.startdato())
+            .medYtelsetype(KodeverkMapper.mapYtelsetype(request.ytelse()))
+            .medKontaktperson(mapKontaktPerson(request))
+            .medEndringsårsaker(mapEndringsårsaker(request.endringAvInntektÅrsaker()))
+            .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(request.bortfaltNaturalytelsePerioder()))
+            .medRefusjonsendringer(mapRefusjonsendringer(request.startdato(), opphørsdato, request.refusjon()))
             .medForespørsel(forespørsel);
 
-        if (dto.omsorgspenger() != null) { // omsorgspenger refusjon
-            inntektsmeldingBuilder.medOmsorgspenger(mapOmsorgspenger(dto.omsorgspenger()));
+        if (request.omsorgspenger() != null) { // omsorgspenger refusjon
+            inntektsmeldingBuilder.medOmsorgspenger(mapOmsorgspenger(request.omsorgspenger()));
         }
 
-        if (erDetOmsorgspengerDirekteUtbetaling(dto.ytelse(), forespørsel)) { // omsorgepenger direkte utbetaling
+        if (erDetOmsorgspengerDirekteUtbetaling(request.ytelse(), forespørsel)) { // omsorgepenger direkte utbetaling
             inntektsmeldingBuilder.medOmsorgspenger(mapOmsorgspengerFraForespørsel(forespørsel.getEtterspurtePerioder()));
         }
 
@@ -228,8 +228,8 @@ public class InntektsmeldingMapper {
             .toList();
     }
 
-    private static KontaktpersonEntitet mapKontaktPerson(SendInntektsmeldingRequestDto dto) {
-        return new KontaktpersonEntitet(dto.kontaktperson().navn(), dto.kontaktperson().telefonnummer());
+    private static KontaktpersonEntitet mapKontaktPerson(SendInntektsmeldingRequest request) {
+        return new KontaktpersonEntitet(request.kontaktperson().navn(), request.kontaktperson().telefonnummer());
     }
 
     private static OmsorgspengerEntitet mapOmsorgspengerFraForespørsel(List<PeriodeDto> etterspurtePerioder) {

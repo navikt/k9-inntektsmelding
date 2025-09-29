@@ -16,7 +16,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
-import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -48,18 +48,18 @@ public class InntektsmeldingMottakTjeneste {
         this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
-    public InntektsmeldingResponseDto mottaInntektsmelding(SendInntektsmeldingRequestDto mottattInntektsmeldingDto) {
-        var forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(mottattInntektsmeldingDto.foresporselUuid())
+    public InntektsmeldingResponseDto mottaInntektsmelding(SendInntektsmeldingRequest sendInntektsmeldingRequest) {
+        var forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(sendInntektsmeldingRequest.foresporselUuid())
             .orElseThrow(this::manglerForespørselFeil);
 
         if (ForespørselStatus.UTGÅTT.equals(forespørselEntitet.getStatus())) {
-            LOG.error("Mottok inntektsmelding på utgått forespørsel, uuid: {}", mottattInntektsmeldingDto.foresporselUuid());
+            LOG.error("Mottok inntektsmelding på utgått forespørsel, uuid: {}", sendInntektsmeldingRequest.foresporselUuid());
             throw new IllegalStateException("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
         }
 
-        var aktorId = new AktørIdEntitet(mottattInntektsmeldingDto.aktorId().id());
-        var orgnummer = new OrganisasjonsnummerDto(mottattInntektsmeldingDto.arbeidsgiverIdent().ident());
-        var entitet = InntektsmeldingMapper.mapTilEntitet(mottattInntektsmeldingDto, forespørselEntitet);
+        var aktorId = new AktørIdEntitet(sendInntektsmeldingRequest.aktorId().id());
+        var orgnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequest.arbeidsgiverIdent().ident());
+        var entitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEntitet);
         var imId = lagreOgLagJournalførTask(entitet, forespørselEntitet);
 
         List<FraværsPeriodeEntitet> omsorgspengerFraværsPerioder = entitet.getOmsorgspenger() != null
@@ -70,7 +70,7 @@ public class InntektsmeldingMottakTjeneste {
             ? entitet.getOmsorgspenger().getDelvisFraværsPerioder()
             : List.of();
 
-        var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(mottattInntektsmeldingDto.foresporselUuid(), aktorId, orgnummer,
+        var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(sendInntektsmeldingRequest.foresporselUuid(), aktorId, orgnummer,
             LukkeÅrsak.ORDINÆR_INNSENDING, omsorgspengerFraværsPerioder, omsorgspengerDelvisFraværsPerioder);
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
@@ -79,23 +79,23 @@ public class InntektsmeldingMottakTjeneste {
         MetrikkerTjeneste.loggForespørselLukkIntern(lukketForespørsel);
         MetrikkerTjeneste.loggInnsendtInntektsmelding(imEntitet);
 
-        return InntektsmeldingMapper.mapFraEntitet(imEntitet, mottattInntektsmeldingDto.foresporselUuid());
+        return InntektsmeldingMapper.mapFraEntitet(imEntitet, sendInntektsmeldingRequest.foresporselUuid());
     }
 
-    public InntektsmeldingResponseDto mottaInntektsmeldingForOmsorgspengerRefusjon(SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
-        var ytelseType = KodeverkMapper.mapYtelsetype(sendInntektsmeldingRequestDto.ytelse());
+    public InntektsmeldingResponseDto mottaInntektsmeldingForOmsorgspengerRefusjon(SendInntektsmeldingRequest sendInntektsmeldingRequest) {
+        var ytelseType = KodeverkMapper.mapYtelsetype(sendInntektsmeldingRequest.ytelse());
         if (ytelseType != Ytelsetype.OMSORGSPENGER) {
             throw new IllegalArgumentException("Feil ytelseType for inntektsmelding for omsorgspenger refusjon, ytelsetype var " + ytelseType);
         }
 
-        var aktørId = new AktørIdEntitet(sendInntektsmeldingRequestDto.aktorId().id());
-        var organisasjonsnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident());
+        var aktørId = new AktørIdEntitet(sendInntektsmeldingRequest.aktorId().id());
+        var organisasjonsnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequest.arbeidsgiverIdent().ident());
 
-        var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(aktørId, organisasjonsnummer, sendInntektsmeldingRequestDto.startdato());
+        var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(aktørId, organisasjonsnummer, sendInntektsmeldingRequest.startdato());
         var forespørselEnitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(this::manglerForespørselFeil);
 
-        var imEnitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequestDto, forespørselEnitet);
+        var imEnitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEnitet);
         var imId = lagreOgLagJournalførTask(imEnitet, forespørselEnitet);
 
         var fraværsPerioder = imEnitet.getOmsorgspenger().getFraværsPerioder();
@@ -111,24 +111,24 @@ public class InntektsmeldingMottakTjeneste {
         return InntektsmeldingMapper.mapFraEntitet(imEntitet, forespørselUuid);
     }
 
-    public InntektsmeldingResponseDto mottaArbeidsgiverInitiertNyansattInntektsmelding(SendInntektsmeldingRequestDto sendInntektsmeldingRequestDto) {
-        var finnesForespørselFraFør = sendInntektsmeldingRequestDto.foresporselUuid() != null;
+    public InntektsmeldingResponseDto mottaArbeidsgiverInitiertNyansattInntektsmelding(SendInntektsmeldingRequest sendInntektsmeldingRequest) {
+        var finnesForespørselFraFør = sendInntektsmeldingRequest.foresporselUuid() != null;
         if (finnesForespørselFraFør) {
             // Endring av allerede innsendt inntektsmelding skal følge vanlig flyt
             // TODO: må vi sette riktig fagsagsnummer her?
-            return mottaInntektsmelding(sendInntektsmeldingRequestDto);
+            return mottaInntektsmelding(sendInntektsmeldingRequest);
         }
 
         // Ny inntekstmelding for nyansatt uten forespørsel. Må opprette forespørsel og ferdigstille den slik at det blir riktig i oversikten på Min side - Arbeidsgiver
-        var aktørId = new AktørIdEntitet(sendInntektsmeldingRequestDto.aktorId().id());
-        var organisasjonsnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequestDto.arbeidsgiverIdent().ident());
-        var ytelseType = KodeverkMapper.mapYtelsetype(sendInntektsmeldingRequestDto.ytelse());
+        var aktørId = new AktørIdEntitet(sendInntektsmeldingRequest.aktorId().id());
+        var organisasjonsnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequest.arbeidsgiverIdent().ident());
+        var ytelseType = KodeverkMapper.mapYtelsetype(sendInntektsmeldingRequest.ytelse());
 
-        var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForArbeidsgiverInitiertInntektsmelding(aktørId, organisasjonsnummer, sendInntektsmeldingRequestDto.startdato(), ytelseType);
+        var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForArbeidsgiverInitiertInntektsmelding(aktørId, organisasjonsnummer, sendInntektsmeldingRequest.startdato(), ytelseType);
         var forespørselEnitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(this::manglerForespørselFeil);
 
-        var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequestDto, forespørselEnitet);
+        var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEnitet);
         var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEnitet);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, LukkeÅrsak.ORDINÆR_INNSENDING);

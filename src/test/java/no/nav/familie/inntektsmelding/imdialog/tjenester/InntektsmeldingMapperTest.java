@@ -23,7 +23,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
-import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -54,7 +54,7 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_teste_mapping_uten_ref_og_naturalytelse() {
         // Arrange
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
@@ -87,7 +87,7 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_teste_mapping_med_ref_opphør() {
         // Arrange
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
@@ -121,7 +121,7 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_teste_mapping_med_ref_opphør_endring() {
         // Arrange
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
@@ -158,7 +158,7 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_teste_mapping_med_ref_og_naturalytelse_og_endringsårsak() {
         // Arrange
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
@@ -217,7 +217,7 @@ class InntektsmeldingMapperTest {
             List.of(new OmsorgspengerRequestDto.FraværHeleDagerRequestDto(forventetFraværsFom, forventetFraværsTom)),
             null);
 
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.OMSORGSPENGER,
             new ArbeidsgiverDto("999999999"),
@@ -259,7 +259,7 @@ class InntektsmeldingMapperTest {
             null,
             List.of(new OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(forventetDelvisFraværsDato, forventetAntallFraværsTimer)));
 
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.OMSORGSPENGER,
             new ArbeidsgiverDto("999999999"),
