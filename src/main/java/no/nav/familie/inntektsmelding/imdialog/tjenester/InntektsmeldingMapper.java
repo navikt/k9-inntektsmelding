@@ -21,6 +21,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingForArbeidsgiverinitiertNyansattRequest;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
@@ -55,7 +56,7 @@ public class InntektsmeldingMapper {
             .medRefusjonOpphørsdato(opphørsdato)
             .medStartDato(request.startdato())
             .medYtelsetype(KodeverkMapper.mapYtelsetype(request.ytelse()))
-            .medKontaktperson(mapKontaktPerson(request))
+            .medKontaktperson(mapKontaktPerson(request.kontaktperson()))
             .medEndringsårsaker(mapEndringsårsaker(request.endringAvInntektÅrsaker()))
             .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(request.bortfaltNaturalytelsePerioder()))
             .medRefusjonsendringer(mapRefusjonsendringer(request.startdato(), opphørsdato, request.refusjon()))
@@ -70,6 +71,30 @@ public class InntektsmeldingMapper {
         }
 
         return inntektsmeldingBuilder.build();
+    }
+
+    public static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingForArbeidsgiverinitiertNyansattRequest request, ForespørselEntitet forespørsel) {
+        // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne lista.
+        var refusjonPrMnd = finnFørsteRefusjon(request.refusjon(), request.startdato()).orElse(null);
+        var opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(request.refusjon(), request.startdato()).orElse(Tid.TIDENES_ENDE);
+        var inntektsmeldingBuilder = InntektsmeldingEntitet.builder()
+            .medAktørId(new AktørIdEntitet(request.aktorId().id()))
+            .medArbeidsgiverIdent(request.arbeidsgiverIdent().ident())
+            .medMånedInntekt(utledInntektFraRefusjon(request.refusjon()))
+            .medKildesystem(Kildesystem.ARBEIDSGIVERPORTAL)
+            .medMånedRefusjon(refusjonPrMnd)
+            .medRefusjonOpphørsdato(opphørsdato)
+            .medStartDato(request.startdato())
+            .medYtelsetype(KodeverkMapper.mapYtelsetype(request.ytelse()))
+            .medKontaktperson(mapKontaktPerson(request.kontaktperson()))
+            .medRefusjonsendringer(mapRefusjonsendringer(request.startdato(), opphørsdato, request.refusjon()))
+            .medForespørsel(forespørsel);
+
+        return inntektsmeldingBuilder.build();
+    }
+
+    private static BigDecimal utledInntektFraRefusjon(List<RefusjonDto> refusjonDto) {
+        return refusjonDto.getFirst().beløp();
     }
 
     private static boolean erDetOmsorgspengerDirekteUtbetaling(YtelseTypeDto ytelse, ForespørselEntitet forespørsel) {
@@ -228,8 +253,8 @@ public class InntektsmeldingMapper {
             .toList();
     }
 
-    private static KontaktpersonEntitet mapKontaktPerson(SendInntektsmeldingRequest request) {
-        return new KontaktpersonEntitet(request.kontaktperson().navn(), request.kontaktperson().telefonnummer());
+    private static KontaktpersonEntitet mapKontaktPerson(KontaktpersonDto kontaktpersonDto) {
+        return new KontaktpersonEntitet(kontaktpersonDto.navn(), kontaktpersonDto.telefonnummer());
     }
 
     private static OmsorgspengerEntitet mapOmsorgspengerFraForespørsel(List<PeriodeDto> etterspurtePerioder) {

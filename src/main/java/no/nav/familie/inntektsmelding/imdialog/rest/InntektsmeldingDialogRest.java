@@ -136,7 +136,7 @@ public class InntektsmeldingDialogRest {
     @Path(SEND_INNTEKTSMELDING_ARBEIDSGIVERINITIERT_NYANSATT)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
-    public Response sendInntektsmeldingForArbeidsgiverinitiertNyansatt(@NotNull @Valid SendInntektsmeldingRequest sendInntektsmeldingRequest) {
+    public Response sendInntektsmeldingForArbeidsgiverinitiertNyansatt(@NotNull @Valid SendInntektsmeldingForArbeidsgiverinitiertNyansattRequest sendInntektsmeldingRequest) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(sendInntektsmeldingRequest.arbeidsgiverIdent().ident()));
         LOG.info("Mottok arbeidsgiverinitiert nyansatt inntektsmelding for aktørId {}", sendInntektsmeldingRequest.aktorId());
         return Response.ok(inntektsmeldingMottakTjeneste.mottaArbeidsgiverInitiertNyansattInntektsmelding(sendInntektsmeldingRequest)).build();
