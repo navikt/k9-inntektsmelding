@@ -25,6 +25,7 @@ import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDt
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
@@ -126,11 +127,11 @@ public class InntektsmeldingMapper {
         );
     }
 
-    private static List<SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto> mapTilBortfaltNaturalytelseRequestDto(InntektsmeldingEntitet imEntitet) {
+    private static List<BortfaltNaturalytelseDto> mapTilBortfaltNaturalytelseRequestDto(InntektsmeldingEntitet imEntitet) {
         var bortfalteNaturalytelser = imEntitet.getBorfalteNaturalYtelser()
             .stream()
             .map(bortfaltNaturalytelse ->
-                new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(
+                new BortfaltNaturalytelseDto(
                     bortfaltNaturalytelse.getPeriode().getFom(),
                     Objects.equals(bortfaltNaturalytelse.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : bortfaltNaturalytelse.getPeriode().getTom(),
                     NaturalytelsetypeDto.valueOf(bortfaltNaturalytelse.getType().toString()),
@@ -216,7 +217,7 @@ public class InntektsmeldingMapper {
             .toList();
     }
 
-    private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto> dto) {
+    private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<BortfaltNaturalytelseDto> dto) {
         return dto.stream()
             .map(d -> new BortaltNaturalytelseEntitet.Builder().medPeriode(d.fom(), d.tom() != null ? d.tom() : Tid.TIDENES_ENDE)
                 .medMånedBeløp(d.beløp())

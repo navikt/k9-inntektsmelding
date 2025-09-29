@@ -29,6 +29,7 @@ import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
@@ -165,7 +166,7 @@ class InntektsmeldingMapperTest {
             Arrays.asList(new RefusjonDto(LocalDate.now(), BigDecimal.valueOf(5000)),
                 new RefusjonDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.singletonList(
-                new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(LocalDate.now(),
+                new BortfaltNaturalytelseDto(LocalDate.now(),
                     Tid.TIDENES_ENDE,
                     NaturalytelsetypeDto.ANNET,
                     BigDecimal.valueOf(4000))),
