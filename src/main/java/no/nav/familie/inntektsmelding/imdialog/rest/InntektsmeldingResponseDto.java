@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
+import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakerDto;
 import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
@@ -33,7 +34,7 @@ public record InntektsmeldingResponseDto(
     @NotNull LocalDateTime opprettetTidspunkt,
     @NotNull List<@Valid RefusjonDto> refusjon,
     @NotNull List<@Valid BortfaltNaturalytelseDto> bortfaltNaturalytelsePerioder,
-    @NotNull List<SendInntektsmeldingRequestDto.@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker,
+    @NotNull List<@Valid EndringsårsakerDto> endringAvInntektÅrsaker,
     @Valid OmsorgspengerRequestDto omsorgspenger
 ) {
 }

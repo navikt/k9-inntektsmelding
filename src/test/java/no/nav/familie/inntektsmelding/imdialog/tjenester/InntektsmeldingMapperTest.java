@@ -31,6 +31,7 @@ import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
+import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakerDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
 import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
@@ -170,7 +171,7 @@ class InntektsmeldingMapperTest {
                     Tid.TIDENES_ENDE,
                     NaturalytelsetypeDto.ANNET,
                     BigDecimal.valueOf(4000))),
-            Collections.singletonList(new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(EndringsårsakDto.TARIFFENDRING, null, null, LocalDate.now())),
+            Collections.singletonList(new EndringsårsakerDto(EndringsårsakDto.TARIFFENDRING, null, null, LocalDate.now())),
             null);
 
         // Act

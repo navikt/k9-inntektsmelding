@@ -28,6 +28,7 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
+import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakerDto;
 import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -48,7 +49,7 @@ class GjenåpneForespørselTaskTest {
         LocalDateTime.now(),
         List.of(mock(RefusjonDto.class)),
         List.of(mock(BortfaltNaturalytelseDto.class)),
-        List.of(mock(SendInntektsmeldingRequestDto.EndringsårsakerRequestDto.class)),
+        List.of(mock(EndringsårsakerDto.class)),
         null
     );
 

@@ -26,6 +26,7 @@ import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
+import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakerDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
@@ -87,11 +88,11 @@ public class InntektsmeldingMapper {
         return Optional.of(refusjonPåStartdato.getFirst().beløp());
     }
 
-    private static List<EndringsårsakEntitet> mapEndringsårsaker(List<SendInntektsmeldingRequestDto.EndringsårsakerRequestDto> endringsårsaker) {
+    private static List<EndringsårsakEntitet> mapEndringsårsaker(List<EndringsårsakerDto> endringsårsaker) {
         return endringsårsaker.stream().map(InntektsmeldingMapper::mapEndringsårsak).toList();
     }
 
-    private static EndringsårsakEntitet mapEndringsårsak(SendInntektsmeldingRequestDto.EndringsårsakerRequestDto e) {
+    private static EndringsårsakEntitet mapEndringsårsak(EndringsårsakerDto e) {
         return EndringsårsakEntitet.builder()
             .medÅrsak(KodeverkMapper.mapEndringsårsak(e.årsak()))
             .medFom(e.fom())
@@ -141,11 +142,11 @@ public class InntektsmeldingMapper {
         return bortfalteNaturalytelser;
     }
 
-    private static List<SendInntektsmeldingRequestDto.EndringsårsakerRequestDto> mapTilEndringsårsakerRequestDto(InntektsmeldingEntitet imEntitet) {
+    private static List<EndringsårsakerDto> mapTilEndringsårsakerRequestDto(InntektsmeldingEntitet imEntitet) {
         var endringsårsaker = imEntitet.getEndringsårsaker()
             .stream()
             .map(endringsårsak ->
-                new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(KodeverkMapper.mapEndringsårsak(endringsårsak.getÅrsak()),
+                new EndringsårsakerDto(KodeverkMapper.mapEndringsårsak(endringsårsak.getÅrsak()),
                     endringsårsak.getFom().orElse(null),
                     endringsårsak.getTom().orElse(null),
                     endringsårsak.getBleKjentFom().orElse(null)))

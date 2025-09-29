@@ -15,7 +15,7 @@ import jakarta.validation.constraints.Size;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
-import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
+import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakerDto;
 import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
@@ -28,14 +28,8 @@ public record SendInntektsmeldingRequestDto(@Valid UUID foresporselUuid,
                                             @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,// toss it
                                             @NotNull List<@Valid RefusjonDto> refusjon,
                                             @NotNull List<@Valid BortfaltNaturalytelseDto> bortfaltNaturalytelsePerioder,// toss
-                                            @NotNull List<@Valid EndringsårsakerRequestDto> endringAvInntektÅrsaker,// toos it
+                                            @NotNull List<@Valid EndringsårsakerDto> endringAvInntektÅrsaker,// toos it
                                             @Valid OmsorgspengerRequestDto omsorgspenger) { // toss it
-
-    public record EndringsårsakerRequestDto(@NotNull @Valid EndringsårsakDto årsak,
-                                            LocalDate fom,
-                                            LocalDate tom,
-                                            LocalDate bleKjentFom) {
-    }
 
     public record KontaktpersonRequestDto(@NotNull @Size(max = 100) String navn,
                                           @NotNull @Size(max = 100) String telefonnummer) {
