@@ -77,10 +77,12 @@ public class InntektsmeldingMapper {
         // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne lista.
         var refusjonPrMnd = finnFørsteRefusjon(request.refusjon(), request.startdato()).orElse(null);
         var opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(request.refusjon(), request.startdato()).orElse(Tid.TIDENES_ENDE);
+        // Vi ønsker ikke be arbeidsgiver om inntekt i disse tilfellene da de sjelden har hatt utbetaling som nyansatt, og dette uansett ikke vil brukes i saksbehandlingen.
+        // Setter derfor samme beløp som refusjon
         var inntektsmeldingBuilder = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet(request.aktorId().id()))
             .medArbeidsgiverIdent(request.arbeidsgiverIdent().ident())
-            .medMånedInntekt(utledInntektFraRefusjon(request.refusjon()))
+            .medMånedInntekt(refusjonPrMnd)
             .medKildesystem(Kildesystem.ARBEIDSGIVERPORTAL)
             .medMånedRefusjon(refusjonPrMnd)
             .medRefusjonOpphørsdato(opphørsdato)
@@ -91,10 +93,6 @@ public class InntektsmeldingMapper {
             .medForespørsel(forespørsel);
 
         return inntektsmeldingBuilder.build();
-    }
-
-    private static BigDecimal utledInntektFraRefusjon(List<RefusjonDto> refusjonDto) {
-        return refusjonDto.getFirst().beløp();
     }
 
     private static boolean erDetOmsorgspengerDirekteUtbetaling(YtelseTypeDto ytelse, ForespørselEntitet forespørsel) {
