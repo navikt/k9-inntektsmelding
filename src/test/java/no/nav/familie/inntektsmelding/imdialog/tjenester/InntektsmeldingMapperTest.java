@@ -23,15 +23,19 @@ import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
-import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequestDto;
+import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
+import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
 import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakDto;
+import no.nav.familie.inntektsmelding.typer.dto.EndringsårsakerDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
+import no.nav.familie.inntektsmelding.typer.dto.KontaktpersonDto;
 import no.nav.familie.inntektsmelding.typer.dto.NaturalytelsetypeDto;
+import no.nav.familie.inntektsmelding.typer.dto.RefusjonDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
@@ -50,11 +54,11 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_teste_mapping_uten_ref_og_naturalytelse() {
         // Arrange
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
             Collections.emptyList(),
@@ -83,15 +87,15 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_teste_mapping_med_ref_opphør() {
         // Arrange
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
-            Arrays.asList(new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now(), BigDecimal.valueOf(5000)),
-                new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
+            Arrays.asList(new RefusjonDto(LocalDate.now(), BigDecimal.valueOf(5000)),
+                new RefusjonDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.emptyList(),
             Collections.emptyList(),
             null);
@@ -117,16 +121,16 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_teste_mapping_med_ref_opphør_endring() {
         // Arrange
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
-            Arrays.asList(new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now(), BigDecimal.valueOf(5000)),
-                new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now().plusDays(5), BigDecimal.valueOf(4000)),
-                new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
+            Arrays.asList(new RefusjonDto(LocalDate.now(), BigDecimal.valueOf(5000)),
+                new RefusjonDto(LocalDate.now().plusDays(5), BigDecimal.valueOf(4000)),
+                new RefusjonDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.emptyList(),
             Collections.emptyList(),
             null);
@@ -154,21 +158,21 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_teste_mapping_med_ref_og_naturalytelse_og_endringsårsak() {
         // Arrange
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
-            Arrays.asList(new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now(), BigDecimal.valueOf(5000)),
-                new SendInntektsmeldingRequestDto.Refusjon(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
+            Arrays.asList(new RefusjonDto(LocalDate.now(), BigDecimal.valueOf(5000)),
+                new RefusjonDto(LocalDate.now().plusDays(10), BigDecimal.ZERO)),
             Collections.singletonList(
-                new SendInntektsmeldingRequestDto.BortfaltNaturalytelseRequestDto(LocalDate.now(),
+                new BortfaltNaturalytelseDto(LocalDate.now(),
                     Tid.TIDENES_ENDE,
                     NaturalytelsetypeDto.ANNET,
                     BigDecimal.valueOf(4000))),
-            Collections.singletonList(new SendInntektsmeldingRequestDto.EndringsårsakerRequestDto(EndringsårsakDto.TARIFFENDRING, null, null, LocalDate.now())),
+            Collections.singletonList(new EndringsårsakerDto(EndringsårsakDto.TARIFFENDRING, null, null, LocalDate.now())),
             null);
 
         // Act
@@ -213,11 +217,11 @@ class InntektsmeldingMapperTest {
             List.of(new OmsorgspengerRequestDto.FraværHeleDagerRequestDto(forventetFraværsFom, forventetFraværsTom)),
             null);
 
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.OMSORGSPENGER,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
             Collections.emptyList(),
@@ -255,11 +259,11 @@ class InntektsmeldingMapperTest {
             null,
             List.of(new OmsorgspengerRequestDto.FraværDelerAvDagenRequestDto(forventetDelvisFraværsDato, forventetAntallFraværsTimer)));
 
-        var request = new SendInntektsmeldingRequestDto(UUID.randomUUID(),
+        var request = new SendInntektsmeldingRequest(UUID.randomUUID(),
             new AktørIdDto("9999999999999"),
             YtelseTypeDto.OMSORGSPENGER,
             new ArbeidsgiverDto("999999999"),
-            new SendInntektsmeldingRequestDto.KontaktpersonRequestDto("Testy test", "999999999"),
+            new KontaktpersonDto("Testy test", "999999999"),
             LocalDate.now(),
             BigDecimal.valueOf(5000),
             Collections.emptyList(),
