@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
@@ -52,6 +53,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medMånedInntekt(BigDecimal.valueOf(4000))
             .medStartDato(START_DATO)
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medForespørsel(forespørsel.get())
             .build();
 
@@ -89,6 +91,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(START_DATO)
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO.plusDays(3), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medForespørsel(forespørsel.get())
             .build();
 
@@ -139,6 +142,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(START_DATO)
             .medEndringsårsaker(Collections.singletonList(endring))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medForespørsel(forespørsel.get())
             .build();
 
@@ -193,6 +197,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medStartDato(START_DATO)
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medOmsorgspenger(omsorgspenger)
             .medForespørsel(forespørsel.get())
             .build();
@@ -251,6 +256,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medStartDato(START_DATO)
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medOmsorgspenger(omsorgspenger)
             .medForespørsel(forespørsel.get())
             .build();
@@ -305,6 +311,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(START_DATO)
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
             .medForespørsel(forespørselPsbPerson1.get())
             .build();
@@ -319,6 +326,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(START_DATO)
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(2))
             .medForespørsel(forespørselPsbPerson2.get())
             .build();
@@ -333,6 +341,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(START_DATO)
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(3))
             .medForespørsel(forespørselPsbPerson1.get())
             .build();
@@ -347,6 +356,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(START_DATO)
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(4))
             .medForespørsel(forespørselPpnPerson1.get())
             .build();
@@ -410,6 +420,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(START_DATO_2025)
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO_2025.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(1))
             .medForespørsel(forespørsel.get())
             .build();
@@ -424,6 +435,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(START_DATO_2025)
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO_2025.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(2))
             .medForespørsel(forespørsel.get())
             .build();
@@ -438,6 +450,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(START_DATO_2025)
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO_2025.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medOpprettetTidspunkt(LocalDateTime.now().plusDays(3))
             .medForespørsel(forespørsel2.get())
             .build();
@@ -452,6 +465,7 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
             .medStartDato(START_DATO_2024)
             .medRefusjonsendringer(Collections.singletonList(new RefusjonsendringEntitet(START_DATO_2024.plusDays(10), BigDecimal.valueOf(2000))))
             .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medOpprettetTidspunkt(LocalDateTime.now().minusYears(1).plusDays(4))
             .medForespørsel(forespørsel3.get())
             .build();
