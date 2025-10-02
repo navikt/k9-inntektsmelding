@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -22,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
@@ -40,15 +42,19 @@ public class OppgaverForvaltningRestTjeneste {
 
     private Tilgang tilgang;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
+    private InntektsmeldingRepository inntektsmeldingRepository;
 
     OppgaverForvaltningRestTjeneste() {
         // REST CDI
     }
 
     @Inject
-    public OppgaverForvaltningRestTjeneste(Tilgang tilgang, ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
+    public OppgaverForvaltningRestTjeneste(Tilgang tilgang,
+                                           ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
+                                           InntektsmeldingRepository inntektsmeldingRepository) {
         this.tilgang = tilgang;
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
+        this.inntektsmeldingRepository = inntektsmeldingRepository;
     }
 
     @POST
@@ -67,7 +73,23 @@ public class OppgaverForvaltningRestTjeneste {
         return Response.ok().build();
     }
 
+    @GET
+    @Path("/antallInntektsmeldinger")
+    @Operation(description = "Henter antall rader i InntektsmeldingEntitet tabellen", summary = "Henter antall inntektsmeldinger.", tags = "oppgaver", responses = {
+        @ApiResponse(responseCode = "200", description = "Antall inntektsmeldinger hentet", content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @Tilgangskontrollert
+    public Response hentAntallInntektsmeldinger() {
+        sjekkAtKallerHarRollenDrift();
+        long antall = inntektsmeldingRepository.tellAntallInntektsmeldinger();
+        return Response.ok(new AntallInntektsmeldingerResponse(antall)).build();
+    }
+
     protected record SlettOppgaveRequest(@Valid @NotNull SaksnummerDto saksnummer, @Valid @NotNull OrganisasjonsnummerDto orgnr) {
+    }
+
+    protected record AntallInntektsmeldingerResponse(long antall) {
     }
 
     private void sjekkAtKallerHarRollenDrift() {

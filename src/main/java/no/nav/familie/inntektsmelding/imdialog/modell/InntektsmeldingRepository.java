@@ -1,8 +1,6 @@
 package no.nav.familie.inntektsmelding.imdialog.modell;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -45,5 +43,10 @@ public class InntektsmeldingRepository {
             .setParameter("år", år);
 
         return query.getResultList();
+    }
+
+    public long tellAntallInntektsmeldinger() {
+        var query = entityManager.createQuery("SELECT COUNT(i) FROM InntektsmeldingEntitet i", Long.class);
+        return query.getSingleResult();
     }
 }
