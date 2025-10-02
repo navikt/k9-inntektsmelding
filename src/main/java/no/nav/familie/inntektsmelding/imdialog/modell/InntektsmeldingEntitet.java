@@ -25,6 +25,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -73,6 +74,10 @@ public class InntektsmeldingEntitet {
     @Enumerated(EnumType.STRING)
     @Column(name = "kildesystem", nullable = false, updatable = false)
     private Kildesystem kildesystem;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "inntektsmelding_type", nullable = false)
+    private InntektsmeldingType inntektsmeldingType;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private List<RefusjonsendringEntitet> refusjonsendringer = new ArrayList<>();
@@ -150,6 +155,10 @@ public class InntektsmeldingEntitet {
         return kildesystem;
     }
 
+    public InntektsmeldingType getInntektsmeldingType() {
+        return inntektsmeldingType;
+    }
+
     public List<EndringsårsakEntitet> getEndringsårsaker() {
         return List.copyOf(endringsårsaker);
     }
@@ -197,12 +206,13 @@ public class InntektsmeldingEntitet {
             && Objects.equals(arbeidsgiverIdent, entitet.arbeidsgiverIdent)
             && Objects.equals(startDato, entitet.startDato)
             && Objects.equals(opprettetTidspunkt, entitet.opprettetTidspunkt)
-            && Objects.equals(forespørsel, entitet.forespørsel);
+            && Objects.equals(forespørsel, entitet.forespørsel)
+            && Objects.equals(inntektsmeldingType, entitet.inntektsmeldingType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(aktørId, ytelsetype, arbeidsgiverIdent, startDato, opprettetTidspunkt, forespørsel);
+        return Objects.hash(aktørId, ytelsetype, arbeidsgiverIdent, startDato, opprettetTidspunkt, forespørsel, inntektsmeldingType);
     }
 
     @Override
@@ -219,7 +229,9 @@ public class InntektsmeldingEntitet {
             + ", endringAvInntektÅrsaker=" + endringsårsaker
             + ", bortfaltNaturalYtelser=" + borfalteNaturalYtelser
             + ", omorgspenger=" + omsorgspenger
-            + ", forespørselId=" + forespørsel + '}';
+            + ", forespørselId=" + forespørsel
+            + ", inntektsmeldingType=" + inntektsmeldingType
+            + '}';
     }
 
     private String maskerId(String id) {
@@ -309,6 +321,11 @@ public class InntektsmeldingEntitet {
 
         public Builder medKildesystem(Kildesystem kildesystem) {
             kladd.kildesystem = kildesystem;
+            return this;
+        }
+
+        public Builder medInntektsmeldingType(InntektsmeldingType inntektsmeldingType) {
+            kladd.inntektsmeldingType = inntektsmeldingType;
             return this;
         }
 
