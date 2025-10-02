@@ -21,6 +21,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -302,6 +303,7 @@ class InntektsmeldingPdfDataMapperTest {
             .medAktørId(AKTØRID_SØKER)
             .medKontaktperson(new KontaktpersonEntitet(NAVN, ORG_NUMMER))
             .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medMånedInntekt(INNTEKT)
             .medStartDato(START_DATO)
             .medMånedRefusjon(REFUSJON_BELØP)

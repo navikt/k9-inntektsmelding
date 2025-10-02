@@ -22,6 +22,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.familie.inntektsmelding.utils.FormatUtils;
@@ -173,6 +174,7 @@ class OmsorgspengerRefusjonPdfDataMapperTest {
             .medAktørId(AKTØRID_SØKER)
             .medKontaktperson(new KontaktpersonEntitet(NAVN, ORG_NUMMER))
             .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medInntektsmeldingType(InntektsmeldingType.OMSORGSPENGER_REFUSJON)
             .medMånedInntekt(INNTEKT)
             .medStartDato(START_DATO)
             .medMånedRefusjon(REFUSJON_BELØP)

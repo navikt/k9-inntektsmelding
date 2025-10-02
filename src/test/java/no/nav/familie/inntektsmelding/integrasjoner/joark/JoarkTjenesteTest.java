@@ -27,6 +27,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTje
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -71,6 +72,7 @@ class JoarkTjenesteTest {
             .medArbeidsgiverIdent(arbeidsgiverIdent)
             .medStartDato(LocalDate.of(2024, 6, 1))
             .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medMånedRefusjon(BigDecimal.valueOf(35000))
             .medMånedInntekt(BigDecimal.valueOf(35000))
@@ -119,6 +121,7 @@ class JoarkTjenesteTest {
             .medArbeidsgiverIdent(aktørIdArbeidsgiver)
             .medStartDato(LocalDate.of(2024, 6, 1))
             .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medMånedInntekt(BigDecimal.valueOf(35000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
             .medMånedRefusjon(BigDecimal.valueOf(35000))
