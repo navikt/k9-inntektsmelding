@@ -23,6 +23,7 @@ import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingForArbeidsgiverinitiertNyansattRequest;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
@@ -52,6 +53,7 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(request.arbeidsgiverIdent().ident())
             .medMånedInntekt(request.inntekt())
             .medKildesystem(Kildesystem.ARBEIDSGIVERPORTAL)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medMånedRefusjon(refusjonPrMnd)
             .medRefusjonOpphørsdato(opphørsdato)
             .medStartDato(request.startdato())
@@ -73,7 +75,7 @@ public class InntektsmeldingMapper {
         return inntektsmeldingBuilder.build();
     }
 
-    public static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingForArbeidsgiverinitiertNyansattRequest request, ForespørselEntitet forespørsel) {
+    public static InntektsmeldingEntitet mapTilEntitetForAGNyansatt(SendInntektsmeldingForArbeidsgiverinitiertNyansattRequest request, ForespørselEntitet forespørsel) {
         // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne lista.
         var refusjonPrMnd = finnFørsteRefusjon(request.refusjon(), request.startdato()).orElse(null);
         var opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(request.refusjon(), request.startdato()).orElse(Tid.TIDENES_ENDE);
@@ -84,6 +86,7 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(request.arbeidsgiverIdent().ident())
             .medMånedInntekt(refusjonPrMnd)
             .medKildesystem(Kildesystem.ARBEIDSGIVERPORTAL)
+            .medInntektsmeldingType(InntektsmeldingType.ARBEIDSGIVERINITIERT_NYANSATT)
             .medMånedRefusjon(refusjonPrMnd)
             .medRefusjonOpphørsdato(opphørsdato)
             .medStartDato(request.startdato())

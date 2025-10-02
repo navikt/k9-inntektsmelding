@@ -127,7 +127,7 @@ public class InntektsmeldingMottakTjeneste {
         var forespørselEnitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(this::manglerForespørselFeil);
 
-        var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingForArbeidsgiverinitiertNyansattRequest, forespørselEnitet);
+        var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitetForAGNyansatt(sendInntektsmeldingForArbeidsgiverinitiertNyansattRequest, forespørselEnitet);
         var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEnitet);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, LukkeÅrsak.ORDINÆR_INNSENDING);
