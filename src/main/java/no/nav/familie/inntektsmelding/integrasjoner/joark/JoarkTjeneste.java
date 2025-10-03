@@ -24,6 +24,7 @@ import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.DokumentInfoOpprett;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Dokumentvariant;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.OpprettJournalpostRequest;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
+import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Tilleggsopplysning;
 
 @ApplicationScoped
 public class JoarkTjeneste {
@@ -36,6 +37,7 @@ public class JoarkTjeneste {
     // TODO Dette er brevkode for altinn skjema. Trenger vi egen?
     private static final String BREVKODE_IM = "4936";
     private static final String TEMA_K9 = "OMS";
+    private static final String INNTEKTSMELDING_TYPE = "inntektsmeldingType";
 
     private DokArkiv joarkKlient;
     private OrganisasjonTjeneste organisasjonTjeneste;
@@ -84,6 +86,7 @@ public class JoarkTjeneste {
             .medEksternReferanseId(UUID.randomUUID().toString())
             .medJournalfoerendeEnhet(JOURNALFØRENDE_ENHET)
             .medKanal(KANAL)
+            .medTilleggsopplysninger(List.of(new Tilleggsopplysning(INNTEKTSMELDING_TYPE, inntektsmeldingEntitet.getInntektsmeldingType().name())))
             .medDokumenter(lagDokumenter(xmlAvInntektsmelding, pdf));
 
         if (saksnummer != null) {

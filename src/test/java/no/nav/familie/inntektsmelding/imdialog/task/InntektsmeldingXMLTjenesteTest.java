@@ -9,11 +9,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,10 +16,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -58,6 +58,7 @@ class InntektsmeldingXMLTjenesteTest {
             .medArbeidsgiverIdent("999999999")
             .medStartDato(LocalDate.of(2024, 6, 1))
             .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medMånedInntekt(BigDecimal.valueOf(35000))
             .medAktørId(aktørIdSøker)
             .medMånedRefusjon(BigDecimal.valueOf(35000))
@@ -92,6 +93,7 @@ class InntektsmeldingXMLTjenesteTest {
             .medArbeidsgiverIdent("999999999")
             .medStartDato(LocalDate.of(2024, 6, 1))
             .medYtelsetype(Ytelsetype.PLEIEPENGER_NÆRSTÅENDE)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medMånedInntekt(BigDecimal.valueOf(35000))
             .medAktørId(aktørIdSøker)
             .medMånedRefusjon(BigDecimal.valueOf(35000))
@@ -133,6 +135,7 @@ class InntektsmeldingXMLTjenesteTest {
             .medArbeidsgiverIdent("999999999")
             .medStartDato(LocalDate.of(2024, 6, 1))
             .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medInntektsmeldingType(InntektsmeldingType.OMSORGSPENGER_REFUSJON)
             .medMånedInntekt(BigDecimal.valueOf(35000))
             .medAktørId(aktørIdSøker)
             .medMånedRefusjon(BigDecimal.valueOf(35000))

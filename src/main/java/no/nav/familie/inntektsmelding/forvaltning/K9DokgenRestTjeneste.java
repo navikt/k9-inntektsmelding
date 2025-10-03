@@ -37,6 +37,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
@@ -96,6 +97,7 @@ public class K9DokgenRestTjeneste {
                 .medKontaktperson(new KontaktpersonEntitet(inntektsmeldingRequest.kontaktpersonNavn, inntektsmeldingRequest.kontaktpersonTlf))
                 .medMånedInntekt(inntektsmeldingRequest.maanedInntekt())
                 .medYtelsetype(mapYtelseType(inntektsmeldingRequest.ytelsetype()))
+                .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
                 .medOpprettetTidspunkt(LocalDateTime.now())
                 .medMånedRefusjon(inntektsmeldingRequest.maanedRefusjon())
                 .medStartDato(inntektsmeldingRequest.startdatoPermisjon())

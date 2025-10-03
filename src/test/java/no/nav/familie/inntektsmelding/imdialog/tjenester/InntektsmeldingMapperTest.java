@@ -25,6 +25,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
@@ -299,6 +300,7 @@ class InntektsmeldingMapperTest {
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
             .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medMånedInntekt(BigDecimal.valueOf(5000))
             .medMånedRefusjon(BigDecimal.valueOf(5000))
             .medRefusjonOpphørsdato(LocalDate.now().plusDays(5))
@@ -366,6 +368,7 @@ class InntektsmeldingMapperTest {
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
             .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medMånedInntekt(BigDecimal.valueOf(5000))
             .medMånedRefusjon(BigDecimal.valueOf(5000))
             .medRefusjonOpphørsdato(LocalDate.now().plusDays(10))
@@ -436,6 +439,7 @@ class InntektsmeldingMapperTest {
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
             .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .medMånedInntekt(BigDecimal.valueOf(5000))
             .medMånedRefusjon(BigDecimal.valueOf(5000))
             .medRefusjonOpphørsdato(Tid.TIDENES_ENDE)
@@ -501,6 +505,7 @@ class InntektsmeldingMapperTest {
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
             .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medInntektsmeldingType(InntektsmeldingType.OMSORGSPENGER_REFUSJON)
             .medMånedInntekt(BigDecimal.valueOf(5000))
             .medMånedRefusjon(BigDecimal.valueOf(5000))
             .medRefusjonOpphørsdato(LocalDate.now().plusDays(10))
