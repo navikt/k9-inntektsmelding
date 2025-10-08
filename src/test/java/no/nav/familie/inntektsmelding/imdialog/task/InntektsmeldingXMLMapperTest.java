@@ -9,17 +9,17 @@ import java.util.Map;
 
 import jakarta.xml.bind.JAXBElement;
 
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
-import no.nav.familie.inntektsmelding.koder.Kildesystem;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
+import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -150,6 +150,7 @@ class InntektsmeldingXMLMapperTest {
             .medAktørId(aktørId)
             .medKildesystem(kildesystem)
             .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .build();
     }
 
@@ -162,6 +163,7 @@ class InntektsmeldingXMLMapperTest {
             .medKildesystem(kildesystem)
             .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medOmsorgspenger(omsorgspenger)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
             .build();
     }
 

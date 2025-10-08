@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.joark.JoarkTjeneste;
@@ -42,17 +43,17 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var inntektsmeldingId = Integer.parseInt(prosessTaskData.getPropertyValue(KEY_INNTEKTSMELDING_ID));
-        var ytelseType = prosessTaskData.getPropertyValue(KEY_YTELSE_TYPE);
-        var fagsysteSaksnummer = prosessTaskData.getSaksnummer();
+        int inntektsmeldingId = Integer.parseInt(prosessTaskData.getPropertyValue(KEY_INNTEKTSMELDING_ID));
+        String ytelseType = prosessTaskData.getPropertyValue(KEY_YTELSE_TYPE);
+        String saksnummer = prosessTaskData.getSaksnummer();
 
-        LOG.info("Starter task for oversending til joark for ytelse {} saksnummer {}", ytelseType, fagsysteSaksnummer);
+        LOG.info("Starter task for oversending til joark for ytelse {} saksnummer {}", ytelseType, saksnummer);
 
-        var inntektsmelding = inntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingId);
-        var xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
-        var pdf = k9DokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);
+        InntektsmeldingEntitet inntektsmelding = inntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingId);
+        String xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
+        byte[] pdf = k9DokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);
 
-        joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf, fagsysteSaksnummer);
+        joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf, saksnummer);
         LOG.info("Sluttfører task oversendJoark");
     }
 }
