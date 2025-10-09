@@ -110,6 +110,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(lagret.getSkjæringstidspunkt()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(lagret.getOrganisasjonsnummer()).isEqualTo(BRREG_ORGNUMMER);
         assertThat(lagret.getFørsteUttaksdato().orElse(null)).isEqualTo(SKJÆRINGSTIDSPUNKT);
+        assertThat(lagret.getForespørselType()).isEqualTo(ForespørselType.OMSORGSPENGER_REFUSJON);
     }
 
     @Test
@@ -129,6 +130,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
+        assertThat(lagret.get().getForespørselType()).isEqualTo(ForespørselType.BESTILT_AV_FAGSYSTEM);
     }
 
     @Test
