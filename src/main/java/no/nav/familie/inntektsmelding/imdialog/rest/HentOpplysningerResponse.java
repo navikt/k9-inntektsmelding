@@ -7,6 +7,7 @@ import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselStatusDto;
 import no.nav.familie.inntektsmelding.typer.dto.InnsenderDto;
 import no.nav.familie.inntektsmelding.typer.dto.InntektsopplysningerDto;
@@ -23,6 +24,7 @@ public record HentOpplysningerResponse(@Valid @NotNull PersonInfoDto person,
                                        @Valid @NotNull YtelseTypeDto ytelse,
                                        @Valid UUID forespørselUuid,
                                        @Valid @NotNull ForespørselStatusDto forespørselStatus,
+                                       @Valid @NotNull ForespørselType forespørselType,
                                        @Valid @NotNull LocalDate førsteUttaksdato,
                                        @Valid List<PeriodeDto> etterspurtePerioder) {
 }

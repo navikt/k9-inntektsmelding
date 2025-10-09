@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerResponse;
@@ -20,6 +21,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.InnsenderDto;
@@ -61,7 +63,10 @@ public class GrunnlagTjeneste {
     public HentOpplysningerResponse hentOpplysninger(UUID forespørselUuid) {
         var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Prøver å hente data for en forespørsel som ikke finnes, forespørselUUID: " + forespørselUuid));
+        return hentOpplysningerFraForespørsel(forespørsel);
+    }
 
+    public HentOpplysningerResponse hentOpplysningerFraForespørsel(ForespørselEntitet forespørsel) {
         var personInfo = finnPerson(forespørsel.getAktørId());
         var organisasjonInfo = finnOrganisasjonInfo(forespørsel.getOrganisasjonsnummer());
         var innsender = finnInnsender();
@@ -75,8 +80,8 @@ public class GrunnlagTjeneste {
             KodeverkMapper.mapYtelsetype(forespørsel.getYtelseType()),
             forespørsel.getUuid(),
             KodeverkMapper.mapForespørselStatus(forespørsel.getStatus()),
-            forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt),
-            forespørsel.getEtterspurtePerioder());
+            forespørsel.getForespørselType(),
+            forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt), forespørsel.getEtterspurtePerioder());
     }
 
     // Hvis en bruker har byttet jobb mens de mottar en ytelse, kan det hende at k9-sak ikke har opprettet en forespørsel for den nye arbeidsgiveren.
@@ -92,10 +97,10 @@ public class GrunnlagTjeneste {
             .filter(f -> førsteFraværsdag.equals(f.getSkjæringstidspunkt())) // TODO: hva her burde vi kanskje legge inn et godkjent intervall?
             .toList();
 
-        // Hvis k9-sak har opprettet forespørsel så bruker vi vanlig flyt
+        // Hvis k9-sak har opprettet forespørsel så bruker vi vanlig flyt eller arbeidsgiver allerede har sendt inn inntektsmelding på denne datoen
         if (!forespørslerSomMatcherFraværsdag.isEmpty()) {
             var forespørsel = forespørslerSomMatcherFraværsdag.getFirst(); // TODO: blir det alltid riktig å velge den første?
-            return hentOpplysninger(forespørsel.getUuid());
+            return hentOpplysningerFraForespørsel(forespørsel);
         }
 
         var organisasjonInfo = finnOrganisasjonInfo(organisasjonsnummer.orgnr());
@@ -110,9 +115,9 @@ public class GrunnlagTjeneste {
             KodeverkMapper.mapYtelsetype(ytelsetype),
             null,
             KodeverkMapper.mapForespørselStatus(ForespørselStatus.UNDER_BEHANDLING),
+            ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT,
             førsteFraværsdag,
-            null
-        );
+            null);
     }
 
     private InnsenderDto finnInnsender() {
