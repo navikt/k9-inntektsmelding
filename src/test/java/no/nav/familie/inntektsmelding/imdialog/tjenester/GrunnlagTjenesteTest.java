@@ -281,7 +281,6 @@ class GrunnlagTjenesteTest {
         when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID))).thenReturn(
             new PersonInfo("Ine", null, "Sender", new PersonIdent(INNMELDER_UID), null, LocalDate.now(), "+4711111111", Kjønn.KVINNE));
         when(forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of(forespørsel));
-        when(forespørselBehandlingTjeneste.hentForespørsel(forespørsel.getUuid())).thenReturn(Optional.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften",
             organisasjonsnummer.orgnr()));
         when(inntektTjeneste.hentInntekt(aktørId,
