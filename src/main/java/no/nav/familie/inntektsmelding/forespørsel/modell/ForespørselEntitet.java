@@ -52,7 +52,7 @@ public class ForespørselEntitet {
     private ForespørselStatus status = ForespørselStatus.UNDER_BEHANDLING;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "forespørsel_type", nullable = false, updatable = false)
+    @Column(name = "forespoersel_type", nullable = false, updatable = false)
     private ForespørselType forespørselType;
 
     @Column(name = "oppgave_id")
