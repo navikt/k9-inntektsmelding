@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.familie.inntektsmelding.database.JpaExtension;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
@@ -31,8 +32,7 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
             "9999999999999",
             "999999999",
             "123",
-            null,
-            null);
+            ForespørselType.BESTILT_AV_FAGSYSTEM, null, null);
 
         var hentet = forespørselRepository.hentForespørsel(uuid).orElse(null);
 
@@ -53,8 +53,7 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
             "9999999999999",
             "999999999",
             "123",
-            LocalDate.now(),
-            null);
+            ForespørselType.BESTILT_AV_FAGSYSTEM, LocalDate.now(), null);
 
         var hentet = forespørselRepository.hentForespørsel(uuid).orElse(null);
 
@@ -77,8 +76,7 @@ class ForespørselRepositoryTest extends EntityManagerAwareTest {
             "9999999999999",
             "999999999",
             "123",
-            null,
-            List.of(etterspurtPeriode));
+            ForespørselType.BESTILT_AV_FAGSYSTEM, null, List.of(etterspurtPeriode));
 
         var hentet = forespørselRepository.hentForespørsel(uuid).orElse(null);
 

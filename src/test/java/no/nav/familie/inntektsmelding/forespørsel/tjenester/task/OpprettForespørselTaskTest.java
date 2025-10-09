@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
@@ -49,7 +50,7 @@ class OpprettForespørselTaskTest {
         var taskdata = OpprettForespørselTask.lagOpprettForespørselTaskData(ytelsetype, aktørId, saksnummer, oppdaterForespørselDto);
 
         when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(saksnummer, organisasjon, skjæringstidspunkt))
-            .thenReturn(List.of(ForespørselMapper.mapForespørsel(organisasjon.orgnr(), skjæringstidspunkt, aktørId.getAktørId(), ytelsetype, saksnummer.saksnr(), null, null
+            .thenReturn(List.of(ForespørselMapper.mapForespørsel(organisasjon.orgnr(), skjæringstidspunkt, aktørId.getAktørId(), ytelsetype, saksnummer.saksnr(), ForespørselType.BESTILT_AV_FAGSYSTEM, null, null
             )));
 
         task.doTask(taskdata);

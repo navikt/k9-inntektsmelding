@@ -14,15 +14,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 class SettForespørselTilUtgåttTaskTest {
 
-    private final ForespørselEntitet entitet = ForespørselMapper.mapForespørsel("arbeidsgiverOrgNr", LocalDate.now(), "1234567890134", Ytelsetype.PLEIEPENGER_SYKT_BARN, "saksnummer", LocalDate.now(), null);
+    private final ForespørselEntitet entitet = ForespørselMapper.mapForespørsel("arbeidsgiverOrgNr", LocalDate.now(), "1234567890134", Ytelsetype.PLEIEPENGER_SYKT_BARN, "saksnummer", ForespørselType.BESTILT_AV_FAGSYSTEM, LocalDate.now(), null);
     private final UUID forespørselUuid = entitet.getUuid();
 
     private final ForespørselBehandlingTjeneste forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
