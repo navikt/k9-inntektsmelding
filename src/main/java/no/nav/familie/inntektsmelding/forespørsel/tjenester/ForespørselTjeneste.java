@@ -44,9 +44,9 @@ public class ForespørselTjeneste {
     public UUID opprettForespørselUtenFagsaksnummer(LocalDate skjæringstidspunkt,
                                                     AktørIdEntitet brukerAktørId,
                                                     OrganisasjonsnummerDto orgnr,
-                                                    Ytelsetype ytelsetype) {
+                                                    Ytelsetype ytelsetype, ForespørselType forespørselType) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelsetype, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            null, skjæringstidspunkt, null);
+            null, forespørselType, skjæringstidspunkt, null);
     }
 
     public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {

@@ -29,6 +29,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Mer
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
@@ -367,7 +368,7 @@ public class ForespørselBehandlingTjeneste {
         LOG.info("Oppretter forespørsel for arbeidsgiverinitiert inntektsmelding, orgnr: {}, stp: {}, aktørId: {}, ytelse: {}", organisasjonsnummer.orgnr(), skjæringstidspunkt, aktørId.getAktørId(), ytelsetype);
 
         // opprettt forespørsel i databasen
-        var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, ytelsetype);
+        var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, ytelsetype, ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
 
         // opprett sak på min side arbeidsgiver
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
@@ -387,7 +388,7 @@ public class ForespørselBehandlingTjeneste {
                                                              LocalDate skjæringstidspunkt) {
         LOG.info("Oppretter forespørsel for omsorgspenger refusjon, orgnr: {}, stp: {}, ytelse: {}", organisasjonsnummer, skjæringstidspunkt, Ytelsetype.OMSORGSPENGER);
 
-        var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, Ytelsetype.OMSORGSPENGER);
+        var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, Ytelsetype.OMSORGSPENGER, ForespørselType.OMSORGSPENGER_REFUSJON);
 
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = Merkelapp.REFUSJONSKRAV_OMP;
