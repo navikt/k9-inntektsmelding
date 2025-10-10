@@ -127,10 +127,6 @@ public class ForespørselEntitet {
         return forespørselType;
     }
 
-    public void setForespørselType(ForespørselType forespørselType) {
-        this.forespørselType = forespørselType;
-    }
-
     public Optional<String> getOppgaveId() {
         return Optional.ofNullable(oppgaveId);
     }
@@ -182,7 +178,7 @@ public class ForespørselEntitet {
             .toList();
     }
 
-    public void setEtterspurtePerioder(List<PeriodeDto> etterspurtePerioder) {
+    void setEtterspurtePerioder(List<PeriodeDto> etterspurtePerioder) {
         if (etterspurtePerioder == null) {
             throw new IllegalArgumentException("Etterspurte perioder kan ikke være null");
         }

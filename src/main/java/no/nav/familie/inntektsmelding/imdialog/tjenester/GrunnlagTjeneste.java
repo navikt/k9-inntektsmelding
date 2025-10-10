@@ -66,7 +66,7 @@ public class GrunnlagTjeneste {
         return hentOpplysningerFraForespørsel(forespørsel);
     }
 
-    public HentOpplysningerResponse hentOpplysningerFraForespørsel(ForespørselEntitet forespørsel) {
+    private HentOpplysningerResponse hentOpplysningerFraForespørsel(ForespørselEntitet forespørsel) {
         var personInfo = finnPerson(forespørsel.getAktørId());
         var organisasjonInfo = finnOrganisasjonInfo(forespørsel.getOrganisasjonsnummer());
         var innsender = finnInnsender();
