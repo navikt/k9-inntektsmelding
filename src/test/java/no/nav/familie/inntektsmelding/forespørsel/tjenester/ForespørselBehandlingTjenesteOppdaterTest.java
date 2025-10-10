@@ -19,6 +19,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Arb
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
@@ -206,6 +207,7 @@ class ForespørselBehandlingTjenesteOppdaterTest extends EntityManagerAwareTest 
             AKTØR_ID,
             YTELSETYPE,
             SAKSNUMMMER,
+            ForespørselType.BESTILT_AV_FAGSYSTEM,
             STP,
             perioder
         );

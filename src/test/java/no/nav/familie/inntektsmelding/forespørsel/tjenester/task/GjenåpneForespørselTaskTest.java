@@ -23,6 +23,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
@@ -35,7 +36,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 class GjenåpneForespørselTaskTest {
 
-    private final ForespørselEntitet entitet = ForespørselMapper.mapForespørsel("arbeidsgiverOrgNr", LocalDate.now(), "1234567890134", Ytelsetype.PLEIEPENGER_SYKT_BARN, "saksnummer", LocalDate.now(), null);
+    private final ForespørselEntitet entitet = ForespørselMapper.mapForespørsel("arbeidsgiverOrgNr", LocalDate.now(), "1234567890134", Ytelsetype.PLEIEPENGER_SYKT_BARN, "saksnummer", ForespørselType.BESTILT_AV_FAGSYSTEM, LocalDate.now(), null);
     private final UUID forespørselUuid = entitet.getUuid();
     private final InntektsmeldingResponseDto inntektsmeldingResponseDto = new InntektsmeldingResponseDto(
         1L,

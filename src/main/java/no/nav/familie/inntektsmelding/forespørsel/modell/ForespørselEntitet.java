@@ -27,6 +27,7 @@ import jakarta.persistence.Table;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -49,6 +50,10 @@ public class ForespørselEntitet {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ForespørselStatus status = ForespørselStatus.UNDER_BEHANDLING;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "forespoersel_type", nullable = false, updatable = false)
+    private ForespørselType forespørselType;
 
     @Column(name = "oppgave_id")
     private String oppgaveId;
@@ -118,6 +123,10 @@ public class ForespørselEntitet {
         this.status = sakStatus;
     }
 
+    public ForespørselType getForespørselType() {
+        return forespørselType;
+    }
+
     public Optional<String> getOppgaveId() {
         return Optional.ofNullable(oppgaveId);
     }
@@ -169,7 +178,7 @@ public class ForespørselEntitet {
             .toList();
     }
 
-    public void setEtterspurtePerioder(List<PeriodeDto> etterspurtePerioder) {
+    void setEtterspurtePerioder(List<PeriodeDto> etterspurtePerioder) {
         if (etterspurtePerioder == null) {
             throw new IllegalArgumentException("Etterspurte perioder kan ikke være null");
         }
@@ -203,6 +212,7 @@ public class ForespørselEntitet {
             ", ytelseType=" + ytelseType +
             ", saksnummer=" + saksnummer +
             ", status=" + status +
+            ", forespørselType=" + forespørselType +
             ", etterspurtePerioder=" + etterspurtePerioder +
             '}';
     }
@@ -247,6 +257,11 @@ public class ForespørselEntitet {
 
         public Builder medSaksnummer(String saksnummer) {
             kladd.saksnummer = saksnummer;
+            return this;
+        }
+
+        public Builder medForespørselType(ForespørselType forespørselType) {
+            kladd.forespørselType = forespørselType;
             return this;
         }
 

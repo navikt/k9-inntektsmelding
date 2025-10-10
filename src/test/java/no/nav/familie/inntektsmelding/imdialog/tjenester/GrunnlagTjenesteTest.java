@@ -28,6 +28,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTje
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
@@ -87,6 +88,7 @@ class GrunnlagTjenesteTest {
             "9999999999999",
             Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
+            ForespørselType.BESTILT_AV_FAGSYSTEM,
             null,
             null);
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
@@ -156,6 +158,7 @@ class GrunnlagTjenesteTest {
             "9999999999999",
             Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
+            ForespørselType.BESTILT_AV_FAGSYSTEM,
             LocalDate.now().plusDays(10),
             null);
         when(forespørselBehandlingTjeneste.hentForespørsel(uuid)).thenReturn(Optional.of(forespørsel));
@@ -232,6 +235,7 @@ class GrunnlagTjenesteTest {
             aktørId.getAktørId(),
             ytelsetype,
             "123",
+            ForespørselType.BESTILT_AV_FAGSYSTEM,
             førsteFraværsdag.plusWeeks(1),
             null);
         var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE);
@@ -270,14 +274,13 @@ class GrunnlagTjenesteTest {
         var førsteFraværsdag = LocalDate.now();
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var aktørId = new AktørIdEntitet("9999999999999");
-        var forespørsel = ForespørselMapper.mapForespørsel("999999999", førsteFraværsdag, aktørId.getAktørId(), ytelsetype, "123", førsteFraværsdag, null);
+        var forespørsel = ForespørselMapper.mapForespørsel("999999999", førsteFraværsdag, aktørId.getAktørId(), ytelsetype, "123", ForespørselType.BESTILT_AV_FAGSYSTEM, førsteFraværsdag, null);
         var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE);
         when(personTjeneste.hentPersonFraIdent(fødselsnummer)).thenReturn(personInfo);
         when(personTjeneste.hentPersonInfoFraAktørId(aktørId)).thenReturn(personInfo);
         when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID))).thenReturn(
             new PersonInfo("Ine", null, "Sender", new PersonIdent(INNMELDER_UID), null, LocalDate.now(), "+4711111111", Kjønn.KVINNE));
         when(forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of(forespørsel));
-        when(forespørselBehandlingTjeneste.hentForespørsel(forespørsel.getUuid())).thenReturn(Optional.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften",
             organisasjonsnummer.orgnr()));
         when(inntektTjeneste.hentInntekt(aktørId,

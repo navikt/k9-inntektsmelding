@@ -24,6 +24,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
@@ -77,6 +78,7 @@ class InntektsmeldingMottakTjenesteTest {
             "9999999999999",
             Ytelsetype.PLEIEPENGER_SYKT_BARN,
             "123",
+            ForespørselType.BESTILT_AV_FAGSYSTEM,
             null,
             null);
         forespørsel.setStatus(ForespørselStatus.UTGÅTT);

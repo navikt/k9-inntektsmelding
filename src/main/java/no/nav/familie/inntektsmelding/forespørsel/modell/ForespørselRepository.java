@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
@@ -37,9 +38,10 @@ public class ForespørselRepository {
                                  String aktørId,
                                  String orgnummer,
                                  String saksnummer,
+                                 ForespørselType forespørselType,
                                  LocalDate førsteUttaksdato,
                                  List<PeriodeDto> etterspurtePerioder) {
-        var forespørselEntitet = ForespørselMapper.mapForespørsel(orgnummer, skjæringstidspunkt, aktørId, ytelsetype, saksnummer, førsteUttaksdato, etterspurtePerioder);
+        var forespørselEntitet = ForespørselMapper.mapForespørsel(orgnummer, skjæringstidspunkt, aktørId, ytelsetype, saksnummer, forespørselType, førsteUttaksdato, etterspurtePerioder);
         LOG.info("ForespørselRepository: lagrer forespørsel entitet: {}", forespørselEntitet);
         entityManager.persist(forespørselEntitet);
         entityManager.flush();

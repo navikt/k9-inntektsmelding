@@ -25,6 +25,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -48,6 +49,7 @@ class InntektsmeldingMapperTest {
         "9999999999999",
         Ytelsetype.PLEIEPENGER_SYKT_BARN,
         "sak1",
+        ForespørselType.BESTILT_AV_FAGSYSTEM,
         LocalDate.now(),
         null
     );

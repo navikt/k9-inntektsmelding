@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
@@ -37,15 +38,15 @@ public class ForespørselTjeneste {
                                    LocalDate førsteUttaksdato,
                                    List<PeriodeDto> etterspurtePerioder) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            saksnummer.saksnr(), førsteUttaksdato, etterspurtePerioder);
+            saksnummer.saksnr(), ForespørselType.BESTILT_AV_FAGSYSTEM, førsteUttaksdato, etterspurtePerioder);
     }
 
     public UUID opprettForespørselUtenFagsaksnummer(LocalDate skjæringstidspunkt,
                                                     AktørIdEntitet brukerAktørId,
                                                     OrganisasjonsnummerDto orgnr,
-                                                    Ytelsetype ytelsetype) {
+                                                    Ytelsetype ytelsetype, ForespørselType forespørselType) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelsetype, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            null, skjæringstidspunkt, null);
+            null, forespørselType, skjæringstidspunkt, null);
     }
 
     public void setOppgaveId(UUID forespørselUUID, String oppgaveId) {

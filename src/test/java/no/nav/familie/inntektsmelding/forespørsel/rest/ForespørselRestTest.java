@@ -26,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
@@ -140,9 +141,9 @@ class ForespørselRestTest {
         var stp = LocalDate.now();
         var aktørId = new AktørIdDto("1234567890134");
 
-        var forespørsel1 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp, null);
+        var forespørsel1 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", ForespørselType.BESTILT_AV_FAGSYSTEM, stp, null);
         forespørsel1.setStatus(ForespørselStatus.UTGÅTT);
-        var forespørsel2 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp, null);
+        var forespørsel2 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", ForespørselType.BESTILT_AV_FAGSYSTEM, stp, null);
         forespørsel2.setStatus(ForespørselStatus.FERDIG);
 
         when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(any(SaksnummerDto.class), eq(null), eq(null))).thenReturn(List.of(forespørsel1, forespørsel2));
@@ -164,9 +165,9 @@ class ForespørselRestTest {
         var stp = LocalDate.now();
         var aktørId = new AktørIdDto("1234567890134");
 
-        var forespørsel1 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp, null);
+        var forespørsel1 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", ForespørselType.BESTILT_AV_FAGSYSTEM, stp, null);
         forespørsel1.setStatus(ForespørselStatus.UTGÅTT);
-        var forespørsel2 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", stp, null);
+        var forespørsel2 = ForespørselMapper.mapForespørsel(orgnummer.orgnr(), stp, aktørId.id(), Ytelsetype.PLEIEPENGER_SYKT_BARN, "SAK", ForespørselType.BESTILT_AV_FAGSYSTEM, stp, null);
         forespørsel2.setStatus(ForespørselStatus.UTGÅTT);
 
         when(forespørselBehandlingTjeneste.hentForespørslerForFagsak(any(SaksnummerDto.class), eq(null), eq(null))).thenReturn(List.of(forespørsel1, forespørsel2));
@@ -187,7 +188,7 @@ class ForespørselRestTest {
         var expectedOrg = "123456789";
         var expectedBruker = "1233425324241";
         var expectedSkjæringstidspunkt = LocalDate.now();
-        var input = ForespørselMapper.mapForespørsel(expectedOrg, expectedSkjæringstidspunkt, expectedBruker, Ytelsetype.PLEIEPENGER_SYKT_BARN, "9876544321", expectedSkjæringstidspunkt.plusDays(10), null);
+        var input = ForespørselMapper.mapForespørsel(expectedOrg, expectedSkjæringstidspunkt, expectedBruker, Ytelsetype.PLEIEPENGER_SYKT_BARN, "9876544321", ForespørselType.BESTILT_AV_FAGSYSTEM, expectedSkjæringstidspunkt.plusDays(10), null);
 
         var resultat = ForespørselRest.mapTilForespørselResponse(input);
 
