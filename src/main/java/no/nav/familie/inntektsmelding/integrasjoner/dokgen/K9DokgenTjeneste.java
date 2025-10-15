@@ -112,7 +112,7 @@ public class K9DokgenTjeneste {
             return pdf;
         } catch (Exception e) {
             var anonymPdfData = refusjonskravNyansattPdfData.anonymiser();
-            SECURE_LOG.warn("Klarte ikke å generere pdf av refusjonskrav for nyansatt: {}", DefaultJsonMapper.toJson(anonymPdfData));
+            LOG.warn("Klarte ikke å generere pdf av refusjonskrav for nyansatt: {}", DefaultJsonMapper.toJson(anonymPdfData));
             throw new TekniskException("K9INNTEKTSMELDING_1",
                 String.format("Klarte ikke å generere pdf for refusjonskrav for nyansatt med id %s", inntektsmeldingId), e);
         }
