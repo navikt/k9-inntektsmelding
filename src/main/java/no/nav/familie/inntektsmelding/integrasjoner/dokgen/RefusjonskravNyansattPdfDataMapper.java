@@ -19,6 +19,7 @@ public class RefusjonskravNyansattPdfDataMapper {
                                                                          PersonInfo personInfo,
                                                                          String arbeidsgiverNavn,
                                                                          String arbeidsgiverIdent) {
+        String avsenderSystem = "NAV_NO";
         String navnSøker = personInfo.mapNavn();
         String personnummer = personInfo.fødselsnummer().getIdent();
         Ytelsetype ytelsetype = inntektsmelding.getYtelsetype();
@@ -34,6 +35,7 @@ public class RefusjonskravNyansattPdfDataMapper {
         int antallRefusjonsperioder = refusjonsendringer.size();
 
         return new RefusjonskravNyansattData(
+            avsenderSystem,
             navnSøker,
             personnummer,
             ytelsetype,
