@@ -11,7 +11,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTje
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
-import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
 import no.nav.vedtak.exception.TekniskException;
@@ -57,11 +56,6 @@ public class K9DokgenTjeneste {
             }
         }
 
-        if (inntektsmelding.getInntektsmeldingType() == InntektsmeldingType.ARBEIDSGIVERINITIERT_NYANSATT) {
-            var refusjonskravNyansattData = RefusjonskravNyansattPdfDataMapper.mapRefusjonskravNyansattData(inntektsmelding, personInfo, arbeidsgiverNavn, arbeidsgvierIdent);
-            return genererPdfForRefusjonskravNyansatt(refusjonskravNyansattData, inntektsmeldingsid);
-        }
-
         var imDokumentdata = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
         return genererPdfForInntektsmelding(imDokumentdata, inntektsmeldingsid);
     }
@@ -102,19 +96,6 @@ public class K9DokgenTjeneste {
             SECURE_LOG.warn("Klarte ikke å generere pdf av inntektsmelding: {}", DefaultJsonMapper.toJson(inntektsmeldingPdfData));
             throw new TekniskException("K9INNTEKTSMELDING_1",
                 String.format("Klarte ikke å generere pdf for inntektsmelding med id %s", inntektsmeldingId), e);
-        }
-    }
-
-    private byte[] genererPdfForRefusjonskravNyansatt(RefusjonskravNyansattData refusjonskravNyansattPdfData, int inntektsmeldingId) {
-        try {
-            byte[] pdf = k9DokgenKlient.genererPdfRefusjonskravNyansatt(refusjonskravNyansattPdfData);
-            LOG.info("Pdf av refusjonskrav for nyansatt med id {} ble generert.", inntektsmeldingId);
-            return pdf;
-        } catch (Exception e) {
-            var anonymPdfData = refusjonskravNyansattPdfData.anonymiser();
-            LOG.warn("Klarte ikke å generere pdf av refusjonskrav for nyansatt: {}", DefaultJsonMapper.toJson(anonymPdfData));
-            throw new TekniskException("K9INNTEKTSMELDING_1",
-                String.format("Klarte ikke å generere pdf for refusjonskrav for nyansatt med id %s", inntektsmeldingId), e);
         }
     }
 
