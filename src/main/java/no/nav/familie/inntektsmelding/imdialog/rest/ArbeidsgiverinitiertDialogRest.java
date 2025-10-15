@@ -22,8 +22,10 @@ import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
+import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -74,7 +76,8 @@ public class ArbeidsgiverinitiertDialogRest {
         }
 
         // Sjekk at søker har sak i k9-sak
-        List<FagsakInfo> fagsakerIK9Sak =  k9SakTjeneste.hentFagsakInfo(request.ytelseType(), request.fødselsnummer());
+        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
+        List<FagsakInfo> fagsakerIK9Sak =  k9SakTjeneste.hentFagsakInfo(ytelsetype, request.fødselsnummer());
         List<PeriodeDto> søknadsPerioderForFagsakerIK9 = fagsakerIK9Sak.stream()
             .flatMap(fagsak -> fagsak.søknadsPerioder().stream())
             .toList();
@@ -83,11 +86,11 @@ public class ArbeidsgiverinitiertDialogRest {
             .anyMatch(søknandsperiode -> søknandsperiode.inneholderDato(request.førsteFraværsdag()));
 
         if (!finnesSakIK9) {
-            var feilmelding = String.format("Du kan ikke sende inn inntektsmelding på %s for denne personen", request.ytelseType());
+            var feilmelding = String.format("Du kan ikke sende inn inntektsmelding på %s for denne personen", ytelsetype);
             throw new FunksjonellException("INGEN_SAK_FUNNET", feilmelding, null, null);
         }
 
-        var response = grunnlagTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag());
+        var response = grunnlagTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag());
         return response.map(d ->Response.ok(d).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
 
@@ -100,7 +103,8 @@ public class ArbeidsgiverinitiertDialogRest {
             throw new IllegalStateException("Ugyldig kall på restpunkt som ikke er lansert");
         }
         LOG.info("Henter opplysninger for søker");
-        var hentOpplysningerResponse = grunnlagTjeneste.hentOpplysningerForNyansatt(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag(), request.organisasjonsnummer());
+        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
+        var hentOpplysningerResponse = grunnlagTjeneste.hentOpplysningerForNyansatt(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer());
         return Response.ok(hentOpplysningerResponse).build();
     }
 }
