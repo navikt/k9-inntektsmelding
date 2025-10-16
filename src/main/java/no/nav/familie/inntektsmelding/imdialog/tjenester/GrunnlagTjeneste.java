@@ -92,7 +92,7 @@ public class GrunnlagTjeneste {
                                                                 OrganisasjonsnummerDto organisasjonsnummer) {
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
 
-        var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnForespørslerUnderBehandling(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
+        var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnAlleForespørsler(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
         var forespørslerSomMatcherFraværsdag = eksisterendeForepørsler.stream()
             .filter(f -> førsteFraværsdag.equals(f.getSkjæringstidspunkt())) // TODO: hva her burde vi kanskje legge inn et godkjent intervall?
             .toList();
