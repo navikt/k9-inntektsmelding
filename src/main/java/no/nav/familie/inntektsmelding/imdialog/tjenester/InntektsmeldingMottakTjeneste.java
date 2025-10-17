@@ -112,22 +112,19 @@ public class InntektsmeldingMottakTjeneste {
         return InntektsmeldingMapper.mapFraEntitet(imEntitet, forespørselUuid);
     }
 
-    public InntektsmeldingResponseDto mottaArbeidsgiverInitiertNyansattInntektsmelding(SendInntektsmeldingForArbeidsgiverinitiertNyansattRequest sendInntektsmeldingForArbeidsgiverinitiertNyansattRequest) {
-        var finnesForespørselFraFør = sendInntektsmeldingForArbeidsgiverinitiertNyansattRequest.foresporselUuid() != null;
-        if (finnesForespørselFraFør) {
-            throw new IllegalArgumentException("Forespørsel finnes allerede. Send inn ordinær inntektsmelding med eksisterende forespørsel.");
-        }
+    public InntektsmeldingResponseDto mottaArbeidsgiverInitiertNyansattInntektsmelding(SendInntektsmeldingForArbeidsgiverinitiertNyansattRequest nyansattRequest) {
+        var aktørId = new AktørIdEntitet(nyansattRequest.aktorId().id());
+        var organisasjonsnummer = new OrganisasjonsnummerDto(nyansattRequest.arbeidsgiverIdent().ident());
+        var ytelseType = KodeverkMapper.mapYtelsetype(nyansattRequest.ytelse());
 
-        // Ny inntekstmelding for nyansatt uten forespørsel. Må opprette forespørsel og ferdigstille den slik at det blir riktig i oversikten på Min side - Arbeidsgiver
-        var aktørId = new AktørIdEntitet(sendInntektsmeldingForArbeidsgiverinitiertNyansattRequest.aktorId().id());
-        var organisasjonsnummer = new OrganisasjonsnummerDto(sendInntektsmeldingForArbeidsgiverinitiertNyansattRequest.arbeidsgiverIdent().ident());
-        var ytelseType = KodeverkMapper.mapYtelsetype(sendInntektsmeldingForArbeidsgiverinitiertNyansattRequest.ytelse());
+        var forespørselUuid = nyansattRequest.foresporselUuid() != null
+                              ? nyansattRequest.foresporselUuid()
+                              : forespørselBehandlingTjeneste.opprettForespørselForArbeidsgiverInitiertInntektsmelding(aktørId, organisasjonsnummer, nyansattRequest.startdato(), ytelseType);
 
-        var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForArbeidsgiverInitiertInntektsmelding(aktørId, organisasjonsnummer, sendInntektsmeldingForArbeidsgiverinitiertNyansattRequest.startdato(), ytelseType);
         var forespørselEnitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(this::manglerForespørselFeil);
 
-        var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitetForAGNyansatt(sendInntektsmeldingForArbeidsgiverinitiertNyansattRequest, forespørselEnitet);
+        var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitetForAGNyansatt(nyansattRequest, forespørselEnitet);
         var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEnitet);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, LukkeÅrsak.ORDINÆR_INNSENDING);
