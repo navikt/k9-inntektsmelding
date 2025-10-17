@@ -39,7 +39,7 @@ public class K9DokgenKlient {
         this.restConfig = RestConfig.forClient(K9DokgenKlient.class);
     }
 
-    public byte[] genererPdfInntektsmelding(InntektsmeldingPdfData dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfInntektsmelding(InntektsmeldingPdfRequest dokumentdata) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + INNTEKTSMELDING_PATH);
         var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
         return genererPdf(request);

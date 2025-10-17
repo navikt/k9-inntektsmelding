@@ -21,7 +21,7 @@ public class RefusjonskravNyansattPdfDataMapper {
                                                                          String arbeidsgiverIdent) {
         String avsenderSystem = "NAV_NO";
         String navnSøker = personInfo.mapNavn();
-        String personnummer = personInfo.fødselsnummer().getIdent();
+        String personnummer = FormatUtils.formaterPersonnummer(personInfo.fødselsnummer().getIdent());
         Ytelsetype ytelsetype = inntektsmelding.getYtelsetype();
         Kontaktperson kontaktperson = PdfDataMapperUtil.mapKontaktperson(inntektsmelding);
         LocalDate startDato = inntektsmelding.getStartDato();
