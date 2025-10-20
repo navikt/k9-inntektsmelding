@@ -15,24 +15,33 @@ public class OmsorgspengerInntektsmeldingPdfDataMapper {
         throw new IllegalStateException("OmsorgspengerInntektsmeldingPdfDataMapper: Utility class");
     }
 
-    public static OmsorgspengerInntektsmeldingPdfData mapOmsorgspengerInntektsmeldingData(InntektsmeldingEntitet inntektsmelding,
-                                                                                          String arbeidsgiverNavn,
-                                                                                          PersonInfo personInfo,
-                                                                                          String arbeidsgvierIdent) {
-        var imDokumentdataBuilder = new OmsorgspengerInntektsmeldingPdfData.Builder()
-            .medNavn(personInfo.mapNavn())
-            .medPersonnummer(personInfo.fødselsnummer().getIdent())
-            .medArbeidsgiverIdent(arbeidsgvierIdent)
-            .medArbeidsgiverNavn(arbeidsgiverNavn)
-            .medAvsenderSystem("NAV_NO")
-            .medOpprettetTidspunkt(inntektsmelding.getOpprettetTidspunkt())
-            .medMånedInntekt(inntektsmelding.getMånedInntekt())
-            .medKontaktperson(PdfDataMapperUtil.mapKontaktperson(inntektsmelding))
-            .medEndringsårsaker(PdfDataMapperUtil.mapEndringsårsaker(inntektsmelding.getEndringsårsaker()))
-            .medFraværsperioder(mapFraværsInfo(inntektsmelding.getOmsorgspenger()))
-            .medHarUtbetaltLønn(mapHarUtbetaltLønn(inntektsmelding.getMånedRefusjon()));
+    public static OmsorgspengerInntektsmeldingPdfRequest map(InntektsmeldingEntitet inntektsmelding,
+                                                             String arbeidsgiverNavn,
+                                                             PersonInfo personInfo,
+                                                             String arbeidsgiverIdent) {
+        String avsenderSystem = "NAV_NO";
+        String navnSøker = personInfo.mapNavn();
+        String personnummer = FormatUtils.formaterPersonnummer(personInfo.fødselsnummer().getIdent());
+        Kontaktperson kontaktperson = PdfDataMapperUtil.mapKontaktperson(inntektsmelding);
+        BigDecimal månedInntekt = inntektsmelding.getMånedInntekt();
+        String opprettetTidspunkt = FormatUtils.formaterDatoOgTidNorsk(inntektsmelding.getOpprettetTidspunkt());
+        List<Endringsarsak> endringsarsaker = PdfDataMapperUtil.mapEndringsårsaker(inntektsmelding.getEndringsårsaker());
+        List<FraværsPeriode> fraværsperioder = mapFraværsInfo(inntektsmelding.getOmsorgspenger());
+        String harUtbetaltLønn = mapHarUtbetaltLønn(inntektsmelding.getMånedRefusjon());
 
-        return imDokumentdataBuilder.build();
+        return new OmsorgspengerInntektsmeldingPdfRequest(
+            avsenderSystem,
+            navnSøker,
+            personnummer,
+            arbeidsgiverIdent,
+            arbeidsgiverNavn,
+            kontaktperson,
+            månedInntekt,
+            opprettetTidspunkt,
+            endringsarsaker,
+            fraværsperioder,
+            harUtbetaltLønn
+        );
     }
 
     private static String mapHarUtbetaltLønn(BigDecimal månedRefusjon) {

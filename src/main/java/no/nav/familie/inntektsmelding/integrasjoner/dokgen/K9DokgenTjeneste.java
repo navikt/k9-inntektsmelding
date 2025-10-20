@@ -48,11 +48,11 @@ public class K9DokgenTjeneste {
         if (inntektsmelding.getYtelsetype() == Ytelsetype.OMSORGSPENGER) {
             if (inntektsmelding.getMånedRefusjon() != null) {
                 // lag pdf for refusjonskrav omsorgspenger
-                var omsorgspengerRefusjonPdfData = OmsorgspengerRefusjonPdfDataMapper.mapOmsorgspengerRefusjonData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
+                var omsorgspengerRefusjonPdfData = OmsorgspengerInntektsmeldingPdfDataMapper.map(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
                 return genererPdfForOmsorgspengerRefusjon(omsorgspengerRefusjonPdfData, inntektsmeldingsid);
             } else {
                 // lag pdf for inntektsmelding omsorgspenger
-                var omsorgspengerInntektsmeldingPdfData = OmsorgspengerInntektsmeldingPdfDataMapper.mapOmsorgspengerInntektsmeldingData(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
+                var omsorgspengerInntektsmeldingPdfData = OmsorgspengerInntektsmeldingPdfDataMapper.map(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
                 return genererPdfForOmsorgspengerInntektsmelding(omsorgspengerInntektsmeldingPdfData, inntektsmeldingsid);
             }
         }
@@ -66,27 +66,27 @@ public class K9DokgenTjeneste {
         return genererPdfForInntektsmelding(imDokumentdata, inntektsmeldingsid);
     }
 
-    private byte[] genererPdfForOmsorgspengerRefusjon(OmsorgspengerRefusjonPdfData omsorgspengerRefusjonPdfData, int inntektsmeldingId) {
+    private byte[] genererPdfForOmsorgspengerRefusjon(OmsorgspengerInntektsmeldingPdfRequest omsorgspengerRefusjonPdfData, int inntektsmeldingId) {
         try {
             byte[] pdf = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(omsorgspengerRefusjonPdfData);
             LOG.info("Pdf av refusjonskrav omsorgspenger med id {} ble generert.", inntektsmeldingId);
             return pdf;
         } catch (Exception e) {
-            omsorgspengerRefusjonPdfData.anonymiser();
-            SECURE_LOG.warn("Klarte ikke å generere pdf av refusjonskrav omsorgspenger: {}", DefaultJsonMapper.toJson(omsorgspengerRefusjonPdfData));
+            var anonymPdfRequest = omsorgspengerRefusjonPdfData.anonymiser();
+            SECURE_LOG.warn("Klarte ikke å generere pdf av refusjonskrav omsorgspenger: {}", DefaultJsonMapper.toJson(anonymPdfRequest));
             throw new TekniskException("K9INNTEKTSMELDING_1",
                 String.format("Klarte ikke å generere pdf for refusjonskrav omsorgspenger med id %s", inntektsmeldingId), e);
         }
     }
 
-    private byte[] genererPdfForOmsorgspengerInntektsmelding(OmsorgspengerInntektsmeldingPdfData omsorgspengerInntektsmeldingPdfData, int inntektsmeldingId) {
+    private byte[] genererPdfForOmsorgspengerInntektsmelding(OmsorgspengerInntektsmeldingPdfRequest omsorgspengerInntektsmeldingPdfData, int inntektsmeldingId) {
         try {
             byte[] pdf = k9DokgenKlient.genererPdfOmsorgspengerInntektsmelding(omsorgspengerInntektsmeldingPdfData);
             LOG.info("Pdf av inntektsmelding omsorgspenger med id {} ble generert.", inntektsmeldingId);
             return pdf;
         } catch (Exception e) {
-            omsorgspengerInntektsmeldingPdfData.anonymiser();
-            SECURE_LOG.warn("Klarte ikke å generere pdf av inntektsmelding omsorgspenger: {}", DefaultJsonMapper.toJson(omsorgspengerInntektsmeldingPdfData));
+            var anonymPdfRequest = omsorgspengerInntektsmeldingPdfData.anonymiser();
+            SECURE_LOG.warn("Klarte ikke å generere pdf av inntektsmelding omsorgspenger: {}", DefaultJsonMapper.toJson(anonymPdfRequest));
             throw new TekniskException("K9INNTEKTSMELDING_1",
                 String.format("Klarte ikke å generere pdf for inntektsmelding omsorgspenger med id %s", inntektsmeldingId), e);
         }

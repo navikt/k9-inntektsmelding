@@ -32,7 +32,7 @@ class K9DokgenKlientTest {
     void skal_generere_pdf_omsorgspenger_refusjon() throws URISyntaxException {
         K9DokgenKlient k9DokgenKlient = new K9DokgenKlient(restClient);
         when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
-        var bytes = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(new OmsorgspengerRefusjonPdfData());
+        var bytes = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(lagTestOmsorgspengerInntektsmeldingPdfRequest("true"));
         assertThat(bytes).isNotEmpty();
     }
 
@@ -40,8 +40,24 @@ class K9DokgenKlientTest {
     void skal_generere_pdf_omsorgspenger_inntektsmelding() throws URISyntaxException {
         K9DokgenKlient k9DokgenKlient = new K9DokgenKlient(restClient);
         when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
-        var bytes = k9DokgenKlient.genererPdfOmsorgspengerInntektsmelding(new OmsorgspengerInntektsmeldingPdfData());
+        var bytes = k9DokgenKlient.genererPdfOmsorgspengerInntektsmelding(lagTestOmsorgspengerInntektsmeldingPdfRequest("false"));
         assertThat(bytes).isNotEmpty();
+    }
+
+    private OmsorgspengerInntektsmeldingPdfRequest lagTestOmsorgspengerInntektsmeldingPdfRequest(String harUtbetaltLønn) {
+        return new OmsorgspengerInntektsmeldingPdfRequest(
+            "K9-INNTEKTSMELDING",
+            "Test Testesen",
+            "11111111111",
+            "123456789",
+            "Minimal AS",
+            new Kontaktperson("Test Kontakt", "87654321"),
+            new BigDecimal("35000"),
+            LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+            List.of(),
+            List.of(),
+            harUtbetaltLønn
+        );
     }
 
     private InntektsmeldingPdfRequest lagTestInntektsmeldingPdfRequest() {
