@@ -9,16 +9,16 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.utils.FormatUtils;
 import no.nav.familie.inntektsmelding.utils.mapper.PdfDataMapperUtil;
 
-public class OmsorgspengerInntektsmeldingPdfDataMapper {
+public class OmsorgspengerPdfRequestMapper {
 
-    private OmsorgspengerInntektsmeldingPdfDataMapper() {
-        throw new IllegalStateException("OmsorgspengerInntektsmeldingPdfDataMapper: Utility class");
+    private OmsorgspengerPdfRequestMapper() {
+        throw new IllegalStateException("OmsorgspengerPdfRequest: Utility class");
     }
 
-    public static OmsorgspengerInntektsmeldingPdfRequest map(InntektsmeldingEntitet inntektsmelding,
-                                                             String arbeidsgiverNavn,
-                                                             PersonInfo personInfo,
-                                                             String arbeidsgiverIdent) {
+    public static OmsorgspengerPdfRequest map(InntektsmeldingEntitet inntektsmelding,
+                                              String arbeidsgiverNavn,
+                                              PersonInfo personInfo,
+                                              String arbeidsgiverIdent) {
         String avsenderSystem = "NAV_NO";
         String navnSøker = personInfo.mapNavn();
         String personnummer = FormatUtils.formaterPersonnummer(personInfo.fødselsnummer().getIdent());
@@ -29,7 +29,7 @@ public class OmsorgspengerInntektsmeldingPdfDataMapper {
         List<FraværsPeriode> fraværsperioder = mapFraværsInfo(inntektsmelding.getOmsorgspenger());
         String harUtbetaltLønn = mapHarUtbetaltLønn(inntektsmelding.getMånedRefusjon());
 
-        return new OmsorgspengerInntektsmeldingPdfRequest(
+        return new OmsorgspengerPdfRequest(
             avsenderSystem,
             navnSøker,
             personnummer,

@@ -27,7 +27,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.familie.inntektsmelding.utils.FormatUtils;
 
 @ExtendWith(MockitoExtension.class)
-class OmsorgspengerInntektsmeldingPdfDataMapperTest {
+class OmsorgspengerPdfRequestMapperTest {
     private static final String FORNAVN = "Test";
     private static final String MELLOMNAVN = "Tester";
     private static final String ETTERNAVN = "Testesen";
@@ -63,7 +63,7 @@ class OmsorgspengerInntektsmeldingPdfDataMapperTest {
             .medMånedRefusjon(REFUSJON_BELØP)
             .build();
 
-        var pdfData = OmsorgspengerInntektsmeldingPdfDataMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+        var pdfData = OmsorgspengerPdfRequestMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
         assertThat(pdfData.arbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
         assertThat(pdfData.avsenderSystem()).isEqualTo("NAV_NO");
@@ -116,7 +116,7 @@ class OmsorgspengerInntektsmeldingPdfDataMapperTest {
             .medOmsorgspenger(omsorgspengerEntitet)
             .build();
 
-        var pdfData = OmsorgspengerInntektsmeldingPdfDataMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+        var pdfData = OmsorgspengerPdfRequestMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
         assertThat(pdfData.arbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
         assertThat(pdfData.avsenderSystem()).isEqualTo("NAV_NO");

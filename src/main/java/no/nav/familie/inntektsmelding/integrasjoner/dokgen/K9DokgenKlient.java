@@ -51,13 +51,13 @@ public class K9DokgenKlient {
         return genererPdf(request);
     }
 
-    public byte[] genererPdfOmsorgspengerRefusjon(OmsorgspengerInntektsmeldingPdfRequest dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfOmsorgspengerRefusjon(OmsorgspengerPdfRequest dokumentdata) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + OMSORGSPENGER_REFUSJON_PATH);
         var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
         return genererPdf(request);
     }
 
-    public byte[] genererPdfOmsorgspengerInntektsmelding(OmsorgspengerInntektsmeldingPdfRequest dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfOmsorgspengerInntektsmelding(OmsorgspengerPdfRequest dokumentdata) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + OMSORGSPENGER_INNTEKTSMELDING_PATH);
         var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
         return genererPdf(request);

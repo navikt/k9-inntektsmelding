@@ -32,7 +32,7 @@ class K9DokgenKlientTest {
     void skal_generere_pdf_omsorgspenger_refusjon() throws URISyntaxException {
         K9DokgenKlient k9DokgenKlient = new K9DokgenKlient(restClient);
         when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
-        var bytes = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(lagTestOmsorgspengerInntektsmeldingPdfRequest("true"));
+        var bytes = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(lagTestOmsorgspengerPdfRequest("true"));
         assertThat(bytes).isNotEmpty();
     }
 
@@ -40,12 +40,12 @@ class K9DokgenKlientTest {
     void skal_generere_pdf_omsorgspenger_inntektsmelding() throws URISyntaxException {
         K9DokgenKlient k9DokgenKlient = new K9DokgenKlient(restClient);
         when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
-        var bytes = k9DokgenKlient.genererPdfOmsorgspengerInntektsmelding(lagTestOmsorgspengerInntektsmeldingPdfRequest("false"));
+        var bytes = k9DokgenKlient.genererPdfOmsorgspengerInntektsmelding(lagTestOmsorgspengerPdfRequest("false"));
         assertThat(bytes).isNotEmpty();
     }
 
-    private OmsorgspengerInntektsmeldingPdfRequest lagTestOmsorgspengerInntektsmeldingPdfRequest(String harUtbetaltLønn) {
-        return new OmsorgspengerInntektsmeldingPdfRequest(
+    private OmsorgspengerPdfRequest lagTestOmsorgspengerPdfRequest(String harUtbetaltLønn) {
+        return new OmsorgspengerPdfRequest(
             "K9-INNTEKTSMELDING",
             "Test Testesen",
             "11111111111",

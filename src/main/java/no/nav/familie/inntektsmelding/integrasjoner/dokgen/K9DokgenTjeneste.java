@@ -48,11 +48,11 @@ public class K9DokgenTjeneste {
         if (inntektsmelding.getYtelsetype() == Ytelsetype.OMSORGSPENGER) {
             if (inntektsmelding.getMånedRefusjon() != null) {
                 // lag pdf for refusjonskrav omsorgspenger
-                var omsorgspengerRefusjonPdfData = OmsorgspengerInntektsmeldingPdfDataMapper.map(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
+                var omsorgspengerRefusjonPdfData = OmsorgspengerPdfRequestMapper.map(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
                 return genererPdfForOmsorgspengerRefusjon(omsorgspengerRefusjonPdfData, inntektsmeldingsid);
             } else {
                 // lag pdf for inntektsmelding omsorgspenger
-                var omsorgspengerInntektsmeldingPdfData = OmsorgspengerInntektsmeldingPdfDataMapper.map(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
+                var omsorgspengerInntektsmeldingPdfData = OmsorgspengerPdfRequestMapper.map(inntektsmelding, arbeidsgiverNavn, personInfo, arbeidsgvierIdent);
                 return genererPdfForOmsorgspengerInntektsmelding(omsorgspengerInntektsmeldingPdfData, inntektsmeldingsid);
             }
         }
@@ -66,7 +66,7 @@ public class K9DokgenTjeneste {
         return genererPdfForInntektsmelding(imDokumentdata, inntektsmeldingsid);
     }
 
-    private byte[] genererPdfForOmsorgspengerRefusjon(OmsorgspengerInntektsmeldingPdfRequest omsorgspengerRefusjonPdfData, int inntektsmeldingId) {
+    private byte[] genererPdfForOmsorgspengerRefusjon(OmsorgspengerPdfRequest omsorgspengerRefusjonPdfData, int inntektsmeldingId) {
         try {
             byte[] pdf = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(omsorgspengerRefusjonPdfData);
             LOG.info("Pdf av refusjonskrav omsorgspenger med id {} ble generert.", inntektsmeldingId);
@@ -79,7 +79,7 @@ public class K9DokgenTjeneste {
         }
     }
 
-    private byte[] genererPdfForOmsorgspengerInntektsmelding(OmsorgspengerInntektsmeldingPdfRequest omsorgspengerInntektsmeldingPdfData, int inntektsmeldingId) {
+    private byte[] genererPdfForOmsorgspengerInntektsmelding(OmsorgspengerPdfRequest omsorgspengerInntektsmeldingPdfData, int inntektsmeldingId) {
         try {
             byte[] pdf = k9DokgenKlient.genererPdfOmsorgspengerInntektsmelding(omsorgspengerInntektsmeldingPdfData);
             LOG.info("Pdf av inntektsmelding omsorgspenger med id {} ble generert.", inntektsmeldingId);
