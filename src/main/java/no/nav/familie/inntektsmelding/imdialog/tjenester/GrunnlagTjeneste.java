@@ -94,7 +94,7 @@ public class GrunnlagTjeneste {
 
         var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnAlleForespørsler(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
         var forespørslerSomMatcherFraværsdag = eksisterendeForepørsler.stream()
-            .filter(f -> førsteFraværsdag.equals(f.getSkjæringstidspunkt())) // TODO: hva her burde vi kanskje legge inn et godkjent intervall?
+            .filter(f -> innenforIntervall(førsteFraværsdag, f.getSkjæringstidspunkt()))
             .toList();
 
         // Hvis k9-sak har opprettet forespørsel så bruker vi vanlig flyt eller arbeidsgiver allerede har sendt inn inntektsmelding på denne datoen
@@ -118,6 +118,15 @@ public class GrunnlagTjeneste {
             ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT,
             førsteFraværsdag,
             null);
+    }
+
+    private boolean innenforIntervall(LocalDate nyFørsteFraværsdag, LocalDate eksisterendeForespørselStp) {
+        if (eksisterendeForespørselStp == null) {
+            return false;
+        }
+
+        return nyFørsteFraværsdag.isAfter((eksisterendeForespørselStp.minusWeeks(4)))
+            && nyFørsteFraværsdag.isBefore(eksisterendeForespørselStp.plusWeeks(4));
     }
 
     private InnsenderDto finnInnsender() {
