@@ -39,27 +39,27 @@ public class K9DokgenKlient {
         this.restConfig = RestConfig.forClient(K9DokgenKlient.class);
     }
 
-    public byte[] genererPdfInntektsmelding(InntektsmeldingPdfRequest dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfInntektsmelding(InntektsmeldingPdfRequest pdfRequest) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + INNTEKTSMELDING_PATH);
-        var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
+        var request = RestRequest.newPOSTJson(pdfRequest, endpoint, restConfig);
         return genererPdf(request);
     }
 
-    public byte[] genererPdfRefusjonskravNyansatt(RefusjonskravNyansattData dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfRefusjonskravNyansatt(RefusjonskravNyansattData pdfRequest) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + REFUSJONSKRAV_NYANSATT);
-        var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
+        var request = RestRequest.newPOSTJson(pdfRequest, endpoint, restConfig);
         return genererPdf(request);
     }
 
-    public byte[] genererPdfOmsorgspengerRefusjon(OmsorgspengerPdfRequest dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfOmsorgspengerRefusjon(OmsorgspengerPdfRequest pdfRequest) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + OMSORGSPENGER_REFUSJON_PATH);
-        var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
+        var request = RestRequest.newPOSTJson(pdfRequest, endpoint, restConfig);
         return genererPdf(request);
     }
 
-    public byte[] genererPdfOmsorgspengerInntektsmelding(OmsorgspengerPdfRequest dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfOmsorgspengerInntektsmelding(OmsorgspengerPdfRequest pdfRequest) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + OMSORGSPENGER_INNTEKTSMELDING_PATH);
-        var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
+        var request = RestRequest.newPOSTJson(pdfRequest, endpoint, restConfig);
         return genererPdf(request);
     }
 
