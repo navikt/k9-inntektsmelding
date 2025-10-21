@@ -231,7 +231,7 @@ class GrunnlagTjenesteTest {
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var aktørId = new AktørIdEntitet("9999999999999");
         var forespørsel = ForespørselMapper.mapForespørsel("999999999",
-            førsteFraværsdag.plusWeeks(1),
+            førsteFraværsdag.plusWeeks(5),
             aktørId.getAktørId(),
             ytelsetype,
             "123",
