@@ -223,7 +223,7 @@ class GrunnlagTjenesteTest {
     }
 
     @Test
-    void skal_gi_arbeidsgiverinitiertdto_hvis_ingen_matchende_forespørsler_finnes() {
+    void skal_hente_opplysninger_uten_forespørsel_uuid_hvis_eksisternede_forespøsel_er_utenfor_4_uker() {
         // Arrange
         var fødselsnummer = new PersonIdent("11111111111");
         var ytelsetype = Ytelsetype.PLEIEPENGER_SYKT_BARN;
@@ -231,7 +231,7 @@ class GrunnlagTjenesteTest {
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var aktørId = new AktørIdEntitet("9999999999999");
         var forespørsel = ForespørselMapper.mapForespørsel("999999999",
-            førsteFraværsdag.plusWeeks(1),
+            førsteFraværsdag.plusWeeks(4),
             aktørId.getAktørId(),
             ytelsetype,
             "123",
@@ -267,7 +267,7 @@ class GrunnlagTjenesteTest {
     }
 
     @Test
-    void skal_gi_opplysningerDto_hvis_matchende_forespørsel_finnes() {
+    void skal_hente_opplysninger_med_forespørsel_uuid_hvis_eksisternede_forespøsel_er_innenfor_4_uker() {
         // Arrange
         var fødselsnummer = new PersonIdent("11111111111");
         var ytelsetype = Ytelsetype.PLEIEPENGER_SYKT_BARN;
