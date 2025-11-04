@@ -28,6 +28,7 @@ import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.k9.sak.typer.AktørId;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @AutentisertMedTokenX
@@ -77,7 +78,8 @@ public class ArbeidsgiverinitiertDialogRest {
 
         // Sjekk at søker har sak i k9-sak
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
-        List<FagsakInfo> fagsakerIK9Sak =  k9SakTjeneste.hentFagsakInfo(ytelsetype, request.fødselsnummer());
+        AktørId aktørId = new AktørId(personInfo.aktørId().getAktørId());
+        List<FagsakInfo> fagsakerIK9Sak =  k9SakTjeneste.hentFagsakInfo(ytelsetype, aktørId);
         List<PeriodeDto> søknadsPerioderForFagsakerIK9 = fagsakerIK9Sak.stream()
             .flatMap(fagsak -> fagsak.søknadsPerioder().stream())
             .toList();
@@ -88,6 +90,11 @@ public class ArbeidsgiverinitiertDialogRest {
         if (!finnesSakIK9) {
             var feilmelding = String.format("Du kan ikke sende inn inntektsmelding på %s for denne personen", ytelsetype);
             throw new FunksjonellException("INGEN_SAK_FUNNET", feilmelding, null, null);
+        }
+
+        if (fagsakerIK9Sak.stream().anyMatch(FagsakInfo::venterForTidligSøknad)) {
+            var feilmelding = String.format("Du kan ikke sende inn inntektsmelding før fire uker før denne personen starter med %s", ytelsetype);
+            throw new FunksjonellException("SENDT_FOR_TIDLIG", feilmelding, null, null);
         }
 
         var response = grunnlagTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag());

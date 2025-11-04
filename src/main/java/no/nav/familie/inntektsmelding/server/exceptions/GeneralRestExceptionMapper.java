@@ -37,6 +37,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
                     return ingenSakFunnet();
                 }
             }
+            if (feil instanceof FunksjonellException) {
+                var exceptionMelding = getExceptionMelding(feil);
+                if (exceptionMelding.contains("SENDT_FOR_TIDLIG")) {
+                    LOG.info("Inntektsmelding sendt for tidlig feil: {}", exceptionMelding);
+                    return sendtInnForTidlig();
+                }
+            }
             loggTilApplikasjonslogg(feil);
             return serverError("Serverfeil");
         } finally {
@@ -58,6 +65,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     private static Response ingenSakFunnet() {
         return Response.status(Response.Status.FORBIDDEN)
             .entity(new FeilDto(FeilType.INGEN_SAK_FUNNET, "Ingen sak funnet", MDCOperations.getCallId()))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
+    }
+
+    private static Response sendtInnForTidlig() {
+        return Response.status(Response.Status.FORBIDDEN)
+            .entity(new FeilDto(FeilType.SENDT_FOR_TIDLIG, "Sendt inntektsmelding for tidlig", MDCOperations.getCallId()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }

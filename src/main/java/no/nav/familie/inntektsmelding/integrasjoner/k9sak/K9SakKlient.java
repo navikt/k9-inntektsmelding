@@ -12,10 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.k9.kodeverk.behandling.FagsakYtelseType;
-import no.nav.k9.sak.kontrakt.fagsak.FagsakInfoDto;
-import no.nav.k9.sak.kontrakt.fagsak.MatchFagsak;
-import no.nav.k9.sak.typer.Periode;
-import no.nav.k9.sak.typer.PersonIdent;
+import no.nav.k9.sak.kontrakt.k9inntektsmelding.FinnSakerDto;
+import no.nav.k9.sak.kontrakt.k9inntektsmelding.FinnSakerRequest;
+import no.nav.k9.sak.typer.AktørId;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
@@ -25,7 +24,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, scopesProperty = "k9sak.scopes", scopesDefault = "api://dev-fss.k9saksbehandling.k9-sak/.default", endpointDefault = "https://k9-sak.dev-fss-pub.nais.io/k9/sak/api", endpointProperty = "k9sak.url")
 public class K9SakKlient {
-    private static final String K9SAK_FAKSAKINFO_PATH = "/fagsak/match";
+    private static final String K9SAK_FINN_SAKER_PATH = "/k9-inntektsmelding/saker";
     private static final Logger LOG = LoggerFactory.getLogger(K9SakKlient.class);
 
     private final RestClient restClient;
@@ -41,20 +40,15 @@ public class K9SakKlient {
         this.restConfig = RestConfig.forClient(this.getClass());
     }
 
-    public List<FagsakInfoDto> hentFagsakInfo(Ytelsetype ytelsetype, String personIdent) {
-        URI url = UriBuilder.fromUri(restConfig.endpoint()).path(K9SAK_FAKSAKINFO_PATH).build();
-        Periode gyldigPeriode = null; // setter null for å sjekke alle perioder
-        PersonIdent bruker = new PersonIdent(personIdent);
-        List<PersonIdent> pleietrengende = null; // søker uten pleietrengende
-        List<PersonIdent> annenPart = null; // søker uten annen part
-
-        var requestDto = new MatchFagsak(mapYtelsetype(ytelsetype), gyldigPeriode, bruker, pleietrengende, annenPart);
+    public List<FinnSakerDto> hentFagsakInfo(Ytelsetype ytelsetype, AktørId aktørId) {
+        URI url = UriBuilder.fromUri(restConfig.endpoint()).path(K9SAK_FINN_SAKER_PATH).build();
+        var requestDto = new FinnSakerRequest(aktørId, mapYtelsetype(ytelsetype));
         var request = RestRequest.newPOSTJson(requestDto, url, restConfig);
 
         try {
-            return restClient.sendReturnList(request, FagsakInfoDto.class);
+            return restClient.sendReturnList(request, FinnSakerDto.class);
         } catch (Exception e) {
-            LOG.error("Kall mot k9-sak feilet for personIdent {}", personIdent, e);
+            LOG.error("Kall mot k9-sak feilet for", e);
             throw new RuntimeException("Kall mot k9-sak feilet", e);
         }
     }
