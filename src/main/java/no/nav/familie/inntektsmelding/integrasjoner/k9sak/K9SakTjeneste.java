@@ -5,12 +5,12 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.k9.kodeverk.behandling.FagsakYtelseType;
-import no.nav.k9.sak.kontrakt.fagsak.FagsakInfoDto;
+import no.nav.k9.sak.kontrakt.k9inntektsmelding.FinnSakerDto;
+import no.nav.k9.sak.typer.AktørId;
 
 @ApplicationScoped
 public class K9SakTjeneste {
@@ -25,22 +25,23 @@ public class K9SakTjeneste {
         this.klient = klient;
     }
 
-    public List<FagsakInfo> hentFagsakInfo(Ytelsetype ytelsetype, PersonIdent personIdent) {
-        List<FagsakInfoDto> k9Fagsaker = klient.hentFagsakInfo(ytelsetype, personIdent.getIdent());
+    public List<FagsakInfo> hentFagsakInfo(Ytelsetype ytelsetype, AktørId aktørId) {
+        List<FinnSakerDto> k9Fagsaker = klient.hentFagsakInfo(ytelsetype, aktørId);
 
         return k9Fagsaker.stream()
             .map(k9Fagsak ->
                 new FagsakInfo(
-                    new SaksnummerDto(k9Fagsak.getSaksnummer().getVerdi()),
-                    mapYtelsetype(k9Fagsak.getYtelseType()),
-                    new PeriodeDto(k9Fagsak.getGyldigPeriode().getFom(), k9Fagsak.getGyldigPeriode().getTom()),
-                    mapSøknadsperiode(k9Fagsak)
+                    new SaksnummerDto(k9Fagsak.saksnummer().getVerdi()),
+                    mapYtelsetype(k9Fagsak.ytelseType()),
+                    new PeriodeDto(k9Fagsak.gyldigPeriode().getFom(), k9Fagsak.gyldigPeriode().getTom()),
+                    mapSøknadsperiode(k9Fagsak),
+                    k9Fagsak.venterForTidligSøknad()
                 )
             ).toList();
     }
 
-    private static List<PeriodeDto> mapSøknadsperiode(FagsakInfoDto k9Fagsak) {
-        return k9Fagsak.getSøknadsperioder()
+    private static List<PeriodeDto> mapSøknadsperiode(FinnSakerDto k9Fagsak) {
+        return k9Fagsak.søknadsperioder()
             .stream()
             .map(søknadsPeriode -> new PeriodeDto(søknadsPeriode.getFom(), søknadsPeriode.getTom()))
             .toList();

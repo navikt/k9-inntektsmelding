@@ -9,5 +9,6 @@ import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 public record FagsakInfo(SaksnummerDto saksnummer,
                          Ytelsetype ytelseType,
                          PeriodeDto gyldigPeriode,
-                         List<PeriodeDto> søknadsPerioder) {
+                         List<PeriodeDto> søknadsPerioder,
+                         boolean venterForTidligSøknad) {
 }
