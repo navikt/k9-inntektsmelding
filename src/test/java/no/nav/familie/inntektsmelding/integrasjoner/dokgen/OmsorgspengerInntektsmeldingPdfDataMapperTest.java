@@ -27,7 +27,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.familie.inntektsmelding.utils.FormatUtils;
 
 @ExtendWith(MockitoExtension.class)
-class OmsorgspengerPdfRequestMapperTest {
+class OmsorgspengerInntektsmeldingPdfDataMapperTest {
     private static final String FORNAVN = "Test";
     private static final String MELLOMNAVN = "Tester";
     private static final String ETTERNAVN = "Testesen";
@@ -63,23 +63,23 @@ class OmsorgspengerPdfRequestMapperTest {
             .medMånedRefusjon(REFUSJON_BELØP)
             .build();
 
-        var pdfData = OmsorgspengerPdfRequestMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+        var pdfData = OmsorgspengerInntektsmeldingPdfDataMapper.mapOmsorgspengerInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
-        assertThat(pdfData.arbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
-        assertThat(pdfData.avsenderSystem()).isEqualTo("NAV_NO");
-        assertThat(pdfData.arbeidsgiverNavn()).isEqualTo(ARBEIDSGIVER_NAVN);
-        assertThat(pdfData.kontaktperson().navn()).isEqualTo(NAVN);
-        assertThat(pdfData.kontaktperson().telefonnummer()).isEqualTo(ORG_NUMMER);
-        assertThat(pdfData.månedInntekt()).isEqualTo(INNTEKT);
-        assertThat(pdfData.navnSøker()).isEqualTo(FORNAVN + " " + MELLOMNAVN + " " + ETTERNAVN);
-        assertThat(pdfData.opprettetTidspunkt()).isEqualTo(FormatUtils.formaterDatoOgTidNorsk(OPPRETTETT_TIDSPUNKT));
-        assertThat(pdfData.personnummer()).isEqualTo(FormatUtils.formaterPersonnummer(personIdent.getIdent()));
-        assertThat(pdfData.endringsarsaker()).isEmpty();
+        assertThat(pdfData.getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
+        assertThat(pdfData.getAvsenderSystem()).isEqualTo("NAV_NO");
+        assertThat(pdfData.getArbeidsgiverNavn()).isEqualTo(ARBEIDSGIVER_NAVN);
+        assertThat(pdfData.getKontaktperson().navn()).isEqualTo(NAVN);
+        assertThat(pdfData.getKontaktperson().telefonnummer()).isEqualTo(ORG_NUMMER);
+        assertThat(pdfData.getMånedInntekt()).isEqualTo(INNTEKT);
+        assertThat(pdfData.getNavnSøker()).isEqualTo(FORNAVN + " " + MELLOMNAVN + " " + ETTERNAVN);
+        assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(FormatUtils.formaterDatoOgTidNorsk(OPPRETTETT_TIDSPUNKT));
+        assertThat(pdfData.getPersonnummer()).isEqualTo(FormatUtils.formaterPersonnummer(personIdent.getIdent()));
+        assertThat(pdfData.getEndringsarsaker()).isEmpty();
 
-        assertThat(pdfData.harUtbetaltLønn()).isEqualTo("Ja");
-        assertThat(pdfData.fraværsperioder()).hasSize(1);
-        assertThat(pdfData.fraværsperioder().get(0).fom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode.getPeriode().getFom()));
-        assertThat(pdfData.fraværsperioder().get(0).tom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode.getPeriode().getTom()));
+        assertThat(pdfData.getHarUtbetaltLønn()).isEqualTo("Ja");
+        assertThat(pdfData.getFraværsperioder()).hasSize(1);
+        assertThat(pdfData.getFraværsperioder().get(0).fom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode.getPeriode().getFom()));
+        assertThat(pdfData.getFraværsperioder().get(0).tom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode.getPeriode().getTom()));
     }
 
     @Test
@@ -116,42 +116,42 @@ class OmsorgspengerPdfRequestMapperTest {
             .medOmsorgspenger(omsorgspengerEntitet)
             .build();
 
-        var pdfData = OmsorgspengerPdfRequestMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+        var pdfData = OmsorgspengerInntektsmeldingPdfDataMapper.mapOmsorgspengerInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
-        assertThat(pdfData.arbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
-        assertThat(pdfData.avsenderSystem()).isEqualTo("NAV_NO");
-        assertThat(pdfData.arbeidsgiverNavn()).isEqualTo(ARBEIDSGIVER_NAVN);
-        assertThat(pdfData.kontaktperson().navn()).isEqualTo(NAVN);
-        assertThat(pdfData.kontaktperson().telefonnummer()).isEqualTo(ORG_NUMMER);
-        assertThat(pdfData.månedInntekt()).isEqualTo(INNTEKT);
-        assertThat(pdfData.navnSøker()).isEqualTo(FORNAVN + " " + MELLOMNAVN + " " + ETTERNAVN);
-        assertThat(pdfData.opprettetTidspunkt()).isEqualTo(FormatUtils.formaterDatoOgTidNorsk(OPPRETTETT_TIDSPUNKT));
-        assertThat(pdfData.personnummer()).isEqualTo(FormatUtils.formaterPersonnummer(personIdent.getIdent()));
+        assertThat(pdfData.getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
+        assertThat(pdfData.getAvsenderSystem()).isEqualTo("NAV_NO");
+        assertThat(pdfData.getArbeidsgiverNavn()).isEqualTo(ARBEIDSGIVER_NAVN);
+        assertThat(pdfData.getKontaktperson().navn()).isEqualTo(NAVN);
+        assertThat(pdfData.getKontaktperson().telefonnummer()).isEqualTo(ORG_NUMMER);
+        assertThat(pdfData.getMånedInntekt()).isEqualTo(INNTEKT);
+        assertThat(pdfData.getNavnSøker()).isEqualTo(FORNAVN + " " + MELLOMNAVN + " " + ETTERNAVN);
+        assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(FormatUtils.formaterDatoOgTidNorsk(OPPRETTETT_TIDSPUNKT));
+        assertThat(pdfData.getPersonnummer()).isEqualTo(FormatUtils.formaterPersonnummer(personIdent.getIdent()));
 
-        assertThat(pdfData.harUtbetaltLønn()).isEqualTo("Nei");
-        assertThat(pdfData.fraværsperioder()).hasSize(2);
-        assertThat(pdfData.fraværsperioder().get(0).fom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode1.getPeriode().getFom()));
-        assertThat(pdfData.fraværsperioder().get(0).tom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode1.getPeriode().getTom()));
-        assertThat(pdfData.fraværsperioder().get(1).fom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode2.getPeriode().getFom()));
-        assertThat(pdfData.fraværsperioder().get(1).tom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode2.getPeriode().getTom()));
+        assertThat(pdfData.getHarUtbetaltLønn()).isEqualTo("Nei");
+        assertThat(pdfData.getFraværsperioder()).hasSize(2);
+        assertThat(pdfData.getFraværsperioder().get(0).fom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode1.getPeriode().getFom()));
+        assertThat(pdfData.getFraværsperioder().get(0).tom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode1.getPeriode().getTom()));
+        assertThat(pdfData.getFraværsperioder().get(1).fom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode2.getPeriode().getFom()));
+        assertThat(pdfData.getFraværsperioder().get(1).tom()).isEqualTo(FormatUtils.formaterDatoForLister(fraværsPeriode2.getPeriode().getTom()));
 
-        assertThat(pdfData.endringsarsaker().isEmpty()).isFalse();
-        assertThat(pdfData.endringsarsaker()).hasSize(3);
+        assertThat(pdfData.getEndringsarsaker().isEmpty()).isFalse();
+        assertThat(pdfData.getEndringsarsaker()).hasSize(3);
 
-        assertThat(pdfData.endringsarsaker().get(0).arsak()).isEqualTo(Endringsårsak.PERMISJON.getBeskrivelse());
-        assertThat(pdfData.endringsarsaker().get(0).fom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakFom));
-        assertThat(pdfData.endringsarsaker().get(0).tom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakTom));
-        assertThat(pdfData.endringsarsaker().get(0).bleKjentFra()).isNull();
+        assertThat(pdfData.getEndringsarsaker().get(0).arsak()).isEqualTo(Endringsårsak.PERMISJON.getBeskrivelse());
+        assertThat(pdfData.getEndringsarsaker().get(0).fom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakFom));
+        assertThat(pdfData.getEndringsarsaker().get(0).tom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakTom));
+        assertThat(pdfData.getEndringsarsaker().get(0).bleKjentFra()).isNull();
 
-        assertThat(pdfData.endringsarsaker().get(1).arsak()).isEqualTo(Endringsårsak.BONUS.getBeskrivelse());
-        assertThat(pdfData.endringsarsaker().get(1).fom()).isNull();
-        assertThat(pdfData.endringsarsaker().get(1).tom()).isNull();
-        assertThat(pdfData.endringsarsaker().get(1).bleKjentFra()).isNull();
+        assertThat(pdfData.getEndringsarsaker().get(1).arsak()).isEqualTo(Endringsårsak.BONUS.getBeskrivelse());
+        assertThat(pdfData.getEndringsarsaker().get(1).fom()).isNull();
+        assertThat(pdfData.getEndringsarsaker().get(1).tom()).isNull();
+        assertThat(pdfData.getEndringsarsaker().get(1).bleKjentFra()).isNull();
 
-        assertThat(pdfData.endringsarsaker().get(2).arsak()).isEqualTo(Endringsårsak.TARIFFENDRING.getBeskrivelse());
-        assertThat(pdfData.endringsarsaker().get(2).fom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakFom));
-        assertThat(pdfData.endringsarsaker().get(2).tom()).isNull();
-        assertThat(pdfData.endringsarsaker().get(2).bleKjentFra()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakBleKjentFra));
+        assertThat(pdfData.getEndringsarsaker().get(2).arsak()).isEqualTo(Endringsårsak.TARIFFENDRING.getBeskrivelse());
+        assertThat(pdfData.getEndringsarsaker().get(2).fom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakFom));
+        assertThat(pdfData.getEndringsarsaker().get(2).tom()).isNull();
+        assertThat(pdfData.getEndringsarsaker().get(2).bleKjentFra()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakBleKjentFra));
     }
 
     private InntektsmeldingEntitet.Builder lagStandardInntektsmeldingBuilder() {

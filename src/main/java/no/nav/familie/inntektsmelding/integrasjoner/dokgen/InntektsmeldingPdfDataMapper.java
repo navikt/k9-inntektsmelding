@@ -1,15 +1,12 @@
 package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
-import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.utils.FormatUtils;
 import no.nav.familie.inntektsmelding.utils.mapper.NaturalYtelseMapper;
 import no.nav.familie.inntektsmelding.utils.mapper.PdfDataMapperUtil;
@@ -21,53 +18,37 @@ public class InntektsmeldingPdfDataMapper {
         throw new IllegalStateException("InntektsmeldingPdfDataMapper: Utility class");
     }
 
-    public static InntektsmeldingPdfRequest map(InntektsmeldingEntitet inntektsmelding,
-                                                String arbeidsgiverNavn,
-                                                PersonInfo personInfo,
-                                                String arbeidsgvierIdent) {
-        String avsenderSystem = "NAV_NO";
-        String navnSøker = personInfo.mapNavn();
-        String personnummer = FormatUtils.formaterPersonnummer(personInfo.fødselsnummer().getIdent());
-        Ytelsetype ytelsetype = inntektsmelding.getYtelsetype();
-        Kontaktperson kontaktperson = PdfDataMapperUtil.mapKontaktperson(inntektsmelding);
-        LocalDate startDato = inntektsmelding.getStartDato();
-        BigDecimal månedInntekt = inntektsmelding.getMånedInntekt();
-        String opprettetTidspunkt = FormatUtils.formaterDatoOgTidNorsk(inntektsmelding.getOpprettetTidspunkt());
+    public static InntektsmeldingPdfData mapInntektsmeldingData(InntektsmeldingEntitet inntektsmelding,
+                                                                String arbeidsgiverNavn,
+                                                                PersonInfo personInfo,
+                                                                String arbeidsgvierIdent) {
+        var startdato = inntektsmelding.getStartDato();
+        var imDokumentdataBuilder = new InntektsmeldingPdfData.Builder()
+            .medNavn(personInfo.mapNavn())
+            .medPersonnummer(personInfo.fødselsnummer().getIdent())
+            .medArbeidsgiverIdent(arbeidsgvierIdent)
+            .medArbeidsgiverNavn(arbeidsgiverNavn)
+            .medAvsenderSystem("NAV_NO")
+            .medYtelseNavn(inntektsmelding.getYtelsetype())
+            .medOpprettetTidspunkt(inntektsmelding.getOpprettetTidspunkt())
+            .medStartDato(startdato)
+            .medMånedInntekt(inntektsmelding.getMånedInntekt())
+            .medKontaktperson(PdfDataMapperUtil.mapKontaktperson(inntektsmelding))
+            .medNaturalytelser(mapNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
+            .medIngenBortfaltNaturalytelse(erIngenBortalteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
+            .medIngenGjenopptattNaturalytelse(erIngenGjenopptatteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser()))
+            .medEndringsårsaker(PdfDataMapperUtil.mapEndringsårsaker(inntektsmelding.getEndringsårsaker()));
 
-        List<RefusjonsendringPeriode> refusjonsendringer = finnRefusjonsendringPerioder(inntektsmelding, startDato);
-        List<NaturalYtelse> naturalytelser = mapNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser());
-        boolean ingenBortfaltNaturalytelse = erIngenBortalteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser());
-        boolean ingenGjenopptattNaturalytelse = erIngenGjenopptatteNaturalYtelser(inntektsmelding.getBorfalteNaturalYtelser());
-        List<Endringsarsak> endringsarsaker = PdfDataMapperUtil.mapEndringsårsaker(inntektsmelding.getEndringsårsaker());
-        int antallRefusjonsperioder = refusjonsendringer != null ? refusjonsendringer.size() : 0;
-
-        return new InntektsmeldingPdfRequest(
-            avsenderSystem,
-            navnSøker,
-            personnummer,
-            ytelsetype,
-            arbeidsgvierIdent,
-            arbeidsgiverNavn,
-            kontaktperson,
-            FormatUtils.formaterDatoMedNavnPåUkedag(startDato),
-            månedInntekt,
-            opprettetTidspunkt,
-            refusjonsendringer,
-            naturalytelser,
-            ingenBortfaltNaturalytelse,
-            ingenGjenopptattNaturalytelse,
-            endringsarsaker,
-            antallRefusjonsperioder
-        );
-    }
-
-    private static List<RefusjonsendringPeriode> finnRefusjonsendringPerioder(InntektsmeldingEntitet inntektsmelding, LocalDate startDato) {
-        if (inntektsmelding.getMånedRefusjon() == null) {
-            return null;
+        if (inntektsmelding.getMånedRefusjon() != null) {
+            var opphørsdato = inntektsmelding.getOpphørsdatoRefusjon() != null ? inntektsmelding.getOpphørsdatoRefusjon() : null;
+            var refusjonsendringerTilPdf = PdfDataMapperUtil.mapRefusjonsendringPerioder(inntektsmelding.getRefusjonsendringer(), opphørsdato, inntektsmelding.getMånedRefusjon(), startdato);
+            imDokumentdataBuilder.medRefusjonsendringer(refusjonsendringerTilPdf);
+            imDokumentdataBuilder.medAntallRefusjonsperioder(refusjonsendringerTilPdf.size());
+        } else {
+            imDokumentdataBuilder.medAntallRefusjonsperioder(0);
         }
 
-        LocalDate opphørsdato = inntektsmelding.getOpphørsdatoRefusjon() != null ? inntektsmelding.getOpphørsdatoRefusjon() : null;
-        return PdfDataMapperUtil.mapRefusjonsendringPerioder(inntektsmelding.getRefusjonsendringer(), opphørsdato, inntektsmelding.getMånedRefusjon(), startDato);
+        return imDokumentdataBuilder.build();
     }
 
     private static boolean erIngenGjenopptatteNaturalYtelser(List<BortaltNaturalytelseEntitet> naturalYtelser) {
