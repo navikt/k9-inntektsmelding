@@ -25,7 +25,7 @@ jobs:
     uses: navikt/sif-gha-workflows/.github/workflows/maven-build-app-db.yml@main
     with:
       java-version: 25
-      build-image: ${{ github.actor != 'dependabot[bot]' }}
+      build-image: true
       push-image: ${{ github.ref_name == github.event.repository.default_branch}}
       upload-image: ${{ github.ref_name != github.event.repository.default_branch }} # TODO: hør med Qadeer om denne trengs
       db_schema: k9inntektsmelding_unit
@@ -46,6 +46,23 @@ jobs:
       suites: "beregning,pleiepenger-pleietrengende,livetssluttfase"
       override_image_artifact_name: ${{ github.ref_name != github.event.repository.default_branch && needs.build-app.outputs.image-artifact-name || null }}
       image_version: ${{ needs.build-app.outputs.build-version }}
+
+  verdikjede-tester-dependabot:
+    name: Verdikjedetester Dependabot
+    secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
+      packages: read
+    uses: navikt/sif-gha-workflows/.github/workflows/verdikjede-test-v2.yml@main
+    if: ${{github.actor == 'dependabot[bot]'}}
+    needs: build-app
+    with:
+      tag: ${{ needs.build-app.outputs.build-version }}
+      suites: "pleiepenger"
+      override_image_artifact_name: ${{ github.ref_name != github.event.repository.default_branch && needs.build-app.outputs.image-artifact-name || null }}
+      image_version: ${{ needs.build-app.outputs.build-version }}
+
 
   deploy-dev:
     name: Deploy dev
