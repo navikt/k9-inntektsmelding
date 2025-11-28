@@ -11,6 +11,8 @@ updates:
     directory: "/"
     schedule:
       interval: daily
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
 
   - package-ecosystem: maven
@@ -19,6 +21,10 @@ updates:
       - maven-github
     schedule:
       interval: daily
+    cooldown:
+      default-days: 7
+      exclude:
+        - "no.nav.k9.felles.*"
     open-pull-requests-limit: 20
     allow:
       - dependency-type: "all"
