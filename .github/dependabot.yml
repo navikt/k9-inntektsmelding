@@ -24,7 +24,7 @@ updates:
     cooldown:
       default-days: 7
       exclude:
-        - "no.nav.k9.felles.*"
+        - "no.nav.*"
     open-pull-requests-limit: 20
     allow:
       - dependency-type: "all"
