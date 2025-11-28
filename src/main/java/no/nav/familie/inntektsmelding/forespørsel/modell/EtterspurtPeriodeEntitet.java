@@ -20,7 +20,7 @@ public class EtterspurtPeriodeEntitet {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
     private Long id;
-
+//TODO dette er en test
     @ManyToOne(optional = false)
     @JoinColumn(name = "FORESPOERSEL_ID", nullable = false, updatable = false)
     private ForespørselEntitet forespørsel;
