@@ -66,28 +66,28 @@ class InntektsmeldingPdfDataMapperTest {
             .medBortfaltNaturalytelser(List.of(naturalytelse))
             .build();
 
-        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+        var pdfData = InntektsmeldingPdfDataMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
-        assertThat(pdfData.getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
-        assertThat(pdfData.getAvsenderSystem()).isEqualTo("NAV_NO");
-        assertThat(pdfData.getArbeidsgiverNavn()).isEqualTo(ARBEIDSGIVER_NAVN);
-        assertThat(pdfData.getKontaktperson().navn()).isEqualTo(NAVN);
-        assertThat(pdfData.getKontaktperson().telefonnummer()).isEqualTo(ORG_NUMMER);
-        assertThat(pdfData.getMånedInntekt()).isEqualTo(INNTEKT);
-        assertThat(pdfData.getNavnSøker()).isEqualTo(FORNAVN + " " + MELLOMNAVN + " " + ETTERNAVN);
-        assertThat(pdfData.getYtelsetype()).isEqualTo(Ytelsetype.PLEIEPENGER_SYKT_BARN);
-        assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(FormatUtils.formaterDatoOgTidNorsk(OPPRETTETT_TIDSPUNKT));
-        assertThat(pdfData.getStartDato()).isEqualTo(FormatUtils.formaterDatoMedNavnPåUkedag(START_DATO));
-        assertThat(pdfData.getPersonnummer()).isEqualTo(FormatUtils.formaterPersonnummer(personIdent.getIdent()));
-        assertThat(pdfData.getRefusjonsendringer()).hasSize(1);
-        assertThat(pdfData.getAntallRefusjonsperioder()).isEqualTo(1);
-        assertThat(pdfData.getRefusjonsendringer().getFirst().beloep()).isEqualTo(REFUSJON_BELØP);
-        assertThat(pdfData.getRefusjonsendringer().getFirst().fom()).isEqualTo(FormatUtils.formaterDatoForLister(START_DATO));
+        assertThat(pdfData.arbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
+        assertThat(pdfData.avsenderSystem()).isEqualTo("NAV_NO");
+        assertThat(pdfData.arbeidsgiverNavn()).isEqualTo(ARBEIDSGIVER_NAVN);
+        assertThat(pdfData.kontaktperson().navn()).isEqualTo(NAVN);
+        assertThat(pdfData.kontaktperson().telefonnummer()).isEqualTo(ORG_NUMMER);
+        assertThat(pdfData.månedInntekt()).isEqualTo(INNTEKT);
+        assertThat(pdfData.navnSøker()).isEqualTo(FORNAVN + " " + MELLOMNAVN + " " + ETTERNAVN);
+        assertThat(pdfData.ytelsetype()).isEqualTo(Ytelsetype.PLEIEPENGER_SYKT_BARN);
+        assertThat(pdfData.opprettetTidspunkt()).isEqualTo(FormatUtils.formaterDatoOgTidNorsk(OPPRETTETT_TIDSPUNKT));
+        assertThat(pdfData.startDato()).isEqualTo(FormatUtils.formaterDatoMedNavnPåUkedag(START_DATO));
+        assertThat(pdfData.personnummer()).isEqualTo(FormatUtils.formaterPersonnummer(personIdent.getIdent()));
+        assertThat(pdfData.refusjonsendringer()).hasSize(1);
+        assertThat(pdfData.antallRefusjonsperioder()).isEqualTo(1);
+        assertThat(pdfData.refusjonsendringer().getFirst().beloep()).isEqualTo(REFUSJON_BELØP);
+        assertThat(pdfData.refusjonsendringer().getFirst().fom()).isEqualTo(FormatUtils.formaterDatoForLister(START_DATO));
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isFalse();
-        assertThat(pdfData.getNaturalytelser().getFirst().fom()).isEqualTo(FormatUtils.formaterDatoForLister(naturalytelseFraDato));
-        assertThat(pdfData.getNaturalytelser().getFirst().beloep()).isEqualTo(naturalytelseBeløp);
-        assertThat(pdfData.getNaturalytelser().getFirst().naturalytelseType()).isEqualTo("Aksjer grunnfondsbevis til underkurs");
+        assertThat(pdfData.naturalytelser().getFirst().fom()).isEqualTo(FormatUtils.formaterDatoForLister(naturalytelseFraDato));
+        assertThat(pdfData.naturalytelser().getFirst().beloep()).isEqualTo(naturalytelseBeløp);
+        assertThat(pdfData.naturalytelser().getFirst().naturalytelseType()).isEqualTo("Aksjer grunnfondsbevis til underkurs");
     }
 
     @Test
@@ -116,43 +116,43 @@ class InntektsmeldingPdfDataMapperTest {
             .medEndringsårsaker(endringsårsaker)
             .build();
 
-        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+        var pdfData = InntektsmeldingPdfDataMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
-        assertThat(pdfData.getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
-        assertThat(pdfData.getAvsenderSystem()).isEqualTo("NAV_NO");
-        assertThat(pdfData.getArbeidsgiverNavn()).isEqualTo(ARBEIDSGIVER_NAVN);
-        assertThat(pdfData.getKontaktperson().navn()).isEqualTo(NAVN);
-        assertThat(pdfData.getKontaktperson().telefonnummer()).isEqualTo(ORG_NUMMER);
-        assertThat(pdfData.getMånedInntekt()).isEqualTo(INNTEKT);
-        assertThat(pdfData.getNavnSøker()).isEqualTo(FORNAVN + " " + MELLOMNAVN + " " + ETTERNAVN);
-        assertThat(pdfData.getYtelsetype()).isEqualTo(Ytelsetype.PLEIEPENGER_SYKT_BARN);
-        assertThat(pdfData.getOpprettetTidspunkt()).isEqualTo(FormatUtils.formaterDatoOgTidNorsk(OPPRETTETT_TIDSPUNKT));
-        assertThat(pdfData.getStartDato()).isEqualTo(FormatUtils.formaterDatoMedNavnPåUkedag(START_DATO));
-        assertThat(pdfData.getPersonnummer()).isEqualTo(FormatUtils.formaterPersonnummer(personIdent.getIdent()));
-        assertThat(pdfData.getRefusjonsendringer()).hasSize(1);
-        assertThat(pdfData.getAntallRefusjonsperioder()).isEqualTo(1);
-        assertThat(pdfData.getRefusjonsendringer().getFirst().beloep()).isEqualTo(REFUSJON_BELØP);
-        assertThat(pdfData.getRefusjonsendringer().getFirst().fom()).isEqualTo(FormatUtils.formaterDatoForLister(START_DATO));
+        assertThat(pdfData.arbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
+        assertThat(pdfData.avsenderSystem()).isEqualTo("NAV_NO");
+        assertThat(pdfData.arbeidsgiverNavn()).isEqualTo(ARBEIDSGIVER_NAVN);
+        assertThat(pdfData.kontaktperson().navn()).isEqualTo(NAVN);
+        assertThat(pdfData.kontaktperson().telefonnummer()).isEqualTo(ORG_NUMMER);
+        assertThat(pdfData.månedInntekt()).isEqualTo(INNTEKT);
+        assertThat(pdfData.navnSøker()).isEqualTo(FORNAVN + " " + MELLOMNAVN + " " + ETTERNAVN);
+        assertThat(pdfData.ytelsetype()).isEqualTo(Ytelsetype.PLEIEPENGER_SYKT_BARN);
+        assertThat(pdfData.opprettetTidspunkt()).isEqualTo(FormatUtils.formaterDatoOgTidNorsk(OPPRETTETT_TIDSPUNKT));
+        assertThat(pdfData.startDato()).isEqualTo(FormatUtils.formaterDatoMedNavnPåUkedag(START_DATO));
+        assertThat(pdfData.personnummer()).isEqualTo(FormatUtils.formaterPersonnummer(personIdent.getIdent()));
+        assertThat(pdfData.refusjonsendringer()).hasSize(1);
+        assertThat(pdfData.antallRefusjonsperioder()).isEqualTo(1);
+        assertThat(pdfData.refusjonsendringer().getFirst().beloep()).isEqualTo(REFUSJON_BELØP);
+        assertThat(pdfData.refusjonsendringer().getFirst().fom()).isEqualTo(FormatUtils.formaterDatoForLister(START_DATO));
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isTrue();
-        assertThat(pdfData.getNaturalytelser()).isEmpty();
-        assertThat(pdfData.getEndringsarsaker().isEmpty()).isFalse();
-        assertThat(pdfData.getEndringsarsaker()).hasSize(3);
+        assertThat(pdfData.naturalytelser()).isEmpty();
+        assertThat(pdfData.endringsarsaker().isEmpty()).isFalse();
+        assertThat(pdfData.endringsarsaker()).hasSize(3);
 
-        assertThat(pdfData.getEndringsarsaker().get(0).arsak()).isEqualTo(Endringsårsak.PERMISJON.getBeskrivelse());
-        assertThat(pdfData.getEndringsarsaker().get(0).fom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakFom));
-        assertThat(pdfData.getEndringsarsaker().get(0).tom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakTom));
-        assertThat(pdfData.getEndringsarsaker().get(0).bleKjentFra()).isNull();
+        assertThat(pdfData.endringsarsaker().get(0).arsak()).isEqualTo(Endringsårsak.PERMISJON.getBeskrivelse());
+        assertThat(pdfData.endringsarsaker().get(0).fom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakFom));
+        assertThat(pdfData.endringsarsaker().get(0).tom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakTom));
+        assertThat(pdfData.endringsarsaker().get(0).bleKjentFra()).isNull();
 
-        assertThat(pdfData.getEndringsarsaker().get(1).arsak()).isEqualTo(Endringsårsak.BONUS.getBeskrivelse());
-        assertThat(pdfData.getEndringsarsaker().get(1).fom()).isNull();
-        assertThat(pdfData.getEndringsarsaker().get(1).tom()).isNull();
-        assertThat(pdfData.getEndringsarsaker().get(1).bleKjentFra()).isNull();
+        assertThat(pdfData.endringsarsaker().get(1).arsak()).isEqualTo(Endringsårsak.BONUS.getBeskrivelse());
+        assertThat(pdfData.endringsarsaker().get(1).fom()).isNull();
+        assertThat(pdfData.endringsarsaker().get(1).tom()).isNull();
+        assertThat(pdfData.endringsarsaker().get(1).bleKjentFra()).isNull();
 
-        assertThat(pdfData.getEndringsarsaker().get(2).arsak()).isEqualTo(Endringsårsak.TARIFFENDRING.getBeskrivelse());
-        assertThat(pdfData.getEndringsarsaker().get(2).fom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakFom));
-        assertThat(pdfData.getEndringsarsaker().get(2).tom()).isNull();
-        assertThat(pdfData.getEndringsarsaker().get(2).bleKjentFra()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakBleKjentFra));
+        assertThat(pdfData.endringsarsaker().get(2).arsak()).isEqualTo(Endringsårsak.TARIFFENDRING.getBeskrivelse());
+        assertThat(pdfData.endringsarsaker().get(2).fom()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakFom));
+        assertThat(pdfData.endringsarsaker().get(2).tom()).isNull();
+        assertThat(pdfData.endringsarsaker().get(2).bleKjentFra()).isEqualTo(FormatUtils.formaterDatoForLister(endringsårsakBleKjentFra));
     }
 
     @Test
@@ -169,20 +169,20 @@ class InntektsmeldingPdfDataMapperTest {
             .medRefusjonsendringer(refusjonsendringer)
             .build();
 
-        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+        var pdfData = InntektsmeldingPdfDataMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
-        assertThat(pdfData.getRefusjonsendringer()).hasSize(3);
-        assertThat(pdfData.getRefusjonsendringer().getFirst().beloep()).isEqualTo(REFUSJON_BELØP);
-        assertThat(pdfData.getRefusjonsendringer().getFirst().fom()).isEqualTo(FormatUtils.formaterDatoForLister(START_DATO));
-        assertThat(pdfData.getRefusjonsendringer().get(1).beloep()).isEqualTo(refusjonsbeløp2);
-        assertThat(pdfData.getRefusjonsendringer().get(1).fom()).isEqualTo(FormatUtils.formaterDatoForLister(refusjonsstartdato2));
-        assertThat(pdfData.getRefusjonsendringer().get(2).beloep()).isEqualTo(refusjonsbeløp3);
-        assertThat(pdfData.getRefusjonsendringer().get(2).fom()).isEqualTo(FormatUtils.formaterDatoForLister(refusjonsstartdato3));
-        assertThat(pdfData.getAntallRefusjonsperioder()).isEqualTo(3);
+        assertThat(pdfData.refusjonsendringer()).hasSize(3);
+        assertThat(pdfData.refusjonsendringer().getFirst().beloep()).isEqualTo(REFUSJON_BELØP);
+        assertThat(pdfData.refusjonsendringer().getFirst().fom()).isEqualTo(FormatUtils.formaterDatoForLister(START_DATO));
+        assertThat(pdfData.refusjonsendringer().get(1).beloep()).isEqualTo(refusjonsbeløp2);
+        assertThat(pdfData.refusjonsendringer().get(1).fom()).isEqualTo(FormatUtils.formaterDatoForLister(refusjonsstartdato2));
+        assertThat(pdfData.refusjonsendringer().get(2).beloep()).isEqualTo(refusjonsbeløp3);
+        assertThat(pdfData.refusjonsendringer().get(2).fom()).isEqualTo(FormatUtils.formaterDatoForLister(refusjonsstartdato3));
+        assertThat(pdfData.antallRefusjonsperioder()).isEqualTo(3);
 
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isTrue();
-        assertThat(pdfData.getNaturalytelser()).isEmpty();
+        assertThat(pdfData.naturalytelser()).isEmpty();
     }
 
     @Test
@@ -214,13 +214,13 @@ class InntektsmeldingPdfDataMapperTest {
             .medBortfaltNaturalytelser(naturalytelser)
             .build();
 
-        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+        var pdfData = InntektsmeldingPdfDataMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isFalse();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isFalse();
-        assertThat(pdfData.getNaturalytelser()).hasSize(5);
+        assertThat(pdfData.naturalytelser()).hasSize(5);
 
-        var bortfalteNaturalytelser = pdfData.getNaturalytelser().stream().filter(NaturalYtelse::erBortfalt).toList();
+        var bortfalteNaturalytelser = pdfData.naturalytelser().stream().filter(NaturalYtelse::erBortfalt).toList();
 
         assertThat(bortfalteNaturalytelser).hasSize(3);
 
@@ -228,7 +228,7 @@ class InntektsmeldingPdfDataMapperTest {
         var forventetAndreFraDato = naturalytelseAndreTilDato.plusDays(1);
 
 
-        var tilkomneNaturalytelser = pdfData.getNaturalytelser().stream().filter(naturalytelse -> !naturalytelse.erBortfalt()).toList();
+        var tilkomneNaturalytelser = pdfData.naturalytelser().stream().filter(naturalytelse -> !naturalytelse.erBortfalt()).toList();
 
         assertThat(tilkomneNaturalytelser).hasSize(2);
         assertThat(tilkomneNaturalytelser.getFirst().fom()).isEqualTo(FormatUtils.formaterDatoForLister(forventetFørsteFraDato));
@@ -264,19 +264,19 @@ class InntektsmeldingPdfDataMapperTest {
             .medBortfaltNaturalytelser(naturalytelser)
             .build();
 
-        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+        var pdfData = InntektsmeldingPdfDataMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isFalse();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isFalse();
-        assertThat(pdfData.getNaturalytelser()).hasSize(5);
+        assertThat(pdfData.naturalytelser()).hasSize(5);
 
-        var bortfalteNaturalytelser = pdfData.getNaturalytelser().stream().filter(NaturalYtelse::erBortfalt).toList();
+        var bortfalteNaturalytelser = pdfData.naturalytelser().stream().filter(NaturalYtelse::erBortfalt).toList();
         assertThat(bortfalteNaturalytelser).hasSize(3);
 
         var forventetFørsteFraDato = naturalytelseTilDato.plusDays(1);
         var forventetAndreFraDato = naturalytelseAndreTilDato.plusDays(1);
 
-        var tilkomneNaturalytelser = pdfData.getNaturalytelser().stream().filter(naturalytelse -> !naturalytelse.erBortfalt()).toList();
+        var tilkomneNaturalytelser = pdfData.naturalytelser().stream().filter(naturalytelse -> !naturalytelse.erBortfalt()).toList();
 
         assertThat(tilkomneNaturalytelser).hasSize(2);
         assertThat(tilkomneNaturalytelser.getFirst().fom()).isEqualTo(FormatUtils.formaterDatoForLister(forventetFørsteFraDato));
@@ -291,11 +291,11 @@ class InntektsmeldingPdfDataMapperTest {
             .medBortfaltNaturalytelser(Collections.emptyList())
             .build();
 
-        var pdfData = InntektsmeldingPdfDataMapper.mapInntektsmeldingData(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
+        var pdfData = InntektsmeldingPdfDataMapper.map(inntektsmeldingEntitet, ARBEIDSGIVER_NAVN, personInfo, ARBEIDSGIVER_IDENT);
 
         assertThat(pdfData.ingenGjenopptattNaturalytelse()).isTrue();
         assertThat(pdfData.ingenBortfaltNaturalytelse()).isTrue();
-        assertThat(pdfData.getNaturalytelser()).isEmpty();
+        assertThat(pdfData.naturalytelser()).isEmpty();
     }
 
     private InntektsmeldingEntitet.Builder lagStandardInntektsmeldingBuilder() {
