@@ -28,6 +28,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTje
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
@@ -299,5 +300,40 @@ class GrunnlagTjenesteTest {
         assertThat(imDialogDto.førsteUttaksdato()).isEqualTo(førsteFraværsdag);
         assertThat(imDialogDto.inntektsopplysninger().gjennomsnittLønn()).isEqualByComparingTo(BigDecimal.valueOf(52000));
         assertThat(imDialogDto.forespørselUuid()).isEqualTo(forespørsel.getUuid());
+    }
+
+    @Test
+    void skal_ikke_bruke_eksisterende_forespørsel_hvis_den_er_utgått () {
+        // Arrange
+        var fødselsnummer = new PersonIdent("11111111111");
+        var ytelsetype = Ytelsetype.PLEIEPENGER_SYKT_BARN;
+        var førsteFraværsdag = LocalDate.now();
+        var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
+        var aktørId = new AktørIdEntitet("9999999999999");
+        var forespørsel = ForespørselMapper.mapForespørsel("999999999", førsteFraværsdag, aktørId.getAktørId(), ytelsetype, "123", ForespørselType.BESTILT_AV_FAGSYSTEM, førsteFraværsdag, null);
+        forespørsel.setStatus(ForespørselStatus.UTGÅTT);
+        var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE);
+        when(personTjeneste.hentPersonFraIdent(fødselsnummer)).thenReturn(personInfo);
+        when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID))).thenReturn(
+            new PersonInfo("Ine", null, "Sender", new PersonIdent(INNMELDER_UID), null, LocalDate.now(), "+4711111111", Kjønn.KVINNE));
+        when(forespørselBehandlingTjeneste.finnAlleForespørsler(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of(forespørsel));
+        when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften",
+            organisasjonsnummer.orgnr()));
+        when(inntektTjeneste.hentInntekt(aktørId,
+            førsteFraværsdag,
+            LocalDate.now(),
+            organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
+        // Act
+        var imDialogDto = grunnlagTjeneste.hentOpplysningerForNyansatt(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
+
+        // Assert
+        assertThat(imDialogDto.person().aktørId()).isEqualTo(aktørId.getAktørId());
+        assertThat(imDialogDto.person().fornavn()).isEqualTo("Navn");
+        assertThat(imDialogDto.person().etternavn()).isEqualTo("Navnesen");
+        assertThat(imDialogDto.arbeidsgiver().organisasjonNavn()).isEqualTo("Bedriften");
+        assertThat(imDialogDto.arbeidsgiver().organisasjonNummer()).isEqualTo(organisasjonsnummer.orgnr());
+        assertThat(imDialogDto.førsteUttaksdato()).isEqualTo(førsteFraværsdag);
+        assertThat(imDialogDto.inntektsopplysninger().gjennomsnittLønn()).isEqualByComparingTo(BigDecimal.valueOf(52000));
+        assertThat(imDialogDto.forespørselUuid()).isEqualTo(null);
     }
 }
