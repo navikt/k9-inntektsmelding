@@ -94,7 +94,8 @@ public class GrunnlagTjeneste {
 
         var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnAlleForespørsler(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
         var forespørslerSomMatcherFraværsdag = eksisterendeForepørsler.stream()
-            .filter(f -> innenforIntervall(førsteFraværsdag, f.getSkjæringstidspunkt()))
+            .filter(forespørsel -> innenforIntervall(førsteFraværsdag, forespørsel.getSkjæringstidspunkt()))
+            .filter(forespørsel -> forespørsel.getStatus() != ForespørselStatus.UTGÅTT)
             .toList();
 
         // Hvis k9-sak har opprettet forespørsel så bruker vi vanlig flyt eller arbeidsgiver allerede har sendt inn inntektsmelding på denne datoen
