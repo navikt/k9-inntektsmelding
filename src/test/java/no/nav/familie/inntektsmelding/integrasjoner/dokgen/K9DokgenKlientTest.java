@@ -32,7 +32,7 @@ class K9DokgenKlientTest {
     void skal_generere_pdf_omsorgspenger_refusjon() throws URISyntaxException {
         K9DokgenKlient k9DokgenKlient = new K9DokgenKlient(restClient);
         when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
-        var bytes = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(lagTestOmsorgspengerPdfRequest("true"));
+        var bytes = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(lagTestOmsorgspengerRefusjonPdfRequest());
         assertThat(bytes).isNotEmpty();
     }
 
@@ -40,12 +40,28 @@ class K9DokgenKlientTest {
     void skal_generere_pdf_omsorgspenger_inntektsmelding() throws URISyntaxException {
         K9DokgenKlient k9DokgenKlient = new K9DokgenKlient(restClient);
         when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
-        var bytes = k9DokgenKlient.genererPdfOmsorgspengerInntektsmelding(lagTestOmsorgspengerPdfRequest("false"));
+        var bytes = k9DokgenKlient.genererPdfOmsorgspengerInntektsmelding(lagTestOmsorgspengerInntektsmeldingPdfRequest());
         assertThat(bytes).isNotEmpty();
     }
 
-    private OmsorgspengerPdfRequest lagTestOmsorgspengerPdfRequest(String harUtbetaltLønn) {
-        return new OmsorgspengerPdfRequest(
+    private OmsorgspengerRefusjonPdfRequest lagTestOmsorgspengerRefusjonPdfRequest() {
+        return new OmsorgspengerRefusjonPdfRequest(
+            "K9-INNTEKTSMELDING",
+            "Test Testesen",
+            "11111111111",
+            "123456789",
+            "Minimal AS",
+            new Kontaktperson("Test Kontakt", "87654321"),
+            new BigDecimal("35000"),
+            LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+            List.of(),
+            new Omsorgspenger(true, List.of(), List.of(), List.of()),
+            new BigDecimal("2025")
+        );
+    }
+
+    private OmsorgspengerInntektsmeldingPdfRequest lagTestOmsorgspengerInntektsmeldingPdfRequest() {
+        return new OmsorgspengerInntektsmeldingPdfRequest(
             "K9-INNTEKTSMELDING",
             "Test Testesen",
             "11111111111",
@@ -56,7 +72,7 @@ class K9DokgenKlientTest {
             LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
             List.of(),
             List.of(),
-            harUtbetaltLønn
+            "false"
         );
     }
 

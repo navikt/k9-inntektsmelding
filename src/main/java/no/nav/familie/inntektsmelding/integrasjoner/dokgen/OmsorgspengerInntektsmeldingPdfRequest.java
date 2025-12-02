@@ -3,7 +3,7 @@ package no.nav.familie.inntektsmelding.integrasjoner.dokgen;
 import java.math.BigDecimal;
 import java.util.List;
 
-public record OmsorgspengerPdfRequest(
+public record OmsorgspengerInntektsmeldingPdfRequest(
     String avsenderSystem,
     String navnSøker,
     String personnummer,
@@ -16,8 +16,8 @@ public record OmsorgspengerPdfRequest(
     List<FraværsPeriode> fraværsperioder,
     String harUtbetaltLønn) {
 
-    public OmsorgspengerPdfRequest anonymiser() {
-        return new OmsorgspengerPdfRequest(
+    public OmsorgspengerInntektsmeldingPdfRequest anonymiser() {
+        return new OmsorgspengerInntektsmeldingPdfRequest(
             avsenderSystem,
             navnSøker,
             personnummer.substring(0, 4) + "** *****",
