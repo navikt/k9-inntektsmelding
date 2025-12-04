@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -93,15 +94,14 @@ public class GrunnlagTjeneste {
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
 
         var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnAlleForespørsler(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
-        var forespørslerSomMatcherFraværsdag = eksisterendeForepørsler.stream()
+        var relevantForespørsel = eksisterendeForepørsler.stream()
             .filter(forespørsel -> innenforIntervall(førsteFraværsdag, forespørsel.getSkjæringstidspunkt()))
             .filter(forespørsel -> forespørsel.getStatus() != ForespørselStatus.UTGÅTT)
-            .toList();
+            .max(Comparator.comparing(ForespørselEntitet::getEndretTidspunkt));
 
-        // Hvis k9-sak har opprettet forespørsel så bruker vi vanlig flyt eller arbeidsgiver allerede har sendt inn inntektsmelding på denne datoen
-        if (!forespørslerSomMatcherFraværsdag.isEmpty()) {
-            var forespørsel = forespørslerSomMatcherFraværsdag.getFirst(); // TODO: blir det alltid riktig å velge den første?
-            return hentOpplysningerFraForespørsel(forespørsel);
+        // Hvis k9-sak har opprettet forespørsel eller arbeidsgiver allerede har sendt inn inntektsmelding på denne datoen, så bruker vi vanlig flyt
+        if (relevantForespørsel.isPresent()) {
+            return hentOpplysningerFraForespørsel(relevantForespørsel.get());
         }
 
         var organisasjonInfo = finnOrganisasjonInfo(organisasjonsnummer.orgnr());
