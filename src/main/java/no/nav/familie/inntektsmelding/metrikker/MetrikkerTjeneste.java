@@ -40,6 +40,9 @@ public class MetrikkerTjeneste {
     // Måler innsending av inntektsmelding for omorgspenger refusjon
     private static final String OMORGSPENGER_REFUSJON_INNSENDING = APP_NAME + "omsorgspenger.refusjon.innsending";
 
+    // Måler innsending av arbeidsgiverinitiert refusjonskrav for nyansatt
+    private static final String AGI_NYANSATT_REFUSJON_INNSENDING = APP_NAME + "agi-nyansatt.refusjon.innsending";
+
     // Måler opprettelse av oppgaver per ytelse
     private static final String COUNTER_FORESPØRRSEL = APP_NAME + ".oppgaver.opprettet";
 
@@ -141,6 +144,17 @@ public class MetrikkerTjeneste {
             Metrics.counter(OMORGSPENGER_REFUSJON_INNSENDING, tags).increment();
         } catch (Exception e) {
             loggFeil(e, "logginnsendtImOmsorgspengerRefusjon");
+        }
+    }
+
+    public static void loggInnsendtAGIRefusjonNyansatt(InntektsmeldingEntitet imEntitet) {
+
+        try {
+            var tags = new ArrayList<Tag>();
+            tags.add(new ImmutableTag(TAG_YTELSE, imEntitet.getYtelsetype().name()));
+            Metrics.counter(AGI_NYANSATT_REFUSJON_INNSENDING, tags).increment();
+        } catch (Exception e) {
+            loggFeil(e, "loggInnsendtAGIRefusjonNyansatt");
         }
     }
 }

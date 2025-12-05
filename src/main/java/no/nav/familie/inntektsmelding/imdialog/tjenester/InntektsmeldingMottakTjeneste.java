@@ -127,6 +127,9 @@ public class InntektsmeldingMottakTjeneste {
         var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitetForAGNyansatt(nyansattRequest, forespørselEnitet);
         var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEnitet);
 
+        // Metrikker i prometheus
+        MetrikkerTjeneste.loggInnsendtAGIRefusjonNyansatt(inntektsmeldingEntitet);
+
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, LukkeÅrsak.ORDINÆR_INNSENDING);
         var opprettetInntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
 
