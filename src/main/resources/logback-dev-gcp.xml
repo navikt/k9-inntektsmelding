@@ -2,4 +2,5 @@
     <logger name="no.nav.familie.inntektsmelding" level="INFO" />
     <logger name="no.nav.vedtak.sikkerhet" level="INFO" />
     <logger name="no.nav.vedtak.felles.integrasjon.rest" level="INFO" />
+    <logger name="org.hibernate.orm.connections.pooling" level="WARN"/>
 </included>
