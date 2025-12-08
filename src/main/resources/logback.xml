@@ -50,6 +50,7 @@
     <logger name="org.apache" level="${log.level.org.apache:-ERROR}"/>
     <logger name="org.jboss.weld" level="${log.level.org.jboss.weld:-WARN}"/>
     <logger name="org.glassfish.jersey" level="${log.level.org.glassfish.jersey:-WARN}" />
+    <logger name="org.hibernate" level="${log.level.org.hibernate:-WARN}"/>
 
     <include optional="true" resource="logback-${NAIS_CLUSTER_NAME}.xml"/>
 
