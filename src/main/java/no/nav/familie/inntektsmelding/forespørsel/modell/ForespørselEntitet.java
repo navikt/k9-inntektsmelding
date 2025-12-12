@@ -159,6 +159,10 @@ public class ForespørselEntitet {
         return opprettetTidspunkt;
     }
 
+    public LocalDateTime getEndretTidspunkt() {
+        return endretTidspunkt;
+    }
+
     public Optional<LocalDate> getFørsteUttaksdato() {
         return Optional.ofNullable(førsteUttaksdato);
     }
