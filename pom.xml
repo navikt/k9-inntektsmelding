@@ -14,9 +14,9 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <felles.version>7.6.12</felles.version>
-        <prosesstask.version>5.2.2</prosesstask.version>
-        <fp-kontrakter.version>9.4.21</fp-kontrakter.version>
+        <felles.version>7.6.11</felles.version>
+        <prosesstask.version>5.2.1</prosesstask.version>
+        <fp-kontrakter.version>9.4.16</fp-kontrakter.version>
 
         <k9-sak.version>6.0.6</k9-sak.version>
     </properties>
@@ -70,31 +70,6 @@
                 <groupId>no.nav.k9.sak</groupId>
                 <artifactId>kontrakt</artifactId>
                 <version>${k9-sak.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>1.5.23</version>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>6.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-junit-jupiter</artifactId>
-                <version>5.21.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-core</artifactId>
-                <version>3.27.6</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>1.21.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -238,10 +213,6 @@
             <artifactId>logstash-logback-encoder</artifactId>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
         </dependency>
@@ -298,15 +269,6 @@
 
     <build>
         <finalName>app</finalName>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.5.0</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>io.github.kobylynskyi</groupId>
@@ -361,6 +323,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.5.0</version>
                 <configuration>
                     <archive>
                         <manifest>
