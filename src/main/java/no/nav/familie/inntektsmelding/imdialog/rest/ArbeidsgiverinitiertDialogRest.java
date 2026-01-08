@@ -27,7 +27,6 @@ import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.k9.sak.typer.AktørId;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -46,7 +45,6 @@ public class ArbeidsgiverinitiertDialogRest {
     private GrunnlagTjeneste grunnlagTjeneste;
     private PersonTjeneste personTjeneste;
     private K9SakTjeneste k9SakTjeneste;
-    private boolean erProd = true;
 
     ArbeidsgiverinitiertDialogRest() {
         // CDI
@@ -57,7 +55,6 @@ public class ArbeidsgiverinitiertDialogRest {
         this.grunnlagTjeneste = grunnlagTjeneste;
         this.personTjeneste = personTjeneste;
         this.k9SakTjeneste = k9SakTjeneste;
-        this.erProd = Environment.current().isProd();
     }
 
     @POST
@@ -65,9 +62,6 @@ public class ArbeidsgiverinitiertDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
     public Response hentArbeidsforhold(@Valid @NotNull HentArbeidsforholdRequest request) {
-        if (erProd) {
-            throw new IllegalStateException("Ugyldig kall på restpunkt som ikke er lansert");
-        }
         LOG.info("Henter arbeidsforhold for søker");
 
         // Sjekk at person finnes
@@ -106,9 +100,6 @@ public class ArbeidsgiverinitiertDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
     public Response hentOpplysninger(@Valid @NotNull OpplysningerRequestDto request) {
-        if (erProd) {
-            throw new IllegalStateException("Ugyldig kall på restpunkt som ikke er lansert");
-        }
         LOG.info("Henter opplysninger for søker");
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
         var hentOpplysningerResponse = grunnlagTjeneste.hentOpplysningerForNyansatt(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer());
