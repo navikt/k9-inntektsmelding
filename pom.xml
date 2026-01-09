@@ -17,7 +17,7 @@
         <felles.version>7.6.11</felles.version>
         <prosesstask.version>5.2.1</prosesstask.version>
         <fp-kontrakter.version>9.4.16</fp-kontrakter.version>
-
+        <k9-felles.version>10.0.5</k9-felles.version>
         <k9-sak.version>6.0.6</k9-sak.version>
     </properties>
 
@@ -71,6 +71,11 @@
                 <artifactId>kontrakt</artifactId>
                 <version>${k9-sak.version}</version>
             </dependency>
+            <dependency>
+                <groupId>no.nav.k9.felles.integrasjon</groupId>
+                <artifactId>k9-bigquery-klient</artifactId>
+                <version>${k9-felles.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -114,6 +119,10 @@
         <dependency>
             <groupId>no.nav.k9.sak</groupId>
             <artifactId>kontrakt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.k9.felles.integrasjon</groupId>
+            <artifactId>k9-bigquery-klient</artifactId>
         </dependency>
 
         <!-- CDI -->

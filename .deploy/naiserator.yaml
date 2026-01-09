@@ -72,6 +72,10 @@ spec:
           - name: "pgaudit.log_parameter"
             value: "on"
         {{/if}}
+    bigQueryDatasets:
+      -  name: k9_inntektsmelding_statistikk_dataset
+         description: Inneholder tabeller for k9-inntektsmelding statistikk
+         permission: READWRITE
   secureLogs:
     enabled: true
   tokenx:
@@ -121,3 +125,5 @@ spec:
   env:
     - name: gruppe.oid.drift
       value: {{driftGruppeOid}}
+    - name: BIG_QUERY_ENABLED
+      value: "true"
