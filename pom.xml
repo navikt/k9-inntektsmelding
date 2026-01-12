@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>5.1.1</version>
+        <version>5.2.1</version>
     </parent>
 
     <groupId>no.nav.familie.inntektsmelding</groupId>
@@ -14,9 +14,9 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <felles.version>7.6.11</felles.version>
-        <prosesstask.version>5.2.1</prosesstask.version>
-        <fp-kontrakter.version>9.4.16</fp-kontrakter.version>
+        <felles.version>7.6.12</felles.version>
+        <prosesstask.version>5.2.2</prosesstask.version>
+        <fp-kontrakter.version>9.4.21</fp-kontrakter.version>
         <k9-felles.version>10.0.5</k9-felles.version>
         <k9-sak.version>6.0.6</k9-sak.version>
     </properties>
@@ -26,7 +26,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>5.1.1</version>
+                <version>5.2.1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -75,6 +75,26 @@
                 <groupId>no.nav.k9.felles.integrasjon</groupId>
                 <artifactId>k9-bigquery-klient</artifactId>
                 <version>${k9-felles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>6.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>5.21.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.27.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>1.21.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
