@@ -15,12 +15,10 @@ import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.OrganisasjonsnummerValidator;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 public class K9DokgenTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(K9DokgenTjeneste.class);
-    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
     private K9DokgenKlient k9DokgenKlient;
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
@@ -73,7 +71,6 @@ public class K9DokgenTjeneste {
             return pdf;
         } catch (Exception e) {
             var anonymPdfRequest = omsorgspengerRefusjonPdfRequest.anonymiser();
-            SECURE_LOG.warn("Klarte ikke å generere pdf av refusjonskrav omsorgspenger: {}", DefaultJsonMapper.toJson(anonymPdfRequest));
             throw new TekniskException("K9INNTEKTSMELDING_1",
                 String.format("Klarte ikke å generere pdf for refusjonskrav omsorgspenger med id %s", inntektsmeldingId), e);
         }
@@ -86,7 +83,6 @@ public class K9DokgenTjeneste {
             return pdf;
         } catch (Exception e) {
             var anonymPdfRequest = omsorgspengerInntektsmeldingPdfRequest.anonymiser();
-            SECURE_LOG.warn("Klarte ikke å generere pdf av inntektsmelding omsorgspenger: {}", DefaultJsonMapper.toJson(anonymPdfRequest));
             throw new TekniskException("K9INNTEKTSMELDING_1",
                 String.format("Klarte ikke å generere pdf for inntektsmelding omsorgspenger med id %s", inntektsmeldingId), e);
         }
@@ -99,7 +95,6 @@ public class K9DokgenTjeneste {
             return pdf;
         } catch (Exception e) {
             var anonymPdfRequest = inntektsmeldingPdfRequest.anonymiser();
-            SECURE_LOG.warn("Klarte ikke å generere pdf av inntektsmelding: {}", DefaultJsonMapper.toJson(anonymPdfRequest));
             throw new TekniskException("K9INNTEKTSMELDING_1",
                 String.format("Klarte ikke å generere pdf for inntektsmelding med id %s", inntektsmeldingId), e);
         }
@@ -112,7 +107,6 @@ public class K9DokgenTjeneste {
             return pdf;
         } catch (Exception e) {
             var anonymPdfRequest = refusjonskravNyansattPdfData.anonymiser();
-            SECURE_LOG.warn("Klarte ikke å generere pdf av refusjonskrav for nyansatt: {}", DefaultJsonMapper.toJson(anonymPdfRequest));
             throw new TekniskException("K9INNTEKTSMELDING_1",
                 String.format("Klarte ikke å generere pdf for refusjonskrav for nyansatt med id %s", inntektsmeldingId), e);
         }

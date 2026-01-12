@@ -76,8 +76,6 @@ spec:
       -  name: k9_inntektsmelding_statistikk_dataset
          description: Inneholder tabeller for k9-inntektsmelding statistikk
          permission: READWRITE
-  secureLogs:
-    enabled: true
   tokenx:
     enabled: true
   azure:

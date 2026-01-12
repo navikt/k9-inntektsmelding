@@ -26,7 +26,6 @@ import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 public class TilgangTjeneste implements Tilgang {
 
     private static final Logger LOG = LoggerFactory.getLogger(TilgangTjeneste.class);
-    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     private final AltinnTilgangTjeneste altinnTilgangTjeneste;
     private final PipTjeneste pipTjeneste;
@@ -118,7 +117,6 @@ public class TilgangTjeneste implements Tilgang {
         } else {
             for (var orgNr : organisasjoner) {
                 if (altinnTilgangTjeneste.manglerTilgangTilBedriften(orgNr)) {
-                    SECURE_LOG.warn("Bruker mangler tilgang til bedrift {} i Altinn.", orgNr);
                     ikkeTilgang("Bruker mangler tilgang til bedriften i Altinn.");
                 }
             }
