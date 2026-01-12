@@ -125,5 +125,5 @@ spec:
   env:
     - name: gruppe.oid.drift
       value: {{driftGruppeOid}}
-    - name: BIG_QUERY_ENABLED
+    - name: BIGQUERY_ENABLED
       value: "true"
