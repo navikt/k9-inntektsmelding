@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViolationException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConstraintViolationMapper.class);
-    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
@@ -31,7 +30,6 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
 
     private void log(ConstraintViolationException exception) {
         LOG.warn("Det oppstod en valideringsfeil: {}", constraints(exception));
-        SECURE_LOG.warn("Det oppstod en valideringsfeil: felt {} - input {}", constraints(exception), getInputs(exception));
     }
 
     private static Response lagResponse(ConstraintViolationException exception) {
