@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
@@ -56,6 +57,36 @@ public class ForespørselRest {
     public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, Tilgang tilgang) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.tilgang = tilgang;
+    }
+
+    @POST
+    @Path("/opprett")
+    @Tilgangskontrollert
+    public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request){
+        // dette endepunktet brukes av saksbehandlere for å opprette innteksmelding forespørsel på en valgt dato for å få med varig lønnsendring.
+        LOG.info("Mottok request om opprettelse av inntektsmelding forespørsel fra k9-sak på saksnummer {}", request.saksnummer().saksnr());
+        sjekkErSystemkall();
+
+        List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(request.saksnummer(), request.orgnr(), request.skjæringstidspunkt());
+
+        if (eksisterendeForespørsler.stream().anyMatch(eksisterende -> !eksisterende.getStatus().equals(ForespørselStatus.UTGÅTT))) {
+            LOG.info("Forespørsel finnes allerede, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
+                request.orgnr(), request.skjæringstidspunkt(), request.saksnummer().saksnr(), request.ytelsetype());
+            return Response.status(Response.Status.CONFLICT).build();
+        }
+
+        forespørselBehandlingTjeneste.opprettForespørsel(
+            KodeverkMapper.mapYtelsetype(request.ytelsetype()),
+            new AktørIdEntitet(request.aktørId().id()),
+            request.saksnummer(),
+            request.orgnr(),
+            request.skjæringstidspunkt(),
+            null,
+            null,
+            ForespørselType.BESTILT_AV_SAKSBEHANDLER);
+
+        LOG.info("Opprettet inntektsmelding forespørsel på saksnummer {}", request.saksnummer().saksnr());
+        return Response.ok().build();
     }
 
     @POST
