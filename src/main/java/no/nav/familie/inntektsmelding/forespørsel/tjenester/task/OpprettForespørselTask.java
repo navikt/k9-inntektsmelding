@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
@@ -65,7 +66,15 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         }
 
         // K9 trenger ikke førsteUttaksdato, setter alltid null her
-        forespørselBehandlingTjeneste.opprettForespørsel(ytelsetype, aktørId, saksnummer, organisasjonsnummer, skjæringstidspunkt, null, etterspurtePerioder);
+        forespørselBehandlingTjeneste.opprettForespørsel(ytelsetype,
+            aktørId,
+            saksnummer,
+            organisasjonsnummer,
+            skjæringstidspunkt,
+            null,
+            etterspurtePerioder,
+            ForespørselType.BESTILT_AV_FAGSYSTEM);
+
         MetrikkerTjeneste.loggForespørselOpprettet(ytelsetype);
     }
 

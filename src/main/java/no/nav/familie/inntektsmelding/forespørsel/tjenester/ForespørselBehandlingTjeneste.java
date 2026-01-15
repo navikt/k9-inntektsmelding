@@ -306,7 +306,8 @@ public class ForespørselBehandlingTjeneste {
                                    OrganisasjonsnummerDto organisasjonsnummer,
                                    LocalDate skjæringstidspunkt,
                                    LocalDate førsteUttaksdato,
-                                   List<PeriodeDto> etterspurtePerioder) {
+                                   List<PeriodeDto> etterspurtePerioder,
+                                   ForespørselType forespørselType) {
         LOG.info("Oppretter forespørsel, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             organisasjonsnummer,
             skjæringstidspunkt,
@@ -321,7 +322,8 @@ public class ForespørselBehandlingTjeneste {
             organisasjonsnummer,
             saksnummer,
             førsteUttaksdato,
-            etterspurtePerioder);
+            etterspurtePerioder,
+            forespørselType);
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);

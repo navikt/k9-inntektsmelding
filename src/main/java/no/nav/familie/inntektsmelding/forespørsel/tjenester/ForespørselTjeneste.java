@@ -36,9 +36,10 @@ public class ForespørselTjeneste {
                                    OrganisasjonsnummerDto orgnr,
                                    SaksnummerDto saksnummer,
                                    LocalDate førsteUttaksdato,
-                                   List<PeriodeDto> etterspurtePerioder) {
+                                   List<PeriodeDto> etterspurtePerioder,
+                                   ForespørselType forespørselType) {
         return forespørselRepository.lagreForespørsel(skjæringstidspunkt, ytelseType, brukerAktørId.getAktørId(), orgnr.orgnr(),
-            saksnummer.saksnr(), ForespørselType.BESTILT_AV_FAGSYSTEM, førsteUttaksdato, etterspurtePerioder);
+            saksnummer.saksnr(), forespørselType, førsteUttaksdato, etterspurtePerioder);
     }
 
     public UUID opprettForespørselUtenFagsaksnummer(LocalDate skjæringstidspunkt,
