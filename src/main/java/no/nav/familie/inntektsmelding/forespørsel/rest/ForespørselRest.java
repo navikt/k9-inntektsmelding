@@ -62,20 +62,20 @@ public class ForespørselRest {
     @Path("/opprett")
     @Tilgangskontrollert
     public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request){
-        LOG.info("Mottok request om opprettese av inntektsmelding forespørsel fra k9-sak på saksnummer {}", request.saksnummer());
+        LOG.info("Mottok request om opprettelse av inntektsmelding forespørsel fra k9-sak på saksnummer {}", request.saksnummer().saksnr());
         sjekkErSystemkall();
 
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(request.saksnummer(), request.orgnr(), request.skjæringstidspunkt());
 
         if (eksisterendeForespørsler.stream().anyMatch(eksisterende -> !eksisterende.getStatus().equals(ForespørselStatus.UTGÅTT))) {
             LOG.info("Forespørsel finnes allerede, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
-                request.orgnr().orgnr(), request.skjæringstidspunkt(), request.saksnummer().saksnr(), request.ytelsetype());
+                request.orgnr(), request.skjæringstidspunkt(), request.saksnummer().saksnr(), request.ytelsetype());
             return Response.status(Response.Status.CONFLICT).build();
         }
 
         forespørselBehandlingTjeneste.opprettForespørsel(KodeverkMapper.mapYtelsetype(request.ytelsetype()), new AktørIdEntitet(request.aktørId().id()), request.saksnummer(), request.orgnr(), request.skjæringstidspunkt(), request.skjæringstidspunkt(), null);
 
-        LOG.info("Opprettet inntektsmelding forespørsel");
+        LOG.info("Opprettet inntektsmelding forespørsel på saksnummer {}", request.saksnummer().saksnr());
         return Response.ok().build();
     }
 
