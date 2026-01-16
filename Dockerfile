@@ -1,4 +1,4 @@
-FROM ghcr.io/navikt/sif-baseimages/java-25:2026.01.14.1455Z
+FROM ghcr.io/navikt/sif-baseimages/java-25:2026.01.15.0735Z
 
 LABEL org.opencontainers.image.source=https://github.com/navikt/k9-inntektsmelding
 
