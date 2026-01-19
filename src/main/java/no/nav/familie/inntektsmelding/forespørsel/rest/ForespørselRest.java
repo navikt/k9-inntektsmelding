@@ -65,7 +65,7 @@ public class ForespørselRest {
     public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request){
         // dette endepunktet brukes av saksbehandlere for å opprette innteksmelding forespørsel på en valgt dato for å få med varig lønnsendring.
         LOG.info("Mottok request om opprettelse av inntektsmelding forespørsel fra k9-sak på saksnummer {}", request.saksnummer().saksnr());
-        tilgang.sjekkAtAnsattHarRollenSaksbehandler();
+//        tilgang.sjekkAtAnsattHarRollenSaksbehandler();
 
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(request.saksnummer(), request.orgnr(), request.skjæringstidspunkt());
 
