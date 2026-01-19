@@ -88,6 +88,7 @@ spec:
           - "azp_name"
         groups:
           - id: {{driftGruppeOid}}
+          - id: {{saksbehandlerGruppeOid}}
   accessPolicy:
     inbound:
       rules:
@@ -123,5 +124,7 @@ spec:
   env:
     - name: gruppe.oid.drift
       value: {{driftGruppeOid}}
+    - name: gruppe.oid.saksbehandler
+      value: {{saksbehandlerGruppeOid}}
     - name: BIGQUERY_ENABLED
       value: "true"
