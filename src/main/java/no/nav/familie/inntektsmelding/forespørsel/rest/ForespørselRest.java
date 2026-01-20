@@ -35,6 +35,7 @@ import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @AutentisertMedAzure
 @ApplicationScoped
@@ -44,6 +45,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 @Consumes(MediaType.APPLICATION_JSON)
 public class ForespørselRest {
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
+    private static final Environment ENV = Environment.current();
     public static final String BASE_PATH = "/foresporsel";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
@@ -165,7 +167,11 @@ public class ForespørselRest {
     public Response hentForespørslerForSak(@Valid @NotNull @Pattern(regexp = SaksnummerDto.REGEXP) @Size(max = 19) @QueryParam("saksnummer") String saksnummer) {
         LOG.info("Henter forespørsler for saksnummer {}", saksnummer);
 
-        sjekkErSystemkall();
+        if (ENV.isDev()) {
+            tilgang.sjekkErSystembrukerEllerAnsattMedRollenSaksbehandler();
+        } else {
+            sjekkErSystemkall();
+        }
 
         var forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(new SaksnummerDto(saksnummer), null, null);
         forespørsler = filtrerDuplikateForespørsler(forespørsler);

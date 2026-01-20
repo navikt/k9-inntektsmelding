@@ -80,6 +80,7 @@ public class TilgangTjeneste implements Tilgang {
         ikkeTilgang("Ansatt mangler en rolle.");
     }
 
+    @Override
     public void sjekkAtAnsattHarRollenSaksbehandler() {
         var kontekst = KontekstHolder.getKontekst();
         if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, AnsattGruppe.SAKSBEHANDLER)) {
@@ -94,6 +95,18 @@ public class TilgangTjeneste implements Tilgang {
             return;
         }
         ikkeTilgang("Kun systemkall støttes.");
+    }
+
+    @Override
+    public void sjekkErSystembrukerEllerAnsattMedRollenSaksbehandler() {
+        var kontekst = KontekstHolder.getKontekst();
+        if (kontekst instanceof RequestKontekst rq && rq.getIdentType().erSystem()) {
+            return;
+        }
+        if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, AnsattGruppe.SAKSBEHANDLER)) {
+            return;
+        }
+        ikkeTilgang("Kun systemkall eller ansatt med saksbehandlerrolle støttes.");
     }
 
     private boolean erNavAnsatt(Kontekst kontekst) {
