@@ -43,7 +43,7 @@ public interface Tilgang {
      *
      * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
      */
-    void sjekkAtAnsattHarRollenSaksbehandler();
+    void sjekkAtAnsattHarRollenSaksbehandler(String saksnummer);
 
     /**
      * Sjekker at det er et systembruker som står bak kallet.
@@ -57,5 +57,5 @@ public interface Tilgang {
      *
      * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
      */
-    void sjekkErSystembrukerEllerAnsattMedRollenSaksbehandler();
+    void sjekkErSystembrukerEllerAnsattMedRollenSaksbehandler(String saksnummer);
 }

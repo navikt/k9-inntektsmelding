@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.pip.PipTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.sif.abac.kontrakt.abac.resultat.IkkeTilgangÅrsak;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -29,11 +30,13 @@ public class TilgangTjeneste implements Tilgang {
 
     private final AltinnTilgangTjeneste altinnTilgangTjeneste;
     private final PipTjeneste pipTjeneste;
+    private final SifAbacPdpKlient sifAbacPdpKlient;
 
     @Inject
-    public TilgangTjeneste(PipTjeneste pipTjeneste, AltinnTilgangTjeneste altinnTilgangTjeneste) {
+    public TilgangTjeneste(PipTjeneste pipTjeneste, AltinnTilgangTjeneste altinnTilgangTjeneste, SifAbacPdpKlient sifAbacPdpKlient) {
         this.pipTjeneste = pipTjeneste;
         this.altinnTilgangTjeneste = altinnTilgangTjeneste;
+        this.sifAbacPdpKlient = sifAbacPdpKlient;
     }
 
     @Override
@@ -81,10 +84,16 @@ public class TilgangTjeneste implements Tilgang {
     }
 
     @Override
-    public void sjekkAtAnsattHarRollenSaksbehandler() {
+    public void sjekkAtAnsattHarRollenSaksbehandler(String saksnummer) {
         var kontekst = KontekstHolder.getKontekst();
         if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, AnsattGruppe.SAKSBEHANDLER)) {
-            return;
+            var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer);
+            if (tilgang.isPresent()) {
+                if (tilgang.get().tilgangsbeslutning().harTilgang()) {
+                    return;
+                }
+                ikkeTilgang(hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
+            }
         }
         ikkeTilgang("Ansatt mangler en rolle.");
     }
@@ -98,13 +107,19 @@ public class TilgangTjeneste implements Tilgang {
     }
 
     @Override
-    public void sjekkErSystembrukerEllerAnsattMedRollenSaksbehandler() {
+    public void sjekkErSystembrukerEllerAnsattMedRollenSaksbehandler(String saksnummer) {
         var kontekst = KontekstHolder.getKontekst();
         if (kontekst instanceof RequestKontekst rq && rq.getIdentType().erSystem()) {
             return;
         }
         if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, AnsattGruppe.SAKSBEHANDLER)) {
-            return;
+            var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer);
+            if (tilgang.isPresent()) {
+                if (tilgang.get().tilgangsbeslutning().harTilgang()) {
+                    return;
+                }
+                ikkeTilgang(hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
+            }
         }
         ikkeTilgang("Kun systemkall eller ansatt med saksbehandlerrolle støttes.");
     }
@@ -134,6 +149,23 @@ public class TilgangTjeneste implements Tilgang {
                 }
             }
         }
+    }
+
+    private static String hentBegrunnelse(Set<IkkeTilgangÅrsak> årsaker) {
+        return årsaker.stream()
+            .map(årsak -> switch (årsak) {
+                case HAR_IKKE_TILGANG_TIL_KODE6_PERSON -> "Ikke tilgang til kode6 person";
+                case HAR_IKKE_TILGANG_TIL_KODE7_PERSON -> "Ikke tilgang til kode7 person";
+                case HAR_IKKE_TILGANG_TIL_EGEN_ANSATT -> "Ikke tilgang til egen ansatt";
+                case HAR_IKKE_TILGANG_TIL_APPLIKASJONEN -> "Ikke tilgang til applikasjonen";
+                case ER_IKKE_VEILEDER_ELLER_SAKSBEHANDLER -> "Ikke veileder eller saksbehandler";
+                case ER_IKKE_SAKSBEHANDLER -> "Ikke saksbehandler";
+                case ER_IKKE_BESLUTTER -> "Ikke beslutter";
+                case ER_IKKE_OVERSTYRER -> "Ikke overstyrer";
+                case ER_IKKE_DRIFTER -> "Ikke drifter";
+                default -> "Ikke tilgang";
+            })
+            .collect(Collectors.joining("\n"));
     }
 
     private static void ikkeTilgang(String begrunnelse) {
