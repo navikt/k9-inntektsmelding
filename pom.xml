@@ -19,6 +19,7 @@
         <fp-kontrakter.version>9.4.21</fp-kontrakter.version>
         <k9-felles.version>10.0.5</k9-felles.version>
         <k9-sak.version>6.0.6</k9-sak.version>
+        <sif-abac-kontrakt.version>1.7.0</sif-abac-kontrakt.version>
     </properties>
 
     <dependencyManagement>
@@ -75,6 +76,11 @@
                 <groupId>no.nav.k9.felles.integrasjon</groupId>
                 <artifactId>k9-bigquery-klient</artifactId>
                 <version>${k9-felles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.sif.abac</groupId>
+                <artifactId>kontrakt</artifactId>
+                <version>${sif-abac-kontrakt.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -143,6 +149,10 @@
         <dependency>
             <groupId>no.nav.k9.felles.integrasjon</groupId>
             <artifactId>k9-bigquery-klient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.sif.abac</groupId>
+            <artifactId>kontrakt</artifactId>
         </dependency>
 
         <!-- CDI -->
