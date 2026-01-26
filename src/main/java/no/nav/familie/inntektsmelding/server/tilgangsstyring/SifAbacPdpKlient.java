@@ -43,11 +43,11 @@ public class SifAbacPdpKlient {
         this.restConfig = RestConfig.forClient(this.getClass());
     }
 
-    public Optional<TilgangsbeslutningOgSporingshint> harAnsattTilgangTilSak(String saksnummer) {
+    public Optional<TilgangsbeslutningOgSporingshint> harAnsattTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
         URI url = UriBuilder.fromUri(restConfig.endpoint()).path(TILGANGSKONTROLL_SAK_PATH).build();
         var requestDto = new SaksnummerOperasjonDto(
             new SaksnummerDto(saksnummer),
-            new OperasjonDto(ResourceType.FAGSAK, BeskyttetRessursActionAttributt.CREATE, Set.of(AksjonspunktType.MANUELL)));
+            new OperasjonDto(ResourceType.FAGSAK, aksjon, Set.of(AksjonspunktType.MANUELL)));
 
         var request = RestRequest.newPOSTJson(requestDto, url, restConfig);
 

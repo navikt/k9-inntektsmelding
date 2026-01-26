@@ -36,6 +36,7 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.sif.abac.kontrakt.abac.BeskyttetRessursActionAttributt;
 
 @AutentisertMedAzure
 @ApplicationScoped
@@ -67,7 +68,7 @@ public class ForespørselRest {
     public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request){
         // dette endepunktet brukes av saksbehandlere for å opprette innteksmelding forespørsel på en valgt dato for å få med varig lønnsendring.
         LOG.info("Mottok request om opprettelse av inntektsmelding forespørsel fra k9-sak på saksnummer {}", request.saksnummer().saksnr());
-        tilgang.sjekkAtAnsattHarRollenSaksbehandler(request.saksnummer().saksnr());
+        tilgang.sjekkAtSaksbehandlerHarTilgangTilSak(request.saksnummer().saksnr(), BeskyttetRessursActionAttributt.CREATE);
 
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(request.saksnummer(), request.orgnr(), request.skjæringstidspunkt());
 
@@ -168,7 +169,7 @@ public class ForespørselRest {
         LOG.info("Henter forespørsler for saksnummer {}", saksnummer);
 
         if (ENV.isDev()) {
-            tilgang.sjekkErSystembrukerEllerAnsattMedRollenSaksbehandler(saksnummer);
+            tilgang.sjekkErSystembrukerEllerAtSaksbehandlerHarTilgangTilSak(saksnummer, BeskyttetRessursActionAttributt.READ);
         } else {
             sjekkErSystemkall();
         }

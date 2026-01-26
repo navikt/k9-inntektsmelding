@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.pip.PipTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.sif.abac.kontrakt.abac.BeskyttetRessursActionAttributt;
 import no.nav.sif.abac.kontrakt.abac.resultat.IkkeTilgangÅrsak;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
@@ -84,10 +85,10 @@ public class TilgangTjeneste implements Tilgang {
     }
 
     @Override
-    public void sjekkAtAnsattHarRollenSaksbehandler(String saksnummer) {
+    public void sjekkAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
         var kontekst = KontekstHolder.getKontekst();
         if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, AnsattGruppe.SAKSBEHANDLER)) {
-            var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer);
+            var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
             if (tilgang.isPresent()) {
                 if (tilgang.get().tilgangsbeslutning().harTilgang()) {
                     return;
@@ -107,13 +108,13 @@ public class TilgangTjeneste implements Tilgang {
     }
 
     @Override
-    public void sjekkErSystembrukerEllerAnsattMedRollenSaksbehandler(String saksnummer) {
+    public void sjekkErSystembrukerEllerAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
         var kontekst = KontekstHolder.getKontekst();
         if (kontekst instanceof RequestKontekst rq && rq.getIdentType().erSystem()) {
             return;
         }
         if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, AnsattGruppe.SAKSBEHANDLER)) {
-            var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer);
+            var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
             if (tilgang.isPresent()) {
                 if (tilgang.get().tilgangsbeslutning().harTilgang()) {
                     return;
