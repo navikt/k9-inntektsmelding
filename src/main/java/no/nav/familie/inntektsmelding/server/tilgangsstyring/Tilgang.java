@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.server.tilgangsstyring;
 import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.sif.abac.kontrakt.abac.BeskyttetRessursActionAttributt;
 
 public interface Tilgang {
     /**
@@ -43,7 +44,7 @@ public interface Tilgang {
      *
      * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
      */
-    void sjekkAtAnsattHarRollenSaksbehandler();
+    void sjekkAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon);
 
     /**
      * Sjekker at det er et systembruker som står bak kallet.
@@ -57,5 +58,5 @@ public interface Tilgang {
      *
      * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
      */
-    void sjekkErSystembrukerEllerAnsattMedRollenSaksbehandler();
+    void sjekkErSystembrukerEllerAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon);
 }
