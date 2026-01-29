@@ -45,9 +45,14 @@ public class SifAbacPdpKlient {
 
     public Optional<TilgangsbeslutningOgSporingshint> harAnsattTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
         URI url = UriBuilder.fromUri(restConfig.endpoint()).path(TILGANGSKONTROLL_SAK_PATH).build();
+
+        Set<AksjonspunktType> aksjonspunkttyper = new java.util.HashSet<>();
+        if (BeskyttetRessursActionAttributt.UPDATE.equals(aksjon)) {
+            aksjonspunkttyper.add(AksjonspunktType.MANUELL);
+        }
         var requestDto = new SaksnummerOperasjonDto(
             new SaksnummerDto(saksnummer),
-            new OperasjonDto(ResourceType.FAGSAK, aksjon, Set.of(AksjonspunktType.MANUELL)));
+            new OperasjonDto(ResourceType.FAGSAK, aksjon, aksjonspunkttyper));
 
         var request = RestRequest.newPOSTJson(requestDto, url, restConfig);
 
