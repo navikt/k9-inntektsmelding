@@ -28,6 +28,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.server.audit.SporingsloggTjeneste;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
@@ -48,11 +49,13 @@ class ForespørselRestTest {
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     @Mock
     private Tilgang tilgang;
+    @Mock
+    private SporingsloggTjeneste sporingsloggTjeneste;
 
     @BeforeEach
     void setUp() {
         this.forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
-        this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste, tilgang);
+        this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste, tilgang, sporingsloggTjeneste);
     }
 
     @Test

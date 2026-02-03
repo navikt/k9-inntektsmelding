@@ -27,6 +27,7 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
+import no.nav.familie.inntektsmelding.server.audit.SporingsloggTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
@@ -35,8 +36,9 @@ import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.sif.abac.kontrakt.abac.BeskyttetRessursActionAttributt;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @AutentisertMedAzure
 @ApplicationScoped
@@ -46,24 +48,30 @@ import no.nav.sif.abac.kontrakt.abac.BeskyttetRessursActionAttributt;
 @Consumes(MediaType.APPLICATION_JSON)
 public class ForespørselRest {
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
-    private static final Environment ENV = Environment.current();
     public static final String BASE_PATH = "/foresporsel";
+    public static final String OPPRETT_PATH = "/opprett";
+    public static final String OPPDATER_PATH = "/oppdater";
+    public static final String LUKK_PATH = "/lukk";
+    public static final String SETT_TIL_UTGÅTT_PATH = "/sett-til-utgatt";
+    public static final String HENT_FORESPØRSLER_FOR_SAK_PATH = "/sak";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private Tilgang tilgang;
+    private SporingsloggTjeneste sporingsloggTjeneste;
 
     ForespørselRest() {
         // Kun for CDI-proxy
     }
 
     @Inject
-    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, Tilgang tilgang) {
+    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, Tilgang tilgang, SporingsloggTjeneste sporingsloggTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.tilgang = tilgang;
+        this.sporingsloggTjeneste = sporingsloggTjeneste;
     }
 
     @POST
-    @Path("/opprett")
+    @Path(OPPRETT_PATH)
     @Tilgangskontrollert
     public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request){
         // dette endepunktet brukes av saksbehandlere for å opprette innteksmelding forespørsel på en valgt dato for å få med varig lønnsendring.
@@ -93,7 +101,7 @@ public class ForespørselRest {
     }
 
     @POST
-    @Path("/oppdater")
+    @Path(OPPDATER_PATH)
     @Tilgangskontrollert
     public Response oppdaterForespørsler(@Valid @NotNull OppdaterForespørslerRequest request) {
         LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på saksnummer {}", request.saksnummer());
@@ -136,7 +144,7 @@ public class ForespørselRest {
     }
 
     @POST
-    @Path("/lukk")
+    @Path(LUKK_PATH)
     @Tilgangskontrollert
     public Response lukkForespørsel(@Valid @NotNull LukkForespørselRequest request) {
         LOG.info("Lukk forespørsel for saksnummer {} med orgnummer {} og skjæringstidspunkt {}",
@@ -151,7 +159,7 @@ public class ForespørselRest {
     }
 
     @POST
-    @Path("/sett-til-utgatt")
+    @Path(SETT_TIL_UTGÅTT_PATH)
     @Tilgangskontrollert
     public Response settForespørselTilUtgått(@Valid @NotNull LukkForespørselRequest request) {
         LOG.info("Setter forespørsel for saksnummer {} til utgått", request.saksnummer());
@@ -163,21 +171,24 @@ public class ForespørselRest {
     }
 
     @GET
-    @Path("/sak")
+    @Path(HENT_FORESPØRSLER_FOR_SAK_PATH)
     @Tilgangskontrollert
     public Response hentForespørslerForSak(@Valid @NotNull @Pattern(regexp = SaksnummerDto.REGEXP) @Size(max = 19) @QueryParam("saksnummer") String saksnummer) {
         LOG.info("Henter forespørsler for saksnummer {}", saksnummer);
 
-        if (ENV.isDev()) {
-            tilgang.sjekkErSystembrukerEllerAtSaksbehandlerHarTilgangTilSak(saksnummer, BeskyttetRessursActionAttributt.READ);
-        } else {
-            sjekkErSystemkall();
-        }
+        tilgang.sjekkErSystembrukerEllerAtSaksbehandlerHarTilgangTilSak(saksnummer, BeskyttetRessursActionAttributt.READ);
 
         var forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(new SaksnummerDto(saksnummer), null, null);
         forespørsler = filtrerDuplikateForespørsler(forespørsler);
-        var forespørselResponse = forespørsler.stream().map(ForespørselRest::mapTilForespørselResponse).toList();
 
+        if (erSaksbehandlerKall() && !forespørsler.isEmpty()) {
+            sporingsloggTjeneste.logg(
+                BASE_PATH + HENT_FORESPØRSLER_FOR_SAK_PATH,
+                forespørsler.getFirst().getAktørId().getAktørId(),
+                saksnummer);
+        }
+
+        var forespørselResponse = forespørsler.stream().map(ForespørselRest::mapTilForespørselResponse).toList();
         return Response.ok(forespørselResponse).build();
     }
 
@@ -211,6 +222,10 @@ public class ForespørselRest {
 
     private void sjekkErSystemkall() {
         tilgang.sjekkErSystembruker();
+    }
+
+    private boolean erSaksbehandlerKall() {
+        return KontekstHolder.harKontekst() && IdentType.InternBruker.equals(KontekstHolder.getKontekst().getIdentType());
     }
 }
 
