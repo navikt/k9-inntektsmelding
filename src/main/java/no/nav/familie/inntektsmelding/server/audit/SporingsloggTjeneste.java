@@ -5,6 +5,8 @@ import java.util.Set;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.k9.felles.log.audit.Auditdata;
 import no.nav.k9.felles.log.audit.AuditdataHeader;
 import no.nav.k9.felles.log.audit.Auditlogger;
@@ -19,15 +21,12 @@ public class SporingsloggTjeneste {
     private Auditlogger auditlogger;
     private static final String SAKSNUMMER_TEXT = "Saksnummer";
 
-    public SporingsloggTjeneste() {
-    }
-
     @Inject
     public SporingsloggTjeneste(Auditlogger auditlogger) {
         this.auditlogger = auditlogger;
     }
 
-    public void logg(String url, String brukerId, String saksnummer) {
+    public void logg(String url, AktørIdDto brukerId, SaksnummerDto saksnummer) {
         String saksbehandlerIdent = finnSaksbehandlerIdent();
 
         AuditdataHeader header = new AuditdataHeader.Builder()
@@ -41,8 +40,8 @@ public class SporingsloggTjeneste {
             new CefField(CefFieldName.EVENT_TIME, System.currentTimeMillis()),
             new CefField(CefFieldName.REQUEST, url),
             new CefField(CefFieldName.USER_ID, saksbehandlerIdent),
-            new CefField(CefFieldName.BERORT_BRUKER_ID, brukerId),
-            new CefField(CefFieldName.SAKSNUMMER_VERDI, saksnummer),
+            new CefField(CefFieldName.BERORT_BRUKER_ID, brukerId.id()),
+            new CefField(CefFieldName.SAKSNUMMER_VERDI, saksnummer.saksnr()),
             new CefField(CefFieldName.SAKSNUMMER_LABEL, SAKSNUMMER_TEXT)
         );
 

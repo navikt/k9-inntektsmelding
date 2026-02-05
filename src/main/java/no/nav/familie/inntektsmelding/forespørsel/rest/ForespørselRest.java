@@ -184,8 +184,8 @@ public class ForespørselRest {
         if (erSaksbehandlerKall() && !forespørsler.isEmpty()) {
             sporingsloggTjeneste.logg(
                 BASE_PATH + HENT_FORESPØRSLER_FOR_SAK_PATH,
-                forespørsler.getFirst().getAktørId().getAktørId(),
-                saksnummer);
+                new AktørIdDto(hentAktørIdFraForespørsler(forespørsler).getAktørId()),
+                new SaksnummerDto(saksnummer));
         }
 
         var forespørselResponse = forespørsler.stream().map(ForespørselRest::mapTilForespørselResponse).toList();
