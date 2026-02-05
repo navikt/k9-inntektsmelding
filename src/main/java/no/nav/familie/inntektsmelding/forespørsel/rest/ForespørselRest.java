@@ -224,6 +224,20 @@ public class ForespørselRest {
         tilgang.sjekkErSystembruker();
     }
 
+    private AktørIdEntitet hentAktørIdFraForespørsler(List<ForespørselEntitet> forespørsler) {
+        if (forespørsler.isEmpty()) {
+            throw new IllegalArgumentException("Forespørsler kan ikke være tom");
+        }
+
+        AktørIdEntitet førsteAktørId = forespørsler.getFirst().getAktørId();
+        boolean alleHarSammeAktørId = forespørsler.stream().allMatch(f -> f.getAktørId().equals(førsteAktørId));
+        if (!alleHarSammeAktørId) {
+            throw new IllegalStateException("Alle forespørsler må ha samme aktørId");
+        }
+
+        return førsteAktørId;
+    }
+
     private boolean erSaksbehandlerKall() {
         return KontekstHolder.harKontekst() && IdentType.InternBruker.equals(KontekstHolder.getKontekst().getIdentType());
     }
