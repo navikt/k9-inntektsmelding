@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
@@ -25,7 +24,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, scopesProperty = "sif-abac-pdp.scopes", scopesDefault = "api://dev-gcp.k9saksbehandling.sif-abac-pdp/.default", endpointDefault = "http://sif-abac-pdp/sif/sif-abac-pdp/api", endpointProperty = "sif-abac-pdp.url")
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, scopesProperty = "sif-abac-pdp.scopes", scopesDefault = "api://prod-gcp.k9saksbehandling.sif-abac-pdp/.default", endpointDefault = "http://sif-abac-pdp/sif/sif-abac-pdp/api", endpointProperty = "sif-abac-pdp.url")
 public class SifAbacPdpKlient {
     private static final String TILGANGSKONTROLL_SAK_PATH = "/tilgangskontroll/v2/k9/sak-sporingshint";
     private static final Logger LOG = LoggerFactory.getLogger(SifAbacPdpKlient.class);
@@ -33,7 +32,6 @@ public class SifAbacPdpKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
 
-    @Inject
     public SifAbacPdpKlient() {
         this(RestClient.client());
     }
@@ -48,6 +46,8 @@ public class SifAbacPdpKlient {
 
         Set<AksjonspunktType> aksjonspunkttyper = new java.util.HashSet<>();
         if (BeskyttetRessursActionAttributt.UPDATE.equals(aksjon)) {
+            // Dette medfører at alt som går som UPDATE blir tillatt for saksbehandlerne.
+            // Dersom man skal ha noe som bare er tillatt for overstyrer eller beslutter, kan man ikke gjøre det slik.
             aksjonspunkttyper.add(AksjonspunktType.MANUELL);
         }
         var requestDto = new SaksnummerOperasjonDto(
