@@ -85,15 +85,12 @@ public class TilgangTjeneste implements Tilgang {
 
     @Override
     public void sjekkAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
-        var kontekst = KontekstHolder.getKontekst();
-        if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, AnsattGruppe.SAKSBEHANDLER)) {
-            var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
-            if (tilgang.isPresent()) {
-                if (tilgang.get().tilgangsbeslutning().harTilgang()) {
-                    return;
-                }
-                ikkeTilgang(SifAbacPdpUtil.hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
+        var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
+        if (tilgang.isPresent()) {
+            if (tilgang.get().tilgangsbeslutning().harTilgang()) {
+                return;
             }
+            ikkeTilgang(SifAbacPdpUtil.hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
         }
         ikkeTilgang("Ansatt mangler en rolle.");
     }
@@ -112,14 +109,12 @@ public class TilgangTjeneste implements Tilgang {
         if (kontekst instanceof RequestKontekst rq && rq.getIdentType().erSystem()) {
             return;
         }
-        if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, AnsattGruppe.SAKSBEHANDLER)) {
-            var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
-            if (tilgang.isPresent()) {
-                if (tilgang.get().tilgangsbeslutning().harTilgang()) {
-                    return;
-                }
-                ikkeTilgang(SifAbacPdpUtil.hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
+        var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
+        if (tilgang.isPresent()) {
+            if (tilgang.get().tilgangsbeslutning().harTilgang()) {
+                return;
             }
+            ikkeTilgang(SifAbacPdpUtil.hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
         }
         ikkeTilgang("Kun systemkall eller ansatt med saksbehandlerrolle støttes.");
     }
