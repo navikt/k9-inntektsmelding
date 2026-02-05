@@ -16,7 +16,6 @@ import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.pip.PipTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.sif.abac.kontrakt.abac.BeskyttetRessursActionAttributt;
-import no.nav.sif.abac.kontrakt.abac.resultat.IkkeTilgangÅrsak;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -93,7 +92,7 @@ public class TilgangTjeneste implements Tilgang {
                 if (tilgang.get().tilgangsbeslutning().harTilgang()) {
                     return;
                 }
-                ikkeTilgang(hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
+                ikkeTilgang(SifAbacPdpUtil.hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
             }
         }
         ikkeTilgang("Ansatt mangler en rolle.");
@@ -119,7 +118,7 @@ public class TilgangTjeneste implements Tilgang {
                 if (tilgang.get().tilgangsbeslutning().harTilgang()) {
                     return;
                 }
-                ikkeTilgang(hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
+                ikkeTilgang(SifAbacPdpUtil.hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
             }
         }
         ikkeTilgang("Kun systemkall eller ansatt med saksbehandlerrolle støttes.");
@@ -150,23 +149,6 @@ public class TilgangTjeneste implements Tilgang {
                 }
             }
         }
-    }
-
-    private static String hentBegrunnelse(Set<IkkeTilgangÅrsak> årsaker) {
-        return årsaker.stream()
-            .map(årsak -> switch (årsak) {
-                case HAR_IKKE_TILGANG_TIL_KODE6_PERSON -> "Ikke tilgang til kode6 person";
-                case HAR_IKKE_TILGANG_TIL_KODE7_PERSON -> "Ikke tilgang til kode7 person";
-                case HAR_IKKE_TILGANG_TIL_EGEN_ANSATT -> "Ikke tilgang til egen ansatt";
-                case HAR_IKKE_TILGANG_TIL_APPLIKASJONEN -> "Ikke tilgang til applikasjonen";
-                case ER_IKKE_VEILEDER_ELLER_SAKSBEHANDLER -> "Ikke veileder eller saksbehandler";
-                case ER_IKKE_SAKSBEHANDLER -> "Ikke saksbehandler";
-                case ER_IKKE_BESLUTTER -> "Ikke beslutter";
-                case ER_IKKE_OVERSTYRER -> "Ikke overstyrer";
-                case ER_IKKE_DRIFTER -> "Ikke drifter";
-                default -> "Ikke tilgang";
-            })
-            .collect(Collectors.joining("\n"));
     }
 
     private static void ikkeTilgang(String begrunnelse) {
