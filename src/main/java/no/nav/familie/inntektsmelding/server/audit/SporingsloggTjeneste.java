@@ -18,7 +18,7 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @Dependent
 public class SporingsloggTjeneste {
-    private Auditlogger auditlogger;
+    private final Auditlogger auditlogger;
     private static final String SAKSNUMMER_TEXT = "Saksnummer";
 
     @Inject

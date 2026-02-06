@@ -105,8 +105,7 @@ public class TilgangTjeneste implements Tilgang {
 
     @Override
     public void sjekkErSystembrukerEllerAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
-        var kontekst = KontekstHolder.getKontekst();
-        if (kontekst instanceof RequestKontekst rq && rq.getIdentType().erSystem()) {
+        if (KontekstHolder.getKontekst() instanceof RequestKontekst rq && rq.getIdentType().erSystem()) {
             return;
         }
         var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
