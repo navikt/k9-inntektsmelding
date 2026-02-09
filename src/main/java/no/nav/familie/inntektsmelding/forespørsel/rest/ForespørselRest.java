@@ -89,8 +89,8 @@ public class ForespørselRest {
             && eksisterende.getOrganisasjonsnummer().equals(request.orgnr().orgnr())
             && eksisterende.getSkjæringstidspunkt().equals(request.skjæringstidspunkt()))
         ) {
-            LOG.info("Forespørsel finnes allerede, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
-                request.orgnr(), request.skjæringstidspunkt(), request.saksnummer().saksnr(), request.ytelsetype());
+            LOG.info("Forespørsel finnes allerede, orgnr: {}, stp: {}, saksnr: {}",
+                request.orgnr(), request.skjæringstidspunkt(), request.saksnummer().saksnr());
             return Response.status(Response.Status.CONFLICT).build();
         }
 
