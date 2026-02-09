@@ -10,10 +10,10 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 
-public record OpprettForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
+public record OpprettForespørselRequest(@Deprecated @NotNull @Valid AktørIdDto aktørId,
                                         @NotNull @Valid OrganisasjonsnummerDto orgnr,
                                         @NotNull @Valid SaksnummerDto saksnummer,
-                                        @NotNull YtelseTypeDto ytelsetype,
+                                        @Deprecated @NotNull YtelseTypeDto ytelsetype,
                                         @NotNull LocalDate skjæringstidspunkt) {
 
 }

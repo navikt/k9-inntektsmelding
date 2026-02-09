@@ -27,6 +27,7 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.audit.SporingsloggTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
@@ -78,17 +79,27 @@ public class ForespørselRest {
         LOG.info("Mottok request om opprettelse av inntektsmelding forespørsel fra k9-sak på saksnummer {}", request.saksnummer().saksnr());
         tilgang.sjekkAtSaksbehandlerHarTilgangTilSak(request.saksnummer().saksnr(), BeskyttetRessursActionAttributt.CREATE);
 
-        List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(request.saksnummer(), request.orgnr(), request.skjæringstidspunkt());
+        List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(request.saksnummer(), null, null);
 
-        if (eksisterendeForespørsler.stream().anyMatch(eksisterende -> !eksisterende.getStatus().equals(ForespørselStatus.UTGÅTT))) {
+        if (eksisterendeForespørsler.isEmpty()) {
+            throw new UnsupportedOperationException("Støtter ikke manuell opprettelse av forespørsel uten å ha en eksisterende forespørsel på fagsaken.");
+        }
+
+        if (eksisterendeForespørsler.stream().anyMatch(eksisterende -> !eksisterende.getStatus().equals(ForespørselStatus.UTGÅTT)
+            && eksisterende.getOrganisasjonsnummer().equals(request.orgnr().orgnr())
+            && eksisterende.getSkjæringstidspunkt().equals(request.skjæringstidspunkt()))
+        ) {
             LOG.info("Forespørsel finnes allerede, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
                 request.orgnr(), request.skjæringstidspunkt(), request.saksnummer().saksnr(), request.ytelsetype());
             return Response.status(Response.Status.CONFLICT).build();
         }
 
+        Ytelsetype ytelsetype = eksisterendeForespørsler.getFirst().getYtelseType();
+        String aktørId = eksisterendeForespørsler.getFirst().getAktørId().getAktørId();
+
         forespørselBehandlingTjeneste.opprettForespørsel(
-            KodeverkMapper.mapYtelsetype(request.ytelsetype()),
-            new AktørIdEntitet(request.aktørId().id()),
+            ytelsetype,
+            new AktørIdEntitet(aktørId),
             request.saksnummer(),
             request.orgnr(),
             request.skjæringstidspunkt(),
