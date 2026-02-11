@@ -34,6 +34,7 @@ public class SporingsloggTjeneste {
             .medProduct(auditlogger.getDefaultProduct())
             .medSeverity("INFO")
             .medEventClassId(EventClassId.AUDIT_ACCESS)
+            .medName("k9-inntektsmelding-sporingslogg")
             .build();
 
         Set<CefField> fields = Set.of(
