@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.pip.PipTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.sif.abac.kontrakt.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -29,11 +30,13 @@ public class TilgangTjeneste implements Tilgang {
 
     private final AltinnTilgangTjeneste altinnTilgangTjeneste;
     private final PipTjeneste pipTjeneste;
+    private final SifAbacPdpKlient sifAbacPdpKlient;
 
     @Inject
-    public TilgangTjeneste(PipTjeneste pipTjeneste, AltinnTilgangTjeneste altinnTilgangTjeneste) {
+    public TilgangTjeneste(PipTjeneste pipTjeneste, AltinnTilgangTjeneste altinnTilgangTjeneste, SifAbacPdpKlient sifAbacPdpKlient) {
         this.pipTjeneste = pipTjeneste;
         this.altinnTilgangTjeneste = altinnTilgangTjeneste;
+        this.sifAbacPdpKlient = sifAbacPdpKlient;
     }
 
     @Override
@@ -81,10 +84,13 @@ public class TilgangTjeneste implements Tilgang {
     }
 
     @Override
-    public void sjekkAtAnsattHarRollenSaksbehandler() {
-        var kontekst = KontekstHolder.getKontekst();
-        if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, AnsattGruppe.SAKSBEHANDLER)) {
-            return;
+    public void sjekkAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
+        var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
+        if (tilgang.isPresent()) {
+            if (tilgang.get().tilgangsbeslutning().harTilgang()) {
+                return;
+            }
+            ikkeTilgang(SifAbacPdpUtil.hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
         }
         ikkeTilgang("Ansatt mangler en rolle.");
     }
@@ -98,13 +104,16 @@ public class TilgangTjeneste implements Tilgang {
     }
 
     @Override
-    public void sjekkErSystembrukerEllerAnsattMedRollenSaksbehandler() {
-        var kontekst = KontekstHolder.getKontekst();
-        if (kontekst instanceof RequestKontekst rq && rq.getIdentType().erSystem()) {
+    public void sjekkErSystembrukerEllerAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
+        if (KontekstHolder.getKontekst() instanceof RequestKontekst rq && rq.getIdentType().erSystem()) {
             return;
         }
-        if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, AnsattGruppe.SAKSBEHANDLER)) {
-            return;
+        var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
+        if (tilgang.isPresent()) {
+            if (tilgang.get().tilgangsbeslutning().harTilgang()) {
+                return;
+            }
+            ikkeTilgang(SifAbacPdpUtil.hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
         }
         ikkeTilgang("Kun systemkall eller ansatt med saksbehandlerrolle støttes.");
     }

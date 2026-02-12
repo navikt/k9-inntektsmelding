@@ -41,9 +41,12 @@ class TilgangTjenesteTest {
     @Mock
     private AltinnTilgangTjeneste altinnTilgangTjeneste;
 
+    @Mock
+    private SifAbacPdpKlient sifAbacPdpKlient;
+
     @BeforeEach
     void setUp() {
-        tilgangTjeneste = new TilgangTjeneste(pipTjeneste, altinnTilgangTjeneste);
+        tilgangTjeneste = new TilgangTjeneste(pipTjeneste, altinnTilgangTjeneste, sifAbacPdpKlient);
     }
 
     @AfterEach
