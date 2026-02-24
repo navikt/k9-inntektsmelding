@@ -93,8 +93,8 @@ public class ForespørselRest {
             return Response.status(Response.Status.CONFLICT).build();
         }
 
-        Ytelsetype ytelsetype;
-        String aktørId;
+        final Ytelsetype ytelsetype;
+        final String aktørId;
         if (!eksisterendeForespørsler.isEmpty()) {
             ytelsetype = eksisterendeForespørsler.getFirst().getYtelseType();
             aktørId = eksisterendeForespørsler.getFirst().getAktørId().getAktørId();
