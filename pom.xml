@@ -18,7 +18,7 @@
         <prosesstask.version>5.2.3</prosesstask.version>
         <fp-kontrakter.version>9.4.28</fp-kontrakter.version>
         <k9-felles.version>10.1.2</k9-felles.version>
-        <k9-sak.version>6.0.10</k9-sak.version>
+        <k9-sak.version>6.0.11</k9-sak.version>
         <sif-abac-kontrakt.version>1.7.1</sif-abac-kontrakt.version>
     </properties>
 

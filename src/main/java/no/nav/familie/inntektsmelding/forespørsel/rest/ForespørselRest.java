@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -59,16 +60,18 @@ public class ForespørselRest {
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private Tilgang tilgang;
     private SporingsloggTjeneste sporingsloggTjeneste;
+    private K9SakTjeneste k9SakTjeneste;
 
     ForespørselRest() {
         // Kun for CDI-proxy
     }
 
     @Inject
-    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, Tilgang tilgang, SporingsloggTjeneste sporingsloggTjeneste) {
+    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, Tilgang tilgang, SporingsloggTjeneste sporingsloggTjeneste, K9SakTjeneste k9SakTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.tilgang = tilgang;
         this.sporingsloggTjeneste = sporingsloggTjeneste;
+        this.k9SakTjeneste = k9SakTjeneste;
     }
 
     @POST
@@ -81,10 +84,6 @@ public class ForespørselRest {
 
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(request.saksnummer(), null, null);
 
-        if (eksisterendeForespørsler.isEmpty()) {
-            throw new UnsupportedOperationException("Støtter ikke manuell opprettelse av forespørsel uten å ha en eksisterende forespørsel på fagsaken.");
-        }
-
         if (eksisterendeForespørsler.stream().anyMatch(eksisterende -> !eksisterende.getStatus().equals(ForespørselStatus.UTGÅTT)
             && eksisterende.getOrganisasjonsnummer().equals(request.orgnr().orgnr())
             && eksisterende.getSkjæringstidspunkt().equals(request.skjæringstidspunkt()))
@@ -94,8 +93,16 @@ public class ForespørselRest {
             return Response.status(Response.Status.CONFLICT).build();
         }
 
-        Ytelsetype ytelsetype = eksisterendeForespørsler.getFirst().getYtelseType();
-        String aktørId = eksisterendeForespørsler.getFirst().getAktørId().getAktørId();
+        Ytelsetype ytelsetype;
+        String aktørId;
+        if (!eksisterendeForespørsler.isEmpty()) {
+            ytelsetype = eksisterendeForespørsler.getFirst().getYtelseType();
+            aktørId = eksisterendeForespørsler.getFirst().getAktørId().getAktørId();
+        } else {
+            var fagsakInfo = k9SakTjeneste.hentFagsakInfo(request.saksnummer());
+            ytelsetype = fagsakInfo.ytelseType();
+            aktørId = fagsakInfo.aktørId().getAktørId();
+        }
 
         forespørselBehandlingTjeneste.opprettForespørsel(
             ytelsetype,
