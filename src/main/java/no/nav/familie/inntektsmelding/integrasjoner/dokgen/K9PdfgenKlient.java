@@ -16,27 +16,27 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @Dependent
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED,
-    endpointProperty = "k9dokgen.url",
-    endpointDefault = "http://k9-dokgen",
+    endpointProperty = "k9pdfgen.url",
+    endpointDefault = "http://k9-pdfgen",
     application = FpApplication.NONFP)
-public class K9DokgenKlient implements DokgenKlient {
+public class K9PdfgenKlient implements DokgenKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
 
-    private final String INNTEKTSMELDING_PATH = "/template/inntektsmelding/PDFINNTEKTSMELDING/create-pdf-format-variation";
-    private final String REFUSJONSKRAV_NYANSATT = "/template/inntektsmelding-refusjonskrav/PDFINNTEKTSMELDING/create-pdf-format-variation";
-    private final String OMSORGSPENGER_REFUSJON_PATH = "/template/omsorgspenger_refusjon/PDFINNTEKTSMELDING/create-pdf-format-variation";
-    private final String OMSORGSPENGER_INNTEKTSMELDING_PATH = "/template/omsorgspenger_inntektsmelding/PDFINNTEKTSMELDING/create-pdf-format-variation";
+    private final String INNTEKTSMELDING_PATH = "/api/v1/genpdf/inntektsmelding";
+    private final String REFUSJONSKRAV_NYANSATT = "/api/v1/genpdf/inntektsmelding-refusjonskrav";
+    private final String OMSORGSPENGER_REFUSJON_PATH = "/api/v1/genpdf/omsorgspenger_refusjon";
+    private final String OMSORGSPENGER_INNTEKTSMELDING_PATH = "/api/v1/genpdf/omsorgspenger_inntektsmelding";
 
     @Inject
-    public K9DokgenKlient(
+    public K9PdfgenKlient(
     ) {
         this(RestClient.client());
     }
 
-    public K9DokgenKlient(RestClient restClient) {
+    public K9PdfgenKlient(RestClient restClient) {
         this.restClient = restClient;
-        this.restConfig = RestConfig.forClient(K9DokgenKlient.class);
+        this.restConfig = RestConfig.forClient(K9PdfgenKlient.class);
     }
 
     public byte[] genererPdfInntektsmelding(InntektsmeldingPdfRequest pdfRequest) throws URISyntaxException {
@@ -67,7 +67,7 @@ public class K9DokgenKlient implements DokgenKlient {
         var pdf = restClient.sendReturnByteArray(request);
 
         if (pdf == null || pdf.length == 0) {
-            throw new TekniskException("K9IM", "Fikk tomt svar ved kall til dokgen for generering av pdf");
+            throw new TekniskException("K9IM", "Fikk tomt svar ved kall til pdfgen for generering av pdf");
         }
         return pdf;
     }

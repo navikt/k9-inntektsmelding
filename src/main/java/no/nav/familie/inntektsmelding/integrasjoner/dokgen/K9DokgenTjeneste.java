@@ -19,7 +19,7 @@ import no.nav.vedtak.exception.TekniskException;
 @ApplicationScoped
 public class K9DokgenTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(K9DokgenTjeneste.class);
-    private K9DokgenKlient k9DokgenKlient;
+    private DokgenKlient pdfgenKlient;
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
 
@@ -28,8 +28,8 @@ public class K9DokgenTjeneste {
     }
 
     @Inject
-    public K9DokgenTjeneste(K9DokgenKlient k9DokgenKlient, PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
-        this.k9DokgenKlient = k9DokgenKlient;
+    public K9DokgenTjeneste(DokgenKlientSelector dokgenKlientSelector, PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
+        this.pdfgenKlient = dokgenKlientSelector.getDokgenKlient();
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
     }
@@ -66,7 +66,7 @@ public class K9DokgenTjeneste {
 
     private byte[] genererPdfForOmsorgspengerRefusjon(OmsorgspengerRefusjonPdfRequest omsorgspengerRefusjonPdfRequest, int inntektsmeldingId) {
         try {
-            byte[] pdf = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(omsorgspengerRefusjonPdfRequest);
+            byte[] pdf = pdfgenKlient.genererPdfOmsorgspengerRefusjon(omsorgspengerRefusjonPdfRequest);
             LOG.info("Pdf av refusjonskrav omsorgspenger med id {} ble generert.", inntektsmeldingId);
             return pdf;
         } catch (Exception e) {
@@ -78,7 +78,7 @@ public class K9DokgenTjeneste {
 
     private byte[] genererPdfForOmsorgspengerInntektsmelding(OmsorgspengerInntektsmeldingPdfRequest omsorgspengerInntektsmeldingPdfRequest, int inntektsmeldingId) {
         try {
-            byte[] pdf = k9DokgenKlient.genererPdfOmsorgspengerInntektsmelding(omsorgspengerInntektsmeldingPdfRequest);
+            byte[] pdf = pdfgenKlient.genererPdfOmsorgspengerInntektsmelding(omsorgspengerInntektsmeldingPdfRequest);
             LOG.info("Pdf av inntektsmelding omsorgspenger med id {} ble generert.", inntektsmeldingId);
             return pdf;
         } catch (Exception e) {
@@ -90,7 +90,7 @@ public class K9DokgenTjeneste {
 
     private byte[] genererPdfForInntektsmelding(InntektsmeldingPdfRequest inntektsmeldingPdfRequest, int inntektsmeldingId) {
         try {
-            byte[] pdf = k9DokgenKlient.genererPdfInntektsmelding(inntektsmeldingPdfRequest);
+            byte[] pdf = pdfgenKlient.genererPdfInntektsmelding(inntektsmeldingPdfRequest);
             LOG.info("Pdf av inntektsmelding med id {} ble generert.", inntektsmeldingId);
             return pdf;
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public class K9DokgenTjeneste {
 
     private byte[] genererPdfForRefusjonskravNyansatt(RefusjonskravNyansattData refusjonskravNyansattPdfData, int inntektsmeldingId) {
         try {
-            byte[] pdf = k9DokgenKlient.genererPdfRefusjonskravNyansatt(refusjonskravNyansattPdfData);
+            byte[] pdf = pdfgenKlient.genererPdfRefusjonskravNyansatt(refusjonskravNyansattPdfData);
             LOG.info("Pdf av refusjonskrav for nyansatt med id {} ble generert.", inntektsmeldingId);
             return pdf;
         } catch (Exception e) {
