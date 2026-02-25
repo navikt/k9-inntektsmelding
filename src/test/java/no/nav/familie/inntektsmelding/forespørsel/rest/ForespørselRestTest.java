@@ -25,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -51,11 +52,13 @@ class ForespørselRestTest {
     private Tilgang tilgang;
     @Mock
     private SporingsloggTjeneste sporingsloggTjeneste;
+    @Mock
+    private K9SakTjeneste k9SakTjeneste;
 
     @BeforeEach
     void setUp() {
         this.forespørselBehandlingTjeneste = Mockito.mock(ForespørselBehandlingTjeneste.class);
-        this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste, tilgang, sporingsloggTjeneste);
+        this.forespørselRest = new ForespørselRest(forespørselBehandlingTjeneste, tilgang, sporingsloggTjeneste, k9SakTjeneste);
     }
 
     @Test

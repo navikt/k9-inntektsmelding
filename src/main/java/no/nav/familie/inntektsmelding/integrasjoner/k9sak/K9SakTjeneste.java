@@ -16,13 +16,25 @@ import no.nav.k9.sak.typer.AktørId;
 public class K9SakTjeneste {
     private K9SakKlient klient;
 
-    public K9SakTjeneste() {
+    K9SakTjeneste() {
         // CDI
     }
 
     @Inject
     public K9SakTjeneste(K9SakKlient klient) {
         this.klient = klient;
+    }
+
+    public FagsakInfo hentFagsakInfo(SaksnummerDto saksnummer) {
+        FinnSakerDto k9Fagsak = klient.hentFagsakInfo(saksnummer);
+
+        return new FagsakInfo(
+            new SaksnummerDto(k9Fagsak.saksnummer().getVerdi()),
+            mapYtelsetype(k9Fagsak.ytelseType()),
+            k9Fagsak.aktørId(),
+            new PeriodeDto(k9Fagsak.gyldigPeriode().getFom(), k9Fagsak.gyldigPeriode().getTom()),
+            mapSøknadsperiode(k9Fagsak),
+            k9Fagsak.venterForTidligSøknad());
     }
 
     public List<FagsakInfo> hentFagsakInfo(Ytelsetype ytelsetype, AktørId aktørId) {
@@ -33,6 +45,7 @@ public class K9SakTjeneste {
                 new FagsakInfo(
                     new SaksnummerDto(k9Fagsak.saksnummer().getVerdi()),
                     mapYtelsetype(k9Fagsak.ytelseType()),
+                    k9Fagsak.aktørId(),
                     new PeriodeDto(k9Fagsak.gyldigPeriode().getFom(), k9Fagsak.gyldigPeriode().getTom()),
                     mapSøknadsperiode(k9Fagsak),
                     k9Fagsak.venterForTidligSøknad()
