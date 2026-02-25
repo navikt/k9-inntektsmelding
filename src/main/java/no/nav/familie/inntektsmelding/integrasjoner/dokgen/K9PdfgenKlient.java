@@ -17,7 +17,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @Dependent
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED,
     endpointProperty = "k9pdfgen.url",
-    endpointDefault = "http://k9-pdfgen",
+    endpointDefault = "http://k9-pdfgen-psb",
     application = FpApplication.NONFP)
 public class K9PdfgenKlient implements DokgenKlient {
     private final RestClient restClient;
