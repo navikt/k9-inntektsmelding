@@ -17,16 +17,16 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @Dependent
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED,
     endpointProperty = "k9pdfgen.url",
-    endpointDefault = "http://k9-pdfgen",
+    endpointDefault = "http://k9-pdfgen-psb",
     application = FpApplication.NONFP)
 public class K9PdfgenKlient implements DokgenKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
 
-    private final String INNTEKTSMELDING_PATH = "/api/v1/genpdf/inntektsmelding";
-    private final String REFUSJONSKRAV_NYANSATT = "/api/v1/genpdf/inntektsmelding-refusjonskrav";
-    private final String OMSORGSPENGER_REFUSJON_PATH = "/api/v1/genpdf/omsorgspenger_refusjon";
-    private final String OMSORGSPENGER_INNTEKTSMELDING_PATH = "/api/v1/genpdf/omsorgspenger_inntektsmelding";
+    private final String INNTEKTSMELDING_PATH = "/api/v1/genpdf/inntektsmelding/inntektsmelding";
+    private final String REFUSJONSKRAV_NYANSATT = "/api/v1/genpdf/inntektsmelding/inntektsmelding-refusjonskrav";
+    private final String OMSORGSPENGER_REFUSJON_PATH = "/api/v1/genpdf/inntektsmelding/omsorgspenger_refusjon";
+    private final String OMSORGSPENGER_INNTEKTSMELDING_PATH = "/api/v1/genpdf/inntektsmelding/omsorgspenger_inntektsmelding";
 
     @Inject
     public K9PdfgenKlient(

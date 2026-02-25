@@ -112,6 +112,9 @@ spec:
         - application: k9-dokgen
           namespace: k9saksbehandling
           cluster: {{environment}}-gcp
+        - application: k9-pdfgen-psb
+          namespace: k9saksbehandling
+          cluster: {{environment}}-gcp
         - application: sif-abac-pdp
           namespace: k9saksbehandling
           cluster: {{environment}}-gcp
