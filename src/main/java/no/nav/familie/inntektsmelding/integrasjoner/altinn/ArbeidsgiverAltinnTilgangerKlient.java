@@ -72,7 +72,7 @@ public class ArbeidsgiverAltinnTilgangerKlient {
         boolean tilgangsbeslutningAltinn3 = brukersTilgangerForOrgnr.contains(ALTINN_TRE_RESSURS);
 
         if (tilgangsbeslutningAltinn2 != tilgangsbeslutningAltinn3) { // hvis tilgang er ulikt mellom Altinn 2 og Altinn 3, logg for avstemming.
-            LOG.info("ALTINN: Tilgangsbeslutninger er ulike for bruker! Altinn 2: {}, Altinn 3: {}.", tilgangsbeslutningAltinn2, tilgangsbeslutningAltinn3);
+            LOG.warn("ALTINN: Tilgangsbeslutninger er ulike for bruker! Altinn 2: {}, Altinn 3: {}.", tilgangsbeslutningAltinn2, tilgangsbeslutningAltinn3);
         }
 
         return BRUK_ALTINN_TRE_FOR_TILGANGSKONTROLL ? tilgangsbeslutningAltinn3 : tilgangsbeslutningAltinn2;

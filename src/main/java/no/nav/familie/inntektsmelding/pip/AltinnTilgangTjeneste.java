@@ -1,24 +1,41 @@
 package no.nav.familie.inntektsmelding.pip;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.enterprise.context.Dependent;
 
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnAutoriseringKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.ArbeidsgiverAltinnTilgangerKlient;
 
 @Dependent
 public class AltinnTilgangTjeneste {
 
-    private final ArbeidsgiverAltinnTilgangerKlient altinnKlient;
+    private static final Logger LOG = LoggerFactory.getLogger(AltinnTilgangTjeneste.class);
+
+    private final AltinnAutoriseringKlient altinnKlient;
+    private final ArbeidsgiverAltinnTilgangerKlient nyAltinnKlient;
 
     public AltinnTilgangTjeneste() {
-        this(ArbeidsgiverAltinnTilgangerKlient.instance());
+        this(AltinnAutoriseringKlient.instance(), ArbeidsgiverAltinnTilgangerKlient.instance());
     }
 
-    public AltinnTilgangTjeneste(ArbeidsgiverAltinnTilgangerKlient altinnKlient) {
+    public AltinnTilgangTjeneste(AltinnAutoriseringKlient altinnKlient, ArbeidsgiverAltinnTilgangerKlient nyAltinnKlient) {
         this.altinnKlient = altinnKlient;
+        this.nyAltinnKlient = nyAltinnKlient;
     }
 
     public boolean harTilgangTilBedriften(String orgNr) {
-        return altinnKlient.harTilgangTilBedriften(orgNr);
+        boolean gammelHarTilgang = altinnKlient.harTilgangTilBedriften(orgNr);
+        try {
+            boolean nyHarTilgang = nyAltinnKlient.harTilgangTilBedriften(orgNr);
+            if (nyHarTilgang != gammelHarTilgang) {
+                LOG.warn("ALTINN: gammelHarTilgang: {}, nyHarTilgang: {}", gammelHarTilgang, nyHarTilgang);
+            }
+        } catch (Exception e) {
+            LOG.warn("Kall på ny altinnklient feilet", e);
+        }
+        return gammelHarTilgang;
     }
 
     public boolean manglerTilgangTilBedriften(String orgNr) {

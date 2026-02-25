@@ -16,7 +16,6 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-@Deprecated
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "altinn.url", scopesProperty = "altinn.scopes")
 public class AltinnAutoriseringKlient {
     private static final String SERVICE_CODE = "4936";
