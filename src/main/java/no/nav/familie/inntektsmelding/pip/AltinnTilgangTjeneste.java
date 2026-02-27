@@ -32,6 +32,7 @@ public class AltinnTilgangTjeneste {
             if (nyHarTilgang != gammelHarTilgang) {
                 LOG.warn("ALTINN: gammelHarTilgang: {}, nyHarTilgang: {}", gammelHarTilgang, nyHarTilgang);
             }
+            return nyHarTilgang;
         } catch (Exception e) {
             LOG.warn("Kall på ny altinnklient feilet", e);
         }
