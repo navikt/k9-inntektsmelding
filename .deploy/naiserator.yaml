@@ -105,8 +105,6 @@ spec:
       rules:
         - application: notifikasjon-produsent-api
           namespace: fager
-        - application: altinn-rettigheter-proxy
-          namespace: arbeidsgiver
         - application: arbeidsgiver-altinn-tilganger
           namespace: fager
         - application: k9-dokgen
