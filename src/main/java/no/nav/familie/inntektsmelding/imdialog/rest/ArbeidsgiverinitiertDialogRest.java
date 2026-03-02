@@ -41,6 +41,7 @@ public class ArbeidsgiverinitiertDialogRest {
     public static final String BASE_PATH = "/arbeidsgiverinitiert";
     private static final String HENT_ARBEIDSFORHOLD = "/arbeidsforhold";
     private static final String HENT_OPPLYSNINGER = "/opplysninger";
+    private static final String HENT_ARBEIDSGIVERE_FOR_UREGISTRERT = "/arbeidsgivere/uregistrert";
 
     private GrunnlagTjeneste grunnlagTjeneste;
     private PersonTjeneste personTjeneste;
@@ -104,5 +105,19 @@ public class ArbeidsgiverinitiertDialogRest {
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
         var hentOpplysningerResponse = grunnlagTjeneste.hentOpplysningerForNyansatt(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer());
         return Response.ok(hentOpplysningerResponse).build();
+    }
+
+    @POST
+    @Path(HENT_ARBEIDSGIVERE_FOR_UREGISTRERT)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentArbeidsgivereforUregistrert(@Valid @NotNull HentArbeidsgivereUregistrertRequest request) {
+        LOG.info("Henter personinformasjon, og organisasjoner som innsender har tilgang til");
+        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
+        if (personInfo == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        var dto = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo);
+        return dto.map(d -> Response.ok(d).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
 }

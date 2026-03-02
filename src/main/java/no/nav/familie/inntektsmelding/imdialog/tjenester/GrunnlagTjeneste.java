@@ -201,4 +201,19 @@ public class GrunnlagTjeneste {
             personInfo.kjønn(),
             arbeidsforholdDto));
     }
+
+    public Optional<HentArbeidsforholdResponse> hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(PersonInfo personInfo) {
+        var organisasjonerArbeidsgiverHarTilgangTil = arbeidstakerTjeneste.finnOrganisasjonerArbeidsgiverHarTilgangTil(personInfo.fødselsnummer());
+
+        var organisasjoner = organisasjonerArbeidsgiverHarTilgangTil.stream()
+            .map(orgnrDto -> new HentArbeidsforholdResponse.ArbeidsforholdDto(organisasjonTjeneste.finnOrganisasjon(orgnrDto.orgnr()).navn(),
+                orgnrDto.orgnr()))
+            .collect(Collectors.toSet());
+
+        return Optional.of(new HentArbeidsforholdResponse(personInfo.fornavn(),
+            personInfo.mellomnavn(),
+            personInfo.etternavn(),
+            personInfo.kjønn(),
+            organisasjoner));
+    }
 }
