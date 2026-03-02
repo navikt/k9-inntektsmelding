@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidsforholdTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.InnsenderDto;
 import no.nav.familie.inntektsmelding.typer.dto.InntektsopplysningerDto;
@@ -39,11 +41,14 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 @ApplicationScoped
 public class GrunnlagTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(GrunnlagTjeneste.class);
+    private static final List<ForespørselType> ARBEIDSGIVER_INITIERTE_FORESPØRSLER = List.of(ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT, ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
+
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private InntektTjeneste inntektTjeneste;
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
+    private ArbeidsforholdTjeneste arbeidsforholdTjeneste;
 
     GrunnlagTjeneste() {
     }
@@ -53,12 +58,13 @@ public class GrunnlagTjeneste {
                             PersonTjeneste personTjeneste,
                             OrganisasjonTjeneste organisasjonTjeneste,
                             InntektTjeneste inntektTjeneste,
-                            ArbeidstakerTjeneste arbeidstakerTjeneste) {
+                            ArbeidstakerTjeneste arbeidstakerTjeneste, ArbeidsforholdTjeneste arbeidsforholdTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.inntektTjeneste = inntektTjeneste;
         this.arbeidstakerTjeneste = arbeidstakerTjeneste;
+        this.arbeidsforholdTjeneste = arbeidsforholdTjeneste;
     }
 
     public HentOpplysningerResponse hentOpplysninger(UUID forespørselUuid) {
@@ -87,10 +93,15 @@ public class GrunnlagTjeneste {
 
     // Hvis en bruker har byttet jobb mens de mottar en ytelse, kan det hende at k9-sak ikke har opprettet en forespørsel for den nye arbeidsgiveren.
     // Da må arbeidsgiver sende kunne sende innteksmelding uten at det finnes en forespørsel.
-    public HentOpplysningerResponse hentOpplysningerForNyansatt(PersonIdent fødselsnummer,
-                                                                Ytelsetype ytelsetype,
-                                                                LocalDate førsteFraværsdag,
-                                                                OrganisasjonsnummerDto organisasjonsnummer) {
+    public HentOpplysningerResponse hentOpplysninger(PersonIdent fødselsnummer,
+                                                     Ytelsetype ytelsetype,
+                                                     LocalDate førsteFraværsdag,
+                                                     OrganisasjonsnummerDto organisasjonsnummer,
+                                                     ForespørselType forespørselType) {
+        if (!ARBEIDSGIVER_INITIERTE_FORESPØRSLER.contains(forespørselType)) {
+            throw new IllegalArgumentException("Kun arbeidsgiverinitierte forespørsler kan bruke denne metoden, forespørselType var " + forespørselType);
+        }
+
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
 
         var eksisterendeForepørsler = forespørselBehandlingTjeneste.finnAlleForespørsler(personInfo.aktørId(), ytelsetype, organisasjonsnummer.orgnr());
@@ -116,7 +127,7 @@ public class GrunnlagTjeneste {
             KodeverkMapper.mapYtelsetype(ytelsetype),
             null,
             KodeverkMapper.mapForespørselStatus(ForespørselStatus.UNDER_BEHANDLING),
-            ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT,
+            forespørselType,
             førsteFraværsdag,
             null);
     }
@@ -178,8 +189,7 @@ public class GrunnlagTjeneste {
         return new PersonInfoDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
     }
 
-    public Optional<HentArbeidsforholdResponse> finnArbeidsforholdForFnr(PersonIdent fødselsnummer, Ytelsetype ytelsetype,
-                                                                         LocalDate førsteFraværsdag) {
+    public Optional<HentArbeidsforholdResponse> finnArbeidsforholdForFnr(PersonIdent fødselsnummer, LocalDate førsteFraværsdag) {
         // TODO Skal vi sjekke noe mtp kode 6/7
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
         if (personInfo == null) {
@@ -215,5 +225,21 @@ public class GrunnlagTjeneste {
             personInfo.etternavn(),
             personInfo.kjønn(),
             organisasjoner));
+    }
+
+    public boolean finnesOrgnummerIAaregPåPerson(PersonIdent personIdent,
+                                                 String organisasjonsnummer,
+                                                 LocalDate førsteUttaksdato) {
+        return arbeidsforholdTjeneste.hentArbeidsforhold(personIdent, førsteUttaksdato).stream()
+            .filter(arbeidsforhold -> arbeidsforhold.organisasjonsnummer().equals(organisasjonsnummer))
+            .anyMatch(arbeidsforhold -> inkludererDato(førsteUttaksdato,
+                arbeidsforhold.ansettelsesperiode().fom(),
+                arbeidsforhold.ansettelsesperiode().tom()));
+    }
+
+    private boolean inkludererDato(LocalDate førsteUttaksdato, LocalDate fom, LocalDate tom) {
+        var fomLikEllerEtter = førsteUttaksdato.isEqual(fom) || førsteUttaksdato.isAfter(fom);
+        var tomLikEllerFør = førsteUttaksdato.isEqual(tom) || førsteUttaksdato.isBefore(tom);
+        return fomLikEllerEtter && tomLikEllerFør;
     }
 }

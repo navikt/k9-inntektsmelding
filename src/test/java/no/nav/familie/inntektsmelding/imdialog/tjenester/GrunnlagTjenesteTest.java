@@ -32,6 +32,7 @@ import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
+import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidsforholdTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.dto.MånedsinntektDto;
@@ -61,6 +62,9 @@ class GrunnlagTjenesteTest {
     private InntektTjeneste inntektTjeneste;
     @Mock
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
+    @Mock
+    private ArbeidsforholdTjeneste arbeidsforholdTjeneste;
+
 
     private GrunnlagTjeneste grunnlagTjeneste;
 
@@ -77,7 +81,7 @@ class GrunnlagTjenesteTest {
 
     @BeforeEach
     void setUp() {
-        grunnlagTjeneste = new GrunnlagTjeneste(forespørselBehandlingTjeneste, personTjeneste, organisasjonTjeneste, inntektTjeneste, arbeidstakerTjeneste);
+        grunnlagTjeneste = new GrunnlagTjeneste(forespørselBehandlingTjeneste, personTjeneste, organisasjonTjeneste, inntektTjeneste, arbeidstakerTjeneste, arbeidsforholdTjeneste);
     }
 
     @Test
@@ -205,14 +209,14 @@ class GrunnlagTjenesteTest {
         var fnr = new PersonIdent("11111111111");
         var førsteFraværsdag = LocalDate.now();
         var aktørId = new AktørIdEntitet("9999999999999");
+        var ansettelsesperiode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now(), LocalDate.now().plusMonths(2));
         when(personTjeneste.hentPersonFraIdent(fnr)).thenReturn(
             new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null, Kjønn.KVINNE));
         var orgnr = "999999999";
-        when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag)).thenReturn(List.of(new ArbeidsforholdDto(orgnr,
-            "ARB-001")));
+        when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag)).thenReturn(List.of(new ArbeidsforholdDto(orgnr, "ARB-001", ansettelsesperiode)));
         when(organisasjonTjeneste.finnOrganisasjon(orgnr)).thenReturn(new Organisasjon("Bedriften", orgnr));
         // Act
-        var response = grunnlagTjeneste.finnArbeidsforholdForFnr(fnr, Ytelsetype.PLEIEPENGER_SYKT_BARN, LocalDate.now()).orElse(null);
+        var response = grunnlagTjeneste.finnArbeidsforholdForFnr(fnr, LocalDate.now()).orElse(null);
 
         // Assert
         assertThat(response).isNotNull();
@@ -279,10 +283,11 @@ class GrunnlagTjenesteTest {
             LocalDate.now(),
             organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
-        var imDialogDto = grunnlagTjeneste.hentOpplysningerForNyansatt(fødselsnummer,
+        var imDialogDto = grunnlagTjeneste.hentOpplysninger(fødselsnummer,
             ytelsetype,
             førsteFraværsdag,
-            organisasjonsnummer);
+            organisasjonsnummer,
+            ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
 
         // Assert
         assertThat(imDialogDto.person().aktørId()).isEqualTo(aktørId.getAktørId());
@@ -317,7 +322,7 @@ class GrunnlagTjenesteTest {
             LocalDate.now(),
             organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
-        var imDialogDto = grunnlagTjeneste.hentOpplysningerForNyansatt(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
+        var imDialogDto = grunnlagTjeneste.hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer, ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
 
         // Assert
         assertThat(imDialogDto.person().aktørId()).isEqualTo(aktørId.getAktørId());
@@ -352,7 +357,7 @@ class GrunnlagTjenesteTest {
             LocalDate.now(),
             organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
-        var imDialogDto = grunnlagTjeneste.hentOpplysningerForNyansatt(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer);
+        var imDialogDto = grunnlagTjeneste.hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer, ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
 
         // Assert
         assertThat(imDialogDto.person().aktørId()).isEqualTo(aktørId.getAktørId());
