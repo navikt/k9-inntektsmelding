@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 
 @ExtendWith(MockitoExtension.class)
 class ArbeidstakerTjenesteTest {
@@ -86,5 +87,19 @@ class ArbeidstakerTjenesteTest {
 
         assertThat(arbeidsforhold.organisasjonsnummer()).isEqualTo("00000001");
         assertThat(arbeidsforhold.arbeidsforholdId()).isEqualTo("123456789");
+    }
+
+    @Test
+    void returnerer_organisasjoner_innsender_har_tilgang_til() {
+        var organisasjoner = List.of("000000000", "000000001", "000000002");
+        var forventetListe = organisasjoner.stream().map(OrganisasjonsnummerDto::new).toList();
+
+        when(altinnTilgangTjenesteMock.hentBedrifterArbeidsgiverHarTilgangTil()).thenReturn(organisasjoner);
+
+        var resultat = arbeidstakerTjeneste.finnOrganisasjonerArbeidsgiverHarTilgangTil(TILFELDIG_PERSON_IDENT);
+
+        assertThat(resultat)
+            .hasSize(3)
+            .isEqualTo(forventetListe);
     }
 }
