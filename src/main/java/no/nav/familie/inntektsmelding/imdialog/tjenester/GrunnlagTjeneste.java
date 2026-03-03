@@ -58,7 +58,8 @@ public class GrunnlagTjeneste {
                             PersonTjeneste personTjeneste,
                             OrganisasjonTjeneste organisasjonTjeneste,
                             InntektTjeneste inntektTjeneste,
-                            ArbeidstakerTjeneste arbeidstakerTjeneste, ArbeidsforholdTjeneste arbeidsforholdTjeneste) {
+                            ArbeidstakerTjeneste arbeidstakerTjeneste,
+                            ArbeidsforholdTjeneste arbeidsforholdTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;

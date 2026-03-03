@@ -41,7 +41,6 @@ public class ArbeidsforholdTjeneste {
             .filter(arb -> OpplysningspliktigArbeidsgiverDto.Type.ORGANISASJON.equals(arb.arbeidsgiver().type())) // Vi skal aldri behandle private arbeidsforhold i ftinntektsmelding
             .map(arbeidsforhold -> new ArbeidsforholdDto(
                 arbeidsforhold.arbeidsgiver().organisasjonsnummer(),
-                arbeidsforhold.arbeidsforholdId(),
                 mapAnsettelsesperiode(arbeidsforhold)
             )).toList();
     }

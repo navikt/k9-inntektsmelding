@@ -213,7 +213,7 @@ class GrunnlagTjenesteTest {
         when(personTjeneste.hentPersonFraIdent(fnr)).thenReturn(
             new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null, Kjønn.KVINNE));
         var orgnr = "999999999";
-        when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag)).thenReturn(List.of(new ArbeidsforholdDto(orgnr, "ARB-001", ansettelsesperiode)));
+        when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag)).thenReturn(List.of(new ArbeidsforholdDto(orgnr, ansettelsesperiode)));
         when(organisasjonTjeneste.finnOrganisasjon(orgnr)).thenReturn(new Organisasjon("Bedriften", orgnr));
         // Act
         var response = grunnlagTjeneste.finnArbeidsforholdForFnr(fnr, LocalDate.now()).orElse(null);

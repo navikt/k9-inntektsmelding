@@ -66,7 +66,7 @@ class RefusjonOmsorgsdagerServiceTest {
         var aktørId = AktørIdEntitet.dummy();
         var førsteFraværsdag = LocalDate.now();
         var ansettelsesperiode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now(), LocalDate.now().plusMonths(2));
-        var arbeidsforhold = List.of(new ArbeidsforholdDto(orgnummer, "ARB-1", ansettelsesperiode), new ArbeidsforholdDto(orgnummer, "ARB-2", ansettelsesperiode));
+        var arbeidsforhold = List.of(new ArbeidsforholdDto(orgnummer, ansettelsesperiode), new ArbeidsforholdDto(orgnummer, ansettelsesperiode));
 
         var forventetArbeidstakerInfo = new SlåOppArbeidstakerResponse(
             new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()),
@@ -127,11 +127,10 @@ class RefusjonOmsorgsdagerServiceTest {
             LocalDate.now(),
             null,
             Kjønn.KVINNE));
-        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer,
-            LocalDate.now())).thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, "ARB-1", ansettelsesperiode)));
-        when(inntektTjenesteMock.hentInntekt(any(), any(), any(), any())).thenReturn(new Inntektsopplysninger(new BigDecimal(10000),
-            organisasjonsnummer,
-            List.of()));
+        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now()))
+            .thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, ansettelsesperiode)));
+        when(inntektTjenesteMock.hentInntekt(any(), any(), any(), any()))
+            .thenReturn(new Inntektsopplysninger(new BigDecimal(10000), organisasjonsnummer, List.of()));
 
         var response = service.hentInntektsopplysninger(fødselsnummer, "999999999", LocalDate.now());
 
@@ -166,8 +165,8 @@ class RefusjonOmsorgsdagerServiceTest {
         var ansettelsesperiode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now(), LocalDate.now().plusMonths(2));
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(null);
-        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer,
-            LocalDate.now())).thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, "ARB-1", ansettelsesperiode)));
+        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now()))
+            .thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, ansettelsesperiode)));
 
         var response = service.hentInntektsopplysninger(fødselsnummer, "999999999", LocalDate.now());
 

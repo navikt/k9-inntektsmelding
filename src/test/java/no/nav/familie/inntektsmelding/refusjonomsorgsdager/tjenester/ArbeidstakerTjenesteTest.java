@@ -41,9 +41,8 @@ class ArbeidstakerTjenesteTest {
     void returnerer_arbeidstakerinfo_om_dette_finnes() {
         var førsteFraværsdag = LocalDate.now();
         var ansettelsesperiode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now(), LocalDate.now().plusMonths(2));
-        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), any())).thenReturn(
-            List.of(new ArbeidsforholdDto("000000000", "111111111", ansettelsesperiode))
-        );
+        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), any()))
+            .thenReturn(List.of(new ArbeidsforholdDto("000000000", ansettelsesperiode)));
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
 
         var resultat = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(TILFELDIG_PERSON_IDENT, førsteFraværsdag);
@@ -51,15 +50,14 @@ class ArbeidstakerTjenesteTest {
 
         var arbeidsforhold = resultat.getFirst();
         assertThat(arbeidsforhold.organisasjonsnummer()).isEqualTo("000000000");
-        assertThat(arbeidsforhold.arbeidsforholdId()).isEqualTo("111111111");
     }
 
     @Test
     void verifiserer_arbeidsforhold_detaljer() {
         var førsteFraværsdag = LocalDate.now();
         var ansettelsesPeriode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now().minusYears(1), Tid.TIDENES_ENDE);
-        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), any())).thenReturn(
-            List.of(new ArbeidsforholdDto("00000000", "123456789", ansettelsesPeriode)));
+        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), any()))
+            .thenReturn(List.of(new ArbeidsforholdDto("00000000", ansettelsesPeriode)));
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften(any())).thenReturn(true);
 
         var resultat = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(TILFELDIG_PERSON_IDENT, førsteFraværsdag);
@@ -68,7 +66,6 @@ class ArbeidstakerTjenesteTest {
         var arbeidsforhold = resultat.getFirst();
 
         assertThat(arbeidsforhold.organisasjonsnummer()).isEqualTo("00000000");
-        assertThat(arbeidsforhold.arbeidsforholdId()).isEqualTo("123456789");
     }
 
     @Test
@@ -76,12 +73,11 @@ class ArbeidstakerTjenesteTest {
         var førsteFraværsdag = LocalDate.now();
         var ansettelsesPeriode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now().minusYears(1), Tid.TIDENES_ENDE);
         var ansettelsesPeriode2 = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now().minusYears(1), LocalDate.now().plusMonths(5));
-        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), any())).thenReturn(
-            List.of(
-                new ArbeidsforholdDto("00000000", "123456789", ansettelsesPeriode),
-                new ArbeidsforholdDto("00000001", "123456789", ansettelsesPeriode2)
-            )
-        );
+        when(arbeidsforholdTjenesteMock.hentArbeidsforhold(any(), any()))
+            .thenReturn(List.of(
+                new ArbeidsforholdDto("00000000", ansettelsesPeriode),
+                new ArbeidsforholdDto("00000001", ansettelsesPeriode2)));
+
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften("00000000")).thenReturn(false);
         when(altinnTilgangTjenesteMock.harTilgangTilBedriften("00000001")).thenReturn(true);
 
@@ -91,7 +87,6 @@ class ArbeidstakerTjenesteTest {
         var arbeidsforhold = resultat.getFirst();
 
         assertThat(arbeidsforhold.organisasjonsnummer()).isEqualTo("00000001");
-        assertThat(arbeidsforhold.arbeidsforholdId()).isEqualTo("123456789");
     }
 
     @Test
