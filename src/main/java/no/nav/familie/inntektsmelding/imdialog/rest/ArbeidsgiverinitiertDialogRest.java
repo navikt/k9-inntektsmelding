@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.rest;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -69,8 +71,8 @@ public class ArbeidsgiverinitiertDialogRest {
 
         arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag());
 
-        var response = grunnlagTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), request.førsteFraværsdag());
-        return response.map(d ->Response.ok(d).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
+        Optional<HentArbeidsforholdResponse> response = grunnlagTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), request.førsteFraværsdag());
+        return response.map(r ->Response.ok(r).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
 
     @POST
@@ -80,7 +82,7 @@ public class ArbeidsgiverinitiertDialogRest {
     public Response hentOpplysninger(@Valid @NotNull OpplysningerRequestDto request) {
         LOG.info("Henter opplysninger for søker");
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
-        var hentOpplysningerResponse = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer(), ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
+        HentOpplysningerResponse hentOpplysningerResponse = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer(), ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
         return Response.ok(hentOpplysningerResponse).build();
     }
 
@@ -94,8 +96,9 @@ public class ArbeidsgiverinitiertDialogRest {
         if (personInfo == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        var dto = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo);
-        return dto.map(d -> Response.ok(d).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
+
+        Optional<HentArbeidsforholdResponse> response = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo);
+        return response.map(r -> Response.ok(r).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
 
     @POST
@@ -114,7 +117,7 @@ public class ArbeidsgiverinitiertDialogRest {
         arbeidsgiverinitiertDialogRestValiderer.validerAtOrgnummerIkkeFinnesIAaregPåPerson(request, personInfo);
 
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
-        var hentOpplysningerResponse = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer(), ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
-        return Response.ok(hentOpplysningerResponse).build();
+        HentOpplysningerResponse response = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer(), ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
+        return Response.ok(response).build();
     }
 }
