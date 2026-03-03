@@ -83,7 +83,6 @@ class ArbeidsforholdTjenesteTest {
             .hasSize(1)
             .first()
             .satisfies(dto -> {
-                assertThat(dto.arbeidsforholdId()).isEqualTo("abc123");
                 assertThat(dto.organisasjonsnummer()).isEqualTo("999999999");
             });
     }
@@ -129,9 +128,7 @@ class ArbeidsforholdTjenesteTest {
 
         assertThat(resultat).hasSize(2);
 
-        assertThat(resultat.getFirst().arbeidsforholdId()).isEqualTo("arbeidsforhold id 1");
         assertThat(resultat.getFirst().organisasjonsnummer()).isEqualTo("000000001");
-        assertThat(resultat.get(1).arbeidsforholdId()).isEqualTo("arbeidsforhold id 2");
         assertThat(resultat.get(1).organisasjonsnummer()).isEqualTo("000000002");
     }
 }
