@@ -6,12 +6,12 @@ import java.util.List;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import no.nav.familie.inntektsmelding.imdialog.rest.OpplysningerRequestDto;
 import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.k9.sak.typer.AktørId;
@@ -20,8 +20,8 @@ import no.nav.vedtak.exception.FunksjonellException;
 @Dependent
 public class ArbeidsgiverinitiertDialogRestValiderer {
 
-    private GrunnlagTjeneste grunnlagTjeneste;
-    private K9SakTjeneste k9SakTjeneste;
+    private final GrunnlagTjeneste grunnlagTjeneste;
+    private final K9SakTjeneste k9SakTjeneste;
 
 
     @Inject
@@ -53,8 +53,8 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
         }
     }
 
-    public void validerAtOrgnummerIkkeFinnesIAaregPåPerson(OpplysningerRequestDto request, PersonInfo personInfo) {
-        var finnesOrgnummerIAaReg = grunnlagTjeneste.finnesOrgnummerIAaregPåPerson(personInfo.fødselsnummer(), request.organisasjonsnummer().orgnr(), request.førsteFraværsdag());
+    public void validerAtOrgnummerIkkeFinnesIAaregPåPerson(PersonInfo personInfo, OrganisasjonsnummerDto organisasjonsnummer, LocalDate førsteFraværsdag) {
+        var finnesOrgnummerIAaReg = grunnlagTjeneste.finnesOrgnummerIAaregPåPerson(personInfo.fødselsnummer(), organisasjonsnummer.orgnr(), førsteFraværsdag);
         if (finnesOrgnummerIAaReg) {
             var tekst = "Det finnes rapportering i aa-registeret på organisasjonsnummeret. Nav vil be om inntektsmelding når vi trenger det";
             throw new FunksjonellException("FINNES_I_AAREG", tekst, null, null);

@@ -91,7 +91,8 @@ public class GrunnlagTjeneste {
             forespørsel.getFørsteUttaksdato().orElseGet(forespørsel::getSkjæringstidspunkt), forespørsel.getEtterspurtePerioder());
     }
 
-    // Hvis en bruker har byttet jobb mens de mottar en ytelse, kan det hende at k9-sak ikke har opprettet en forespørsel for den nye arbeidsgiveren.
+    // case 1: Hvis en søker har byttet jobb mens de mottar en ytelse, kan det hende at k9-sak ikke har opprettet en forespørsel for den nye arbeidsgiveren.
+    // case 2: Hvis en søker har en jobb som ikke er registreringsplikig har ikke k9 opprettet noen forespørsel.
     // Da må arbeidsgiver sende kunne sende innteksmelding uten at det finnes en forespørsel.
     public HentOpplysningerResponse hentOpplysninger(PersonIdent fødselsnummer,
                                                      Ytelsetype ytelsetype,
@@ -227,9 +228,7 @@ public class GrunnlagTjeneste {
             organisasjoner));
     }
 
-    public boolean finnesOrgnummerIAaregPåPerson(PersonIdent personIdent,
-                                                 String organisasjonsnummer,
-                                                 LocalDate førsteUttaksdato) {
+    public boolean finnesOrgnummerIAaregPåPerson(PersonIdent personIdent, String organisasjonsnummer, LocalDate førsteUttaksdato) {
         return arbeidsforholdTjeneste.hentArbeidsforhold(personIdent, førsteUttaksdato).stream()
             .filter(arbeidsforhold -> arbeidsforhold.organisasjonsnummer().equals(organisasjonsnummer))
             .anyMatch(arbeidsforhold -> inkludererDato(førsteUttaksdato,
