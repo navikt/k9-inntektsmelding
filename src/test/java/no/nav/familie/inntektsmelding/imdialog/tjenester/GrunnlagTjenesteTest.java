@@ -207,16 +207,18 @@ class GrunnlagTjenesteTest {
     void skal_hente_arbeidsforhold_gitt_fnr() {
         // Arrange
         var fnr = new PersonIdent("11111111111");
+        var orgnr = "999999999";
         var førsteFraværsdag = LocalDate.now();
         var aktørId = new AktørIdEntitet("9999999999999");
         var ansettelsesperiode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now(), LocalDate.now().plusMonths(2));
-        when(personTjeneste.hentPersonFraIdent(fnr)).thenReturn(
-            new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null, Kjønn.KVINNE));
-        var orgnr = "999999999";
+        var personInfo = new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null, Kjønn.KVINNE);
+
+        when(personTjeneste.hentPersonFraIdent(fnr)).thenReturn(personInfo);
         when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag)).thenReturn(List.of(new ArbeidsforholdDto(orgnr, ansettelsesperiode)));
         when(organisasjonTjeneste.finnOrganisasjon(orgnr)).thenReturn(new Organisasjon("Bedriften", orgnr));
+
         // Act
-        var response = grunnlagTjeneste.finnArbeidsforholdForFnr(fnr, LocalDate.now()).orElse(null);
+        var response = grunnlagTjeneste.finnArbeidsforholdForFnr(personInfo, LocalDate.now()).orElse(null);
 
         // Assert
         assertThat(response).isNotNull();
@@ -241,7 +243,7 @@ class GrunnlagTjenesteTest {
         when(organisasjonTjeneste.finnOrganisasjon(orgnr1.orgnr())).thenReturn(new Organisasjon(navn1, orgnr1.orgnr()));
         when(organisasjonTjeneste.finnOrganisasjon(orgnr2.orgnr())).thenReturn(new Organisasjon(navn2, orgnr2.orgnr()));
         // Act
-        var response = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo).orElse(null);
+        var response = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo);
 
         // Assert
         assertThat(response).isNotNull();

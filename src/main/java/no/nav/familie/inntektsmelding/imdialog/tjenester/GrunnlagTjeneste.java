@@ -191,13 +191,8 @@ public class GrunnlagTjeneste {
         return new PersonInfoDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.fødselsnummer().getIdent(), personInfo.aktørId().getAktørId());
     }
 
-    public Optional<HentArbeidsforholdResponse> finnArbeidsforholdForFnr(PersonIdent fødselsnummer, LocalDate førsteFraværsdag) {
-        // TODO Skal vi sjekke noe mtp kode 6/7
-        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
-        if (personInfo == null) {
-            return Optional.empty();
-        }
-        var arbeidsforholdBrukerHarTilgangTil = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag);
+    public Optional<HentArbeidsforholdResponse> finnArbeidsforholdForFnr(PersonInfo personInfo, LocalDate førsteFraværsdag) {
+        var arbeidsforholdBrukerHarTilgangTil = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(personInfo.fødselsnummer(), førsteFraværsdag);
         if (arbeidsforholdBrukerHarTilgangTil.isEmpty()) {
             return Optional.empty();
         }
@@ -214,7 +209,7 @@ public class GrunnlagTjeneste {
             arbeidsforholdDto));
     }
 
-    public Optional<HentArbeidsforholdResponse> hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(PersonInfo personInfo) {
+    public HentArbeidsforholdResponse hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(PersonInfo personInfo) {
         var organisasjonerArbeidsgiverHarTilgangTil = arbeidstakerTjeneste.finnOrganisasjonerArbeidsgiverHarTilgangTil(personInfo.fødselsnummer());
 
         var organisasjoner = organisasjonerArbeidsgiverHarTilgangTil.stream()
@@ -222,11 +217,11 @@ public class GrunnlagTjeneste {
                 orgnrDto.orgnr()))
             .collect(Collectors.toSet());
 
-        return Optional.of(new HentArbeidsforholdResponse(personInfo.fornavn(),
+        return new HentArbeidsforholdResponse(personInfo.fornavn(),
             personInfo.mellomnavn(),
             personInfo.etternavn(),
             personInfo.kjønn(),
-            organisasjoner));
+            organisasjoner);
     }
 
     public boolean finnesOrgnummerIAaregPåPerson(PersonIdent personIdent, String organisasjonsnummer, LocalDate førsteUttaksdato) {

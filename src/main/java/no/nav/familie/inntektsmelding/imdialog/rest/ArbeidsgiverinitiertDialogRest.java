@@ -71,7 +71,7 @@ public class ArbeidsgiverinitiertDialogRest {
 
         arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag());
 
-        Optional<HentArbeidsforholdResponse> response = grunnlagTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), request.førsteFraværsdag());
+        Optional<HentArbeidsforholdResponse> response = grunnlagTjeneste.finnArbeidsforholdForFnr(personInfo, request.førsteFraværsdag());
         return response.map(r ->Response.ok(r).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
 
@@ -97,8 +97,8 @@ public class ArbeidsgiverinitiertDialogRest {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        Optional<HentArbeidsforholdResponse> response = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo);
-        return response.map(r -> Response.ok(r).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
+        HentArbeidsforholdResponse response = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo);
+        return Response.ok(response).build();
     }
 
     @POST
