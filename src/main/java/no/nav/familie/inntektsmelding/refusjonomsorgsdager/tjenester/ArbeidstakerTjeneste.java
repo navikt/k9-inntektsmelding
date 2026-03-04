@@ -53,13 +53,9 @@ public class ArbeidstakerTjeneste {
         return arbeidsforholdInnsenderHarTilgangTil;
     }
 
-    public List<OrganisasjonsnummerDto> finnOrganisasjonerArbeidsgiverHarTilgangTil(PersonIdent ident) {
-        var organisasjoner = altinnTilgangTjeneste.hentBedrifterArbeidsgiverHarTilgangTil().stream()
+    public List<OrganisasjonsnummerDto> finnOrganisasjonerArbeidsgiverHarTilgangTil() {
+        return altinnTilgangTjeneste.hentBedrifterArbeidsgiverHarTilgangTil().stream()
             .map(OrganisasjonsnummerDto::new)
             .toList();
-
-        LOG.info("Arbeidsgiver har tilgang til følgende organisasjoner {} for {}", organisasjoner, ident);
-
-        return organisasjoner;
     }
 }

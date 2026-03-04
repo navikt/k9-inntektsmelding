@@ -96,7 +96,7 @@ class ArbeidstakerTjenesteTest {
 
         when(altinnTilgangTjenesteMock.hentBedrifterArbeidsgiverHarTilgangTil()).thenReturn(organisasjoner);
 
-        var resultat = arbeidstakerTjeneste.finnOrganisasjonerArbeidsgiverHarTilgangTil(TILFELDIG_PERSON_IDENT);
+        var resultat = arbeidstakerTjeneste.finnOrganisasjonerArbeidsgiverHarTilgangTil();
 
         assertThat(resultat)
             .hasSize(3)
