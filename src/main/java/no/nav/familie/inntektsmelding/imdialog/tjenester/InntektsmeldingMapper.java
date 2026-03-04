@@ -21,8 +21,9 @@ import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
-import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingForArbeidsgiverinitiertNyansattRequest;
+import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingArbeidsgiverinitiertRequest;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
@@ -39,6 +40,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
 
 public class InntektsmeldingMapper {
+    private static final List<ForespørselType> ARBEIDSGIVER_INITIERTE_FORESPØRSLER = List.of(ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT, ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
 
     private InntektsmeldingMapper() {
         // Skjuler default konstruktør
@@ -75,7 +77,10 @@ public class InntektsmeldingMapper {
         return inntektsmeldingBuilder.build();
     }
 
-    public static InntektsmeldingEntitet mapTilEntitetForAGNyansatt(SendInntektsmeldingForArbeidsgiverinitiertNyansattRequest request, ForespørselEntitet forespørsel) {
+    public static InntektsmeldingEntitet mapTilEntitetForArbeidsgiverinitiert(SendInntektsmeldingArbeidsgiverinitiertRequest request, ForespørselEntitet forespørsel) {
+        if (!ARBEIDSGIVER_INITIERTE_FORESPØRSLER.contains(forespørsel.getForespørselType())) {
+            throw new IllegalArgumentException("Kun arbeidsgiverinitierte forespørsler kan bruke denne metoden, forespørselType var " + forespørsel.getForespørselType());
+        }
         // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne lista.
         var refusjonPrMnd = finnFørsteRefusjon(request.refusjon(), request.startdato()).orElse(null);
         var opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(request.refusjon(), request.startdato()).orElse(Tid.TIDENES_ENDE);
@@ -86,7 +91,7 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(request.arbeidsgiverIdent().ident())
             .medMånedInntekt(refusjonPrMnd)
             .medKildesystem(Kildesystem.ARBEIDSGIVERPORTAL)
-            .medInntektsmeldingType(InntektsmeldingType.ARBEIDSGIVERINITIERT_NYANSATT)
+            .medInntektsmeldingType(utledInntektsmeldingType(forespørsel.getForespørselType()))
             .medMånedRefusjon(refusjonPrMnd)
             .medRefusjonOpphørsdato(opphørsdato)
             .medStartDato(request.startdato())
@@ -96,6 +101,15 @@ public class InntektsmeldingMapper {
             .medForespørsel(forespørsel);
 
         return inntektsmeldingBuilder.build();
+    }
+
+    private static InntektsmeldingType utledInntektsmeldingType(ForespørselType forespørselType) {
+        return switch (forespørselType) {
+            case ARBEIDSGIVERINITIERT_NYANSATT -> InntektsmeldingType.ARBEIDSGIVERINITIERT_NYANSATT;
+            case ARBEIDSGIVERINITIERT_UREGISTRERT -> InntektsmeldingType.ARBEIDSGIVERINITIERT_UREGISTRERT;
+            case OMSORGSPENGER_REFUSJON -> InntektsmeldingType.OMSORGSPENGER_REFUSJON;
+            case BESTILT_AV_FAGSYSTEM, BESTILT_AV_SAKSBEHANDLER -> InntektsmeldingType.ORDINÆR;
+        };
     }
 
     private static boolean erDetOmsorgspengerDirekteUtbetaling(YtelseTypeDto ytelse, ForespørselEntitet forespørsel) {
