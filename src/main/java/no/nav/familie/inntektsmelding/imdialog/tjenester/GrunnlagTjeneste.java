@@ -224,17 +224,17 @@ public class GrunnlagTjeneste {
             organisasjoner);
     }
 
-    public boolean finnesOrgnummerIAaregPåPerson(PersonIdent personIdent, String organisasjonsnummer, LocalDate førsteUttaksdato) {
-        return arbeidsforholdTjeneste.hentArbeidsforhold(personIdent, førsteUttaksdato).stream()
+    public boolean finnesOrgnummerIAaregPåPerson(PersonIdent personIdent, String organisasjonsnummer, LocalDate førsteFraværsdag) {
+        return arbeidsforholdTjeneste.hentArbeidsforhold(personIdent, førsteFraværsdag).stream()
             .filter(arbeidsforhold -> arbeidsforhold.organisasjonsnummer().equals(organisasjonsnummer))
-            .anyMatch(arbeidsforhold -> inkludererDato(førsteUttaksdato,
+            .anyMatch(arbeidsforhold -> inkludererDato(førsteFraværsdag,
                 arbeidsforhold.ansettelsesperiode().fom(),
                 arbeidsforhold.ansettelsesperiode().tom()));
     }
 
-    private boolean inkludererDato(LocalDate førsteUttaksdato, LocalDate fom, LocalDate tom) {
-        var fomLikEllerEtter = førsteUttaksdato.isEqual(fom) || førsteUttaksdato.isAfter(fom);
-        var tomLikEllerFør = førsteUttaksdato.isEqual(tom) || førsteUttaksdato.isBefore(tom);
+    private boolean inkludererDato(LocalDate førsteFraværsdag, LocalDate fom, LocalDate tom) {
+        var fomLikEllerEtter = førsteFraværsdag.isEqual(fom) || førsteFraværsdag.isAfter(fom);
+        var tomLikEllerFør = førsteFraværsdag.isEqual(tom) || førsteFraværsdag.isBefore(tom);
         return fomLikEllerEtter && tomLikEllerFør;
     }
 }
