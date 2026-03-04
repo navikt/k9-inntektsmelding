@@ -211,9 +211,8 @@ class GrunnlagTjenesteTest {
         var førsteFraværsdag = LocalDate.now();
         var aktørId = new AktørIdEntitet("9999999999999");
         var ansettelsesperiode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now(), LocalDate.now().plusMonths(2));
-        var personInfo = new PersonInfo("Navn", null, "Navnesen", new PersonIdent("12121212122"), aktørId, LocalDate.now(), null, Kjønn.KVINNE);
+        var personInfo = new PersonInfo("Navn", null, "Navnesen", fnr, aktørId, LocalDate.now(), null, Kjønn.KVINNE);
 
-        when(personTjeneste.hentPersonFraIdent(fnr)).thenReturn(personInfo);
         when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fnr, førsteFraværsdag)).thenReturn(List.of(new ArbeidsforholdDto(orgnr, ansettelsesperiode)));
         when(organisasjonTjeneste.finnOrganisasjon(orgnr)).thenReturn(new Organisasjon("Bedriften", orgnr));
 
