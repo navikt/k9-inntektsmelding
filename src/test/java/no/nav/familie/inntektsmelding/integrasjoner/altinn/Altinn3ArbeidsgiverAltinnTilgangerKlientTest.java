@@ -89,7 +89,35 @@ class Altinn3ArbeidsgiverAltinnTilgangerKlientTest {
         verify(klient).send(any(RestRequest.class), any());
     }
 
+    @Test
+    void sjekkTilgang__hent_liste_med_bedrifter_med_tilgang_til_altinn_3_tjeneste_nok() {
+        var altinnAutoriseringKlient = new ArbeidsgiverAltinnTilgangerKlient(klient);
+        when(klient.send(any(RestRequest.class), any())).thenReturn(lagTilgangTilOrgNrResponse(ALTINN_TO_TJENESTE, TEST_ORGNR));
+        assertThat(altinnAutoriseringKlient.hentBedrifterArbeidsgiverHarTilgangTil()).isEmpty();
+        verify(klient).send(any(RestRequest.class), any());
+    }
+
+    @Test
+    void sjekkTilgang__hent_liste_med_bedrifter_med_tilgang_til_altinn_3_tjeneste_ok() {
+        var altinnAutoriseringKlient = new ArbeidsgiverAltinnTilgangerKlient(klient);
+        when(klient.send(any(RestRequest.class), any())).thenReturn(lagTilgangTilOrgNrResponse(NAV_TEST_RESSURS, TEST_ORGNR));
+        assertThat(altinnAutoriseringKlient.hentBedrifterArbeidsgiverHarTilgangTil()).isNotEmpty().contains(TEST_ORGNR);
+        verify(klient).send(any(RestRequest.class), any());
+    }
+
+    @Test
+    void sjekkTilgang__hent_liste_med_bedrifter_med_tilgang_til_altinn_3_tjeneste_ikke_tilgang_til_bedrift_nok() {
+        var altinnAutoriseringKlient = new ArbeidsgiverAltinnTilgangerKlient(klient);
+        when(klient.send(any(RestRequest.class), any())).thenReturn(lagTilgangTilOrgNrResponse(NAV_TEST_RESSURS, "000000000"));
+        assertThat(altinnAutoriseringKlient.hentBedrifterArbeidsgiverHarTilgangTil()).isNotEmpty().contains("000000000");
+        verify(klient).send(any(RestRequest.class), any());
+    }
+
     private ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse lagOrgNrTilTilgangResponse(String orgnr, String... tilganger) {
         return new ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse(false, List.of(), Map.of(orgnr, List.of(tilganger)), null);
+    }
+
+    private ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse lagTilgangTilOrgNrResponse(String tilgang, String... orgnre) {
+        return new ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse(false, List.of(), null, Map.of(tilgang, List.of(orgnre)));
     }
 }

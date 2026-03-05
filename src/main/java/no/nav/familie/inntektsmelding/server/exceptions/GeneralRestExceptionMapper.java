@@ -44,6 +44,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
                     return sendtInnForTidlig();
                 }
             }
+            if (feil instanceof FunksjonellException) {
+                var exceptionMelding = getExceptionMelding(feil);
+                if (exceptionMelding.contains("FINNES_I_AAREG")) {
+                    LOG.info("Organisasjonsnummer har rapportering i aa-reg feil: {}", exceptionMelding);
+                    return finnesIAareg();
+                }
+            }
             loggTilApplikasjonslogg(feil);
             return serverError("Serverfeil");
         } finally {
@@ -72,6 +79,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     private static Response sendtInnForTidlig() {
         return Response.status(Response.Status.FORBIDDEN)
             .entity(new FeilDto(FeilType.SENDT_FOR_TIDLIG, "Sendt inntektsmelding for tidlig", MDCOperations.getCallId()))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
+    }
+
+    private static Response finnesIAareg() {
+        return Response.status(Response.Status.FORBIDDEN)
+            .entity(new FeilDto(FeilType.FINNES_I_AAREG, "Organisasjonsnummer er rapportert i Aa-reg", MDCOperations.getCallId()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
