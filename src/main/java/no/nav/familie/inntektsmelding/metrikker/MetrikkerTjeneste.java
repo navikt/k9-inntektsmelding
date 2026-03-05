@@ -49,6 +49,9 @@ public class MetrikkerTjeneste {
     // Måler opprettelse av oppgaver per ytelse
     private static final String COUNTER_FORESPØRRSEL = APP_NAME + ".oppgaver.opprettet";
 
+    // Måler opprettelse av oppgaver per ytelse
+    private static final String COUNTER_FORESPØRRSEL_SAKSBEHANDLER = APP_NAME + ".oppgaver.opprettet.saksbehandler";
+
     // Måler mottak av inntektsmeldinger per ytelse
     private static final String COUNTER_INNTEKTSMELDING = APP_NAME + ".inntektsmeldinger.mottatt";
 
@@ -67,6 +70,16 @@ public class MetrikkerTjeneste {
             Metrics.counter(COUNTER_FORESPØRRSEL, tags).increment();
         } catch (Exception e) {
             loggFeil(e, "loggForespørselOpprettet");
+        }
+    }
+
+    public static void loggForespørselOpprettetAvSaksbehandler(Ytelsetype ytelsetype) {
+        try {
+            var tags = new ArrayList<Tag>();
+            tags.add(new ImmutableTag(TAG_YTELSE, ytelsetype.name()));
+            Metrics.counter(COUNTER_FORESPØRRSEL_SAKSBEHANDLER, tags).increment();
+        } catch (Exception e) {
+            loggFeil(e, "loggForespørselOpprettetAvSaksbehandler");
         }
     }
 
