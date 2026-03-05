@@ -21,7 +21,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.OmsorgspengerRequestDto;
-import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingArbeidsgiverinitiertRequest;
+import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingArbeidsgiverinitiertNyansattRequest;
 import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
@@ -40,7 +40,6 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.konfig.Tid;
 
 public class InntektsmeldingMapper {
-    private static final List<ForespørselType> ARBEIDSGIVER_INITIERTE_FORESPØRSLER = List.of(ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT, ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
 
     private InntektsmeldingMapper() {
         // Skjuler default konstruktør
@@ -55,7 +54,7 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(request.arbeidsgiverIdent().ident())
             .medMånedInntekt(request.inntekt())
             .medKildesystem(Kildesystem.ARBEIDSGIVERPORTAL)
-            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
+            .medInntektsmeldingType(utledInntektsmeldingType(forespørsel.getForespørselType()))
             .medMånedRefusjon(refusjonPrMnd)
             .medRefusjonOpphørsdato(opphørsdato)
             .medStartDato(request.startdato())
@@ -77,9 +76,9 @@ public class InntektsmeldingMapper {
         return inntektsmeldingBuilder.build();
     }
 
-    public static InntektsmeldingEntitet mapTilEntitetForArbeidsgiverinitiert(SendInntektsmeldingArbeidsgiverinitiertRequest request, ForespørselEntitet forespørsel) {
-        if (!ARBEIDSGIVER_INITIERTE_FORESPØRSLER.contains(forespørsel.getForespørselType())) {
-            throw new IllegalArgumentException("Kun arbeidsgiverinitierte forespørsler kan bruke denne metoden, forespørselType var " + forespørsel.getForespørselType());
+    public static InntektsmeldingEntitet mapTilEntitetForArbeidsgiverinitiertNyansatt(SendInntektsmeldingArbeidsgiverinitiertNyansattRequest request, ForespørselEntitet forespørsel) {
+        if (!ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT.equals(forespørsel.getForespørselType())) {
+            throw new IllegalArgumentException("Kun arbeidsgiverinitierte nyansatt forespørsler kan bruke denne metoden, forespørselType var " + forespørsel.getForespørselType());
         }
         // Frontend sender kun inn liste med refusjon. Vi utleder startsum og opphørsdato utifra denne lista.
         var refusjonPrMnd = finnFørsteRefusjon(request.refusjon(), request.startdato()).orElse(null);

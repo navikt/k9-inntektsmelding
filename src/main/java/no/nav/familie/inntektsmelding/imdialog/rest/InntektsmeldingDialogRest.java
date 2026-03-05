@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.GrunnlagTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingMottakTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
-import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
@@ -138,10 +137,10 @@ public class InntektsmeldingDialogRest {
     @Path(SEND_INNTEKTSMELDING_ARBEIDSGIVERINITIERT_NYANSATT)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
-    public Response sendInntektsmeldingForArbeidsgiverinitiertNyansatt(@NotNull @Valid SendInntektsmeldingArbeidsgiverinitiertRequest sendInntektsmeldingRequest) {
-        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(sendInntektsmeldingRequest.arbeidsgiverIdent().ident()));
-        LOG.info("Mottok arbeidsgiverinitiert nyansatt inntektsmelding for aktørId {}", sendInntektsmeldingRequest.aktorId());
-        InntektsmeldingResponseDto response = inntektsmeldingMottakTjeneste.mottaArbeidsgiverInitiertInntektsmelding(sendInntektsmeldingRequest, ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
+    public Response sendInntektsmeldingForArbeidsgiverinitiertNyansatt(@NotNull @Valid SendInntektsmeldingArbeidsgiverinitiertNyansattRequest request) {
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(request.arbeidsgiverIdent().ident()));
+        LOG.info("Mottok arbeidsgiverinitiert nyansatt inntektsmelding for aktørId {}", request.aktorId());
+        InntektsmeldingResponseDto response = inntektsmeldingMottakTjeneste.mottaArbeidsgiverinitiertNyansattInntektsmelding(request);
         return Response.ok(response).build();
     }
 
@@ -149,10 +148,10 @@ public class InntektsmeldingDialogRest {
     @Path(SEND_INNTEKTSMELDING_ARBEIDSGIVERINITIERT_UREGISTRERT)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
-    public Response sendInntektsmeldingForArbeidsgiverinitiertUregistrert(@NotNull @Valid SendInntektsmeldingArbeidsgiverinitiertRequest sendInntektsmeldingRequest) {
-        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(sendInntektsmeldingRequest.arbeidsgiverIdent().ident()));
-        LOG.info("Mottok arbeidsgiverinitiert uregistrert inntektsmelding for aktørId {}", sendInntektsmeldingRequest.aktorId());
-        InntektsmeldingResponseDto response = inntektsmeldingMottakTjeneste.mottaArbeidsgiverInitiertInntektsmelding(sendInntektsmeldingRequest, ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
+    public Response sendInntektsmeldingForArbeidsgiverinitiertUregistrert(@NotNull @Valid SendInntektsmeldingRequest request) {
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(request.arbeidsgiverIdent().ident()));
+        LOG.info("Mottok arbeidsgiverinitiert uregistrert inntektsmelding for aktørId {}", request.aktorId());
+        InntektsmeldingResponseDto response = inntektsmeldingMottakTjeneste.mottaArbeidsgiverinitiertUregistrertInntektsmelding(request);
         return Response.ok(response).build();
     }
 
