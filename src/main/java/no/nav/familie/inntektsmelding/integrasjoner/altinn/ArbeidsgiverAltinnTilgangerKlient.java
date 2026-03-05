@@ -78,6 +78,26 @@ public class ArbeidsgiverAltinnTilgangerKlient {
         return BRUK_ALTINN_TRE_FOR_TILGANGSKONTROLL ? tilgangsbeslutningAltinn3 : tilgangsbeslutningAltinn2;
     }
 
+    // TODO: Må ryddes opp etter Altinn 3 ressurs overgang i prod.
+    public List<String> hentBedrifterArbeidsgiverHarTilgangTil() {
+        var orgNrBrukerHarTilgangTilPerRessurs = hentTilganger().tilgangTilOrgNr();
+
+        var orgNrMedGittTilgangIAltinn2 = hentSortertListeMedOrgNrMedGittTilgang(orgNrBrukerHarTilgangTilPerRessurs, ALTINN_TO_TJENESTE);
+        var orgNrMedGittTilgangIAltinn3 = hentSortertListeMedOrgNrMedGittTilgang(orgNrBrukerHarTilgangTilPerRessurs, ALTINN_TRE_RESSURS);
+
+        if (!orgNrMedGittTilgangIAltinn2.equals(orgNrMedGittTilgangIAltinn3)) { // listene må være sortert for å kunne sammenlignes direkte.
+            LOG.info("ALTINN: Uoverensstemmelse i lister over bedrifter bruker har tilgang til mellom Altinn 2 og Altinn 3.");
+        } else {
+            LOG.info("ALTINN: Hentet like mange bedrifter fra altinn 2 som altinn 3.");
+        }
+
+        return BRUK_ALTINN_TRE_FOR_TILGANGSKONTROLL ? orgNrMedGittTilgangIAltinn3 : orgNrMedGittTilgangIAltinn2;
+    }
+
+    private static List<String> hentSortertListeMedOrgNrMedGittTilgang(Map<String, List<String>> orgNrBrukerHarTilgangTilPerRessurs, String ressurs) {
+        return orgNrBrukerHarTilgangTilPerRessurs.getOrDefault(ressurs, List.of()).stream().sorted().toList();
+    }
+
     private ArbeidsgiverAltinnTilgangerResponse hentTilganger() {
         var uri = UriBuilder.fromUri(restConfig.endpoint()).path(ALTINN_TILGANGER_PATH).build();
         var request = RestRequest.newPOSTJson(lagRequestFilter(), uri, restConfig);

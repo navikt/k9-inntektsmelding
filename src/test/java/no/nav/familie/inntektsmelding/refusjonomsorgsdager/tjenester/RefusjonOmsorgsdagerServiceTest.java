@@ -65,7 +65,8 @@ class RefusjonOmsorgsdagerServiceTest {
         var orgnummer = "999999999";
         var aktørId = AktørIdEntitet.dummy();
         var førsteFraværsdag = LocalDate.now();
-        var arbeidsforhold = List.of(new ArbeidsforholdDto(orgnummer, "ARB-1"), new ArbeidsforholdDto(orgnummer, "ARB-2"));
+        var ansettelsesperiode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now(), LocalDate.now().plusMonths(2));
+        var arbeidsforhold = List.of(new ArbeidsforholdDto(orgnummer, ansettelsesperiode), new ArbeidsforholdDto(orgnummer, ansettelsesperiode));
 
         var forventetArbeidstakerInfo = new SlåOppArbeidstakerResponse(
             new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()),
@@ -116,6 +117,7 @@ class RefusjonOmsorgsdagerServiceTest {
     void hent_inntektsopplysninger_returnerer_ok() {
         var fødselsnummer = PersonIdent.fra("12345678910");
         var organisasjonsnummer = "999999999";
+        var ansettelsesperiode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now(), LocalDate.now().plusMonths(2));
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn",
             "mellomnavn",
@@ -125,11 +127,10 @@ class RefusjonOmsorgsdagerServiceTest {
             LocalDate.now(),
             null,
             Kjønn.KVINNE));
-        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer,
-            LocalDate.now())).thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, "ARB-1")));
-        when(inntektTjenesteMock.hentInntekt(any(), any(), any(), any())).thenReturn(new Inntektsopplysninger(new BigDecimal(10000),
-            organisasjonsnummer,
-            List.of()));
+        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now()))
+            .thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, ansettelsesperiode)));
+        when(inntektTjenesteMock.hentInntekt(any(), any(), any(), any()))
+            .thenReturn(new Inntektsopplysninger(new BigDecimal(10000), organisasjonsnummer, List.of()));
 
         var response = service.hentInntektsopplysninger(fødselsnummer, "999999999", LocalDate.now());
 
@@ -161,10 +162,11 @@ class RefusjonOmsorgsdagerServiceTest {
     void hent_inntektsopplysninger_returnerer_null_om_person_ikke_finnes() {
         var fødselsnummer = PersonIdent.fra("12345678910");
         var organisasjonsnummer = "999999999";
+        var ansettelsesperiode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now(), LocalDate.now().plusMonths(2));
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(null);
-        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer,
-            LocalDate.now())).thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, "ARB-1")));
+        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now()))
+            .thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, ansettelsesperiode)));
 
         var response = service.hentInntektsopplysninger(fødselsnummer, "999999999", LocalDate.now());
 
