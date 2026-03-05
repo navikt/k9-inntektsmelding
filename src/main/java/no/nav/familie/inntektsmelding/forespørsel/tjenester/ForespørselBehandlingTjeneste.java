@@ -362,11 +362,12 @@ public class ForespørselBehandlingTjeneste {
     public UUID opprettForespørselForArbeidsgiverInitiertInntektsmelding(AktørIdEntitet aktørId,
                                                                          OrganisasjonsnummerDto organisasjonsnummer,
                                                                          LocalDate skjæringstidspunkt,
-                                                                         Ytelsetype ytelsetype) {
+                                                                         Ytelsetype ytelsetype,
+                                                                         ForespørselType forespørselType) {
         LOG.info("Oppretter forespørsel for arbeidsgiverinitiert inntektsmelding, orgnr: {}, stp: {}, aktørId: {}, ytelse: {}", organisasjonsnummer.orgnr(), skjæringstidspunkt, aktørId.getAktørId(), ytelsetype);
 
         // opprettt forespørsel i databasen
-        var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, ytelsetype, ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
+        var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, ytelsetype, forespørselType);
 
         // opprett sak på min side arbeidsgiver
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
