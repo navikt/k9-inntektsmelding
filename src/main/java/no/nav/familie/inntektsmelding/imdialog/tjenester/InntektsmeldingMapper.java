@@ -90,7 +90,7 @@ public class InntektsmeldingMapper {
             .medArbeidsgiverIdent(request.arbeidsgiverIdent().ident())
             .medMånedInntekt(refusjonPrMnd)
             .medKildesystem(Kildesystem.ARBEIDSGIVERPORTAL)
-            .medInntektsmeldingType(utledInntektsmeldingType(forespørsel.getForespørselType()))
+            .medInntektsmeldingType(InntektsmeldingType.ARBEIDSGIVERINITIERT_NYANSATT)
             .medMånedRefusjon(refusjonPrMnd)
             .medRefusjonOpphørsdato(opphørsdato)
             .medStartDato(request.startdato())
