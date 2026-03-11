@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.pip.PipTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.sif.abac.kontrakt.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -26,15 +27,16 @@ import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
 public class TilgangTjeneste implements Tilgang {
 
     private static final Logger LOG = LoggerFactory.getLogger(TilgangTjeneste.class);
-    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     private final AltinnTilgangTjeneste altinnTilgangTjeneste;
     private final PipTjeneste pipTjeneste;
+    private final SifAbacPdpKlient sifAbacPdpKlient;
 
     @Inject
-    public TilgangTjeneste(PipTjeneste pipTjeneste, AltinnTilgangTjeneste altinnTilgangTjeneste) {
+    public TilgangTjeneste(PipTjeneste pipTjeneste, AltinnTilgangTjeneste altinnTilgangTjeneste, SifAbacPdpKlient sifAbacPdpKlient) {
         this.pipTjeneste = pipTjeneste;
         this.altinnTilgangTjeneste = altinnTilgangTjeneste;
+        this.sifAbacPdpKlient = sifAbacPdpKlient;
     }
 
     @Override
@@ -81,10 +83,14 @@ public class TilgangTjeneste implements Tilgang {
         ikkeTilgang("Ansatt mangler en rolle.");
     }
 
-    public void sjekkAtAnsattHarRollenSaksbehandler() {
-        var kontekst = KontekstHolder.getKontekst();
-        if (erNavAnsatt(kontekst) && ansattHarRollen(kontekst, AnsattGruppe.SAKSBEHANDLER)) {
-            return;
+    @Override
+    public void sjekkAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
+        var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
+        if (tilgang.isPresent()) {
+            if (tilgang.get().tilgangsbeslutning().harTilgang()) {
+                return;
+            }
+            ikkeTilgang(SifAbacPdpUtil.hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
         }
         ikkeTilgang("Ansatt mangler en rolle.");
     }
@@ -95,6 +101,21 @@ public class TilgangTjeneste implements Tilgang {
             return;
         }
         ikkeTilgang("Kun systemkall støttes.");
+    }
+
+    @Override
+    public void sjekkErSystembrukerEllerAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
+        if (KontekstHolder.getKontekst() instanceof RequestKontekst rq && rq.getIdentType().erSystem()) {
+            return;
+        }
+        var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
+        if (tilgang.isPresent()) {
+            if (tilgang.get().tilgangsbeslutning().harTilgang()) {
+                return;
+            }
+            ikkeTilgang(SifAbacPdpUtil.hentBegrunnelse(tilgang.get().tilgangsbeslutning().årsakerForIkkeTilgang()));
+        }
+        ikkeTilgang("Kun systemkall eller ansatt med saksbehandlerrolle støttes.");
     }
 
     private boolean erNavAnsatt(Kontekst kontekst) {
@@ -118,7 +139,6 @@ public class TilgangTjeneste implements Tilgang {
         } else {
             for (var orgNr : organisasjoner) {
                 if (altinnTilgangTjeneste.manglerTilgangTilBedriften(orgNr)) {
-                    SECURE_LOG.warn("Bruker mangler tilgang til bedrift {} i Altinn.", orgNr);
                     ikkeTilgang("Bruker mangler tilgang til bedriften i Altinn.");
                 }
             }

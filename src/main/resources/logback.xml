@@ -25,23 +25,21 @@
         </encoder>
     </appender>
 
-    <!-- SecureLog -->
-    <appender name="secureLogger" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/secure-logs/secure.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>/secure-logs/secure.log.%i</fileNamePattern>
-            <minIndex>1</minIndex>
-            <maxIndex>1</maxIndex>
-        </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>50MB</maxFileSize>
-        </triggeringPolicy>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
-    </appender>
+    <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%m%n%xEx</pattern>
+        </layout>
 
-    <logger name="secureLogger" level="INFO" additivity="false">
-        <appender-ref ref="secureLogger" />
-    </logger>
+        <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
+            <!-- remote system to log to -->
+            <host>audit.nais</host>
+            <!-- remote port to log to -->
+            <port>6514</port>
+            <ident>k9-inntektsmelding</ident>
+            <!-- max log message length in bytes -->
+            <maxMessageLength>128000</maxMessageLength>
+        </syslogConfig>
+    </appender>
 
     <logger name="no.nav" level="${log.level.no.nav:-INFO}"/>
     <logger name="no.nav.vault" level="${log.level.no.nav.vault:-WARN}"/>
@@ -50,6 +48,11 @@
     <logger name="org.apache" level="${log.level.org.apache:-ERROR}"/>
     <logger name="org.jboss.weld" level="${log.level.org.jboss.weld:-WARN}"/>
     <logger name="org.glassfish.jersey" level="${log.level.org.glassfish.jersey:-WARN}" />
+    <logger name="org.hibernate" level="${log.level.org.hibernate:-WARN}"/>
+
+    <logger name="auditLogger" level="INFO" additivity="false">
+        <appender-ref ref="auditLogger" />
+    </logger>
 
     <include optional="true" resource="logback-${NAIS_CLUSTER_NAME}.xml"/>
 

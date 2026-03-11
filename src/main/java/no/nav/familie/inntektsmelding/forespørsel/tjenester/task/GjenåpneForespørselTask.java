@@ -59,7 +59,8 @@ public class GjenåpneForespørselTask implements ProsessTaskHandler {
 
         List<InntektsmeldingResponseDto> inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(UUID.fromString(forespørselUuid));
         if (inntektsmeldinger.isEmpty()) {
-            throw new IllegalArgumentException("Kan ikke gjenåpne forespørsel som ikke har fått inn inntektsmelding");
+            LOG.warn("Kan ikke gjenåpne forespørsel som ikke har fått inn inntektsmelding, uuid: {}", forespørselUuid);
+            return;
         }
 
         forespørselBehandlingTjeneste.gjenåpneForespørsel(forespørsel);

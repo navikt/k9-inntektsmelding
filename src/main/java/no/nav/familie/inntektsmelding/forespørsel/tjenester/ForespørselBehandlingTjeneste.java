@@ -115,10 +115,6 @@ public class ForespørselBehandlingTjeneste {
         return forespørselTjeneste.hentForespørsel(forespørselUUID);
     }
 
-    public List<ForespørselEntitet> finnForespørslerUnderBehandling(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
-        return forespørselTjeneste.finnForespørslerUnderBehandling(aktørId, ytelsetype, orgnr);
-    }
-
     public List<ForespørselEntitet> finnAlleForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
         return forespørselTjeneste.finnAlleForespørsler(aktørId, ytelsetype, orgnr);
     }
@@ -310,7 +306,8 @@ public class ForespørselBehandlingTjeneste {
                                    OrganisasjonsnummerDto organisasjonsnummer,
                                    LocalDate skjæringstidspunkt,
                                    LocalDate førsteUttaksdato,
-                                   List<PeriodeDto> etterspurtePerioder) {
+                                   List<PeriodeDto> etterspurtePerioder,
+                                   ForespørselType forespørselType) {
         LOG.info("Oppretter forespørsel, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             organisasjonsnummer,
             skjæringstidspunkt,
@@ -325,7 +322,8 @@ public class ForespørselBehandlingTjeneste {
             organisasjonsnummer,
             saksnummer,
             førsteUttaksdato,
-            etterspurtePerioder);
+            etterspurtePerioder,
+            forespørselType);
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
@@ -364,11 +362,12 @@ public class ForespørselBehandlingTjeneste {
     public UUID opprettForespørselForArbeidsgiverInitiertInntektsmelding(AktørIdEntitet aktørId,
                                                                          OrganisasjonsnummerDto organisasjonsnummer,
                                                                          LocalDate skjæringstidspunkt,
-                                                                         Ytelsetype ytelsetype) {
+                                                                         Ytelsetype ytelsetype,
+                                                                         ForespørselType forespørselType) {
         LOG.info("Oppretter forespørsel for arbeidsgiverinitiert inntektsmelding, orgnr: {}, stp: {}, aktørId: {}, ytelse: {}", organisasjonsnummer.orgnr(), skjæringstidspunkt, aktørId.getAktørId(), ytelsetype);
 
         // opprettt forespørsel i databasen
-        var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, ytelsetype, ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
+        var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, ytelsetype, forespørselType);
 
         // opprett sak på min side arbeidsgiver
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);

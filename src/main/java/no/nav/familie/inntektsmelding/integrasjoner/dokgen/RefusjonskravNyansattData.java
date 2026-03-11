@@ -4,7 +4,8 @@ import java.util.List;
 
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 
-public record RefusjonskravNyansattData(String navnSøker,
+public record RefusjonskravNyansattData(String avsenderSystem,
+                                        String navnSøker,
                                         String personnummer,
                                         Ytelsetype ytelsetype,
                                         String arbeidsgiverIdent,
@@ -18,6 +19,7 @@ public record RefusjonskravNyansattData(String navnSøker,
 
     public RefusjonskravNyansattData anonymiser() {
         return new RefusjonskravNyansattData(
+            avsenderSystem,
             navnSøker,
             personnummer.substring(0, 4) + "** *****",
             ytelsetype,

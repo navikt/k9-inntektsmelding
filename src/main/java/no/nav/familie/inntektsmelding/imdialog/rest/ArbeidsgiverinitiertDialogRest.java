@@ -1,6 +1,6 @@
 package no.nav.familie.inntektsmelding.imdialog.rest;
 
-import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -17,16 +17,15 @@ import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.imdialog.tjenester.ArbeidsgiverinitiertDialogRestValiderer;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.GrunnlagTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
-import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
-import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 
 @AutentisertMedTokenX
 @RequestScoped
@@ -39,22 +38,22 @@ public class ArbeidsgiverinitiertDialogRest {
     public static final String BASE_PATH = "/arbeidsgiverinitiert";
     private static final String HENT_ARBEIDSFORHOLD = "/arbeidsforhold";
     private static final String HENT_OPPLYSNINGER = "/opplysninger";
+    private static final String HENT_ARBEIDSGIVERE_UREGISTRERT = "/arbeidsgivere/uregistrert";
+    private static final String HENT_OPPLYSNINGER_UREGISTRERT = "/opplysninger/uregistrert";
 
     private GrunnlagTjeneste grunnlagTjeneste;
     private PersonTjeneste personTjeneste;
-    private K9SakTjeneste k9SakTjeneste;
-    private boolean erProd = true;
+    private ArbeidsgiverinitiertDialogRestValiderer arbeidsgiverinitiertDialogRestValiderer;
 
     ArbeidsgiverinitiertDialogRest() {
         // CDI
     }
 
     @Inject
-    public ArbeidsgiverinitiertDialogRest(GrunnlagTjeneste grunnlagTjeneste, PersonTjeneste personTjeneste, K9SakTjeneste k9SakTjeneste) {
+    public ArbeidsgiverinitiertDialogRest(GrunnlagTjeneste grunnlagTjeneste, PersonTjeneste personTjeneste, ArbeidsgiverinitiertDialogRestValiderer arbeidsgiverinitiertDialogRestValiderer) {
         this.grunnlagTjeneste = grunnlagTjeneste;
         this.personTjeneste = personTjeneste;
-        this.k9SakTjeneste = k9SakTjeneste;
-        this.erProd = Environment.current().isProd();
+        this.arbeidsgiverinitiertDialogRestValiderer = arbeidsgiverinitiertDialogRestValiderer;
     }
 
     @POST
@@ -62,9 +61,6 @@ public class ArbeidsgiverinitiertDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
     public Response hentArbeidsforhold(@Valid @NotNull HentArbeidsforholdRequest request) {
-        if (erProd) {
-            throw new IllegalStateException("Ugyldig kall på restpunkt som ikke er lansert");
-        }
         LOG.info("Henter arbeidsforhold for søker");
 
         // Sjekk at person finnes
@@ -73,22 +69,10 @@ public class ArbeidsgiverinitiertDialogRest {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        // Sjekk at søker har sak i k9-sak
-        List<FagsakInfo> fagsakerIK9Sak =  k9SakTjeneste.hentFagsakInfo(request.ytelseType(), request.fødselsnummer());
-        List<PeriodeDto> søknadsPerioderForFagsakerIK9 = fagsakerIK9Sak.stream()
-            .flatMap(fagsak -> fagsak.søknadsPerioder().stream())
-            .toList();
+        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag());
 
-        var finnesSakIK9 = søknadsPerioderForFagsakerIK9.stream()
-            .anyMatch(søknandsperiode -> søknandsperiode.inneholderDato(request.førsteFraværsdag()));
-
-        if (!finnesSakIK9) {
-            var feilmelding = String.format("Du kan ikke sende inn inntektsmelding på %s for denne personen", request.ytelseType());
-            throw new FunksjonellException("INGEN_SAK_FUNNET", feilmelding, null, null);
-        }
-
-        var response = grunnlagTjeneste.finnArbeidsforholdForFnr(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag());
-        return response.map(d ->Response.ok(d).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
+        Optional<HentArbeidsforholdResponse> response = grunnlagTjeneste.finnArbeidsforholdForFnr(personInfo, request.førsteFraværsdag());
+        return response.map(r ->Response.ok(r).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
 
     @POST
@@ -96,11 +80,44 @@ public class ArbeidsgiverinitiertDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
     public Response hentOpplysninger(@Valid @NotNull OpplysningerRequestDto request) {
-        if (erProd) {
-            throw new IllegalStateException("Ugyldig kall på restpunkt som ikke er lansert");
-        }
         LOG.info("Henter opplysninger for søker");
-        var hentOpplysningerResponse = grunnlagTjeneste.hentOpplysningerForNyansatt(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag(), request.organisasjonsnummer());
+        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
+        HentOpplysningerResponse hentOpplysningerResponse = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer(), ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
         return Response.ok(hentOpplysningerResponse).build();
+    }
+
+    @POST
+    @Path(HENT_ARBEIDSGIVERE_UREGISTRERT)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentArbeidsgivereforUregistrert(@Valid @NotNull HentArbeidsgivereUregistrertRequest request) {
+        LOG.info("Henter personinformasjon, og organisasjoner som innsender har tilgang til");
+        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
+        if (personInfo == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        HentArbeidsforholdResponse response = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo);
+        return Response.ok(response).build();
+    }
+
+    @POST
+    @Path(HENT_OPPLYSNINGER_UREGISTRERT)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentOpplysningerUregistrert(@Valid @NotNull OpplysningerRequestDto request) {
+        LOG.info("Henter opplysninger for uregistrert søker");
+
+        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
+        if (personInfo == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag());
+        arbeidsgiverinitiertDialogRestValiderer.validerAtOrgnummerIkkeFinnesIAaregPåPerson(personInfo, request.organisasjonsnummer(), request.førsteFraværsdag());
+
+        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
+        HentOpplysningerResponse response = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer(), ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
+        return Response.ok(response).build();
     }
 }

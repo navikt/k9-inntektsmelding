@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
     endpointProperty = "k9dokgen.url",
     endpointDefault = "http://k9-dokgen",
     application = FpApplication.NONFP)
-public class K9DokgenKlient {
+public class K9DokgenKlient implements DokgenKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
 
@@ -39,27 +39,27 @@ public class K9DokgenKlient {
         this.restConfig = RestConfig.forClient(K9DokgenKlient.class);
     }
 
-    public byte[] genererPdfInntektsmelding(InntektsmeldingPdfData dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfInntektsmelding(InntektsmeldingPdfRequest pdfRequest) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + INNTEKTSMELDING_PATH);
-        var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
+        var request = RestRequest.newPOSTJson(pdfRequest, endpoint, restConfig);
         return genererPdf(request);
     }
 
-    public byte[] genererPdfRefusjonskravNyansatt(RefusjonskravNyansattData dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfRefusjonskravNyansatt(RefusjonskravNyansattData pdfRequest) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + REFUSJONSKRAV_NYANSATT);
-        var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
+        var request = RestRequest.newPOSTJson(pdfRequest, endpoint, restConfig);
         return genererPdf(request);
     }
 
-    public byte[] genererPdfOmsorgspengerRefusjon(OmsorgspengerRefusjonPdfData dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfOmsorgspengerRefusjon(OmsorgspengerRefusjonPdfRequest pdfRequest) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + OMSORGSPENGER_REFUSJON_PATH);
-        var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
+        var request = RestRequest.newPOSTJson(pdfRequest, endpoint, restConfig);
         return genererPdf(request);
     }
 
-    public byte[] genererPdfOmsorgspengerInntektsmelding(OmsorgspengerInntektsmeldingPdfData dokumentdata) throws URISyntaxException {
+    public byte[] genererPdfOmsorgspengerInntektsmelding(OmsorgspengerInntektsmeldingPdfRequest pdfRequest) throws URISyntaxException {
         var endpoint = new URI(restConfig.endpoint() + OMSORGSPENGER_INNTEKTSMELDING_PATH);
-        var request = RestRequest.newPOSTJson(dokumentdata, endpoint, restConfig);
+        var request = RestRequest.newPOSTJson(pdfRequest, endpoint, restConfig);
         return genererPdf(request);
     }
 

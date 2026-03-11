@@ -40,7 +40,7 @@ class OpprettForespørselTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste).opprettForespørsel(ytelsetype, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null, null);
+        verify(forespørselBehandlingTjeneste).opprettForespørsel(ytelsetype, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null, null, ForespørselType.BESTILT_AV_FAGSYSTEM);
     }
 
     @Test
@@ -55,7 +55,7 @@ class OpprettForespørselTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste, times(0)).opprettForespørsel(any(), any(), any(), any(), any(), any(), any());
+        verify(forespørselBehandlingTjeneste, times(0)).opprettForespørsel(any(), any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -67,6 +67,6 @@ class OpprettForespørselTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste).opprettForespørsel(Ytelsetype.OMSORGSPENGER, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null, etterspurtePerioder);
+        verify(forespørselBehandlingTjeneste).opprettForespørsel(Ytelsetype.OMSORGSPENGER, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null, etterspurtePerioder, ForespørselType.BESTILT_AV_FAGSYSTEM);
     }
 }

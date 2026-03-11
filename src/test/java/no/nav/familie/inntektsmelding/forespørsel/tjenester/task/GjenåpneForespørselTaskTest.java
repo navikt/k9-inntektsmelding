@@ -103,7 +103,7 @@ class GjenåpneForespørselTaskTest {
     }
 
     @Test
-    void skal_kaste_feil_dersom_vi_ikke_finner_im() {
+    void skal_ikke_gjenåpne_dersom_vi_ikke_finner_im() {
         var task = new GjenåpneForespørselTask(forespørselBehandlingTjeneste, inntektsmeldingTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
         taskdata.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørselUuid.toString());
@@ -112,8 +112,7 @@ class GjenåpneForespørselTaskTest {
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(entitet));
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(forespørselUuid)).thenReturn(List.of());
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> task.doTask(taskdata));
-        assertEquals("Kan ikke gjenåpne forespørsel som ikke har fått inn inntektsmelding", exception.getMessage());
+        task.doTask(taskdata);
 
         verify(forespørselBehandlingTjeneste, times(0)).gjenåpneForespørsel(entitet);
     }

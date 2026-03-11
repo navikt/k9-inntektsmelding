@@ -25,7 +25,12 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
+import no.nav.familie.inntektsmelding.server.audit.SporingsloggTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
@@ -34,6 +39,9 @@ import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.sif.abac.kontrakt.abac.BeskyttetRessursActionAttributt;
+import no.nav.vedtak.sikkerhet.kontekst.IdentType;
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 @AutentisertMedAzure
 @ApplicationScoped
@@ -44,22 +52,77 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 public class ForespørselRest {
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
     public static final String BASE_PATH = "/foresporsel";
+    public static final String OPPRETT_PATH = "/opprett";
+    public static final String OPPDATER_PATH = "/oppdater";
+    public static final String LUKK_PATH = "/lukk";
+    public static final String SETT_TIL_UTGÅTT_PATH = "/sett-til-utgatt";
+    public static final String HENT_FORESPØRSLER_FOR_SAK_PATH = "/sak";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private Tilgang tilgang;
+    private SporingsloggTjeneste sporingsloggTjeneste;
+    private K9SakTjeneste k9SakTjeneste;
 
     ForespørselRest() {
         // Kun for CDI-proxy
     }
 
     @Inject
-    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, Tilgang tilgang) {
+    public ForespørselRest(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste, Tilgang tilgang, SporingsloggTjeneste sporingsloggTjeneste, K9SakTjeneste k9SakTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.tilgang = tilgang;
+        this.sporingsloggTjeneste = sporingsloggTjeneste;
+        this.k9SakTjeneste = k9SakTjeneste;
     }
 
     @POST
-    @Path("/oppdater")
+    @Path(OPPRETT_PATH)
+    @Tilgangskontrollert
+    public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request){
+        // dette endepunktet brukes av saksbehandlere for å opprette innteksmelding forespørsel på en valgt dato for å få med varig lønnsendring.
+        LOG.info("Mottok request om opprettelse av inntektsmelding forespørsel fra k9-sak på saksnummer {}", request.saksnummer().saksnr());
+        tilgang.sjekkAtSaksbehandlerHarTilgangTilSak(request.saksnummer().saksnr(), BeskyttetRessursActionAttributt.CREATE);
+
+        List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(request.saksnummer(), null, null);
+
+        if (eksisterendeForespørsler.stream().anyMatch(eksisterende -> !eksisterende.getStatus().equals(ForespørselStatus.UTGÅTT)
+            && eksisterende.getOrganisasjonsnummer().equals(request.orgnr().orgnr())
+            && eksisterende.getSkjæringstidspunkt().equals(request.skjæringstidspunkt()))
+        ) {
+            LOG.info("Forespørsel finnes allerede, orgnr: {}, stp: {}, saksnr: {}",
+                request.orgnr(), request.skjæringstidspunkt(), request.saksnummer().saksnr());
+            return Response.status(Response.Status.CONFLICT).build();
+        }
+
+        final Ytelsetype ytelsetype;
+        final String aktørId;
+        if (!eksisterendeForespørsler.isEmpty()) {
+            ytelsetype = eksisterendeForespørsler.getFirst().getYtelseType();
+            aktørId = eksisterendeForespørsler.getFirst().getAktørId().getAktørId();
+        } else {
+            var fagsakInfo = k9SakTjeneste.hentFagsakInfo(request.saksnummer());
+            ytelsetype = fagsakInfo.ytelseType();
+            aktørId = fagsakInfo.aktørId().getAktørId();
+        }
+
+        forespørselBehandlingTjeneste.opprettForespørsel(
+            ytelsetype,
+            new AktørIdEntitet(aktørId),
+            request.saksnummer(),
+            request.orgnr(),
+            request.skjæringstidspunkt(),
+            null,
+            null,
+            ForespørselType.BESTILT_AV_SAKSBEHANDLER);
+
+        MetrikkerTjeneste.loggForespørselOpprettetAvSaksbehandler(ytelsetype);
+
+        LOG.info("Opprettet inntektsmelding forespørsel på saksnummer {}", request.saksnummer().saksnr());
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path(OPPDATER_PATH)
     @Tilgangskontrollert
     public Response oppdaterForespørsler(@Valid @NotNull OppdaterForespørslerRequest request) {
         LOG.info("Mottok forespørsel om oppdatering av inntektsmeldingoppgaver på saksnummer {}", request.saksnummer());
@@ -102,7 +165,7 @@ public class ForespørselRest {
     }
 
     @POST
-    @Path("/lukk")
+    @Path(LUKK_PATH)
     @Tilgangskontrollert
     public Response lukkForespørsel(@Valid @NotNull LukkForespørselRequest request) {
         LOG.info("Lukk forespørsel for saksnummer {} med orgnummer {} og skjæringstidspunkt {}",
@@ -117,7 +180,7 @@ public class ForespørselRest {
     }
 
     @POST
-    @Path("/sett-til-utgatt")
+    @Path(SETT_TIL_UTGÅTT_PATH)
     @Tilgangskontrollert
     public Response settForespørselTilUtgått(@Valid @NotNull LukkForespørselRequest request) {
         LOG.info("Setter forespørsel for saksnummer {} til utgått", request.saksnummer());
@@ -129,17 +192,24 @@ public class ForespørselRest {
     }
 
     @GET
-    @Path("/sak")
+    @Path(HENT_FORESPØRSLER_FOR_SAK_PATH)
     @Tilgangskontrollert
     public Response hentForespørslerForSak(@Valid @NotNull @Pattern(regexp = SaksnummerDto.REGEXP) @Size(max = 19) @QueryParam("saksnummer") String saksnummer) {
         LOG.info("Henter forespørsler for saksnummer {}", saksnummer);
 
-        sjekkErSystemkall();
+        tilgang.sjekkErSystembrukerEllerAtSaksbehandlerHarTilgangTilSak(saksnummer, BeskyttetRessursActionAttributt.READ);
 
         var forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(new SaksnummerDto(saksnummer), null, null);
         forespørsler = filtrerDuplikateForespørsler(forespørsler);
-        var forespørselResponse = forespørsler.stream().map(ForespørselRest::mapTilForespørselResponse).toList();
 
+        if (erSaksbehandlerKall() && !forespørsler.isEmpty()) {
+            sporingsloggTjeneste.logg(
+                BASE_PATH + HENT_FORESPØRSLER_FOR_SAK_PATH,
+                new AktørIdDto(hentAktørIdFraForespørsler(forespørsler).getAktørId()),
+                new SaksnummerDto(saksnummer));
+        }
+
+        var forespørselResponse = forespørsler.stream().map(ForespørselRest::mapTilForespørselResponse).toList();
         return Response.ok(forespørselResponse).build();
     }
 
@@ -173,6 +243,24 @@ public class ForespørselRest {
 
     private void sjekkErSystemkall() {
         tilgang.sjekkErSystembruker();
+    }
+
+    private AktørIdEntitet hentAktørIdFraForespørsler(List<ForespørselEntitet> forespørsler) {
+        if (forespørsler.isEmpty()) {
+            throw new IllegalArgumentException("Forespørsler kan ikke være tom");
+        }
+
+        AktørIdEntitet førsteAktørId = forespørsler.getFirst().getAktørId();
+        boolean alleHarSammeAktørId = forespørsler.stream().allMatch(f -> f.getAktørId().equals(førsteAktørId));
+        if (!alleHarSammeAktørId) {
+            throw new IllegalStateException("Alle forespørsler må ha samme aktørId");
+        }
+
+        return førsteAktørId;
+    }
+
+    private boolean erSaksbehandlerKall() {
+        return KontekstHolder.harKontekst() && IdentType.InternBruker.equals(KontekstHolder.getKontekst().getIdentType());
     }
 }
 

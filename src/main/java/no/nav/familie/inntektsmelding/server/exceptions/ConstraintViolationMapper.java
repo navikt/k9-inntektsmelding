@@ -15,14 +15,12 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 
 import no.nav.vedtak.log.mdc.MDCOperations;
 
-import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViolationException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConstraintViolationMapper.class);
-    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
@@ -32,7 +30,6 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
 
     private void log(ConstraintViolationException exception) {
         LOG.warn("Det oppstod en valideringsfeil: {}", constraints(exception));
-        SECURE_LOG.warn("Det oppstod en valideringsfeil: felt {} - input {}", constraints(exception), getInputs(exception));
     }
 
     private static Response lagResponse(ConstraintViolationException exception) {
@@ -73,6 +70,10 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
     }
 
     private static String getFeltNavn(Path propertyPath) {
-        return propertyPath instanceof PathImpl path ? path.getLeafNode().toString() : null;
+        String pathString = propertyPath.toString();
+        if (pathString.contains(".")) {
+            return pathString.substring(pathString.lastIndexOf('.') + 1);
+        }
+        return pathString;
     }
 }

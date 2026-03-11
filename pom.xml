@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>4.0.1</version>
+        <version>5.3.1</version>
     </parent>
 
     <groupId>no.nav.familie.inntektsmelding</groupId>
@@ -14,11 +14,12 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <felles.version>7.6.6</felles.version>
-        <prosesstask.version>5.2.1</prosesstask.version>
-        <fp-kontrakter.version>9.4.3</fp-kontrakter.version>
-
-        <k9-sak.version>6.0.1</k9-sak.version>
+        <felles.version>7.7.1</felles.version>
+        <prosesstask.version>5.2.5</prosesstask.version>
+        <fp-kontrakter.version>9.4.29</fp-kontrakter.version>
+        <k9-felles.version>10.3.1</k9-felles.version>
+        <k9-sak.version>6.0.11</k9-sak.version>
+        <sif-abac-kontrakt.version>1.8.2</sif-abac-kontrakt.version>
     </properties>
 
     <dependencyManagement>
@@ -26,7 +27,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>4.0.1</version>
+                <version>5.3.1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -71,6 +72,36 @@
                 <artifactId>kontrakt</artifactId>
                 <version>${k9-sak.version}</version>
             </dependency>
+            <dependency>
+                <groupId>no.nav.k9.felles.integrasjon</groupId>
+                <artifactId>k9-bigquery-klient</artifactId>
+                <version>${k9-felles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.sif.abac</groupId>
+                <artifactId>kontrakt</artifactId>
+                <version>${sif-abac-kontrakt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>6.0.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>5.22.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.27.7</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>1.21.4</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -113,6 +144,14 @@
         </dependency>
         <dependency>
             <groupId>no.nav.k9.sak</groupId>
+            <artifactId>kontrakt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.k9.felles.integrasjon</groupId>
+            <artifactId>k9-bigquery-klient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.sif.abac</groupId>
             <artifactId>kontrakt</artifactId>
         </dependency>
 
@@ -209,8 +248,28 @@
         </dependency>
 
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.32</version>
+        </dependency>
+        <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.papertrailapp</groupId>
+            <artifactId>logback-syslog4j</artifactId>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
@@ -234,6 +293,11 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -318,6 +382,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.5.0</version>
                 <configuration>
                     <archive>
                         <manifest>

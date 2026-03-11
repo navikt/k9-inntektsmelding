@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.pip.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 
 @ApplicationScoped
 public class ArbeidstakerTjeneste {
@@ -50,5 +51,11 @@ public class ArbeidstakerTjeneste {
 
         LOG.info("Returnerer informasjon om arbeidsforhold for {}", ident);
         return arbeidsforholdInnsenderHarTilgangTil;
+    }
+
+    public List<OrganisasjonsnummerDto> finnOrganisasjonerArbeidsgiverHarTilgangTil() {
+        return altinnTilgangTjeneste.hentBedrifterArbeidsgiverHarTilgangTil().stream()
+            .map(OrganisasjonsnummerDto::new)
+            .toList();
     }
 }
