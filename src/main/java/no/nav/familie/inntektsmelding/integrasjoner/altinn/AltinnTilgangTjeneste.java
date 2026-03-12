@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.pip;
+package no.nav.familie.inntektsmelding.integrasjoner.altinn;
 
 
 import java.util.HashSet;
@@ -11,8 +11,6 @@ import jakarta.enterprise.context.Dependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnRessurser;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.ArbeidsgiverAltinnTilgangerKlient;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 
 @Dependent

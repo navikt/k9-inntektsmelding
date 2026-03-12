@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.pip;
+package no.nav.familie.inntektsmelding.integrasjoner.altinn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -11,9 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnRessurser;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.ArbeidsgiverAltinnTilgangerKlient;
 
 @ExtendWith(MockitoExtension.class)
 class AltinnTilgangTjenesteTest {
