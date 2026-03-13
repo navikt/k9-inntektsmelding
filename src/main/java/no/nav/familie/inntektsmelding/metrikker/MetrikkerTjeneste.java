@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -62,6 +63,14 @@ public class MetrikkerTjeneste {
     private static final String COUNTER_LUKK_EKSTERN = APP_NAME + ".oppgaver.lukk.ekstern";
     private static final String TAG_YTELSE = "ytelse";
     private static final String TAG_AARSAK = "aarsak";
+
+    // Måler om Altinn 2 og Altinn 3 gir lik tilgangsbeslutning for en bedrift
+    private static final String COUNTER_TILGANG_BEDRIFT = APP_NAME + "tilgang_til_org";
+    private static final String TAG_TILGANG_LIK = "tilgang_ok";
+
+    // Måler om Altinn 2 og Altinn 3 gir like lister over bedrifter bruker har tilgang til
+    private static final String COUNTER_HENT_BEDRIFTER = APP_NAME + "hent_org_liste";
+    private static final String TAG_SVAR_LIK = "lik_svar";
 
     public static void loggForespørselOpprettet(Ytelsetype ytelsetype) {
         try {
@@ -144,6 +153,22 @@ public class MetrikkerTjeneste {
                 .sorted()
                 .collect(Collectors.joining("-"))));
             Metrics.counter(COUNTER_ENDRINGSÅRSAKER, endringsårsakerTags).increment();
+        }
+    }
+
+    public static void loggAltinnTilgangBedrift(boolean erLik) {
+        try {
+            Metrics.counter(COUNTER_TILGANG_BEDRIFT, List.of(Tag.of(TAG_TILGANG_LIK, erLik ? "Ja" : "Nei"))).increment();
+        } catch (Exception e) {
+            loggFeil(e, "loggAltinnTilgangBedrift");
+        }
+    }
+
+    public static void loggAltinnHentBedrifter(boolean erLik) {
+        try {
+            Metrics.counter(COUNTER_HENT_BEDRIFTER, List.of(Tag.of(TAG_SVAR_LIK, erLik ? "Ja" : "Nei"))).increment();
+        } catch (Exception e) {
+            loggFeil(e, "loggAltinnHentBedrifter");
         }
     }
 
