@@ -18,6 +18,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerResponse;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
@@ -159,6 +160,16 @@ public class GrunnlagTjeneste {
                                                              LocalDate skjæringstidspunkt,
                                                              String organisasjonsnummer) {
         var inntektsopplysninger = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer);
+        try {
+            var iV2 = inntektTjeneste.hentInntektV2(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer);
+            if (!Inntektsopplysninger.erLik(inntektsopplysninger, iV2)) {
+                LOG.info("InntektV2 diff for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId"));
+            } else {
+                LOG.info("InntektV2 er lik for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId"));
+            }
+        } catch (Exception e) {
+            LOG.info("InntektV2 feil for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId"), e);
+        }
 
         if (uuid == null) {
             LOG.info("Inntektsopplysninger for aktørId {} var {}", aktørId, inntektsopplysninger);

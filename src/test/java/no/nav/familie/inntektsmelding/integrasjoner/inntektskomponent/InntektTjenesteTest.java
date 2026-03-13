@@ -41,7 +41,7 @@ class InntektTjenesteTest {
 
     @BeforeEach
     void setUp() {
-        tjeneste = new InntektTjeneste(klient);
+        tjeneste = new InntektTjeneste(klient, null);
     }
 
     @Test
