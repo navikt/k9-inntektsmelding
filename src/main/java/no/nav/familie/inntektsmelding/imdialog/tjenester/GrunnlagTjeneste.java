@@ -164,12 +164,12 @@ public class GrunnlagTjeneste {
         try {
             var inntektV2 = inntektTjeneste.hentInntektV2(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, ytelsetype);
             if (!Inntektsopplysninger.erLik(inntektsopplysninger, inntektV2)) {
-                LOG.info("InntektV2 diff for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId"));
+                LOG.info("InntektV2 diff for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId: " + aktørId));
             } else {
-                LOG.info("InntektV2 er lik for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId"));
+                LOG.info("InntektV2 er lik for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId: " + aktørId));
             }
         } catch (Exception e) {
-            LOG.info("InntektV2 feil for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId"), e);
+            LOG.info("InntektV2 feil for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId: " + aktørId), e);
         }
 
         if (uuid == null) {
