@@ -18,6 +18,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerResponse;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
@@ -78,7 +79,7 @@ public class GrunnlagTjeneste {
         var personInfo = finnPerson(forespørsel.getAktørId());
         var organisasjonInfo = finnOrganisasjonInfo(forespørsel.getOrganisasjonsnummer());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(), forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer());
+        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(), forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer(), forespørsel.getYtelseType());
 
         return new HentOpplysningerResponse(personInfo,
             organisasjonInfo,
@@ -119,7 +120,7 @@ public class GrunnlagTjeneste {
 
         var organisasjonInfo = finnOrganisasjonInfo(organisasjonsnummer.orgnr());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(null, personInfo.aktørId(), førsteFraværsdag, organisasjonsnummer.orgnr());
+        var inntektsopplysninger = finnInntektsopplysninger(null, personInfo.aktørId(), førsteFraværsdag, organisasjonsnummer.orgnr(), ytelsetype);
 
         return new HentOpplysningerResponse(lagPersonInfoDto(personInfo),
             organisasjonInfo,
@@ -157,8 +158,19 @@ public class GrunnlagTjeneste {
     private InntektsopplysningerDto finnInntektsopplysninger(UUID uuid,
                                                              AktørIdEntitet aktørId,
                                                              LocalDate skjæringstidspunkt,
-                                                             String organisasjonsnummer) {
+                                                             String organisasjonsnummer,
+                                                             Ytelsetype ytelsetype) {
         var inntektsopplysninger = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer);
+        try {
+            var inntektV2 = inntektTjeneste.hentInntektV2(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, ytelsetype);
+            if (!Inntektsopplysninger.erLik(inntektsopplysninger, inntektV2)) {
+                LOG.info("InntektV2 diff for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId: " + aktørId));
+            } else {
+                LOG.info("InntektV2 er lik for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId: " + aktørId));
+            }
+        } catch (Exception e) {
+            LOG.info("InntektV2 feil for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId: " + aktørId), e);
+        }
 
         if (uuid == null) {
             LOG.info("Inntektsopplysninger for aktørId {} var {}", aktørId, inntektsopplysninger);
