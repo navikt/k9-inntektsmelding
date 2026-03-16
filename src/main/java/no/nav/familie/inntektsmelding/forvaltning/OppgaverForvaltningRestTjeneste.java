@@ -86,6 +86,45 @@ public class OppgaverForvaltningRestTjeneste {
         return Response.ok(new AntallInntektsmeldingerResponse(antall)).build();
     }
 
+    @GET
+    @Path("/antallOmsorgspengerRefusjonInntektsmeldinger")
+    @Operation(description = "Teller antall inntektsmeldinger med InntektsmeldingType = OMSORGSPENGER_REFUSJON", summary = "Teller antall omsorgspenger refusjon inntektsmeldinger.", tags = "oppgaver", responses = {
+        @ApiResponse(responseCode = "200", description = "Antall inntektsmeldinger hentet", content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @Tilgangskontrollert
+    public Response hentAntallOmsorgspengerRefusjonInntektsmeldinger() {
+        sjekkAtKallerHarRollenDrift();
+        long antall = inntektsmeldingRepository.tellAntallOmsorgspengerRefusjonInntektsmeldinger();
+        return Response.ok(new AntallInntektsmeldingerResponse(antall)).build();
+    }
+
+    @GET
+    @Path("/antallUtledetOmsorgspengerRefusjonInntektsmeldinger")
+    @Operation(description = "Teller antall inntektsmeldinger med ytelse_type = OMSORGSPENGER og maaned_refusjon IS NOT NULL", summary = "Teller antall utledet omsorgspenger refusjon inntektsmeldinger.", tags = "oppgaver", responses = {
+        @ApiResponse(responseCode = "200", description = "Antall inntektsmeldinger hentet", content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @Tilgangskontrollert
+    public Response hentAntallUtledetOmsorgspengerRefusjonInntektsmeldinger() {
+        sjekkAtKallerHarRollenDrift();
+        long antall = inntektsmeldingRepository.tellAntallUtledetOmsorgspengerRefusjonInntektsmeldinger();
+        return Response.ok(new AntallInntektsmeldingerResponse(antall)).build();
+    }
+
+    @GET
+    @Path("/antallUtledetOmsorgspengerRefusjonInntektsmeldingerFraForesporsel")
+    @Operation(description = "Teller antall inntektsmeldinger der tilknyttet forespørsel har ForespørselType = OMSORGSPENGER_REFUSJON", summary = "Teller antall utledet omsorgspenger refusjon inntektsmeldinger fra forespørsel.", tags = "oppgaver", responses = {
+        @ApiResponse(responseCode = "200", description = "Antall inntektsmeldinger hentet", content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @Tilgangskontrollert
+    public Response hentAntallUtledetOmsorgspengerRefusjonInntektsmeldingerFraForespørsel() {
+        sjekkAtKallerHarRollenDrift();
+        long antall = inntektsmeldingRepository.tellAntallUtledetOmsorgspengerRefusjonInntektsmeldingerFraForespørsel();
+        return Response.ok(new AntallInntektsmeldingerResponse(antall)).build();
+    }
+
     protected record SlettOppgaveRequest(@Valid @NotNull SaksnummerDto saksnummer, @Valid @NotNull OrganisasjonsnummerDto orgnr) {
     }
 

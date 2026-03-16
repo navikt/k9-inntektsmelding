@@ -6,6 +6,8 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -47,6 +49,27 @@ public class InntektsmeldingRepository {
 
     public long tellAntallInntektsmeldinger() {
         var query = entityManager.createQuery("SELECT COUNT(i) FROM InntektsmeldingEntitet i", Long.class);
+        return query.getSingleResult();
+    }
+
+    public long tellAntallOmsorgspengerRefusjonInntektsmeldinger() {
+        var query = entityManager.createQuery(
+                "SELECT COUNT(i) FROM InntektsmeldingEntitet i WHERE i.inntektsmeldingType = :type", Long.class)
+            .setParameter("type", InntektsmeldingType.OMSORGSPENGER_REFUSJON);
+        return query.getSingleResult();
+    }
+
+    public long tellAntallUtledetOmsorgspengerRefusjonInntektsmeldinger() {
+        var query = entityManager.createQuery(
+                "SELECT COUNT(i) FROM InntektsmeldingEntitet i WHERE i.ytelsetype = :ytelsetype AND i.månedRefusjon IS NOT NULL", Long.class)
+            .setParameter("ytelsetype", Ytelsetype.OMSORGSPENGER);
+        return query.getSingleResult();
+    }
+
+    public long tellAntallUtledetOmsorgspengerRefusjonInntektsmeldingerFraForespørsel() {
+        var query = entityManager.createQuery(
+                "SELECT COUNT(i) FROM InntektsmeldingEntitet i WHERE i.forespørsel.forespørselType = :forespørselType", Long.class)
+            .setParameter("forespørselType", ForespørselType.OMSORGSPENGER_REFUSJON);
         return query.getSingleResult();
     }
 }
