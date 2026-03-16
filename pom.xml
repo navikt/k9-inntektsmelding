@@ -14,11 +14,11 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <felles.version>7.7.1</felles.version>
+        <felles.version>7.7.2</felles.version>
         <prosesstask.version>5.2.5</prosesstask.version>
-        <fp-kontrakter.version>9.4.29</fp-kontrakter.version>
-        <k9-felles.version>10.3.1</k9-felles.version>
-        <k9-sak.version>6.0.11</k9-sak.version>
+        <fp-kontrakter.version>9.4.30</fp-kontrakter.version>
+        <k9-felles.version>10.5.0</k9-felles.version>
+        <k9-sak.version>6.0.12</k9-sak.version>
         <sif-abac-kontrakt.version>1.8.2</sif-abac-kontrakt.version>
     </properties>
 
@@ -90,7 +90,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>5.22.0</version>
+                <version>5.23.0</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
