@@ -6,7 +6,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -23,7 +22,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
-import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
@@ -35,26 +33,22 @@ import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 @RequestScoped
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/forvaltningOppgaver")
+@Path("/forvaltning-oppgaver")
 public class OppgaverForvaltningRestTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(OppgaverForvaltningRestTjeneste.class);
 
     private Tilgang tilgang;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private InntektsmeldingRepository inntektsmeldingRepository;
 
     OppgaverForvaltningRestTjeneste() {
         // REST CDI
     }
 
     @Inject
-    public OppgaverForvaltningRestTjeneste(Tilgang tilgang,
-                                           ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
-                                           InntektsmeldingRepository inntektsmeldingRepository) {
+    public OppgaverForvaltningRestTjeneste(Tilgang tilgang, ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
         this.tilgang = tilgang;
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
-        this.inntektsmeldingRepository = inntektsmeldingRepository;
     }
 
     @POST
@@ -73,63 +67,9 @@ public class OppgaverForvaltningRestTjeneste {
         return Response.ok().build();
     }
 
-    @GET
-    @Path("/antallInntektsmeldinger")
-    @Operation(description = "Henter antall rader i InntektsmeldingEntitet tabellen", summary = "Henter antall inntektsmeldinger.", tags = "oppgaver", responses = {
-        @ApiResponse(responseCode = "200", description = "Antall inntektsmeldinger hentet", content = @Content(mediaType = "application/json")),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
-    })
-    @Tilgangskontrollert
-    public Response hentAntallInntektsmeldinger() {
-        sjekkAtKallerHarRollenDrift();
-        long antall = inntektsmeldingRepository.tellAntallInntektsmeldinger();
-        return Response.ok(new AntallInntektsmeldingerResponse(antall)).build();
-    }
-
-    @GET
-    @Path("/antallOmsorgspengerRefusjonInntektsmeldinger")
-    @Operation(description = "Teller antall inntektsmeldinger med InntektsmeldingType = OMSORGSPENGER_REFUSJON", summary = "Teller antall omsorgspenger refusjon inntektsmeldinger.", tags = "oppgaver", responses = {
-        @ApiResponse(responseCode = "200", description = "Antall inntektsmeldinger hentet", content = @Content(mediaType = "application/json")),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
-    })
-    @Tilgangskontrollert
-    public Response hentAntallOmsorgspengerRefusjonInntektsmeldinger() {
-        sjekkAtKallerHarRollenDrift();
-        long antall = inntektsmeldingRepository.tellAntallOmsorgspengerRefusjonInntektsmeldinger();
-        return Response.ok(new AntallInntektsmeldingerResponse(antall)).build();
-    }
-
-    @GET
-    @Path("/antallUtledetOmsorgspengerRefusjonInntektsmeldinger")
-    @Operation(description = "Teller antall inntektsmeldinger med ytelse_type = OMSORGSPENGER og maaned_refusjon IS NOT NULL", summary = "Teller antall utledet omsorgspenger refusjon inntektsmeldinger.", tags = "oppgaver", responses = {
-        @ApiResponse(responseCode = "200", description = "Antall inntektsmeldinger hentet", content = @Content(mediaType = "application/json")),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
-    })
-    @Tilgangskontrollert
-    public Response hentAntallUtledetOmsorgspengerRefusjonInntektsmeldinger() {
-        sjekkAtKallerHarRollenDrift();
-        long antall = inntektsmeldingRepository.tellAntallUtledetOmsorgspengerRefusjonInntektsmeldinger();
-        return Response.ok(new AntallInntektsmeldingerResponse(antall)).build();
-    }
-
-    @GET
-    @Path("/antallUtledetOmsorgspengerRefusjonInntektsmeldingerFraForesporsel")
-    @Operation(description = "Teller antall inntektsmeldinger der tilknyttet forespørsel har ForespørselType = OMSORGSPENGER_REFUSJON", summary = "Teller antall utledet omsorgspenger refusjon inntektsmeldinger fra forespørsel.", tags = "oppgaver", responses = {
-        @ApiResponse(responseCode = "200", description = "Antall inntektsmeldinger hentet", content = @Content(mediaType = "application/json")),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
-    })
-    @Tilgangskontrollert
-    public Response hentAntallUtledetOmsorgspengerRefusjonInntektsmeldingerFraForespørsel() {
-        sjekkAtKallerHarRollenDrift();
-        long antall = inntektsmeldingRepository.tellAntallUtledetOmsorgspengerRefusjonInntektsmeldingerFraForespørsel();
-        return Response.ok(new AntallInntektsmeldingerResponse(antall)).build();
-    }
-
     protected record SlettOppgaveRequest(@Valid @NotNull SaksnummerDto saksnummer, @Valid @NotNull OrganisasjonsnummerDto orgnr) {
     }
 
-    protected record AntallInntektsmeldingerResponse(long antall) {
-    }
 
     private void sjekkAtKallerHarRollenDrift() {
         tilgang.sjekkAtAnsattHarRollenDrift();
