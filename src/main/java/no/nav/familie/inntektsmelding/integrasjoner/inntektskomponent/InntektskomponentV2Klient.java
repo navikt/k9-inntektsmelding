@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -23,6 +24,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 public class InntektskomponentV2Klient {
     private static final Logger LOG = LoggerFactory.getLogger(InntektskomponentV2Klient.class);
     private static final YearMonth INNTK_TIDLIGSTE_DATO = YearMonth.of(2015, 7);
+    private static final String BEREGNINGSGRUNNLAG_FILTER = "8-28";
 
     private final RestClient restClient;
     private final RestConfig restConfig;
@@ -36,8 +38,8 @@ public class InntektskomponentV2Klient {
         this.restConfig = RestConfig.forClient(this.getClass());
     }
 
-    public List<Inntektsinformasjon> finnInntekt(FinnInntektRequest finnInntektRequest) {
-        var request = lagRequest(finnInntektRequest);
+    public List<Inntektsinformasjon> finnInntekt(FinnInntektRequest finnInntektRequest, Ytelsetype ytelsetype) {
+        var request = lagRequest(finnInntektRequest, ytelsetype);
         LOG.info("Henter inntekt");
 
         try {
@@ -49,8 +51,8 @@ public class InntektskomponentV2Klient {
         }
     }
 
-    private RestRequest lagRequest(FinnInntektRequest finnInntektRequest) {
-        var request = new InntektApiInn(finnInntektRequest.aktørId(), "8-28", "Pleiepenger",
+    private RestRequest lagRequest(FinnInntektRequest finnInntektRequest, Ytelsetype ytelsetype) {
+        var request = new InntektApiInn(finnInntektRequest.aktørId(), BEREGNINGSGRUNNLAG_FILTER, InntektsFormål.utledInntektsFormål(ytelsetype),
             finnInntektRequest.fom().isAfter(INNTK_TIDLIGSTE_DATO) ? finnInntektRequest.fom() : INNTK_TIDLIGSTE_DATO,
             finnInntektRequest.tom().isAfter(INNTK_TIDLIGSTE_DATO) ? finnInntektRequest.tom() : INNTK_TIDLIGSTE_DATO);
 

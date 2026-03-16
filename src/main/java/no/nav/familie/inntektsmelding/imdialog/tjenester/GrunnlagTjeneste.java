@@ -79,7 +79,7 @@ public class GrunnlagTjeneste {
         var personInfo = finnPerson(forespørsel.getAktørId());
         var organisasjonInfo = finnOrganisasjonInfo(forespørsel.getOrganisasjonsnummer());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(), forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer());
+        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(), forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer(), forespørsel.getYtelseType());
 
         return new HentOpplysningerResponse(personInfo,
             organisasjonInfo,
@@ -120,7 +120,7 @@ public class GrunnlagTjeneste {
 
         var organisasjonInfo = finnOrganisasjonInfo(organisasjonsnummer.orgnr());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(null, personInfo.aktørId(), førsteFraværsdag, organisasjonsnummer.orgnr());
+        var inntektsopplysninger = finnInntektsopplysninger(null, personInfo.aktørId(), førsteFraværsdag, organisasjonsnummer.orgnr(), ytelsetype);
 
         return new HentOpplysningerResponse(lagPersonInfoDto(personInfo),
             organisasjonInfo,
@@ -158,11 +158,12 @@ public class GrunnlagTjeneste {
     private InntektsopplysningerDto finnInntektsopplysninger(UUID uuid,
                                                              AktørIdEntitet aktørId,
                                                              LocalDate skjæringstidspunkt,
-                                                             String organisasjonsnummer) {
+                                                             String organisasjonsnummer,
+                                                             Ytelsetype ytelsetype) {
         var inntektsopplysninger = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer);
         try {
-            var iV2 = inntektTjeneste.hentInntektV2(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer);
-            if (!Inntektsopplysninger.erLik(inntektsopplysninger, iV2)) {
+            var inntektV2 = inntektTjeneste.hentInntektV2(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, ytelsetype);
+            if (!Inntektsopplysninger.erLik(inntektsopplysninger, inntektV2)) {
                 LOG.info("InntektV2 diff for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId"));
             } else {
                 LOG.info("InntektV2 er lik for {}", Optional.ofNullable(uuid).map(Object::toString).orElse("aktørId"));
