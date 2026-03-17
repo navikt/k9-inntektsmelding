@@ -83,7 +83,7 @@ public class InntektTjeneste {
             var kuttetNedTilTreMndInntekt = fjernOverflødigeMånederOmNødvendig(alleMåneder);
             return beregnSnittOgLeggPåStatus(kuttetNedTilTreMndInntekt, dagensDato, organisasjonsnummer);
         } catch (IntegrasjonException e) {
-            LOG.warn("Nedetid i inntektskomponenten, returnerer tomme måneder uten snittlønn til frontend. Fikk feil {}", e.getMessage());
+            LOG.warn("Nedetid i inntektskomponenten v2, returnerer tomme måneder uten snittlønn til frontend. Fikk feil {}", e.getMessage(), e);
             return lagTomRespons(skjæringstidspunkt, organisasjonsnummer);
         }
     }
