@@ -112,6 +112,22 @@ class GeneralRestExceptionMapperTest {
     }
 
     @Test
+    void skalMappeFunksjonellFeilPersonIkkeFunnet() {
+        var callId = MDCOperations.generateCallId();
+        MDCOperations.putCallId(callId);
+        try (var response = exceptionMapper.toResponse(funksjonellFeilPersonIkkeFunnet())) {
+            assertThat(response.getStatus()).isEqualTo(404);
+            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+            var feilDto = (FeilDto) response.getEntity();
+
+            assertThat(feilDto.type()).isEqualTo(FeilType.PERSON_IKKE_FUNNET);
+            assertThat(feilDto.callId()).isEqualTo(callId);
+            assertThat(feilDto.feilmelding()).isEqualTo("Person ikke funnet");
+            assertThat(logSniffer.search("Person ikke funnet feil", Level.INFO)).hasSize(1);
+        }
+    }
+
+    @Test
     void skalMappeVLException() {
         var callId = MDCOperations.generateCallId();
         MDCOperations.putCallId(callId);
@@ -199,5 +215,9 @@ class GeneralRestExceptionMapperTest {
 
     private static FunksjonellException funksjonellFeilFinnesIAaReg() {
         return new FunksjonellException("FINNES_I_AAREG", "en egen funksjonell melding", null);
+    }
+
+    private static FunksjonellException funksjonellFeilPersonIkkeFunnet() {
+        return new FunksjonellException("PERSON_IKKE_FUNNET", "en egen funksjonell melding", null);
     }
 }

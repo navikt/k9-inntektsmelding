@@ -30,6 +30,12 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
         this.k9SakTjeneste = k9SakTjeneste;
     }
 
+    public void validerPerson(PersonInfo personInfo) {
+        if (personInfo == null) {
+            throw new FunksjonellException("PERSON_IKKE_FUNNET", "Fant ikke person i pdl", null, null);
+        }
+    }
+
     public void validerSakIK9(PersonInfo personInfo, YtelseTypeDto ytelseType, LocalDate førsteFraværsdag) {
         // Sjekk at søker har sak i k9-sak
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(ytelseType);

@@ -90,12 +90,12 @@ public class ArbeidsgiverinitiertDialogRest {
     @Path(HENT_ARBEIDSGIVERE_UREGISTRERT)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
-    public Response hentArbeidsgivereforUregistrert(@Valid @NotNull HentArbeidsgivereUregistrertRequest request) {
+    public Response hentArbeidsgivereforUregistrert(@Valid @NotNull HentArbeidsforholdRequest request) {
         LOG.info("Henter personinformasjon, og organisasjoner som innsender har tilgang til");
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
-        if (personInfo == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+
+        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
+        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag());
 
         HentArbeidsforholdResponse response = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo);
         return Response.ok(response).build();
@@ -107,12 +107,9 @@ public class ArbeidsgiverinitiertDialogRest {
     @Tilgangskontrollert
     public Response hentOpplysningerUregistrert(@Valid @NotNull OpplysningerRequestDto request) {
         LOG.info("Henter opplysninger for uregistrert søker");
-
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
-        if (personInfo == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
 
+        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
         arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag());
         arbeidsgiverinitiertDialogRestValiderer.validerAtOrgnummerIkkeFinnesIAaregPåPerson(personInfo, request.organisasjonsnummer(), request.førsteFraværsdag());
 
