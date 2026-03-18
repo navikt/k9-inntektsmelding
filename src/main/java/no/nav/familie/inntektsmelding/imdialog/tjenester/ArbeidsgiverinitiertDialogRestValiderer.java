@@ -44,6 +44,12 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
         }
     }
 
+    public void validerArbeidsforhold(HentArbeidsforholdResponse response) {
+        if (response != null && response.arbeidsforhold().isEmpty()) {
+            throw new FunksjonellException("INGEN_ARBEIDSFORHOLD", "Fant ingen arbeidsforhold på brukeren", null, null);
+        }
+    }
+
     public void validerSakIK9(PersonInfo personInfo, YtelseTypeDto ytelseType, LocalDate førsteFraværsdag) {
         // Sjekk at søker har sak i k9-sak
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(ytelseType);

@@ -135,6 +135,7 @@ public class ArbeidsgiverinitiertDialogRest {
         arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag());
 
         HentArbeidsforholdResponse response = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo);
+        arbeidsgiverinitiertDialogRestValiderer.validerArbeidsforhold(response);
         return Response.ok(response).build();
     }
 
