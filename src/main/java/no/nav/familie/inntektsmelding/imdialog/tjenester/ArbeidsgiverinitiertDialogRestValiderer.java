@@ -2,10 +2,12 @@ package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
@@ -28,6 +30,24 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
     public ArbeidsgiverinitiertDialogRestValiderer(GrunnlagTjeneste grunnlagTjeneste, K9SakTjeneste k9SakTjeneste) {
         this.grunnlagTjeneste = grunnlagTjeneste;
         this.k9SakTjeneste = k9SakTjeneste;
+    }
+
+    public void validerPerson(PersonInfo personInfo) {
+        if (personInfo == null) {
+            throw new FunksjonellException("PERSON_IKKE_FUNNET", "Fant ikke person i pdl", null, null);
+        }
+    }
+
+    public void validerArbeidsforhold(Optional<HentArbeidsforholdResponse> arbeidsforhold) {
+        if (arbeidsforhold.isEmpty()) {
+            throw new FunksjonellException("INGEN_ARBEIDSFORHOLD", "Fant ingen arbeidsforhold på brukeren", null, null);
+        }
+    }
+
+    public void validerArbeidsforhold(HentArbeidsforholdResponse response) {
+        if (response != null && response.arbeidsforhold().isEmpty()) {
+            throw new FunksjonellException("INGEN_ARBEIDSFORHOLD", "Fant ingen arbeidsforhold på brukeren", null, null);
+        }
     }
 
     public void validerSakIK9(PersonInfo personInfo, YtelseTypeDto ytelseType, LocalDate førsteFraværsdag) {
