@@ -102,17 +102,14 @@ public class ArbeidsgiverinitiertDialogRest {
     @Tilgangskontrollert
     public Response hentArbeidsforholdNyansatt(@Valid @NotNull HentArbeidsforholdRequest request) {
         LOG.info("Henter arbeidsforhold for søker");
-
-        // Sjekk at person finnes
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
-        if (personInfo == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
 
+        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
         arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag());
 
         Optional<HentArbeidsforholdResponse> response = grunnlagTjeneste.finnArbeidsforholdForFnr(personInfo, request.førsteFraværsdag());
-        return response.map(r ->Response.ok(r).build()).orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
+        arbeidsgiverinitiertDialogRestValiderer.validerArbeidsforhold(response);
+        return response.map(r ->Response.ok(r).build()).orElseThrow(() -> new RuntimeException("Arbeidsforhold skal være valid"));
     }
 
     @POST

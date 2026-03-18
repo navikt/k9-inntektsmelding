@@ -58,6 +58,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
                     return personIkkeFunnet();
                 }
             }
+            if (feil instanceof FunksjonellException) {
+                var exceptionMelding = getExceptionMelding(feil);
+                if (exceptionMelding.contains("INGEN_ARBEIDSFORHOLD")) {
+                    LOG.info("Ingen arbeidsforhold funnet feil: {}", exceptionMelding);
+                    return ingenArbeidsforhold();
+                }
+            }
             loggTilApplikasjonslogg(feil);
             return serverError("Serverfeil");
         } finally {
@@ -99,7 +106,14 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
 
     private static Response personIkkeFunnet() {
         return Response.status(Response.Status.NOT_FOUND)
-            .entity(new FeilDto(FeilType.PERSON_IKKE_FUNNET, "Person ikke funnet i pdl", MDCOperations.getCallId()))
+            .entity(new FeilDto(FeilType.PERSON_IKKE_FUNNET, "Person ikke funnet", MDCOperations.getCallId()))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
+    }
+
+    private static Response ingenArbeidsforhold() {
+        return Response.status(Response.Status.NOT_FOUND)
+            .entity(new FeilDto(FeilType.INGEN_ARBEIDSFORHOLD, "Ingen arbeidsforhold funnet", MDCOperations.getCallId()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
