@@ -159,7 +159,7 @@ public class GrunnlagTjeneste {
                                                              LocalDate skjæringstidspunkt,
                                                              String organisasjonsnummer,
                                                              Ytelsetype ytelsetype) {
-        var inntektsopplysninger = inntektTjeneste.hentInntektV2(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, ytelsetype);
+        var inntektsopplysninger = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, ytelsetype);
 
         if (uuid == null) {
             LOG.info("Inntektsopplysninger for aktørId {} var {}", aktørId, inntektsopplysninger);

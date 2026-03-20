@@ -30,26 +30,26 @@ public class InntektTjeneste {
     private static final int DAG_I_MÅNED_RAPPORTERINGSFRIST = 5;
     private static final String LØNNSINNTEKT_TYPE = "Loennsinntekt";
 
-    private InntektskomponentV2Klient inntektskomponentV2Klient;
+    private InntektskomponentKlient inntektskomponentKlient;
 
     InntektTjeneste() {
         // CDI
     }
 
     @Inject
-    public InntektTjeneste(InntektskomponentV2Klient inntektskomponentV2Klient) {
-        this.inntektskomponentV2Klient = inntektskomponentV2Klient;
+    public InntektTjeneste(InntektskomponentKlient inntektskomponentKlient) {
+        this.inntektskomponentKlient = inntektskomponentKlient;
     }
 
     // Tar inn dagens dato som parameter for å gjøre det enklere å skrive tester
-    public Inntektsopplysninger hentInntektV2(AktørIdEntitet aktørId, LocalDate skjæringstidspunkt, LocalDate dagensDato, String organisasjonsnummer, Ytelsetype ytelsetype) {
+    public Inntektsopplysninger hentInntekt(AktørIdEntitet aktørId, LocalDate skjæringstidspunkt, LocalDate dagensDato, String organisasjonsnummer, Ytelsetype ytelsetype) {
         var antallMånederViBerOm = finnAntallMånederViMåBeOm(skjæringstidspunkt, dagensDato);
         var fomDato = skjæringstidspunkt.minusMonths(antallMånederViBerOm);
         var tomDato = skjæringstidspunkt.minusMonths(1);
         var request = lagRequest(aktørId, fomDato, tomDato);
         try {
-            var respons = inntektskomponentV2Klient.finnInntekt(request, ytelsetype);
-            var inntekter = oversettResponsV2(respons, organisasjonsnummer);
+            var respons = inntektskomponentKlient.finnInntekt(request, ytelsetype);
+            var inntekter = oversettRespons(respons, organisasjonsnummer);
             var alleMåneder = inntekter.size() == antallMånederViBerOm
                               ? inntekter
                               : fyllInnManglendeMåneder(fomDato, antallMånederViBerOm, inntekter);
@@ -150,7 +150,7 @@ public class InntektTjeneste {
 
     private record Månedsinntekt(YearMonth måned, BigDecimal beløp) {}
 
-    private List<Månedsinntekt> oversettResponsV2(List<InntektskomponentV2Klient.Inntektsinformasjon> response, String organisasjonsnummer) {
+    private List<Månedsinntekt> oversettRespons(List<InntektskomponentKlient.Inntektsinformasjon> response, String organisasjonsnummer) {
         var månedsinntekter = response.stream()
             .filter(ii -> organisasjonsnummer.equals(ii.underenhet()))
             .flatMap(ii -> Optional.ofNullable(ii.inntektListe()).orElseGet(List::of).stream()

@@ -21,19 +21,19 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "inntekt.url",
     endpointDefault = "https://ikomp.prod-fss-pub.nais.io/rest/v2/inntekt",
     scopesProperty = "inntekt.scopes", scopesDefault = "api://prod-fss.team-inntekt.ikomp/.default")
-public class InntektskomponentV2Klient {
-    private static final Logger LOG = LoggerFactory.getLogger(InntektskomponentV2Klient.class);
+public class InntektskomponentKlient {
+    private static final Logger LOG = LoggerFactory.getLogger(InntektskomponentKlient.class);
     private static final YearMonth INNTK_TIDLIGSTE_DATO = YearMonth.of(2015, 7);
     private static final String BEREGNINGSGRUNNLAG_FILTER = "8-28";
 
     private final RestClient restClient;
     private final RestConfig restConfig;
 
-    public InntektskomponentV2Klient() {
+    public InntektskomponentKlient() {
         this(RestClient.client());
     }
 
-    public InntektskomponentV2Klient(RestClient restClient) {
+    public InntektskomponentKlient(RestClient restClient) {
         this.restClient = restClient;
         this.restConfig = RestConfig.forClient(this.getClass());
     }
