@@ -129,7 +129,7 @@ class RefusjonOmsorgsdagerServiceTest {
             Kjønn.KVINNE));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now()))
             .thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, ansettelsesperiode)));
-        when(inntektTjenesteMock.hentInntekt(any(), any(), any(), any()))
+        when(inntektTjenesteMock.hentInntektV2(any(), any(), any(), any(), any()))
             .thenReturn(new Inntektsopplysninger(new BigDecimal(10000), organisasjonsnummer, List.of()));
 
         var response = service.hentInntektsopplysninger(fødselsnummer, "999999999", LocalDate.now());

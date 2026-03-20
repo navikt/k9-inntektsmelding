@@ -33,7 +33,7 @@ class InntektV2TjenesteTest {
 
     @BeforeEach
     void setUp() {
-        tjeneste = new InntektTjeneste(null, klient);
+        tjeneste = new InntektTjeneste(klient);
     }
 
     @Test
