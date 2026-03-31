@@ -108,7 +108,12 @@ public class RefusjonOmsorgsdagerService {
         if (arbeidsforhold.isEmpty() || person == null) {
             return null;
         }
-        var inntekt = inntektTjeneste.hentInntekt(person.aktørId(), skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, Ytelsetype.OMSORGSPENGER);
+        var inntekt = inntektTjeneste.hentInntekt(
+            person.aktørId(),
+            skjæringstidspunkt,
+            LocalDate.now(),
+            organisasjonsnummer
+        );
         var inntekterPerMåned = inntekt.måneder()
             .stream()
             .map(i -> new HentInntektsopplysningerResponse.MånedsinntektDto(i.månedÅr().atDay(1),

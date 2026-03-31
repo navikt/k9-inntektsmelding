@@ -109,8 +109,10 @@ class GrunnlagTjenesteTest {
         var inntekt1 = new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(52000), YearMonth.of(2024, 3), MånedslønnStatus.BRUKT_I_GJENNOMSNITT);
         var inntekt2 = new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(52000), YearMonth.of(2024, 4), MånedslønnStatus.BRUKT_I_GJENNOMSNITT);
         var inntekt3 = new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(52000), YearMonth.of(2024, 5), MånedslønnStatus.BRUKT_I_GJENNOMSNITT);
-        when(inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(), forespørsel.getOrganisasjonsnummer(), Ytelsetype.PLEIEPENGER_SYKT_BARN))
-            .thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer(), List.of(inntekt1, inntekt2, inntekt3)));
+        when(inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
+            forespørsel.getOrganisasjonsnummer())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000),
+            forespørsel.getOrganisasjonsnummer(),
+            List.of(inntekt1, inntekt2, inntekt3)));
 
         // Act
         var imDialogDto = grunnlagTjeneste.hentOpplysninger(uuid);
@@ -174,8 +176,10 @@ class GrunnlagTjenesteTest {
         var innsenderTelefonnummer = "+4711111111";
         when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID))).thenReturn(
             new PersonInfo(innsenderNavn, null, innsenderEtternavn, new PersonIdent(INNMELDER_UID), null, LocalDate.now(), innsenderTelefonnummer, Kjønn.KVINNE));
-        when(inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(), forespørsel.getOrganisasjonsnummer(), Ytelsetype.PLEIEPENGER_SYKT_BARN))
-            .thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), forespørsel.getOrganisasjonsnummer(), List.of()));
+        when(inntektTjeneste.hentInntekt(forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), LocalDate.now(),
+            forespørsel.getOrganisasjonsnummer())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000),
+            forespørsel.getOrganisasjonsnummer(),
+            List.of()));
 
         // Act
         var imDialogDto = grunnlagTjeneste.hentOpplysninger(uuid);
@@ -275,8 +279,10 @@ class GrunnlagTjenesteTest {
         when(forespørselBehandlingTjeneste.finnAlleForespørsler(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften",
             organisasjonsnummer.orgnr()));
-        when(inntektTjeneste.hentInntekt(aktørId, førsteFraværsdag, LocalDate.now(), organisasjonsnummer.orgnr(), ytelsetype))
-            .thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
+        when(inntektTjeneste.hentInntekt(aktørId,
+            førsteFraværsdag,
+            LocalDate.now(),
+            organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
         var imDialogDto = grunnlagTjeneste.hentOpplysninger(fødselsnummer,
             ytelsetype,
@@ -312,8 +318,10 @@ class GrunnlagTjenesteTest {
         when(forespørselBehandlingTjeneste.finnAlleForespørsler(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften",
             organisasjonsnummer.orgnr()));
-        when(inntektTjeneste.hentInntekt(aktørId, førsteFraværsdag, LocalDate.now(), organisasjonsnummer.orgnr(), ytelsetype))
-            .thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
+        when(inntektTjeneste.hentInntekt(aktørId,
+            førsteFraværsdag,
+            LocalDate.now(),
+            organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
         var imDialogDto = grunnlagTjeneste.hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer, ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
 
@@ -345,8 +353,10 @@ class GrunnlagTjenesteTest {
         when(forespørselBehandlingTjeneste.finnAlleForespørsler(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of(forespørsel));
         when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften",
             organisasjonsnummer.orgnr()));
-        when(inntektTjeneste.hentInntekt(aktørId, førsteFraværsdag, LocalDate.now(), organisasjonsnummer.orgnr(), ytelsetype))
-            .thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
+        when(inntektTjeneste.hentInntekt(aktørId,
+            førsteFraværsdag,
+            LocalDate.now(),
+            organisasjonsnummer.orgnr())).thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
         // Act
         var imDialogDto = grunnlagTjeneste.hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer, ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
 
