@@ -105,15 +105,12 @@ public class RefusjonOmsorgsdagerService {
     public HentInntektsopplysningerResponse hentInntektsopplysninger(PersonIdent fødselsnummer,
                                                                      String organisasjonsnummer,
                                                                      LocalDate skjæringstidspunkt) {
-        var person = personTjeneste.hentPersonFraIdent(fødselsnummer);
-        var arbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(
-            fødselsnummer,
-            skjæringstidspunkt
-        );
-        if (arbeidsforhold.isEmpty() || person == null) {
-            return null;
+        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
+        if (personInfo == null) {
+            throw new FunksjonellException("PERSON_IKKE_FUNNET", "Fant ikke person i pdl", null, null);
         }
-        var inntekt = inntektTjeneste.hentInntekt(person.aktørId(), skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, Ytelsetype.OMSORGSPENGER);
+
+        var inntekt = inntektTjeneste.hentInntekt(personInfo.aktørId(), skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, Ytelsetype.OMSORGSPENGER);
         var inntekterPerMåned = inntekt.måneder()
             .stream()
             .map(i -> new HentInntektsopplysningerResponse.MånedsinntektDto(i.månedÅr().atDay(1),

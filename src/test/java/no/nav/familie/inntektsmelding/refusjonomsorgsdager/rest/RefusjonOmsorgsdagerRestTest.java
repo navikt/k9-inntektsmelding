@@ -2,7 +2,6 @@ package no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -101,17 +100,18 @@ class RefusjonOmsorgsdagerRestTest {
     }
 
     @Test
-    void hent_inntektsopplysninger_skal_returnere_not_found_når_servicen_returnerer_null() {
+    void hent_inntektsopplysninger_kaster_PERSON_IKKE_FUNNET_når_person_ikke_finnes() {
         var personIdent = PersonIdent.fra("12345678910");
         var organisasjonsnummer = "999999999";
         var skjæringstidspunkt = LocalDate.parse("2025-01-01");
 
-        when(refusjonOmsorgsdagerServiceMock.hentInntektsopplysninger(personIdent, organisasjonsnummer, skjæringstidspunkt)).thenReturn(null);
+        when(refusjonOmsorgsdagerServiceMock.hentInntektsopplysninger(personIdent, organisasjonsnummer, skjæringstidspunkt))
+            .thenThrow(new FunksjonellException("PERSON_IKKE_FUNNET", "Fant ikke person i pdl", null));
 
-        var response = rest.hentInntektsopplysninger(new HentInntektsopplysningerRequest(personIdent, organisasjonsnummer, "2025-01-01"));
+        var ex = assertThrows(FunksjonellException.class, () -> rest.hentInntektsopplysninger(new HentInntektsopplysningerRequest(personIdent, organisasjonsnummer, "2025-01-01")));
 
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        assertNull(response.getEntity());
+        assertThat(ex.getStatusCode()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(ex.getMessage()).contains("PERSON_IKKE_FUNNET");
     }
 
 
