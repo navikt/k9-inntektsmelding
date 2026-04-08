@@ -21,6 +21,7 @@ import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDt
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInnloggetBrukerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponse;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 public class RefusjonOmsorgsdagerService {
@@ -50,6 +51,11 @@ public class RefusjonOmsorgsdagerService {
 
     public SlåOppArbeidstakerResponse hentArbeidstaker(PersonIdent fødselsnummer) {
         LOG.info("Slår opp arbeidstaker");
+        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
+
+        if (personInfo == null) {
+            throw new FunksjonellException("PERSON_IKKE_FUNNET", "Fant ikke person i pdl", null, null);
+        }
 
         var alleArbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now());
         var unikeArbeidsforhold = filtrerUnikeArbeidsforhold(alleArbeidsforhold);
@@ -60,9 +66,8 @@ public class RefusjonOmsorgsdagerService {
             ))
             .toList();
 
-        var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
-        if (arbeidsforholdMedOrgnavn.isEmpty() || personInfo == null) {
-            return null;
+        if (arbeidsforholdMedOrgnavn.isEmpty()) {
+            throw new FunksjonellException("INGEN_ARBEIDSFORHOLD", "Fant ingen arbeidsforhold på brukeren", null, null);
         }
 
         return new SlåOppArbeidstakerResponse(

@@ -60,9 +60,6 @@ public class RefusjonOmsorgsdagerRest {
         SlåOppArbeidstakerRequest request
     ) {
         var response = refusjonOmsorgsdagerService.hentArbeidstaker(request.fødselsnummer());
-        if (response == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
 
         return Response.ok(response).build();
     }
