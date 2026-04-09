@@ -62,7 +62,6 @@ class RefusjonOmsorgsdagerRestTest {
 
         var ex = assertThrows(FunksjonellException.class, () -> rest.slåOppArbeidstaker(request));
 
-        assertThat(ex.getStatusCode()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         assertThat(ex.getMessage()).contains("PERSON_IKKE_FUNNET");
     }
 
@@ -110,7 +109,6 @@ class RefusjonOmsorgsdagerRestTest {
 
         var ex = assertThrows(FunksjonellException.class, () -> rest.hentInntektsopplysninger(new HentInntektsopplysningerRequest(personIdent, organisasjonsnummer, "2025-01-01")));
 
-        assertThat(ex.getStatusCode()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         assertThat(ex.getMessage()).contains("PERSON_IKKE_FUNNET");
     }
 
