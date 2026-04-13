@@ -1,7 +1,8 @@
 package no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +22,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.RefusjonOmsorgsdagerService;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
 class RefusjonOmsorgsdagerRestTest {
@@ -51,15 +53,16 @@ class RefusjonOmsorgsdagerRestTest {
     }
 
     @Test
-    void slå_opp_arbeidstaker_skal_returnere_not_found_når_arbeidstaker_ikke_finnes() {
+    void slå_opp_arbeidstaker_kaster_PERSON_IKKE_FUNNET_når_arbeidstaker_ikke_finnes() {
         var fnr = PersonIdent.fra("12345678910");
         var request = new SlåOppArbeidstakerRequest(fnr, Ytelsetype.OMSORGSPENGER);
 
-        when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr)).thenReturn(null);
+        when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr))
+            .thenThrow(new FunksjonellException("PERSON_IKKE_FUNNET", "Fant ikke person i pdl", null));
 
-        var response = rest.slåOppArbeidstaker(request);
+        var ex = assertThrows(FunksjonellException.class, () -> rest.slåOppArbeidstaker(request));
 
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertThat(ex.getMessage()).contains("PERSON_IKKE_FUNNET");
     }
 
     @Test
@@ -96,17 +99,17 @@ class RefusjonOmsorgsdagerRestTest {
     }
 
     @Test
-    void hent_inntektsopplysninger_skal_returnere_not_found_når_servicen_returnerer_null() {
+    void hent_inntektsopplysninger_kaster_PERSON_IKKE_FUNNET_når_person_ikke_finnes() {
         var personIdent = PersonIdent.fra("12345678910");
         var organisasjonsnummer = "999999999";
         var skjæringstidspunkt = LocalDate.parse("2025-01-01");
 
-        when(refusjonOmsorgsdagerServiceMock.hentInntektsopplysninger(personIdent, organisasjonsnummer, skjæringstidspunkt)).thenReturn(null);
+        when(refusjonOmsorgsdagerServiceMock.hentInntektsopplysninger(personIdent, organisasjonsnummer, skjæringstidspunkt))
+            .thenThrow(new FunksjonellException("PERSON_IKKE_FUNNET", "Fant ikke person i pdl", null));
 
-        var response = rest.hentInntektsopplysninger(new HentInntektsopplysningerRequest(personIdent, organisasjonsnummer, "2025-01-01"));
+        var ex = assertThrows(FunksjonellException.class, () -> rest.hentInntektsopplysninger(new HentInntektsopplysningerRequest(personIdent, organisasjonsnummer, "2025-01-01")));
 
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        assertNull(response.getEntity());
+        assertThat(ex.getMessage()).contains("PERSON_IKKE_FUNNET");
     }
 
 

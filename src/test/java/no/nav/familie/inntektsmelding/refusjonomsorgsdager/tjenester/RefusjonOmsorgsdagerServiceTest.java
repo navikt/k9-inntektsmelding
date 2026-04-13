@@ -1,9 +1,11 @@
 package no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -29,6 +31,7 @@ import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerD
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponse;
 import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
 class RefusjonOmsorgsdagerServiceTest {
@@ -83,16 +86,30 @@ class RefusjonOmsorgsdagerServiceTest {
     }
 
     @Test
-    void slå_opp_arbeidstaker_skal_returnere_null_når_arbeidstaker_ikke_finnes() {
+    void slå_opp_arbeidstaker_kaster_PERSON_IKKE_FUNNET_når_person_ikke_finnes() {
         var fødselsnummer = PersonIdent.fra("12345678910");
-        var førsteFraværsdag = LocalDate.now();
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(null);
 
-        var response = service.hentArbeidstaker(fødselsnummer);
+        var ex = assertThrows(FunksjonellException.class, () -> service.hentArbeidstaker(fødselsnummer));
 
-        assertNull(response);
-        verify(arbeidstakerTjenesteMock).finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag);
+        assertThat(ex.getMessage()).contains("PERSON_IKKE_FUNNET");
+        verifyNoInteractions(arbeidstakerTjenesteMock);
+    }
+
+    @Test
+    void slå_opp_arbeidstaker_kaster_INGEN_ARBEIDSFORHOLD_når_ingen_arbeidsforhold() {
+        var fødselsnummer = PersonIdent.fra("12345678910");
+        var aktørId = AktørIdEntitet.dummy();
+
+        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(
+            new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE));
+        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now()))
+            .thenReturn(List.of());
+
+        var ex = assertThrows(FunksjonellException.class, () -> service.hentArbeidstaker(fødselsnummer));
+
+        assertThat(ex.getMessage()).contains("INGEN_ARBEIDSFORHOLD");
     }
 
     @Test
@@ -117,7 +134,6 @@ class RefusjonOmsorgsdagerServiceTest {
     void hent_inntektsopplysninger_returnerer_ok() {
         var fødselsnummer = PersonIdent.fra("12345678910");
         var organisasjonsnummer = "999999999";
-        var ansettelsesperiode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now(), LocalDate.now().plusMonths(2));
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn",
             "mellomnavn",
@@ -127,8 +143,6 @@ class RefusjonOmsorgsdagerServiceTest {
             LocalDate.now(),
             null,
             Kjønn.KVINNE));
-        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now()))
-            .thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, ansettelsesperiode)));
         when(inntektTjenesteMock.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(new Inntektsopplysninger(new BigDecimal(10000), organisasjonsnummer, List.of()));
 
@@ -138,38 +152,14 @@ class RefusjonOmsorgsdagerServiceTest {
     }
 
     @Test
-    void hent_inntektsopplysninger_returnerer_null_om_man_ikke_finner_noen_arbeidsforhold() {
+    void hent_inntektsopplysninger_kaster_PERSON_IKKE_FUNNET_når_person_ikke_finnes() {
         var fødselsnummer = PersonIdent.fra("12345678910");
-        var organisasjonsnummer = "999999999";
-
-        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn",
-            "mellomnavn",
-            "etternavn",
-            fødselsnummer,
-            null,
-            LocalDate.now(),
-            null,
-            Kjønn.KVINNE));
-        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer,
-            LocalDate.now())).thenReturn(List.of());
-
-        var response = service.hentInntektsopplysninger(fødselsnummer, organisasjonsnummer, LocalDate.now());
-
-        assertNull(response);
-    }
-
-    @Test
-    void hent_inntektsopplysninger_returnerer_null_om_person_ikke_finnes() {
-        var fødselsnummer = PersonIdent.fra("12345678910");
-        var organisasjonsnummer = "999999999";
-        var ansettelsesperiode = new ArbeidsforholdDto.Ansettelsesperiode(LocalDate.now(), LocalDate.now().plusMonths(2));
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(null);
-        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now()))
-            .thenReturn(List.of(new ArbeidsforholdDto(organisasjonsnummer, ansettelsesperiode)));
 
-        var response = service.hentInntektsopplysninger(fødselsnummer, "999999999", LocalDate.now());
+        var ex = assertThrows(FunksjonellException.class, () -> service.hentInntektsopplysninger(fødselsnummer, "999999999", LocalDate.now()));
 
-        assertNull(response);
+        assertThat(ex.getMessage()).contains("PERSON_IKKE_FUNNET");
+        verifyNoInteractions(inntektTjenesteMock);
     }
 }
