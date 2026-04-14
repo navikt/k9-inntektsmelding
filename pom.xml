@@ -16,9 +16,9 @@
     <properties>
         <felles.version>7.7.2</felles.version>
         <prosesstask.version>5.2.5</prosesstask.version>
-        <fp-kontrakter.version>9.4.30</fp-kontrakter.version>
-        <k9-felles.version>10.6.2</k9-felles.version>
-        <k9-sak.version>6.0.13</k9-sak.version>
+        <fp-kontrakter.version>9.4.31</fp-kontrakter.version>
+        <k9-felles.version>11.0.0</k9-felles.version>
+        <k9-sak.version>7.0.1</k9-sak.version>
         <sif-abac-kontrakt.version>1.9.0</sif-abac-kontrakt.version>
     </properties>
 
