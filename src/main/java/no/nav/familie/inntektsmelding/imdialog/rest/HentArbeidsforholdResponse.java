@@ -12,6 +12,4 @@ public record HentArbeidsforholdResponse(@NotNull String fornavn,
                                          @NotNull String etternavn,
                                          @NotNull Kjønn kjønn,
                                          @NotNull @Valid Set<ArbeidsforholdDto> arbeidsforhold) {
-
-    public record ArbeidsforholdDto(@NotNull String organisasjonsnavn, @NotNull String organisasjonsnummer) {}
 }
