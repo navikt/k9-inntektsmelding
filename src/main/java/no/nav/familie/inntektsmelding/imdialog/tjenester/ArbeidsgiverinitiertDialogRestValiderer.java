@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
-import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
@@ -20,13 +19,11 @@ import no.nav.vedtak.exception.FunksjonellException;
 public class ArbeidsgiverinitiertDialogRestValiderer {
 
     private final GrunnlagTjeneste grunnlagTjeneste;
-    private final K9SakTjeneste k9SakTjeneste;
 
 
     @Inject
-    public ArbeidsgiverinitiertDialogRestValiderer(GrunnlagTjeneste grunnlagTjeneste, K9SakTjeneste k9SakTjeneste) {
+    public ArbeidsgiverinitiertDialogRestValiderer(GrunnlagTjeneste grunnlagTjeneste) {
         this.grunnlagTjeneste = grunnlagTjeneste;
-        this.k9SakTjeneste = k9SakTjeneste;
     }
 
     public void validerPerson(PersonInfo personInfo) {
