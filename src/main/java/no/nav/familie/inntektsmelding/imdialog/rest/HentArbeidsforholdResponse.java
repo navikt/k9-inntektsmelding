@@ -11,5 +11,5 @@ public record HentArbeidsforholdResponse(@NotNull String fornavn,
                                          String mellomnavn,
                                          @NotNull String etternavn,
                                          @NotNull Kjønn kjønn,
-                                         @NotNull @Valid Set<ArbeidsforholdDto> arbeidsforhold) {
+                                         @NotNull @Valid Set<OrganisasjonDto> arbeidsforhold) {
 }

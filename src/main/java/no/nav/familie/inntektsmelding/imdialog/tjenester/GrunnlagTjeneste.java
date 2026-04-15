@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
-import no.nav.familie.inntektsmelding.imdialog.rest.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerResponse;
+import no.nav.familie.inntektsmelding.imdialog.rest.OrganisasjonDto;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -200,8 +200,8 @@ public class GrunnlagTjeneste {
             return Optional.empty();
         }
 
-        var arbeidsforholdDto = arbeidsforholdBrukerHarTilgangTil.stream()
-            .map(a -> new ArbeidsforholdDto(organisasjonTjeneste.finnOrganisasjon(a.organisasjonsnummer()).navn(),
+        var arbeidsforhold = arbeidsforholdBrukerHarTilgangTil.stream()
+            .map(a -> new OrganisasjonDto(organisasjonTjeneste.finnOrganisasjon(a.organisasjonsnummer()).navn(),
                 a.organisasjonsnummer()))
             .collect(Collectors.toSet());
 
@@ -209,23 +209,23 @@ public class GrunnlagTjeneste {
             personInfo.mellomnavn(),
             personInfo.etternavn(),
             personInfo.kjønn(),
-            arbeidsforholdDto));
+            arbeidsforhold));
     }
 
-    public Set<ArbeidsforholdDto> hentOrganisasjonerSomArbeidsgiverHarTilgangTil() {
+    public Set<OrganisasjonDto> hentOrganisasjonerSomArbeidsgiverHarTilgangTil() {
         var organisasjonerArbeidsgiverHarTilgangTil = arbeidstakerTjeneste.finnOrganisasjonerArbeidsgiverHarTilgangTil();
 
         var organisasjoner = organisasjonerArbeidsgiverHarTilgangTil.stream()
             .map(orgnrDto -> {
                 String organisasjonsnavn = organisasjonTjeneste.finnOrganisasjon(orgnrDto.orgnr()).navn();
-                return new ArbeidsforholdDto(organisasjonsnavn, orgnrDto.orgnr());
+                return new OrganisasjonDto(organisasjonsnavn, orgnrDto.orgnr());
             })
             .collect(Collectors.toSet());
         return organisasjoner;
     }
 
     public HentArbeidsforholdResponse lagHentArbeidsforholdResponse(PersonInfo personInfo,
-                                                                    Set<ArbeidsforholdDto> organisasjonerArbeidsgiverHarTilgangTil) {
+                                                                    Set<OrganisasjonDto> organisasjonerArbeidsgiverHarTilgangTil) {
         return new HentArbeidsforholdResponse(personInfo.fornavn(),
             personInfo.mellomnavn(),
             personInfo.etternavn(),
