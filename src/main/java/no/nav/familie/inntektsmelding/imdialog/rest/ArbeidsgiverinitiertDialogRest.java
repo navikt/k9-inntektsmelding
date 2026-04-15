@@ -91,19 +91,6 @@ public class ArbeidsgiverinitiertDialogRest {
         return Response.ok(hentOpplysningerResponse).build();
     }
 
-    @POST
-    @Path(HENT_ARBEIDSTAKER)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Tilgangskontrollert
-    public Response hentArbeidstaker(@Valid @NotNull HentArbeidstakerRequest request) {
-        LOG.info("Henter arbeidstaker");
-        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
-        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
-
-        var response = new HentArbeidstakerResponse(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.kjønn());
-        return Response.ok(response).build();
-    }
-
     /**
      * @deprecated Bruk {@link #hentArbeidstaker(HentArbeidstakerRequest)} i stedet.
      */
@@ -122,6 +109,19 @@ public class ArbeidsgiverinitiertDialogRest {
         var organisasjonerArbeidsgiverHarTilgangTil = grunnlagTjeneste.hentOrganisasjonerSomArbeidsgiverHarTilgangTil();
         HentArbeidsforholdResponse response = grunnlagTjeneste.lagHentArbeidsforholdResponse(personInfo, organisasjonerArbeidsgiverHarTilgangTil);
         arbeidsgiverinitiertDialogRestValiderer.validerArbeidsforhold(response);
+        return Response.ok(response).build();
+    }
+
+    @POST
+    @Path(HENT_ARBEIDSTAKER)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentArbeidstaker(@Valid @NotNull HentArbeidstakerRequest request) {
+        LOG.info("Henter arbeidstaker");
+        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
+        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
+
+        var response = new HentArbeidstakerResponse(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.kjønn());
         return Response.ok(response).build();
     }
 
