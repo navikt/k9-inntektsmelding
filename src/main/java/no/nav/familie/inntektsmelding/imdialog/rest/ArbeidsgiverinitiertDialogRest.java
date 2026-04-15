@@ -112,7 +112,6 @@ public class ArbeidsgiverinitiertDialogRest {
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
 
         arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
-        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag());
 
         // siden arbeidstager er uregistrert slår vi opp organisasjoner arbeidsgiver har tilgang til
         var organisasjonerArbeidsgiverHarTilgangTil = grunnlagTjeneste.hentOrganisasjonerSomArbeidsgiverHarTilgangTil();
