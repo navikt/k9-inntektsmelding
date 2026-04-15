@@ -238,7 +238,8 @@ class GrunnlagTjenesteTest {
         when(organisasjonTjeneste.finnOrganisasjon(orgnr1.orgnr())).thenReturn(new Organisasjon(navn1, orgnr1.orgnr()));
         when(organisasjonTjeneste.finnOrganisasjon(orgnr2.orgnr())).thenReturn(new Organisasjon(navn2, orgnr2.orgnr()));
         // Act
-        var response = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo);
+        var organisasjoner = grunnlagTjeneste.hentOrganisasjonerSomArbeidsgiverHarTilgangTil();
+        var response = grunnlagTjeneste.lagHentArbeidsforholdResponse(personInfo, organisasjoner);
 
         // Assert
         assertThat(response).isNotNull();
