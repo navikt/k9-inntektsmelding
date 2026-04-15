@@ -42,6 +42,7 @@ public class ArbeidsgiverinitiertDialogRest {
     private static final String HENT_ARBEIDSGIVERE_UREGISTRERT = "/arbeidsgivere/uregistrert";
     private static final String HENT_ARBEIDSGIVER_ORGANISASJONER = "/arbeidsgiver/organisasjoner";
     private static final String HENT_OPPLYSNINGER_UREGISTRERT = "/opplysninger/uregistrert";
+    private static final String HENT_ARBEIDSTAKER = "/arbeidstaker";
 
     private GrunnlagTjeneste grunnlagTjeneste;
     private PersonTjeneste personTjeneste;
@@ -85,6 +86,23 @@ public class ArbeidsgiverinitiertDialogRest {
         return Response.ok(hentOpplysningerResponse).build();
     }
 
+    @POST
+    @Path(HENT_ARBEIDSTAKER)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentArbeidstaker(@Valid @NotNull HentArbeidstakerRequest request) {
+        LOG.info("Henter arbeidstaker");
+        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
+        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
+
+        var response = new HentArbeidstakerResponse(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.kjønn());
+        return Response.ok(response).build();
+    }
+
+    /**
+     * @deprecated Bruk {@link #hentArbeidstaker(HentArbeidstakerRequest)} i stedet.
+     */
+    @Deprecated
     @POST
     @Path(HENT_ARBEIDSGIVERE_UREGISTRERT)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
