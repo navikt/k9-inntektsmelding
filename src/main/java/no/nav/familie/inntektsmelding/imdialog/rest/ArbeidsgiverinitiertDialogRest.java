@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -39,6 +40,7 @@ public class ArbeidsgiverinitiertDialogRest {
     private static final String HENT_ARBEIDSFORHOLD_NYANSATT = "/arbeidsforhold/nyansatt";
     private static final String HENT_OPPLYSNINGER_NYANSATT = "/opplysninger/nyansatt";
     private static final String HENT_ARBEIDSGIVERE_UREGISTRERT = "/arbeidsgivere/uregistrert";
+    private static final String HENT_ARBEIDSGIVER_ORGANISASJONER = "/arbeidsgiver/organisasjoner";
     private static final String HENT_OPPLYSNINGER_UREGISTRERT = "/opplysninger/uregistrert";
 
     private GrunnlagTjeneste grunnlagTjeneste;
@@ -94,7 +96,9 @@ public class ArbeidsgiverinitiertDialogRest {
         arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
         arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag());
 
-        HentArbeidsforholdResponse response = grunnlagTjeneste.hentSøkerinfoOgOrganisasjonerArbeidsgiverHarTilgangTil(personInfo);
+        // siden arbeidstager er uregistrert slår vi opp organisasjoner arbeidsgiver har tilgang til
+        var organisasjonerArbeidsgiverHarTilgangTil = grunnlagTjeneste.hentOrganisasjonerSomArbeidsgiverHarTilgangTil();
+        HentArbeidsforholdResponse response = grunnlagTjeneste.lagHentArbeidsforholdResponse(personInfo, organisasjonerArbeidsgiverHarTilgangTil);
         arbeidsgiverinitiertDialogRestValiderer.validerArbeidsforhold(response);
         return Response.ok(response).build();
     }
@@ -114,5 +118,15 @@ public class ArbeidsgiverinitiertDialogRest {
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
         HentOpplysningerResponse response = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer(), ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
         return Response.ok(response).build();
+    }
+
+    @GET
+    @Path(HENT_ARBEIDSGIVER_ORGANISASJONER)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentArbeidsgiverOrganisasjoner() {
+        LOG.info("Henter organisasjoner som arbeidsgiver har tilgang til");
+        var organisasjonerArbeidsgiverHarTilgangTil = grunnlagTjeneste.hentOrganisasjonerSomArbeidsgiverHarTilgangTil();
+        return Response.ok(new HentArbeidsgiverOrganisasjonerResponse(organisasjonerArbeidsgiverHarTilgangTil)).build();
     }
 }
