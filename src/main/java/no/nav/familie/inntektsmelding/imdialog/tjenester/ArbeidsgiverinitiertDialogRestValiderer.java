@@ -12,11 +12,8 @@ import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
-import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
-import no.nav.k9.sak.typer.AktørId;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @Dependent
@@ -50,23 +47,35 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
         }
     }
 
-    public void validerSakIK9(PersonInfo personInfo, YtelseTypeDto ytelseType, LocalDate førsteFraværsdag) {
-        // Sjekk at søker har sak i k9-sak
-        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(ytelseType);
-        AktørId aktørId = new AktørId(personInfo.aktørId().getAktørId());
-        List<FagsakInfo> fagsakerIK9Sak =  k9SakTjeneste.hentFagsakInfo(ytelsetype, aktørId);
-        List<PeriodeDto> søknadsPerioderForFagsakerIK9 = fagsakerIK9Sak.stream()
+    public void validerAtFraværsdatoTrefferEnSøknadsperiodeIK9(LocalDate førsteFraværsdag, List<FagsakInfo> fagsakerIK9, Ytelsetype ytelsetype) {
+        List<PeriodeDto> søknadsPerioderForFagsakerIK9 = fagsakerIK9.stream()
             .flatMap(fagsak -> fagsak.søknadsPerioder().stream())
             .toList();
 
-        var finnesSakIK9 = søknadsPerioderForFagsakerIK9.stream()
+        boolean fraværsdagErInnenforSøknadsperiode = søknadsPerioderForFagsakerIK9.stream()
             .anyMatch(søknandsperiode -> søknandsperiode.inneholderDato(førsteFraværsdag));
 
-        if (!finnesSakIK9) {
+        if (!fraværsdagErInnenforSøknadsperiode) {
             var feilmelding = String.format("Du kan ikke sende inn inntektsmelding på %s for denne personen", ytelsetype);
             throw new FunksjonellException("INGEN_SAK_FUNNET", feilmelding, null, null);
         }
+    }
 
+    public void validerAtFraværsdatoErFørsteFraværsdagISøknadsperiode(LocalDate førsteFraværsdag, List<FagsakInfo> fagsakerIK9, Ytelsetype ytelsetype) {
+        List<PeriodeDto> søknadsPerioderForFagsakerIK9 = fagsakerIK9.stream()
+            .flatMap(fagsak -> fagsak.søknadsPerioder().stream())
+            .toList();
+
+        boolean erFørsteFraværsdag = søknadsPerioderForFagsakerIK9.stream()
+            .anyMatch(søknandsperiode -> søknandsperiode.fom().isEqual(førsteFraværsdag));
+
+        if (!erFørsteFraværsdag) {
+            var feilmelding = String.format("Du kan ikke sende inn inntektsmelding på %s for denne personen", ytelsetype);
+            throw new FunksjonellException("INGEN_SAK_FUNNET", feilmelding, null, null);
+        }
+    }
+
+    public void validerAtSakIkkeVenterPåForTidligSøknad(List<FagsakInfo> fagsakerIK9Sak, Ytelsetype ytelsetype) {
         if (fagsakerIK9Sak.stream().anyMatch(FagsakInfo::venterForTidligSøknad)) {
             var feilmelding = String.format("Du kan ikke sende inn inntektsmelding før fire uker før denne personen starter med %s", ytelsetype);
             throw new FunksjonellException("SENDT_FOR_TIDLIG", feilmelding, null, null);
