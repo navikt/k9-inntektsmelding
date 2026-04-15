@@ -105,6 +105,12 @@ public class ArbeidsgiverinitiertDialogRest {
 
         arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
 
+        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
+        List<FagsakInfo> fagsakerIK9Sak =  grunnlagTjeneste.hentFagsakerIK9(personInfo, ytelsetype);
+
+        arbeidsgiverinitiertDialogRestValiderer.validerAtFraværsdatoErFørsteFraværsdagISøknadsperiode(request.førsteFraværsdag(), fagsakerIK9Sak, ytelsetype);
+        arbeidsgiverinitiertDialogRestValiderer.validerAtSakIkkeVenterPåForTidligSøknad(fagsakerIK9Sak, ytelsetype);
+
         // siden arbeidstager er uregistrert slår vi opp organisasjoner arbeidsgiver har tilgang til
         var organisasjonerArbeidsgiverHarTilgangTil = grunnlagTjeneste.hentOrganisasjonerSomArbeidsgiverHarTilgangTil();
         HentArbeidsforholdResponse response = grunnlagTjeneste.lagHentArbeidsforholdResponse(personInfo, organisasjonerArbeidsgiverHarTilgangTil);
