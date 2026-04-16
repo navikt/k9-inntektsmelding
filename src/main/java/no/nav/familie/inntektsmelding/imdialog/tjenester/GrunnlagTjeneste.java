@@ -165,13 +165,13 @@ public class GrunnlagTjeneste {
 
         if (relevantFagsak == null || relevantFagsak.arbeidsgiverMedEtterspurtePerioder() == null) {
             LOG.warn("Fant ingen relevant fagsak ved henting av etterspurte perioder.");
-            return null;
+            return List.of();
         }
 
         Set<PeriodeDto> etterspurtePerioderForOrganisasjon = relevantFagsak.arbeidsgiverMedEtterspurtePerioder().get(organisasjonsnummer.orgnr());
         if (etterspurtePerioderForOrganisasjon == null) {
             LOG.warn("Fant ingen etterspurte perioder for organisasjonsnummer {}.", organisasjonsnummer.orgnr());
-            return null;
+            return List.of();
         }
 
         return etterspurtePerioderForOrganisasjon.stream()
