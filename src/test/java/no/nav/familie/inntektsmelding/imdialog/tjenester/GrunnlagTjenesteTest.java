@@ -46,7 +46,6 @@ import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.k9.sak.typer.AktørId;
-import no.nav.k9.sak.typer.Periode;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
@@ -389,10 +388,10 @@ class GrunnlagTjenesteTest {
         when(inntektTjeneste.hentInntekt(aktørId, førsteFraværsdag, LocalDate.now(), organisasjonsnummer.orgnr(), ytelsetype))
             .thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
 
-        var etterspurtPeriode1 = new Periode(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30));
-        var etterspurtPeriode2 = new Periode(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 7, 31));
+        var etterspurtPeriode1 = new PeriodeDto(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30));
+        var etterspurtPeriode2 = new PeriodeDto(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 7, 31));
         var annenOrganisasjonsnummer = "888888888";
-        var etterspurtPeriodeAnnenOrg = new Periode(LocalDate.of(2024, 9, 1), LocalDate.of(2024, 9, 30));
+        var etterspurtPeriodeAnnenOrg = new PeriodeDto(LocalDate.of(2024, 9, 1), LocalDate.of(2024, 9, 30));
         var fagsakInfo = new FagsakInfo(
             new SaksnummerDto("123"),
             ytelsetype,
@@ -440,7 +439,7 @@ class GrunnlagTjenesteTest {
             new AktørId(aktørId.getAktørId()),
             new PeriodeDto(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31)),
             List.of(new PeriodeDto(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30))),
-            Map.of(organisasjonsnummer.orgnr(), Set.of(new Periode(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30)))),
+            Map.of(organisasjonsnummer.orgnr(), Set.of(new PeriodeDto(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30)))),
             false);
         when(k9SakTjeneste.hentFagsakInfo(ytelsetype, new AktørId(aktørId.getAktørId()))).thenReturn(List.of(fagsakInfo));
 
