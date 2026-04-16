@@ -34,6 +34,7 @@ public class K9SakTjeneste {
             k9Fagsak.aktørId(),
             new PeriodeDto(k9Fagsak.gyldigPeriode().getFom(), k9Fagsak.gyldigPeriode().getTom()),
             mapSøknadsperiode(k9Fagsak),
+            k9Fagsak.arbeidsgiverMedEtterspurtePerioder(),
             k9Fagsak.venterForTidligSøknad());
     }
 
@@ -48,6 +49,7 @@ public class K9SakTjeneste {
                     k9Fagsak.aktørId(),
                     new PeriodeDto(k9Fagsak.gyldigPeriode().getFom(), k9Fagsak.gyldigPeriode().getTom()),
                     mapSøknadsperiode(k9Fagsak),
+                    k9Fagsak.arbeidsgiverMedEtterspurtePerioder(),
                     k9Fagsak.venterForTidligSøknad()
                 )
             ).toList();
