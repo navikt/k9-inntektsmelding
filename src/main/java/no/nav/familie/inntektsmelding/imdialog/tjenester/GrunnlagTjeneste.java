@@ -41,7 +41,6 @@ import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.PersonInfoDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.k9.sak.typer.AktørId;
-import no.nav.k9.sak.typer.Periode;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
@@ -169,15 +168,13 @@ public class GrunnlagTjeneste {
             return null;
         }
 
-        Set<Periode> etterspurtePerioderForOrganisasjon = relevantFagsak.arbeidsgiverMedEtterspurtePerioder().get(organisasjonsnummer.orgnr());
+        Set<PeriodeDto> etterspurtePerioderForOrganisasjon = relevantFagsak.arbeidsgiverMedEtterspurtePerioder().get(organisasjonsnummer.orgnr());
         if (etterspurtePerioderForOrganisasjon == null) {
             LOG.warn("Fant ingen etterspurte perioder for organisasjonsnummer {}.", organisasjonsnummer.orgnr());
             return null;
         }
 
-        return etterspurtePerioderForOrganisasjon.stream()
-            .map(p -> new PeriodeDto(p.getFom(), p.getTom()))
-            .toList();
+        return etterspurtePerioderForOrganisasjon.stream().toList();
     }
 
     private boolean innenforIntervall(LocalDate nyFørsteFraværsdag, LocalDate eksisterendeForespørselStp) {
