@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +24,8 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
+import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
+import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -38,8 +41,11 @@ import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.dto.MånedsinntektDto;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
+import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.k9.sak.typer.AktørId;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
@@ -64,6 +70,8 @@ class GrunnlagTjenesteTest {
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
     @Mock
     private ArbeidsforholdTjeneste arbeidsforholdTjeneste;
+    @Mock
+    private K9SakTjeneste k9SakTjeneste;
 
 
     private GrunnlagTjeneste grunnlagTjeneste;
@@ -81,7 +89,7 @@ class GrunnlagTjenesteTest {
 
     @BeforeEach
     void setUp() {
-        grunnlagTjeneste = new GrunnlagTjeneste(forespørselBehandlingTjeneste, personTjeneste, organisasjonTjeneste, inntektTjeneste, arbeidstakerTjeneste, arbeidsforholdTjeneste);
+        grunnlagTjeneste = new GrunnlagTjeneste(forespørselBehandlingTjeneste, personTjeneste, organisasjonTjeneste, inntektTjeneste, arbeidstakerTjeneste, arbeidsforholdTjeneste, k9SakTjeneste);
     }
 
     @Test
@@ -360,5 +368,86 @@ class GrunnlagTjenesteTest {
         assertThat(imDialogDto.førsteUttaksdato()).isEqualTo(førsteFraværsdag);
         assertThat(imDialogDto.inntektsopplysninger().gjennomsnittLønn()).isEqualByComparingTo(BigDecimal.valueOf(52000));
         assertThat(imDialogDto.forespørselUuid()).isEqualTo(null);
+    }
+
+    @Test
+    void skal_hente_etterspurte_perioder_for_omsorgspenger_uregistrert() {
+        // Arrange
+        var fødselsnummer = new PersonIdent("11111111111");
+        var ytelsetype = Ytelsetype.OMSORGSPENGER;
+        var førsteFraværsdag = LocalDate.of(2024, 6, 15);
+        var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
+        var aktørId = new AktørIdEntitet("9999999999999");
+        var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE);
+
+        when(personTjeneste.hentPersonFraIdent(fødselsnummer)).thenReturn(personInfo);
+        when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID))).thenReturn(
+            new PersonInfo("Ine", null, "Sender", new PersonIdent(INNMELDER_UID), null, LocalDate.now(), "+4711111111", Kjønn.KVINNE));
+        when(forespørselBehandlingTjeneste.finnAlleForespørsler(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of());
+        when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften", organisasjonsnummer.orgnr()));
+        when(inntektTjeneste.hentInntekt(aktørId, førsteFraværsdag, LocalDate.now(), organisasjonsnummer.orgnr(), ytelsetype))
+            .thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
+
+        var etterspurtPeriode1 = new PeriodeDto(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30));
+        var etterspurtPeriode2 = new PeriodeDto(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 7, 31));
+        var annenOrganisasjonsnummer = "888888888";
+        var etterspurtPeriodeAnnenOrg = new PeriodeDto(LocalDate.of(2024, 9, 1), LocalDate.of(2024, 9, 30));
+        var fagsakInfo = new FagsakInfo(
+            new SaksnummerDto("123"),
+            ytelsetype,
+            new AktørId(aktørId.getAktørId()),
+            new PeriodeDto(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31)),
+            List.of(new PeriodeDto(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30))),
+            Map.of(organisasjonsnummer.orgnr(), Set.of(etterspurtPeriode1, etterspurtPeriode2),
+                annenOrganisasjonsnummer, Set.of(etterspurtPeriodeAnnenOrg)),
+            false);
+        when(k9SakTjeneste.hentFagsakInfo(ytelsetype, new AktørId(aktørId.getAktørId()))).thenReturn(List.of(fagsakInfo));
+
+        // Act
+        var opplysninger = grunnlagTjeneste.hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer, ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
+
+        // Assert
+        assertThat(opplysninger.forespørselUuid()).isNull();
+        assertThat(opplysninger.etterspurtePerioder()).isNotNull();
+        assertThat(opplysninger.etterspurtePerioder()).hasSize(2);
+        assertThat(opplysninger.etterspurtePerioder()).contains(new PeriodeDto(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30)));
+        assertThat(opplysninger.etterspurtePerioder()).contains(new PeriodeDto(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 7, 31)));
+        assertThat(opplysninger.etterspurtePerioder()).doesNotContain(new PeriodeDto(LocalDate.of(2024, 9, 1), LocalDate.of(2024, 9, 30)));
+    }
+
+    @Test
+    void skal_returnere_null_etterspurte_perioder_når_søknadsperiode_ikke_inneholder_første_fraværsdag() {
+        // Arrange
+        var fødselsnummer = new PersonIdent("11111111111");
+        var ytelsetype = Ytelsetype.OMSORGSPENGER;
+        var førsteFraværsdag = LocalDate.of(2024, 8, 15);
+        var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
+        var aktørId = new AktørIdEntitet("9999999999999");
+        var personInfo = new PersonInfo("Navn", null, "Navnesen", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE);
+
+        when(personTjeneste.hentPersonFraIdent(fødselsnummer)).thenReturn(personInfo);
+        when(personTjeneste.hentPersonFraIdent(PersonIdent.fra(INNMELDER_UID))).thenReturn(
+            new PersonInfo("Ine", null, "Sender", new PersonIdent(INNMELDER_UID), null, LocalDate.now(), "+4711111111", Kjønn.KVINNE));
+        when(forespørselBehandlingTjeneste.finnAlleForespørsler(aktørId, ytelsetype, organisasjonsnummer.orgnr())).thenReturn(List.of());
+        when(organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr())).thenReturn(new Organisasjon("Bedriften", organisasjonsnummer.orgnr()));
+        when(inntektTjeneste.hentInntekt(aktørId, førsteFraværsdag, LocalDate.now(), organisasjonsnummer.orgnr(), ytelsetype))
+            .thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(52000), organisasjonsnummer.orgnr(), List.of()));
+
+        var fagsakInfo = new FagsakInfo(
+            new SaksnummerDto("123"),
+            ytelsetype,
+            new AktørId(aktørId.getAktørId()),
+            new PeriodeDto(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31)),
+            List.of(new PeriodeDto(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30))),
+            Map.of(organisasjonsnummer.orgnr(), Set.of(new PeriodeDto(LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30)))),
+            false);
+        when(k9SakTjeneste.hentFagsakInfo(ytelsetype, new AktørId(aktørId.getAktørId()))).thenReturn(List.of(fagsakInfo));
+
+        // Act
+        var opplysninger = grunnlagTjeneste.hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer, ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
+
+        // Assert
+        assertThat(opplysninger.forespørselUuid()).isNull();
+        assertThat(opplysninger.etterspurtePerioder()).isEmpty();
     }
 }

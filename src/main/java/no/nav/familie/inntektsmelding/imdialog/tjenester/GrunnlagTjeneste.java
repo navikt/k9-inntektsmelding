@@ -20,6 +20,8 @@ import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.OrganisasjonDto;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
+import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
@@ -35,8 +37,10 @@ import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.MånedsinntektDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonInfoDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.PersonInfoDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.k9.sak.typer.AktørId;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
@@ -51,6 +55,7 @@ public class GrunnlagTjeneste {
     private InntektTjeneste inntektTjeneste;
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
     private ArbeidsforholdTjeneste arbeidsforholdTjeneste;
+    private K9SakTjeneste k9SakTjeneste;
 
     GrunnlagTjeneste() {
     }
@@ -61,13 +66,15 @@ public class GrunnlagTjeneste {
                             OrganisasjonTjeneste organisasjonTjeneste,
                             InntektTjeneste inntektTjeneste,
                             ArbeidstakerTjeneste arbeidstakerTjeneste,
-                            ArbeidsforholdTjeneste arbeidsforholdTjeneste) {
+                            ArbeidsforholdTjeneste arbeidsforholdTjeneste,
+                            K9SakTjeneste k9SakTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.inntektTjeneste = inntektTjeneste;
         this.arbeidstakerTjeneste = arbeidstakerTjeneste;
         this.arbeidsforholdTjeneste = arbeidsforholdTjeneste;
+        this.k9SakTjeneste = k9SakTjeneste;
     }
 
     public HentOpplysningerResponse hentOpplysninger(UUID forespørselUuid) {
@@ -123,6 +130,11 @@ public class GrunnlagTjeneste {
         var innsender = finnInnsender();
         var inntektsopplysninger = finnInntektsopplysninger(null, personInfo.aktørId(), førsteFraværsdag, organisasjonsnummer.orgnr(), ytelsetype);
 
+        List<PeriodeDto> etterspurtePerioder = null;
+        if (Ytelsetype.OMSORGSPENGER.equals(ytelsetype) && ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT.equals(forespørselType)) {
+            etterspurtePerioder = hentEtterspurtePerioder(personInfo, ytelsetype, førsteFraværsdag, organisasjonsnummer);
+        }
+
         return new HentOpplysningerResponse(lagPersonInfoDto(personInfo),
             organisasjonInfo,
             innsender,
@@ -133,7 +145,38 @@ public class GrunnlagTjeneste {
             KodeverkMapper.mapForespørselStatus(ForespørselStatus.UNDER_BEHANDLING),
             forespørselType,
             førsteFraværsdag,
-            null);
+            etterspurtePerioder);
+    }
+
+    private List<FagsakInfo> hentFagsakerIK9(PersonInfo personInfo, Ytelsetype ytelseType) {
+        AktørId aktørId = new AktørId(personInfo.aktørId().getAktørId());
+        return k9SakTjeneste.hentFagsakInfo(ytelseType, aktørId);
+    }
+
+    private List<PeriodeDto> hentEtterspurtePerioder(PersonInfo personInfo,
+                                                     Ytelsetype ytelsetype,
+                                                     LocalDate førsteFraværsdag,
+                                                     OrganisasjonsnummerDto organisasjonsnummer) {
+        List<FagsakInfo> fagsaker = hentFagsakerIK9(personInfo, ytelsetype);
+        FagsakInfo relevantFagsak = fagsaker.stream()
+            .filter(f -> f.søknadsPerioder().stream().anyMatch(p -> p.inneholderDato(førsteFraværsdag)))
+            .findFirst()
+            .orElse(null);
+
+        if (relevantFagsak == null || relevantFagsak.arbeidsgiverMedEtterspurtePerioder() == null) {
+            LOG.warn("Fant ingen relevant fagsak ved henting av etterspurte perioder.");
+            return List.of();
+        }
+
+        Set<PeriodeDto> etterspurtePerioderForOrganisasjon = relevantFagsak.arbeidsgiverMedEtterspurtePerioder().get(organisasjonsnummer.orgnr());
+        if (etterspurtePerioderForOrganisasjon == null) {
+            LOG.warn("Fant ingen etterspurte perioder for organisasjonsnummer {}.", organisasjonsnummer.orgnr());
+            return List.of();
+        }
+
+        return etterspurtePerioderForOrganisasjon.stream()
+            .sorted(Comparator.comparing(PeriodeDto::fom).thenComparing(PeriodeDto::tom))
+            .toList();
     }
 
     private boolean innenforIntervall(LocalDate nyFørsteFraværsdag, LocalDate eksisterendeForespørselStp) {
