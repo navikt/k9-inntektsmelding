@@ -448,6 +448,6 @@ class GrunnlagTjenesteTest {
 
         // Assert
         assertThat(opplysninger.forespørselUuid()).isNull();
-        assertThat(opplysninger.etterspurtePerioder()).isNull();
+        assertThat(opplysninger.etterspurtePerioder()).isEmpty();
     }
 }
