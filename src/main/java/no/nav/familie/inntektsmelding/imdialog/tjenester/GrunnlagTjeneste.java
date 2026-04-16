@@ -174,7 +174,9 @@ public class GrunnlagTjeneste {
             return null;
         }
 
-        return etterspurtePerioderForOrganisasjon.stream().toList();
+        return etterspurtePerioderForOrganisasjon.stream()
+            .sorted(Comparator.comparing(PeriodeDto::fom).thenComparing(PeriodeDto::tom))
+            .toList();
     }
 
     private boolean innenforIntervall(LocalDate nyFørsteFraværsdag, LocalDate eksisterendeForespørselStp) {
