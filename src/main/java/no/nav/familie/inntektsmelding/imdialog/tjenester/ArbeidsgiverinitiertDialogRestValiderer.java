@@ -50,7 +50,7 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
             .toList();
 
         boolean fraværsdagErInnenforSøknadsperiode = søknadsPerioderForFagsakerIK9.stream()
-            .anyMatch(søknandsperiode -> søknandsperiode.inneholderDato(førsteFraværsdag));
+            .anyMatch(søknadsperiode -> søknadsperiode.inneholderDato(førsteFraværsdag));
 
         if (!fraværsdagErInnenforSøknadsperiode) {
             var feilmelding = String.format("Du kan ikke sende inn inntektsmelding på %s for denne personen", ytelsetype);
@@ -64,7 +64,7 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
             .toList();
 
         boolean erFørsteFraværsdag = søknadsPerioderForFagsakerIK9.stream()
-            .anyMatch(søknandsperiode -> søknandsperiode.fom().isEqual(førsteFraværsdag));
+            .anyMatch(søknadsperiode -> søknadsperiode.fom().isEqual(førsteFraværsdag));
 
         if (!erFørsteFraværsdag) {
             var feilmelding = String.format("Du kan ikke sende inn inntektsmelding på %s for denne personen", ytelsetype);
