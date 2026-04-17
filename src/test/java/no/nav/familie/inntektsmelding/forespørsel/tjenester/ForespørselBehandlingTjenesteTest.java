@@ -32,7 +32,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OppdaterForesp
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
+import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
@@ -68,7 +68,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
     private static final ObjectMapper OBJECT_MAPPER = DefaultJsonMapper.getObjectMapper();
 
     @Mock
-    private ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
+    private MinSideArbeidsgiverTjeneste minSideArbeidsgiverTjeneste;
     @Mock
     private PersonTjeneste personTjeneste;
     @Mock
@@ -83,7 +83,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
     void setUp() {
         this.forespørselRepository = new ForespørselRepository(getEntityManager());
         this.forespørselBehandlingTjeneste = new ForespørselBehandlingTjeneste(new ForespørselTjeneste(forespørselRepository),
-            arbeidsgiverNotifikasjon,
+            minSideArbeidsgiverTjeneste,
             personTjeneste,
             prosessTaskTjeneste,
             organisasjonTjeneste);
@@ -94,7 +94,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         var aktørIdent = new AktørIdEntitet(AKTØR_ID);
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
         when(personTjeneste.hentPersonInfoFraAktørId(any())).thenReturn(new PersonInfo("12345678910", "test", "test", new PersonIdent("12345678910"), aktørIdent, LocalDate.now(), null, null));
-        when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), any(), any(), any())).thenReturn(SAK_ID);
+        when(minSideArbeidsgiverTjeneste.opprettSak(any(), any(), any(), any(), any())).thenReturn(SAK_ID);
 
 
         var uuid = forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(
@@ -369,7 +369,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             ForespørselType.BESTILT_AV_FAGSYSTEM, SKJÆRINGSTIDSPUNKT, null);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
-        when(arbeidsgiverNotifikasjon.slettSak(SAK_ID)).thenReturn(SAK_ID);
+        when(minSideArbeidsgiverTjeneste.slettSak(SAK_ID)).thenReturn(SAK_ID);
 
         forespørselBehandlingTjeneste.slettForespørsel(new SaksnummerDto(SAKSNUMMMER), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), null);
 
@@ -377,7 +377,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
-        verify(arbeidsgiverNotifikasjon, Mockito.times(1)).slettSak(SAK_ID);
+        verify(minSideArbeidsgiverTjeneste, Mockito.times(1)).slettSak(SAK_ID);
     }
 
     @Test
@@ -386,7 +386,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             ForespørselType.BESTILT_AV_FAGSYSTEM, SKJÆRINGSTIDSPUNKT, null);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
 
-        when(arbeidsgiverNotifikasjon.slettSak(SAK_ID)).thenReturn(SAK_ID);
+        when(minSideArbeidsgiverTjeneste.slettSak(SAK_ID)).thenReturn(SAK_ID);
 
         forespørselBehandlingTjeneste.slettForespørsel(new SaksnummerDto(SAKSNUMMMER), null, null);
 
@@ -394,7 +394,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
-        verify(arbeidsgiverNotifikasjon, Mockito.times(1)).slettSak(SAK_ID);
+        verify(minSideArbeidsgiverTjeneste, Mockito.times(1)).slettSak(SAK_ID);
     }
 
     @Test
@@ -503,8 +503,8 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         var sakTittel = ForespørselTekster.lagSaksTittelInntektsmelding(personInfo.mapFulltNavn(), personInfo.fødselsdato());
 
         lenient().when(personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørId))).thenReturn(personInfo);
-        lenient().when(arbeidsgiverNotifikasjon.opprettSak(any(), any(), eq(brregOrgnummer), eq(sakTittel), any())).thenReturn(sakId);
-        lenient().when(arbeidsgiverNotifikasjon.opprettOppgave(any(), any(), any(), eq(brregOrgnummer), any(), any(), any(), any()))
+        lenient().when(minSideArbeidsgiverTjeneste.opprettSak(any(), any(), eq(brregOrgnummer), eq(sakTittel), any())).thenReturn(sakId);
+        lenient().when(minSideArbeidsgiverTjeneste.opprettOppgave(any(), any(), any(), eq(brregOrgnummer), any(), any(), any(), any()))
             .thenReturn(oppgaveId);
     }
 }
