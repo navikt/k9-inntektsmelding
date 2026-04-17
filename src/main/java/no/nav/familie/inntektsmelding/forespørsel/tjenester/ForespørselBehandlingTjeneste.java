@@ -26,7 +26,9 @@ import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntit
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
+import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
@@ -34,6 +36,7 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselOppdatering;
+import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
 import no.nav.familie.inntektsmelding.typer.dto.OppdaterForespørselDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
@@ -474,6 +477,33 @@ public class ForespørselBehandlingTjeneste {
         return finnForespørslerForAktørId(aktørId, ytelseType).stream()
             .filter(f -> f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt()).isBefore(startdato))
             .max(Comparator.comparing(f -> f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt())));
+    }
+
+    public NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto saksnummer, OrganisasjonsnummerDto organisasjonsnummer, LocalDate skjæringstidspunkt) {
+        final ForespørselEntitet forespørsel = hentForespørslerForFagsak(saksnummer, organisasjonsnummer, skjæringstidspunkt).stream()
+            .filter(f -> f.getStatus() == ForespørselStatus.UNDER_BEHANDLING)
+            .findFirst().orElse(null);
+
+        if (forespørsel == null) {
+            return NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE;
+        }
+
+        Merkelapp merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
+        UUID forespørselUuid = forespørsel.getUuid();
+        URI skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
+        Organisasjon organisasjon = organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer());
+        PersonInfo person = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId());
+        String varselTekst = ForespørselTekster.lagVarselFraSaksbehandlerTekst(forespørsel.getYtelseType(), organisasjon);
+        String beskjedTekst = ForespørselTekster.lagBeskjedFraSaksbehandlerTekst(forespørsel.getYtelseType(), person.mapFulltNavn());
+
+        arbeidsgiverNotifikasjon.sendNyBeskjed(forespørselUuid.toString(),
+            merkelapp,
+            organisasjon.orgnr(),
+            beskjedTekst,
+            varselTekst,
+            skjemaUri);
+
+        return NyBeskjedResultat.NY_BESKJED_SENDT;
     }
 
     private void validerOrganisasjon(ForespørselEntitet forespørsel, OrganisasjonsnummerDto orgnummer) {
