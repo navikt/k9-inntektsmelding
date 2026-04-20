@@ -101,13 +101,12 @@ class MinSideArbeidsgiverTjenesteImpl implements MinSideArbeidsgiverTjeneste {
     }
 
     @Override
-    public String opprettNyBeskjedMedEksternVarsling(String grupperingsid,
-                                                     Merkelapp beskjedMerkelapp,
-                                                     String eksternId,
-                                                     String virksomhetsnummer,
-                                                     String beskjedTekst,
-                                                     String varselTekst,
-                                                     URI oppgaveLenke) {
+    public String sendNyBeskjed(String grupperingsid,
+                                Merkelapp beskjedMerkelapp,
+                                String virksomhetsnummer,
+                                String beskjedTekst,
+                                String varselTekst,
+                                URI oppgaveLenke) {
         var beskjedInput = NyBeskjedInput.builder()
             .setNotifikasjon(NotifikasjonInput.builder()
                 .setMerkelapp(beskjedMerkelapp.getBeskrivelse())
@@ -120,7 +119,7 @@ class MinSideArbeidsgiverTjenesteImpl implements MinSideArbeidsgiverTjeneste {
                 .setEksternId(UUID.randomUUID().toString())
                 .setGrupperingsid(grupperingsid)
                 .build())
-            .setEksterneVarsler(List.of(lagEksternVarselAltinn(varselTekst, 0)))
+            .setEksterneVarsler(varselTekst != null ? List.of(lagEksternVarselAltinn(varselTekst, 0)) : List.of())
             .build();
         var beskjedRequest = new NyBeskjedMutationRequest();
         beskjedRequest.setNyBeskjed(beskjedInput);
