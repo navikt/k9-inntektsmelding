@@ -64,8 +64,8 @@ public class AltinnTilgangTjeneste {
         var organisasjoner = altinnKlient.hentTilganger().hierarki();
         var underenheter = finnUnderenheter(organisasjoner);
 
-        var orgNrMedGittTilgangIAltinn2 = hentOrgNrMedTilgang(underenheter, AltinnRessurser.ALTINN_TO_TJENESTE);
-        var orgNrMedGittTilgangIAltinn3 = hentOrgNrMedTilgang(underenheter, AltinnRessurser.ALTINN_TRE_RESSURS);
+        var orgNrMedGittTilgangIAltinn2 = hentOrgNrMedTilgangAltinn2(underenheter);
+        var orgNrMedGittTilgangIAltinn3 = hentOrgNrMedTilgangAltinn3(underenheter);
 
         var erLik = orgNrMedGittTilgangIAltinn2.equals(orgNrMedGittTilgangIAltinn3);
         if (!erLik) {
@@ -81,13 +81,22 @@ public class AltinnTilgangTjeneste {
         return orgNrMedGittTilgangIAltinn3.stream().toList();
     }
 
-    private static Set<String> hentOrgNrMedTilgang(
-        List<ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse.Organisasjon> underenheter, String ressurs) {
+    private static Set<String> hentOrgNrMedTilgangAltinn2(List<ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse.Organisasjon> underenheter) {
         var resultat = new HashSet<String>();
         for (var org : underenheter) {
-            var altinn2 = org.altinn2Tilganger() != null ? org.altinn2Tilganger() : List.<String>of();
-            var altinn3 = org.altinn3Tilganger() != null ? org.altinn3Tilganger() : List.<String>of();
-            if (altinn2.contains(ressurs) || altinn3.contains(ressurs)) {
+            var tilganger = org.altinn2Tilganger() != null ? org.altinn2Tilganger() : List.<String>of();
+            if (tilganger.contains(AltinnRessurser.ALTINN_TO_TJENESTE)) {
+                resultat.add(org.orgnr());
+            }
+        }
+        return resultat;
+    }
+
+    private static Set<String> hentOrgNrMedTilgangAltinn3(List<ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse.Organisasjon> underenheter) {
+        var resultat = new HashSet<String>();
+        for (var org : underenheter) {
+            var tilganger = org.altinn3Tilganger() != null ? org.altinn3Tilganger() : List.<String>of();
+            if (tilganger.contains(AltinnRessurser.ALTINN_TRE_RESSURS)) {
                 resultat.add(org.orgnr());
             }
         }
