@@ -84,8 +84,8 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
             .anyMatch(søknadsperiode -> søknadsperiode.fom().isEqual(førsteFraværsdag));
 
         if (!erFørsteFraværsdag) {
-            var feilmelding = String.format("Du kan ikke sende inn inntektsmelding på %s for denne personen", ytelsetype);
-            throw new FunksjonellException("INGEN_SAK_FUNNET", feilmelding, null, null);
+            var feilmelding = String.format("Du kan ikke sende inn inntektsmelding på %s for denne personen på denne fraværsdatoen %s", ytelsetype, førsteFraværsdag);
+            throw new FunksjonellException("INGEN_SAK_FUNNET_FOR_DATO", feilmelding, null, null);
         }
     }
 
