@@ -23,6 +23,7 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
+import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -64,6 +65,8 @@ class GrunnlagTjenesteTest {
     private ArbeidstakerTjeneste arbeidstakerTjeneste;
     @Mock
     private ArbeidsforholdTjeneste arbeidsforholdTjeneste;
+    @Mock
+    private K9SakTjeneste k9SakTjeneste;
 
 
     private GrunnlagTjeneste grunnlagTjeneste;
@@ -81,7 +84,7 @@ class GrunnlagTjenesteTest {
 
     @BeforeEach
     void setUp() {
-        grunnlagTjeneste = new GrunnlagTjeneste(forespørselBehandlingTjeneste, personTjeneste, organisasjonTjeneste, inntektTjeneste, arbeidstakerTjeneste, arbeidsforholdTjeneste);
+        grunnlagTjeneste = new GrunnlagTjeneste(forespørselBehandlingTjeneste, personTjeneste, organisasjonTjeneste, inntektTjeneste, arbeidstakerTjeneste, arbeidsforholdTjeneste, k9SakTjeneste);
     }
 
     @Test
