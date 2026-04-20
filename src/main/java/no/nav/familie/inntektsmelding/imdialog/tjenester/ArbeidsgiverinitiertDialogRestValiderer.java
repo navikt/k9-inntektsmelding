@@ -48,6 +48,7 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
             throw new FunksjonellException("INGEN_ARBEIDSFORHOLD", "Fant ingen arbeidsforhold på brukeren", null, null);
         }
     }
+
     public void validerSakIK9(PersonInfo personInfo, YtelseTypeDto ytelseType, LocalDate førsteFraværsdag, SøknadsperiodeValidering validering) {
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(ytelseType);
         List<FagsakInfo> fagsakerIK9Sak =  grunnlagTjeneste.hentFagsakerIK9(personInfo, ytelsetype);
