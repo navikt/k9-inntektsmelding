@@ -130,12 +130,12 @@ public class ArbeidsgiverinitiertDialogRest {
     public Response hentOpplysningerUregistrert(@Valid @NotNull OpplysningerRequestDto request) {
         LOG.info("Henter opplysninger for uregistrert søker");
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
-        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
 
-        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
+        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
         arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag(), FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE);
         arbeidsgiverinitiertDialogRestValiderer.validerAtOrgnummerIkkeFinnesIAaregPåPerson(personInfo, request.organisasjonsnummer(), request.førsteFraværsdag());
 
+        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
         HentOpplysningerResponse response = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer(), ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
         return Response.ok(response).build();
     }
