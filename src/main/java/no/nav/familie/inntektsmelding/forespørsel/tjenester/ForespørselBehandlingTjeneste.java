@@ -24,7 +24,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørs
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjon;
+import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
@@ -49,7 +49,7 @@ public class ForespørselBehandlingTjeneste {
     private static final no.nav.foreldrepenger.konfig.Environment ENV = Environment.current();
 
     private ForespørselTjeneste forespørselTjeneste;
-    private ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon;
+    private MinSideArbeidsgiverTjeneste minSideArbeidsgiverTjeneste;
     private PersonTjeneste personTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
@@ -61,12 +61,12 @@ public class ForespørselBehandlingTjeneste {
 
     @Inject
     public ForespørselBehandlingTjeneste(ForespørselTjeneste forespørselTjeneste,
-                                         ArbeidsgiverNotifikasjon arbeidsgiverNotifikasjon,
+                                         MinSideArbeidsgiverTjeneste minSideArbeidsgiverTjeneste,
                                          PersonTjeneste personTjeneste,
                                          ProsessTaskTjeneste prosessTaskTjeneste,
                                          OrganisasjonTjeneste organisasjonTjeneste) {
         this.forespørselTjeneste = forespørselTjeneste;
-        this.arbeidsgiverNotifikasjon = arbeidsgiverNotifikasjon;
+        this.minSideArbeidsgiverTjeneste = minSideArbeidsgiverTjeneste;
         this.personTjeneste = personTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
@@ -93,10 +93,10 @@ public class ForespørselBehandlingTjeneste {
         validerOrganisasjon(foresporsel, organisasjonsnummerDto);
 
         // Arbeidsgiverinitierte forespørsler har ingen oppgave
-        foresporsel.getOppgaveId().ifPresent(oppgaveId -> arbeidsgiverNotifikasjon.oppgaveUtført(oppgaveId, OffsetDateTime.now()));
+        foresporsel.getOppgaveId().ifPresent(oppgaveId -> minSideArbeidsgiverTjeneste.oppgaveUtført(oppgaveId, OffsetDateTime.now()));
 
         var erArbeidsgiverinitiert = foresporsel.getOppgaveId().isEmpty();
-        arbeidsgiverNotifikasjon.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(), erArbeidsgiverinitiert); // Oppdaterer status i arbeidsgiver-notifikasjon
+        minSideArbeidsgiverTjeneste.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(), erArbeidsgiverinitiert); // Oppdaterer status i arbeidsgiver-notifikasjon
 
         var erOmsorgspenger = foresporsel.getYtelseType().equals(Ytelsetype.OMSORGSPENGER);
         String tilleggsinformasjon;
@@ -106,7 +106,7 @@ public class ForespørselBehandlingTjeneste {
             tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjon(årsak, foresporsel.getSkjæringstidspunkt());
         }
 
-        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(), tilleggsinformasjon);
+        minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(), tilleggsinformasjon);
         forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
         return foresporsel;
     }
@@ -260,7 +260,7 @@ public class ForespørselBehandlingTjeneste {
         ForespørselEntitet forespørsel = forespørselTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for UUID: " + forespørselUuid));
 
-        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(forespørsel.getArbeidsgiverNotifikasjonSakId(),
+        minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(forespørsel.getArbeidsgiverNotifikasjonSakId(),
             ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(etterspurtePerioder));
 
         LOG.info("Oppdaterer forespørsel med nye etterspurte perioder, uuid: {}, perioder: {}", forespørselUuid, etterspurtePerioder);
@@ -269,12 +269,12 @@ public class ForespørselBehandlingTjeneste {
 
     public void settForespørselTilUtgått(ForespørselEntitet eksisterendeForespørsel, boolean skalOppdatereArbeidsgiverNotifikasjon) {
         if (skalOppdatereArbeidsgiverNotifikasjon) {
-            eksisterendeForespørsel.getOppgaveId().ifPresent(oppgaveId -> arbeidsgiverNotifikasjon.oppgaveUtgått(oppgaveId, OffsetDateTime.now()));
-            arbeidsgiverNotifikasjon.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
+            eksisterendeForespørsel.getOppgaveId().ifPresent(oppgaveId -> minSideArbeidsgiverTjeneste.oppgaveUtgått(oppgaveId, OffsetDateTime.now()));
+            minSideArbeidsgiverTjeneste.ferdigstillSak(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
                 false); // Oppdaterer status i arbeidsgiver-notifikasjon
         }
 
-        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
+        minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
             ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT, eksisterendeForespørsel.getSkjæringstidspunkt()));
         forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
@@ -290,7 +290,7 @@ public class ForespørselBehandlingTjeneste {
             throw new IllegalArgumentException(
                 "Forespørsel som skal gjenåpnes må ha status UTGÅTT, var " + eksisterendeForespørsel.getStatus() + ". " + eksisterendeForespørsel);
         }
-        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), null);
+        minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), null);
         forespørselTjeneste.ferdigstillForespørsel(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
         LOG.info("Gjenåpner forespørsel, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
@@ -327,7 +327,7 @@ public class ForespørselBehandlingTjeneste {
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
-        var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(uuid.toString(),
+        var arbeidsgiverNotifikasjonSakId = minSideArbeidsgiverTjeneste.opprettSak(uuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
             ForespørselTekster.lagSaksTittelInntektsmelding(person.mapFulltNavn(), person.fødselsdato()),
@@ -336,13 +336,13 @@ public class ForespørselBehandlingTjeneste {
         String tilleggsinformasjon = (ytelsetype == Ytelsetype.OMSORGSPENGER)
                                      ? ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(etterspurtePerioder) : ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.ORDINÆR_INNSENDING, skjæringstidspunkt);
 
-        arbeidsgiverNotifikasjon.oppdaterSakTilleggsinformasjon(arbeidsgiverNotifikasjonSakId, tilleggsinformasjon);
+        minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(arbeidsgiverNotifikasjonSakId, tilleggsinformasjon);
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
 
         String oppgaveId;
         try {
-            oppgaveId = arbeidsgiverNotifikasjon.opprettOppgave(uuid.toString(),
+            oppgaveId = minSideArbeidsgiverTjeneste.opprettOppgave(uuid.toString(),
                 merkelapp,
                 uuid.toString(),
                 organisasjonsnummer.orgnr(),
@@ -352,7 +352,7 @@ public class ForespørselBehandlingTjeneste {
                 skjemaUri);
         } catch (Exception e) {
             //Manuell rollback er nødvendig fordi sak og oppgave går i to forskjellige kall
-            arbeidsgiverNotifikasjon.slettSak(arbeidsgiverNotifikasjonSakId);
+            minSideArbeidsgiverTjeneste.slettSak(arbeidsgiverNotifikasjonSakId);
             throw e;
         }
 
@@ -374,7 +374,7 @@ public class ForespørselBehandlingTjeneste {
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
         var inntektsmeldingOppsummeringsUri = lagUriForInntektsmeldingOppsummering(forespørselUuid);
         var sakstittel = ForespørselTekster.lagSaksTittelInntektsmelding(person.mapFulltNavn(), person.fødselsdato());
-        var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(forespørselUuid.toString(), merkelapp, organisasjonsnummer.orgnr(), sakstittel, inntektsmeldingOppsummeringsUri);
+        var arbeidsgiverNotifikasjonSakId = minSideArbeidsgiverTjeneste.opprettSak(forespørselUuid.toString(), merkelapp, organisasjonsnummer.orgnr(), sakstittel, inntektsmeldingOppsummeringsUri);
 
         // oppdater forespørsel med sakId fra min side arbeidsgiver
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(forespørselUuid, arbeidsgiverNotifikasjonSakId);
@@ -393,7 +393,7 @@ public class ForespørselBehandlingTjeneste {
         var merkelapp = Merkelapp.REFUSJONSKRAV_OMP;
         var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + forespørselUuid);
         var sakstittel = ForespørselTekster.lagSaksTittelRefusjonskrav(person.mapFulltNavn(), person.fødselsdato());
-        var arbeidsgiverNotifikasjonSakId = arbeidsgiverNotifikasjon.opprettSak(forespørselUuid.toString(), merkelapp, organisasjonsnummer.orgnr(), sakstittel, skjemaUri);
+        var arbeidsgiverNotifikasjonSakId = minSideArbeidsgiverTjeneste.opprettSak(forespørselUuid.toString(), merkelapp, organisasjonsnummer.orgnr(), sakstittel, skjemaUri);
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(forespørselUuid, arbeidsgiverNotifikasjonSakId);
 
@@ -450,7 +450,7 @@ public class ForespørselBehandlingTjeneste {
             throw new IllegalStateException(msg);
         }
         var agPortalSakId = sakerSomSkalSlettes.getFirst().getArbeidsgiverNotifikasjonSakId();
-        arbeidsgiverNotifikasjon.slettSak(agPortalSakId);
+        minSideArbeidsgiverTjeneste.slettSak(agPortalSakId);
         forespørselTjeneste.settForespørselTilUtgått(agPortalSakId);
     }
 

@@ -148,7 +148,7 @@ public class GrunnlagTjeneste {
             etterspurtePerioder);
     }
 
-    private List<FagsakInfo> hentFagsakerIK9(PersonInfo personInfo, Ytelsetype ytelseType) {
+    public List<FagsakInfo> hentFagsakerIK9(PersonInfo personInfo, Ytelsetype ytelseType) {
         AktørId aktørId = new AktørId(personInfo.aktørId().getAktørId());
         return k9SakTjeneste.hentFagsakInfo(ytelseType, aktørId);
     }

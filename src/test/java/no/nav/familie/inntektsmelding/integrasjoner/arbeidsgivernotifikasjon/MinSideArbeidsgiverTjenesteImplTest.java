@@ -1,7 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
-import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonTjeneste.SERVICE_CODE;
-import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonTjeneste.SERVICE_EDITION_CODE;
+import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjenesteImpl.SERVICE_CODE;
+import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjenesteImpl.SERVICE_EDITION_CODE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -18,16 +18,16 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class ArbeidsgiverNotifikasjonTjenesteTest {
+class MinSideArbeidsgiverTjenesteImplTest {
 
     @Mock
-    ArbeidsgiverNotifikasjonKlient klient;
+    MinSideArbeidsgiverKlient klient;
 
-    private ArbeidsgiverNotifikasjon tjeneste;
+    private MinSideArbeidsgiverTjeneste tjeneste;
 
     @BeforeEach
     void setUp() {
-        tjeneste = new ArbeidsgiverNotifikasjonTjeneste(klient);
+        tjeneste = new MinSideArbeidsgiverTjenesteImpl(klient);
     }
 
     @Test
@@ -197,7 +197,7 @@ class ArbeidsgiverNotifikasjonTjenesteTest {
 
         assertThat(input.get("id")).isEqualTo(expectedId);
         assertThat(input.get("nyStatus")).isEqualTo(SaksStatus.FERDIG);
-        assertThat(input.get("overstyrStatustekstMed")).isEqualTo(ArbeidsgiverNotifikasjonTjeneste.SAK_STATUS_TEKST_ARBEIDSGIVERINITIERT);
+        assertThat(input.get("overstyrStatustekstMed")).isEqualTo(MinSideArbeidsgiverTjenesteImpl.SAK_STATUS_TEKST_ARBEIDSGIVERINITIERT);
 
         assertThat(input.get("idempotencyKey")).isNull();
         assertThat(input.get("hardDelete")).isNull();
