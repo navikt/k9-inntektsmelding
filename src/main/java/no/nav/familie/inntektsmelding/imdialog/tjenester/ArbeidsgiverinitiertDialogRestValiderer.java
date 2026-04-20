@@ -11,8 +11,10 @@ import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
+import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
@@ -46,8 +48,20 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
             throw new FunksjonellException("INGEN_ARBEIDSFORHOLD", "Fant ingen arbeidsforhold på brukeren", null, null);
         }
     }
+    public void validerSakIK9(PersonInfo personInfo, YtelseTypeDto ytelseType, LocalDate førsteFraværsdag, SøknadsperiodeValidering validering) {
+        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(ytelseType);
+        List<FagsakInfo> fagsakerIK9Sak =  grunnlagTjeneste.hentFagsakerIK9(personInfo, ytelsetype);
 
-    public void validerAtFraværsdatoTrefferEnSøknadsperiodeIK9(LocalDate førsteFraværsdag, List<FagsakInfo> fagsakerIK9, Ytelsetype ytelsetype) {
+        validerAtSakIkkeVenterPåForTidligSøknad(fagsakerIK9Sak, ytelsetype);
+
+        if (SøknadsperiodeValidering.FRAVÆRSDAG_INNENFOR_SØKNADSPERIODE.equals(validering)) {
+            validerAtFraværsdatoErInnenforEnSøknadsperiodeIK9(førsteFraværsdag, fagsakerIK9Sak, ytelsetype);
+        } else if (SøknadsperiodeValidering.FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE.equals(validering)) {
+            validerAtFraværsdatoErFørsteFraværsdagISøknadsperiode(førsteFraværsdag, fagsakerIK9Sak, ytelsetype);
+        }
+    }
+
+    public void validerAtFraværsdatoErInnenforEnSøknadsperiodeIK9(LocalDate førsteFraværsdag, List<FagsakInfo> fagsakerIK9, Ytelsetype ytelsetype) {
         List<PeriodeDto> søknadsPerioderForFagsakerIK9 = fagsakerIK9.stream()
             .flatMap(fagsak -> fagsak.søknadsPerioder().stream())
             .toList();
@@ -88,5 +102,10 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
             var tekst = "Det finnes rapportering i aa-registeret på organisasjonsnummeret. Nav vil be om inntektsmelding når vi trenger det";
             throw new FunksjonellException("FINNES_I_AAREG", tekst, null, null);
         }
+    }
+
+    public enum SøknadsperiodeValidering {
+        FRAVÆRSDAG_INNENFOR_SØKNADSPERIODE,
+        FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE
     }
 }

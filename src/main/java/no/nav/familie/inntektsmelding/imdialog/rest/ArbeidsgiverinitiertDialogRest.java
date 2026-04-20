@@ -1,6 +1,8 @@
 package no.nav.familie.inntektsmelding.imdialog.rest;
 
-import java.util.List;
+import static no.nav.familie.inntektsmelding.imdialog.tjenester.ArbeidsgiverinitiertDialogRestValiderer.SøknadsperiodeValidering.FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE;
+import static no.nav.familie.inntektsmelding.imdialog.tjenester.ArbeidsgiverinitiertDialogRestValiderer.SøknadsperiodeValidering.FRAVÆRSDAG_INNENFOR_SØKNADSPERIODE;
+
 import java.util.Optional;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -21,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.imdialog.tjenester.ArbeidsgiverinitiertDialogRestValiderer;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.GrunnlagTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
@@ -69,11 +70,7 @@ public class ArbeidsgiverinitiertDialogRest {
         LOG.info("Henter arbeidsforhold for søker");
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
         arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
-
-        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
-        List<FagsakInfo> fagsakerIK9Sak =  grunnlagTjeneste.hentFagsakerIK9(personInfo, ytelsetype);
-        arbeidsgiverinitiertDialogRestValiderer.validerAtFraværsdatoTrefferEnSøknadsperiodeIK9(request.førsteFraværsdag(), fagsakerIK9Sak, ytelsetype);
-        arbeidsgiverinitiertDialogRestValiderer.validerAtSakIkkeVenterPåForTidligSøknad(fagsakerIK9Sak, ytelsetype);
+        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag(), FRAVÆRSDAG_INNENFOR_SØKNADSPERIODE);
 
         Optional<HentArbeidsforholdResponse> response = grunnlagTjeneste.finnArbeidsforholdForFnr(personInfo, request.førsteFraværsdag());
         arbeidsgiverinitiertDialogRestValiderer.validerArbeidsforhold(response);
@@ -104,12 +101,7 @@ public class ArbeidsgiverinitiertDialogRest {
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
 
         arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
-
-        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
-        List<FagsakInfo> fagsakerIK9Sak =  grunnlagTjeneste.hentFagsakerIK9(personInfo, ytelsetype);
-
-        arbeidsgiverinitiertDialogRestValiderer.validerAtFraværsdatoErFørsteFraværsdagISøknadsperiode(request.førsteFraværsdag(), fagsakerIK9Sak, ytelsetype);
-        arbeidsgiverinitiertDialogRestValiderer.validerAtSakIkkeVenterPåForTidligSøknad(fagsakerIK9Sak, ytelsetype);
+        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag(), FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE);
 
         // siden arbeidstager er uregistrert slår vi opp organisasjoner arbeidsgiver har tilgang til
         var organisasjonerArbeidsgiverHarTilgangTil = grunnlagTjeneste.hentOrganisasjonerSomArbeidsgiverHarTilgangTil();
@@ -141,10 +133,7 @@ public class ArbeidsgiverinitiertDialogRest {
         arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
 
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
-        List<FagsakInfo> fagsakerIK9Sak =  grunnlagTjeneste.hentFagsakerIK9(personInfo, ytelsetype);
-
-        arbeidsgiverinitiertDialogRestValiderer.validerAtFraværsdatoErFørsteFraværsdagISøknadsperiode(request.førsteFraværsdag(), fagsakerIK9Sak, ytelsetype);
-        arbeidsgiverinitiertDialogRestValiderer.validerAtSakIkkeVenterPåForTidligSøknad(fagsakerIK9Sak, ytelsetype);
+        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag(), FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE);
         arbeidsgiverinitiertDialogRestValiderer.validerAtOrgnummerIkkeFinnesIAaregPåPerson(personInfo, request.organisasjonsnummer(), request.førsteFraværsdag());
 
         HentOpplysningerResponse response = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer(), ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
