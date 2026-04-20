@@ -496,7 +496,7 @@ public class ForespørselBehandlingTjeneste {
         String varselTekst = ForespørselTekster.lagVarselFraSaksbehandlerTekst(forespørsel.getYtelseType(), organisasjon);
         String beskjedTekst = ForespørselTekster.lagBeskjedFraSaksbehandlerTekst(forespørsel.getYtelseType(), person.mapFulltNavn());
 
-        arbeidsgiverNotifikasjon.sendNyBeskjed(forespørselUuid.toString(),
+        minSideArbeidsgiverTjeneste.sendNyBeskjed(forespørselUuid.toString(),
             merkelapp,
             organisasjon.orgnr(),
             beskjedTekst,
