@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
@@ -15,11 +15,14 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.vedtak.exception.FunksjonellException;
 
-@Dependent
+@ApplicationScoped
 public class ArbeidsgiverinitiertDialogRestValiderer {
 
-    private final GrunnlagTjeneste grunnlagTjeneste;
+    private GrunnlagTjeneste grunnlagTjeneste;
 
+    protected ArbeidsgiverinitiertDialogRestValiderer() {
+        // CDI proxy
+    }
 
     @Inject
     public ArbeidsgiverinitiertDialogRestValiderer(GrunnlagTjeneste grunnlagTjeneste) {
