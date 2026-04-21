@@ -123,7 +123,7 @@ public class ArbeidsgiverinitiertDialogRest {
             personInfo.mellomnavn(),
             personInfo.etternavn(),
             personInfo.kjønn(),
-            personInfo.aktørId());
+            personInfo.aktørId().toString());
         return Response.ok(response).build();
     }
 

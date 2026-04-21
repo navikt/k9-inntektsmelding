@@ -9,7 +9,7 @@ public record HentArbeidstakerResponse(@NotNull String fornavn,
                                        String mellomnavn,
                                        @NotNull String etternavn,
                                        @NotNull Kjønn kjønn,
-                                       @NotNull AktørIdEntitet aktørId
+                                       @NotNull String aktørId
 ) {
 }
 
