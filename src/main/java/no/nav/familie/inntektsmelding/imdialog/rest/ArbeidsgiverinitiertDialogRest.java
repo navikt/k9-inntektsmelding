@@ -74,7 +74,7 @@ public class ArbeidsgiverinitiertDialogRest {
 
         Optional<HentArbeidsforholdResponse> response = grunnlagTjeneste.finnArbeidsforholdForFnr(personInfo, request.førsteFraværsdag());
         arbeidsgiverinitiertDialogRestValiderer.validerArbeidsforhold(response);
-        return response.map(r ->Response.ok(r).build()).orElseThrow(() -> new RuntimeException("Arbeidsforhold skal være valid"));
+        return response.map(r -> Response.ok(r).build()).orElseThrow(() -> new RuntimeException("Arbeidsforhold skal være valid"));
     }
 
     @POST
@@ -119,7 +119,11 @@ public class ArbeidsgiverinitiertDialogRest {
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
         arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
 
-        var response = new HentArbeidstakerResponse(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.kjønn());
+        var response = new HentArbeidstakerResponse(personInfo.fornavn(),
+            personInfo.mellomnavn(),
+            personInfo.etternavn(),
+            personInfo.kjønn(),
+            personInfo.aktørId().toString());
         return Response.ok(response).build();
     }
 
