@@ -19,7 +19,7 @@ import no.nav.vedtak.exception.TekniskException;
 @ApplicationScoped
 public class K9DokgenTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(K9DokgenTjeneste.class);
-    private DokgenKlient pdfgenKlient;
+    private K9PdfgenKlient pdfgenKlient;
     private PersonTjeneste personTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
 
@@ -28,8 +28,8 @@ public class K9DokgenTjeneste {
     }
 
     @Inject
-    public K9DokgenTjeneste(DokgenKlientSelector dokgenKlientSelector, PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
-        this.pdfgenKlient = dokgenKlientSelector.getDokgenKlient();
+    public K9DokgenTjeneste(K9PdfgenKlient pdfgenKlient, PersonTjeneste personTjeneste, OrganisasjonTjeneste organisasjonTjeneste) {
+        this.pdfgenKlient = pdfgenKlient;
         this.personTjeneste = personTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
     }
