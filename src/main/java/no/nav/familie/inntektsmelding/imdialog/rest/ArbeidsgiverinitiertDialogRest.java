@@ -56,7 +56,9 @@ public class ArbeidsgiverinitiertDialogRest {
     }
 
     @Inject
-    public ArbeidsgiverinitiertDialogRest(GrunnlagTjeneste grunnlagTjeneste, PersonTjeneste personTjeneste, ArbeidsgiverinitiertDialogRestValiderer arbeidsgiverinitiertDialogRestValiderer) {
+    public ArbeidsgiverinitiertDialogRest(GrunnlagTjeneste grunnlagTjeneste,
+                                          PersonTjeneste personTjeneste,
+                                          ArbeidsgiverinitiertDialogRestValiderer arbeidsgiverinitiertDialogRestValiderer) {
         this.grunnlagTjeneste = grunnlagTjeneste;
         this.personTjeneste = personTjeneste;
         this.arbeidsgiverinitiertDialogRestValiderer = arbeidsgiverinitiertDialogRestValiderer;
@@ -70,11 +72,14 @@ public class ArbeidsgiverinitiertDialogRest {
         LOG.info("Henter arbeidsforhold for søker");
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
         arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
-        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag(), FRAVÆRSDAG_INNENFOR_SØKNADSPERIODE);
+        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo,
+            request.ytelseType(),
+            request.førsteFraværsdag(),
+            FRAVÆRSDAG_INNENFOR_SØKNADSPERIODE);
 
         Optional<HentArbeidsforholdResponse> response = grunnlagTjeneste.finnArbeidsforholdForFnr(personInfo, request.førsteFraværsdag());
         arbeidsgiverinitiertDialogRestValiderer.validerArbeidsforhold(response);
-        return response.map(r ->Response.ok(r).build()).orElseThrow(() -> new RuntimeException("Arbeidsforhold skal være valid"));
+        return response.map(r -> Response.ok(r).build()).orElseThrow(() -> new RuntimeException("Arbeidsforhold skal være valid"));
     }
 
     @POST
@@ -84,7 +89,11 @@ public class ArbeidsgiverinitiertDialogRest {
     public Response hentOpplysningerNyansatt(@Valid @NotNull OpplysningerRequestDto request) {
         LOG.info("Henter opplysninger for søker");
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
-        HentOpplysningerResponse hentOpplysningerResponse = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer(), ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
+        HentOpplysningerResponse hentOpplysningerResponse = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(),
+            ytelsetype,
+            request.førsteFraværsdag(),
+            request.organisasjonsnummer(),
+            ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
         return Response.ok(hentOpplysningerResponse).build();
     }
 
@@ -101,7 +110,10 @@ public class ArbeidsgiverinitiertDialogRest {
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
 
         arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
-        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag(), FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE);
+        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo,
+            request.ytelseType(),
+            request.førsteFraværsdag(),
+            FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE);
 
         // siden arbeidstager er uregistrert slår vi opp organisasjoner arbeidsgiver har tilgang til
         var organisasjonerArbeidsgiverHarTilgangTil = grunnlagTjeneste.hentOrganisasjonerSomArbeidsgiverHarTilgangTil();
@@ -119,7 +131,11 @@ public class ArbeidsgiverinitiertDialogRest {
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
         arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
 
-        var response = new HentArbeidstakerResponse(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.kjønn());
+        var response = new HentArbeidstakerResponse(personInfo.fornavn(),
+            personInfo.mellomnavn(),
+            personInfo.etternavn(),
+            personInfo.kjønn(),
+            personInfo.aktørId().getAktørId());
         return Response.ok(response).build();
     }
 
@@ -132,11 +148,20 @@ public class ArbeidsgiverinitiertDialogRest {
         PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
 
         arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
-        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo, request.ytelseType(), request.førsteFraværsdag(), FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE);
-        arbeidsgiverinitiertDialogRestValiderer.validerAtOrgnummerIkkeFinnesIAaregPåPerson(personInfo, request.organisasjonsnummer(), request.førsteFraværsdag());
+        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo,
+            request.ytelseType(),
+            request.førsteFraværsdag(),
+            FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE);
+        arbeidsgiverinitiertDialogRestValiderer.validerAtOrgnummerIkkeFinnesIAaregPåPerson(personInfo,
+            request.organisasjonsnummer(),
+            request.førsteFraværsdag());
 
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
-        HentOpplysningerResponse response = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(), ytelsetype, request.førsteFraværsdag(), request.organisasjonsnummer(), ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
+        HentOpplysningerResponse response = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(),
+            ytelsetype,
+            request.førsteFraværsdag(),
+            request.organisasjonsnummer(),
+            ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
         return Response.ok(response).build();
     }
 
