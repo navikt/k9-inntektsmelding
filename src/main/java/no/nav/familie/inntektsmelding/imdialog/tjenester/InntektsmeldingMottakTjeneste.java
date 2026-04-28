@@ -174,8 +174,9 @@ public class InntektsmeldingMottakTjeneste {
             forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
                 aktørId,
                 organisasjonsnummer,
-                LukkeÅrsak.ORDINÆR_INNSENDING, inntektsmeldingEntitet.getOmsorgspenger()
-                    .getFraværsPerioder(), inntektsmeldingEntitet.getOmsorgspenger().getDelvisFraværsPerioder()
+                LukkeÅrsak.ORDINÆR_INNSENDING, 
+                inntektsmeldingEntitet.getOmsorgspenger().getFraværsPerioder(),
+                inntektsmeldingEntitet.getOmsorgspenger().getDelvisFraværsPerioder()
             );
         }
 
