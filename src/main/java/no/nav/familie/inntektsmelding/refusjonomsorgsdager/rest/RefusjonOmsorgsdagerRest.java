@@ -60,9 +60,6 @@ public class RefusjonOmsorgsdagerRest {
         SlåOppArbeidstakerRequest request
     ) {
         var response = refusjonOmsorgsdagerService.hentArbeidstaker(request.fødselsnummer());
-        if (response == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
 
         return Response.ok(response).build();
     }
@@ -93,9 +90,6 @@ public class RefusjonOmsorgsdagerRest {
     ) {
         var inntektsopplysninger = refusjonOmsorgsdagerService.hentInntektsopplysninger(request.fødselsnummer(), request.organisasjonsnummer(), LocalDate.parse(request.skjæringstidspunkt()));
 
-        if (inntektsopplysninger == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
         return Response.ok(inntektsopplysninger).build();
     }
 }

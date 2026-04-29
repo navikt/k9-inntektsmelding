@@ -3,7 +3,7 @@ package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 import java.net.URI;
 import java.time.OffsetDateTime;
 
-public interface ArbeidsgiverNotifikasjon {
+public interface MinSideArbeidsgiverTjeneste {
 
     String opprettSak(String grupperingsid, Merkelapp merkelapp, String virksomhetsnummer, String saksTittel, URI lenke);
 
@@ -26,11 +26,10 @@ public interface ArbeidsgiverNotifikasjon {
 
     String slettSak(String id);
 
-    String opprettNyBeskjedMedEksternVarsling(String grupperingsid,
-                                              Merkelapp merkelapp,
-                                              String eksternId,
-                                              String virksomhetsnummer,
-                                              String beskjedTekst,
-                                              String varselTekst,
-                                              URI lenke);
+    String sendNyBeskjed(String grupperingsid,
+                         Merkelapp merkelapp,
+                         String virksomhetsnummer,
+                         String beskjedTekst,
+                         String varselTekst,
+                         URI lenke);
 }

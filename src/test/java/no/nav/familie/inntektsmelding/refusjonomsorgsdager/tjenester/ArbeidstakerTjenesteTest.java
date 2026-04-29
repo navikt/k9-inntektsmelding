@@ -22,7 +22,7 @@ import no.nav.vedtak.konfig.Tid;
 @ExtendWith(MockitoExtension.class)
 class ArbeidstakerTjenesteTest {
 
-    private static final PersonIdent TILFELDIG_PERSON_IDENT = PersonIdent.fra("21073926618");
+    private static final PersonIdent TILFELDIG_PERSON_IDENT = PersonIdent.fra("23500180528");
 
     @Mock
     private ArbeidsforholdTjeneste arbeidsforholdTjenesteMock;

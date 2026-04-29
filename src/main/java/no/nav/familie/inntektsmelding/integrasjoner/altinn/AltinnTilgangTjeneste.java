@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn;
 
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -60,12 +61,11 @@ public class AltinnTilgangTjeneste {
     }
 
     public List<String> hentBedrifterArbeidsgiverHarTilgangTil() {
+        var organisasjoner = altinnKlient.hentTilganger().hierarki();
+        var underenheter = finnUnderenheter(organisasjoner);
 
-        // TODO: Må ryddes opp etter Altinn 3 ressurs overgang i prod.
-        var orgNrBrukerHarTilgangTilPerRessurs = altinnKlient.hentTilganger().tilgangTilOrgNr();
-
-        var orgNrMedGittTilgangIAltinn2 = hentOrgNrMedGittTilgang(orgNrBrukerHarTilgangTilPerRessurs, AltinnRessurser.ALTINN_TO_TJENESTE);
-        var orgNrMedGittTilgangIAltinn3 = hentOrgNrMedGittTilgang(orgNrBrukerHarTilgangTilPerRessurs, AltinnRessurser.ALTINN_TRE_RESSURS);
+        var orgNrMedGittTilgangIAltinn2 = hentOrgNrMedTilgangAltinn2(underenheter);
+        var orgNrMedGittTilgangIAltinn3 = hentOrgNrMedTilgangAltinn3(underenheter);
 
         var erLik = orgNrMedGittTilgangIAltinn2.equals(orgNrMedGittTilgangIAltinn3);
         if (!erLik) {
@@ -81,7 +81,41 @@ public class AltinnTilgangTjeneste {
         return orgNrMedGittTilgangIAltinn3.stream().toList();
     }
 
-    private static Set<String> hentOrgNrMedGittTilgang(Map<String, List<String>> orgNrBrukerHarTilgangTilPerRessurs, String ressurs) {
-        return new HashSet<>(orgNrBrukerHarTilgangTilPerRessurs.getOrDefault(ressurs, List.of()));
+    private static Set<String> hentOrgNrMedTilgangAltinn2(List<ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse.Organisasjon> underenheter) {
+        var resultat = new HashSet<String>();
+        for (var org : underenheter) {
+            var tilganger = org.altinn2Tilganger() != null ? org.altinn2Tilganger() : List.<String>of();
+            if (tilganger.contains(AltinnRessurser.ALTINN_TO_TJENESTE)) {
+                resultat.add(org.orgnr());
+            }
+        }
+        return resultat;
+    }
+
+    private static Set<String> hentOrgNrMedTilgangAltinn3(List<ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse.Organisasjon> underenheter) {
+        var resultat = new HashSet<String>();
+        for (var org : underenheter) {
+            var tilganger = org.altinn3Tilganger() != null ? org.altinn3Tilganger() : List.<String>of();
+            if (tilganger.contains(AltinnRessurser.ALTINN_TRE_RESSURS)) {
+                resultat.add(org.orgnr());
+            }
+        }
+        return resultat;
+    }
+
+    private static List<ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse.Organisasjon> finnUnderenheter(
+        List<ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse.Organisasjon> organisasjoner) {
+        var underenheter = new ArrayList<ArbeidsgiverAltinnTilgangerKlient.ArbeidsgiverAltinnTilgangerResponse.Organisasjon>();
+        if (organisasjoner == null) {
+            return underenheter;
+        }
+        for (var organisasjon : organisasjoner) {
+            if (organisasjon.underenheter() == null || organisasjon.underenheter().isEmpty()) {
+                underenheter.add(organisasjon);
+            } else {
+                underenheter.addAll(finnUnderenheter(organisasjon.underenheter()));
+            }
+        }
+        return underenheter;
     }
 }

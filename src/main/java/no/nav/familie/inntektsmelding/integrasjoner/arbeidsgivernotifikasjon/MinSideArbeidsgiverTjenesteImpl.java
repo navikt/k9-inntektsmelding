@@ -14,7 +14,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
-class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
+class MinSideArbeidsgiverTjenesteImpl implements MinSideArbeidsgiverTjeneste {
 
     static final String SERVICE_CODE = "4936";
     static final String SERVICE_EDITION_CODE = "1";
@@ -23,10 +23,10 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     static final Sendevindu VARSEL_SENDEVINDU = Sendevindu.LOEPENDE;
     static final int PÅMINNELSE_ETTER_DAGER = Environment.current().getProperty("paaminnelse.etter.dager", int.class, 14);
 
-    private ArbeidsgiverNotifikasjonKlient klient;
+    private MinSideArbeidsgiverKlient klient;
 
     @Inject
-    public ArbeidsgiverNotifikasjonTjeneste(ArbeidsgiverNotifikasjonKlient klient) {
+    public MinSideArbeidsgiverTjenesteImpl(MinSideArbeidsgiverKlient klient) {
         this.klient = klient;
     }
 
@@ -101,13 +101,12 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
     }
 
     @Override
-    public String opprettNyBeskjedMedEksternVarsling(String grupperingsid,
-                                                     Merkelapp beskjedMerkelapp,
-                                                     String eksternId,
-                                                     String virksomhetsnummer,
-                                                     String beskjedTekst,
-                                                     String varselTekst,
-                                                     URI oppgaveLenke) {
+    public String sendNyBeskjed(String grupperingsid,
+                                Merkelapp beskjedMerkelapp,
+                                String virksomhetsnummer,
+                                String beskjedTekst,
+                                String varselTekst,
+                                URI oppgaveLenke) {
         var beskjedInput = NyBeskjedInput.builder()
             .setNotifikasjon(NotifikasjonInput.builder()
                 .setMerkelapp(beskjedMerkelapp.getBeskrivelse())
@@ -120,7 +119,7 @@ class ArbeidsgiverNotifikasjonTjeneste implements ArbeidsgiverNotifikasjon {
                 .setEksternId(UUID.randomUUID().toString())
                 .setGrupperingsid(grupperingsid)
                 .build())
-            .setEksterneVarsler(List.of(lagEksternVarselAltinn(varselTekst, 0)))
+            .setEksterneVarsler(varselTekst != null ? List.of(lagEksternVarselAltinn(varselTekst, 0)) : List.of())
             .build();
         var beskjedRequest = new NyBeskjedMutationRequest();
         beskjedRequest.setNyBeskjed(beskjedInput);
