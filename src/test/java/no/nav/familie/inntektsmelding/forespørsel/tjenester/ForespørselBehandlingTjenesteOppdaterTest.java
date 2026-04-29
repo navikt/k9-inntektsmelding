@@ -54,7 +54,7 @@ class ForespørselBehandlingTjenesteOppdaterTest extends EntityManagerAwareTest 
     void setUp() {
         this.forespørselBehandlingTjeneste = new ForespørselBehandlingTjeneste(
             forespørselTjeneste,
-                minSideArbeidsgiverTjeneste,
+            minSideArbeidsgiverTjeneste,
             personTjeneste,
             prosessTaskTjeneste,
             organisasjonTjeneste

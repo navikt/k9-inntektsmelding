@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
     endpointProperty = "k9pdfgen.url",
     endpointDefault = "http://k9-pdfgen-psb",
     application = FpApplication.NONFP)
-public class K9PdfgenKlient implements DokgenKlient {
+public class K9PdfgenKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
 

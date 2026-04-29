@@ -22,25 +22,25 @@ class K9DokgenKlientTest {
 
     @Test
     void skal_generere_pdf() throws URISyntaxException {
-        K9DokgenKlient k9DokgenKlient = new K9DokgenKlient(restClient);
+        K9PdfgenKlient k9PdfgenKlient = new K9PdfgenKlient(restClient);
         when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
-        var bytes = k9DokgenKlient.genererPdfInntektsmelding(lagTestInntektsmeldingPdfRequest());
+        var bytes = k9PdfgenKlient.genererPdfInntektsmelding(lagTestInntektsmeldingPdfRequest());
         assertThat(bytes).isNotEmpty();
     }
 
     @Test
     void skal_generere_pdf_omsorgspenger_refusjon() throws URISyntaxException {
-        K9DokgenKlient k9DokgenKlient = new K9DokgenKlient(restClient);
+        K9PdfgenKlient k9PdfgenKlient = new K9PdfgenKlient(restClient);
         when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
-        var bytes = k9DokgenKlient.genererPdfOmsorgspengerRefusjon(lagTestOmsorgspengerRefusjonPdfRequest());
+        var bytes = k9PdfgenKlient.genererPdfOmsorgspengerRefusjon(lagTestOmsorgspengerRefusjonPdfRequest());
         assertThat(bytes).isNotEmpty();
     }
 
     @Test
     void skal_generere_pdf_omsorgspenger_inntektsmelding() throws URISyntaxException {
-        K9DokgenKlient k9DokgenKlient = new K9DokgenKlient(restClient);
+        K9PdfgenKlient k9PdfgenKlient = new K9PdfgenKlient(restClient);
         when(restClient.sendReturnByteArray(any())).thenReturn("pdf".getBytes());
-        var bytes = k9DokgenKlient.genererPdfOmsorgspengerInntektsmelding(lagTestOmsorgspengerInntektsmeldingPdfRequest());
+        var bytes = k9PdfgenKlient.genererPdfOmsorgspengerInntektsmelding(lagTestOmsorgspengerInntektsmeldingPdfRequest());
         assertThat(bytes).isNotEmpty();
     }
 
