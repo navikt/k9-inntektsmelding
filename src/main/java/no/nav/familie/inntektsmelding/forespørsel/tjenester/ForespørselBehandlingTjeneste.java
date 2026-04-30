@@ -25,8 +25,8 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørs
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
+import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
@@ -79,9 +79,9 @@ public class ForespørselBehandlingTjeneste {
     }
 
     public ForespørselEntitet ferdigstillForespørsel(UUID forespørselUuid,
-                                       AktørIdEntitet aktørId,
-                                       OrganisasjonsnummerDto organisasjonsnummer,
-                                       LukkeÅrsak lukkeÅrsak) {
+                                                     AktørIdEntitet aktørId,
+                                                     OrganisasjonsnummerDto organisasjonsnummer,
+                                                     LukkeÅrsak lukkeÅrsak) {
         return ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, lukkeÅrsak, List.of(), List.of());
     }
 
@@ -322,9 +322,7 @@ public class ForespørselBehandlingTjeneste {
             saksnummer.saksnr(),
             ytelsetype);
 
-        var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr());
-
-        var uuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt,
+        var forespørselUuid = forespørselTjeneste.opprettForespørsel(skjæringstidspunkt,
             ytelsetype,
             aktørId,
             organisasjonsnummer,
@@ -332,27 +330,39 @@ public class ForespørselBehandlingTjeneste {
             førsteUttaksdato,
             etterspurtePerioder,
             forespørselType);
+
+        opprettForespørselMinSideArbeidsgiver(ytelsetype, aktørId, organisasjonsnummer, skjæringstidspunkt, etterspurtePerioder, forespørselUuid);
+    }
+
+    private void opprettForespørselMinSideArbeidsgiver(Ytelsetype ytelsetype,
+                                                       AktørIdEntitet aktørId,
+                                                       OrganisasjonsnummerDto organisasjonsnummer,
+                                                       LocalDate skjæringstidspunkt,
+                                                       List<PeriodeDto> etterspurtePerioder,
+                                                       UUID forespørselUuid) {
+        var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr());
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
-        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + uuid);
-        var arbeidsgiverNotifikasjonSakId = minSideArbeidsgiverTjeneste.opprettSak(uuid.toString(),
+        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
+        var arbeidsgiverNotifikasjonSakId = minSideArbeidsgiverTjeneste.opprettSak(forespørselUuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
             ForespørselTekster.lagSaksTittelInntektsmelding(person.mapFulltNavn(), person.fødselsdato()),
             skjemaUri);
 
         String tilleggsinformasjon = (ytelsetype == Ytelsetype.OMSORGSPENGER)
-                                     ? ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(etterspurtePerioder) : ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.ORDINÆR_INNSENDING, skjæringstidspunkt);
+                                     ? ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(etterspurtePerioder)
+                                     : ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.ORDINÆR_INNSENDING, skjæringstidspunkt);
 
         minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(arbeidsgiverNotifikasjonSakId, tilleggsinformasjon);
 
-        forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(uuid, arbeidsgiverNotifikasjonSakId);
+        forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(forespørselUuid, arbeidsgiverNotifikasjonSakId);
 
         String oppgaveId;
         try {
-            oppgaveId = minSideArbeidsgiverTjeneste.opprettOppgave(uuid.toString(),
+            oppgaveId = minSideArbeidsgiverTjeneste.opprettOppgave(forespørselUuid.toString(),
                 merkelapp,
-                uuid.toString(),
+                forespørselUuid.toString(),
                 organisasjonsnummer.orgnr(),
                 ForespørselTekster.lagOppgaveTekst(ytelsetype),
                 ForespørselTekster.lagVarselTekst(ytelsetype, organisasjon),
@@ -364,7 +374,7 @@ public class ForespørselBehandlingTjeneste {
             throw e;
         }
 
-        forespørselTjeneste.setOppgaveId(uuid, oppgaveId);
+        forespørselTjeneste.setOppgaveId(forespørselUuid, oppgaveId);
     }
 
     public UUID opprettForespørselForArbeidsgiverInitiertInntektsmelding(AktørIdEntitet aktørId,
@@ -498,7 +508,9 @@ public class ForespørselBehandlingTjeneste {
         prosessTaskTjeneste.lagre(taskGruppe);
     }
 
-    public NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto saksnummer, OrganisasjonsnummerDto organisasjonsnummer, LocalDate skjæringstidspunkt) {
+    public NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto saksnummer,
+                                                                OrganisasjonsnummerDto organisasjonsnummer,
+                                                                LocalDate skjæringstidspunkt) {
         final ForespørselEntitet forespørsel = hentForespørslerForFagsak(saksnummer, organisasjonsnummer, skjæringstidspunkt).stream()
             .filter(f -> f.getStatus() == ForespørselStatus.UNDER_BEHANDLING)
             .findFirst().orElse(null);
