@@ -225,6 +225,18 @@ public class ForespørselRest {
         return Response.ok(new SendNyBeskjedResponse(resultat)).build();
     }
 
+    @POST
+    @Path("/ny-beskjed/sak")
+    @Tilgangskontrollert
+    public Response sendNyBeskjedOgVarselForSak(@Valid @NotNull SaksnummerDto request) {
+        LOG.info("Ny beskjed på aktive forespørsler for saksnummer {}", request.saksnr());
+
+        tilgang.sjekkAtSaksbehandlerHarTilgangTilSak(request.saksnr(), BeskyttetRessursActionAttributt.CREATE);
+
+        forespørselBehandlingTjeneste.opprettNyeBeskjederMedEksternVarsling(request);
+        return Response.ok().build();
+    }
+
     private List<ForespørselEntitet> filtrerDuplikateForespørsler(List<ForespørselEntitet> forespørsler) {
         List<ForespørselEntitet> resultat = new ArrayList<>();
         for (ForespørselEntitet forespørsel : forespørsler) {

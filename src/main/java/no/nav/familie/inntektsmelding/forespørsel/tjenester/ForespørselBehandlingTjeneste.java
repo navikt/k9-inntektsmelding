@@ -479,6 +479,13 @@ public class ForespørselBehandlingTjeneste {
             .max(Comparator.comparing(f -> f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt())));
     }
 
+    public void opprettNyeBeskjederMedEksternVarsling(SaksnummerDto saksnummer) {
+        var åpneForespørsler = forespørselTjeneste.finnÅpneForespørslerForFagsak(saksnummer);
+        for (var forespørsel : åpneForespørsler) {
+            opprettNyBeskjedMedEksternVarsling(forespørsel);
+        }
+    }
+
     public NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto saksnummer, OrganisasjonsnummerDto organisasjonsnummer, LocalDate skjæringstidspunkt) {
         final ForespørselEntitet forespørsel = hentForespørslerForFagsak(saksnummer, organisasjonsnummer, skjæringstidspunkt).stream()
             .filter(f -> f.getStatus() == ForespørselStatus.UNDER_BEHANDLING)
@@ -488,6 +495,11 @@ public class ForespørselBehandlingTjeneste {
             return NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE;
         }
 
+        opprettNyBeskjedMedEksternVarsling(forespørsel);
+        return NyBeskjedResultat.NY_BESKJED_SENDT;
+    }
+
+    private void opprettNyBeskjedMedEksternVarsling(ForespørselEntitet forespørsel) {
         Merkelapp merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
         UUID forespørselUuid = forespørsel.getUuid();
         URI skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
@@ -502,8 +514,6 @@ public class ForespørselBehandlingTjeneste {
             beskjedTekst,
             varselTekst,
             skjemaUri);
-
-        return NyBeskjedResultat.NY_BESKJED_SENDT;
     }
 
     private void validerOrganisasjon(ForespørselEntitet forespørsel, OrganisasjonsnummerDto orgnummer) {
