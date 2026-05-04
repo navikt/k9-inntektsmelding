@@ -233,7 +233,7 @@ public class ForespørselRest {
     public Response sendNyBeskjedOgVarselForSak(@Valid @NotNull SaksnummerDto request) {
         LOG.info("Ny beskjed på aktive forespørsler for saksnummer {}", request.saksnr());
 
-        tilgang.sjekkAtSaksbehandlerHarTilgangTilSak(request.saksnr(), BeskyttetRessursActionAttributt.CREATE);
+        tilgang.sjekkErSystembruker();
 
         forespørselBehandlingTjeneste.opprettNyeBeskjederMedEksternVarsling(request);
         return Response.ok().build();
