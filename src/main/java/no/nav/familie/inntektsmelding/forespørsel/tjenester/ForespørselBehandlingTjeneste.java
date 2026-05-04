@@ -129,13 +129,13 @@ public class ForespørselBehandlingTjeneste {
                                      List<OppdaterForespørselDto> forespørsler,
                                      SaksnummerDto saksnummer) {
         final var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForFagsak(saksnummer);
-        final var taskGruppe = new ProsessTaskGruppe();
+        final List<ProsessTaskData> tasker = new ArrayList<>();
 
         // Forespørsler som skal opprettes
         var skalOpprettes = utledNyeForespørsler(forespørsler, eksisterendeForespørsler);
         for (OppdaterForespørselDto forespørselDto : skalOpprettes) {
             var opprettForespørselTask = OpprettForespørselTask.lagOpprettForespørselTaskData(ytelsetype, aktørId, saksnummer, forespørselDto);
-            taskGruppe.addNesteParallell(opprettForespørselTask);
+            tasker.add(opprettForespørselTask);
         }
 
         // Forespørsler som skal oppdateres
@@ -143,7 +143,7 @@ public class ForespørselBehandlingTjeneste {
             var skalOppdateres = utledForespørslerSomSkalOppdateres(forespørsler, eksisterendeForespørsler);
             for (ForespørselOppdatering forespørsel : skalOppdateres) {
                 var oppdaterForespørselTask = OppdaterForespørselTask.lagOppdaterTaskData(forespørsel.forespørselUuid(), ytelsetype, forespørsel.oppdaterDto().etterspurtePerioder());
-                taskGruppe.addNesteParallell(oppdaterForespørselTask);
+                tasker.add(oppdaterForespørselTask);
             }
         }
 
@@ -151,17 +151,20 @@ public class ForespørselBehandlingTjeneste {
         var skalSettesUtgått = utledForespørslerSomSkalSettesUtgått(forespørsler, eksisterendeForespørsler);
         for (ForespørselEntitet forespørsel : skalSettesUtgått) {
             var settForespørselTilUtgåttTask = SettForespørselTilUtgåttTask.lagSettTilUtgåttTask(forespørsel.getUuid(), saksnummer);
-            taskGruppe.addNesteParallell(settForespørselTilUtgåttTask);
+            tasker.add(settForespørselTilUtgåttTask);
         }
 
         // Forespørsler som skal gjenåpnes
         var skalGjenåpnes = utledForespørslerSomSkalGjenåpnes(forespørsler, eksisterendeForespørsler);
         for (ForespørselEntitet forespørsel : skalGjenåpnes) {
             var gjenåpneForespørselTask = GjenåpneForespørselTask.lagGjenåpneForespørselTask(forespørsel.getUuid(), saksnummer);
-            taskGruppe.addNesteParallell(gjenåpneForespørselTask);
+            tasker.add(gjenåpneForespørselTask);
         }
 
-        if (!taskGruppe.getTasks().isEmpty()) {
+        if (!tasker.isEmpty()) {
+            var taskGruppe = new ProsessTaskGruppe();
+            taskGruppe.addNesteParallell(tasker);
+            taskGruppe.setSaksnummer(saksnummer.saksnr());
             prosessTaskTjeneste.lagre(taskGruppe);
         } else {
             LOG.info("Ingen oppdatering er nødvendig for saksnummer: {}", saksnummer);
