@@ -20,6 +20,7 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OppdaterForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SendNyBeskjedOgVarselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
@@ -43,6 +44,7 @@ import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -127,13 +129,13 @@ public class ForespørselBehandlingTjeneste {
                                      List<OppdaterForespørselDto> forespørsler,
                                      SaksnummerDto saksnummer) {
         final var eksisterendeForespørsler = forespørselTjeneste.finnForespørslerForFagsak(saksnummer);
-        final var taskGruppe = new ProsessTaskGruppe();
+        final List<ProsessTaskData> tasker = new ArrayList<>();
 
         // Forespørsler som skal opprettes
         var skalOpprettes = utledNyeForespørsler(forespørsler, eksisterendeForespørsler);
         for (OppdaterForespørselDto forespørselDto : skalOpprettes) {
             var opprettForespørselTask = OpprettForespørselTask.lagOpprettForespørselTaskData(ytelsetype, aktørId, saksnummer, forespørselDto);
-            taskGruppe.addNesteParallell(opprettForespørselTask);
+            tasker.add(opprettForespørselTask);
         }
 
         // Forespørsler som skal oppdateres
@@ -141,7 +143,7 @@ public class ForespørselBehandlingTjeneste {
             var skalOppdateres = utledForespørslerSomSkalOppdateres(forespørsler, eksisterendeForespørsler);
             for (ForespørselOppdatering forespørsel : skalOppdateres) {
                 var oppdaterForespørselTask = OppdaterForespørselTask.lagOppdaterTaskData(forespørsel.forespørselUuid(), ytelsetype, forespørsel.oppdaterDto().etterspurtePerioder());
-                taskGruppe.addNesteParallell(oppdaterForespørselTask);
+                tasker.add(oppdaterForespørselTask);
             }
         }
 
@@ -149,17 +151,20 @@ public class ForespørselBehandlingTjeneste {
         var skalSettesUtgått = utledForespørslerSomSkalSettesUtgått(forespørsler, eksisterendeForespørsler);
         for (ForespørselEntitet forespørsel : skalSettesUtgått) {
             var settForespørselTilUtgåttTask = SettForespørselTilUtgåttTask.lagSettTilUtgåttTask(forespørsel.getUuid(), saksnummer);
-            taskGruppe.addNesteParallell(settForespørselTilUtgåttTask);
+            tasker.add(settForespørselTilUtgåttTask);
         }
 
         // Forespørsler som skal gjenåpnes
         var skalGjenåpnes = utledForespørslerSomSkalGjenåpnes(forespørsler, eksisterendeForespørsler);
         for (ForespørselEntitet forespørsel : skalGjenåpnes) {
             var gjenåpneForespørselTask = GjenåpneForespørselTask.lagGjenåpneForespørselTask(forespørsel.getUuid(), saksnummer);
-            taskGruppe.addNesteParallell(gjenåpneForespørselTask);
+            tasker.add(gjenåpneForespørselTask);
         }
 
-        if (!taskGruppe.getTasks().isEmpty()) {
+        if (!tasker.isEmpty()) {
+            var taskGruppe = new ProsessTaskGruppe();
+            taskGruppe.addNesteParallell(tasker);
+            taskGruppe.setSaksnummer(saksnummer.saksnr());
             prosessTaskTjeneste.lagre(taskGruppe);
         } else {
             LOG.info("Ingen oppdatering er nødvendig for saksnummer: {}", saksnummer);
@@ -479,6 +484,20 @@ public class ForespørselBehandlingTjeneste {
             .max(Comparator.comparing(f -> f.getFørsteUttaksdato().orElse(f.getSkjæringstidspunkt())));
     }
 
+    public void opprettNyeBeskjederMedEksternVarsling(SaksnummerDto saksnummer) {
+        List<ForespørselEntitet> åpneForespørsler = forespørselTjeneste.finnÅpneForespørslerForFagsak(saksnummer);
+        List<ProsessTaskData> tasker = new ArrayList<>();
+        for (var forespørsel : åpneForespørsler) {
+            var task = ProsessTaskData.forProsessTask(SendNyBeskjedOgVarselTask.class);
+            task.setProperty(SendNyBeskjedOgVarselTask.FORESPØRSEL_UUID, forespørsel.getUuid().toString());
+            tasker.add(task);
+        }
+        var taskGruppe = new ProsessTaskGruppe();
+        taskGruppe.addNesteParallell(tasker);
+        taskGruppe.setSaksnummer(saksnummer.saksnr());
+        prosessTaskTjeneste.lagre(taskGruppe);
+    }
+
     public NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto saksnummer, OrganisasjonsnummerDto organisasjonsnummer, LocalDate skjæringstidspunkt) {
         final ForespørselEntitet forespørsel = hentForespørslerForFagsak(saksnummer, organisasjonsnummer, skjæringstidspunkt).stream()
             .filter(f -> f.getStatus() == ForespørselStatus.UNDER_BEHANDLING)
@@ -488,6 +507,11 @@ public class ForespørselBehandlingTjeneste {
             return NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE;
         }
 
+        opprettNyBeskjedMedEksternVarsling(forespørsel);
+        return NyBeskjedResultat.NY_BESKJED_SENDT;
+    }
+
+    public void opprettNyBeskjedMedEksternVarsling(ForespørselEntitet forespørsel) {
         Merkelapp merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
         UUID forespørselUuid = forespørsel.getUuid();
         URI skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
@@ -502,8 +526,6 @@ public class ForespørselBehandlingTjeneste {
             beskjedTekst,
             varselTekst,
             skjemaUri);
-
-        return NyBeskjedResultat.NY_BESKJED_SENDT;
     }
 
     private void validerOrganisasjon(ForespørselEntitet forespørsel, OrganisasjonsnummerDto orgnummer) {

@@ -57,6 +57,8 @@ public class ForespørselRest {
     public static final String LUKK_PATH = "/lukk";
     public static final String SETT_TIL_UTGÅTT_PATH = "/sett-til-utgatt";
     public static final String HENT_FORESPØRSLER_FOR_SAK_PATH = "/sak";
+    public static final String NY_BESKJED_PATH = "/ny-beskjed";
+    public static final String NY_BESKJED_SAK_PATH = "/ny-beskjed/sak";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private Tilgang tilgang;
@@ -214,7 +216,7 @@ public class ForespørselRest {
     }
 
     @POST
-    @Path("/ny-beskjed")
+    @Path(NY_BESKJED_PATH)
     @Tilgangskontrollert
     public Response sendNyBeskjedOgVarsel(@Valid @NotNull NyBeskjedRequest request) {
         LOG.info("Ny beskjed på aktiv forespørsel for saksnummer {} med orgnummer {}", request.saksnummer(), request.orgnr());
@@ -223,6 +225,18 @@ public class ForespørselRest {
 
         var resultat = forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(request.saksnummer(), request.orgnr(), request.skjæringstidspunkt());
         return Response.ok(new SendNyBeskjedResponse(resultat)).build();
+    }
+
+    @POST
+    @Path(NY_BESKJED_SAK_PATH)
+    @Tilgangskontrollert
+    public Response sendNyBeskjedOgVarselForSak(@Valid @NotNull SaksnummerDto request) {
+        LOG.info("Ny beskjed på aktive forespørsler for saksnummer {}", request.saksnr());
+
+        tilgang.sjekkAtSaksbehandlerHarTilgangTilSak(request.saksnr(), BeskyttetRessursActionAttributt.CREATE);
+
+        forespørselBehandlingTjeneste.opprettNyeBeskjederMedEksternVarsling(request);
+        return Response.ok().build();
     }
 
     private List<ForespørselEntitet> filtrerDuplikateForespørsler(List<ForespørselEntitet> forespørsler) {
