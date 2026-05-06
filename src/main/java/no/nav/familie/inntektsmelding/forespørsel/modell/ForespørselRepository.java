@@ -68,6 +68,19 @@ public class ForespørselRepository {
         }
     }
 
+    public void oppdaterDialogportenUuid(UUID forespørselUuid, UUID dialogportenUuid) {
+        var forespørselOpt = hentForespørsel(forespørselUuid);
+        if (forespørselOpt.isPresent()) {
+            LOG.info("Oppdaterer forespørsel {} med dialogportenUuid {}", forespørselUuid, dialogportenUuid);
+            var forespørsel = forespørselOpt.get();
+            forespørsel.setDialogportenUuid(dialogportenUuid);
+            entityManager.merge(forespørsel);
+            entityManager.flush();
+        } else {
+            LOG.info("Finner ikke forespørsel med id {}", forespørselUuid);
+        }
+    }
+
     public Optional<ForespørselEntitet> hentForespørsel(UUID uuid) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where uuid = :foresporselUUID", ForespørselEntitet.class)
             .setParameter("foresporselUUID", uuid);

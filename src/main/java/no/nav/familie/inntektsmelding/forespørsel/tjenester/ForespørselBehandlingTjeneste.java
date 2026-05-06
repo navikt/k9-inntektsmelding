@@ -25,6 +25,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørs
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
@@ -35,6 +36,7 @@ import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
+import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselOppdatering;
 import no.nav.familie.inntektsmelding.typer.dto.NyBeskjedResultat;
@@ -45,6 +47,7 @@ import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.k9.sak.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -55,10 +58,12 @@ public class ForespørselBehandlingTjeneste {
 
     private ForespørselTjeneste forespørselTjeneste;
     private MinSideArbeidsgiverTjeneste minSideArbeidsgiverTjeneste;
+    private DialogportenKlient dialogportenKlient;
     private PersonTjeneste personTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private String inntektsmeldingSkjemaLenke;
+    private boolean dialogportenEnabled;
 
     ForespørselBehandlingTjeneste() {
         // CDI
@@ -67,22 +72,26 @@ public class ForespørselBehandlingTjeneste {
     @Inject
     public ForespørselBehandlingTjeneste(ForespørselTjeneste forespørselTjeneste,
                                          MinSideArbeidsgiverTjeneste minSideArbeidsgiverTjeneste,
+                                         DialogportenKlient dialogportenKlient,
                                          PersonTjeneste personTjeneste,
                                          ProsessTaskTjeneste prosessTaskTjeneste,
                                          OrganisasjonTjeneste organisasjonTjeneste) {
         this.forespørselTjeneste = forespørselTjeneste;
         this.minSideArbeidsgiverTjeneste = minSideArbeidsgiverTjeneste;
+        this.dialogportenKlient = dialogportenKlient;
         this.personTjeneste = personTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
+        this.dialogportenEnabled = ENV.getProperty("dialogporten.enabled", Boolean.class, false);
     }
 
     public ForespørselEntitet ferdigstillForespørsel(UUID forespørselUuid,
                                                      AktørIdEntitet aktørId,
                                                      OrganisasjonsnummerDto organisasjonsnummer,
-                                                     LukkeÅrsak lukkeÅrsak) {
-        return ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, lukkeÅrsak, List.of(), List.of());
+                                                     LukkeÅrsak lukkeÅrsak,
+                                                     Optional<UUID> inntektsmeldingUuid) {
+        return ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, lukkeÅrsak, List.of(), List.of(), inntektsmeldingUuid);
     }
 
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
@@ -90,30 +99,50 @@ public class ForespørselBehandlingTjeneste {
                                                      OrganisasjonsnummerDto organisasjonsnummerDto,
                                                      LukkeÅrsak årsak,
                                                      List<FraværsPeriodeEntitet> fraværsPerioder,
-                                                     List<DelvisFraværsPeriodeEntitet> delvisFraværDag) {
-        var foresporsel = forespørselTjeneste.hentForespørsel(foresporselUuid)
+                                                     List<DelvisFraværsPeriodeEntitet> delvisFraværDag,
+                                                     // inntektsmeldingUuid er optional fordi vi ikke har inntektsmeldingen lagret hvis den er innsendt via Altinn / LPS'er
+                                                     Optional<UUID> inntektsmeldingUuid) {
+        var forespørsel = forespørselTjeneste.hentForespørsel(foresporselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
 
-        validerAktør(foresporsel, aktorId);
-        validerOrganisasjon(foresporsel, organisasjonsnummerDto);
+        validerAktør(forespørsel, aktorId);
+        validerOrganisasjon(forespørsel, organisasjonsnummerDto);
 
         // Arbeidsgiverinitierte forespørsler har ingen oppgave
-        foresporsel.getOppgaveId().ifPresent(oppgaveId -> minSideArbeidsgiverTjeneste.oppgaveUtført(oppgaveId, OffsetDateTime.now()));
+        forespørsel.getOppgaveId().ifPresent(oppgaveId -> minSideArbeidsgiverTjeneste.oppgaveUtført(oppgaveId, OffsetDateTime.now()));
 
-        var erArbeidsgiverinitiert = foresporsel.getOppgaveId().isEmpty();
-        minSideArbeidsgiverTjeneste.ferdigstillSak(foresporsel.getArbeidsgiverNotifikasjonSakId(), erArbeidsgiverinitiert); // Oppdaterer status i arbeidsgiver-notifikasjon
+        var erArbeidsgiverinitiert = forespørsel.getOppgaveId().isEmpty();
+        minSideArbeidsgiverTjeneste.ferdigstillSak(forespørsel.getArbeidsgiverNotifikasjonSakId(), erArbeidsgiverinitiert); // Oppdaterer status i arbeidsgiver-notifikasjon
 
-        var erOmsorgspenger = foresporsel.getYtelseType().equals(Ytelsetype.OMSORGSPENGER);
+        var erOmsorgspenger = forespørsel.getYtelseType().equals(Ytelsetype.OMSORGSPENGER);
         String tilleggsinformasjon;
         if (erOmsorgspenger) {
             tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, delvisFraværDag);
         } else {
-            tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjon(årsak, foresporsel.getSkjæringstidspunkt());
+            tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjon(årsak, forespørsel.getSkjæringstidspunkt());
         }
 
-        minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(foresporsel.getArbeidsgiverNotifikasjonSakId(), tilleggsinformasjon);
-        forespørselTjeneste.ferdigstillForespørsel(foresporsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
-        return foresporsel;
+        minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(forespørsel.getArbeidsgiverNotifikasjonSakId(), tilleggsinformasjon);
+        forespørselTjeneste.ferdigstillForespørsel(forespørsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
+
+        // Oppdaterer status i altinn dialogporten
+        if (forespørsel.getDialogportenUuid().isPresent()) {
+            if (dialogportenEnabled) {
+                try {
+                    dialogportenKlient.ferdigstillDialog(forespørsel.getDialogportenUuid().get(),
+                        new ArbeidsgiverDto(organisasjonsnummerDto.orgnr()),
+                        lagSaksTittelForDialogporten(new AktørId(aktorId.getAktørId())),
+                        forespørsel.getYtelseType(),
+                        forespørsel.getSkjæringstidspunkt(),
+                        inntektsmeldingUuid,
+                        årsak);
+                } catch (Exception e) {
+                    // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
+                    LOG.warn("Feil ved kall til dialogporten: ", e);
+                }
+            }
+        }
+        return forespørsel;
     }
 
     public Optional<ForespørselEntitet> hentForespørsel(UUID forespørselUUID) {
@@ -332,6 +361,15 @@ public class ForespørselBehandlingTjeneste {
             forespørselType);
 
         opprettForespørselMinSideArbeidsgiver(ytelsetype, aktørId, organisasjonsnummer, skjæringstidspunkt, etterspurtePerioder, forespørselUuid);
+
+        if (dialogportenEnabled) {
+            try {
+                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), new AktørId(aktørId.getAktørId()), ytelsetype, skjæringstidspunkt);
+            } catch (Exception e) {
+                // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
+                LOG.warn("Feil ved kall til dialogporten: ", e);
+            }
+        }
     }
 
     private void opprettForespørselMinSideArbeidsgiver(Ytelsetype ytelsetype,
@@ -377,6 +415,24 @@ public class ForespørselBehandlingTjeneste {
         forespørselTjeneste.setOppgaveId(forespørselUuid, oppgaveId);
     }
 
+    private void opprettForespørselDialogporten(UUID forespørselUuid,
+                                                ArbeidsgiverDto arbeidsgiver,
+                                                AktørId aktørId,
+                                                Ytelsetype ytelsetype,
+                                                LocalDate førsteUttaksdato) {
+        var saksTittelDialog = lagSaksTittelForDialogporten(aktørId);
+        var dialogPortenUuid = dialogportenKlient.opprettDialog(forespørselUuid, arbeidsgiver, saksTittelDialog, førsteUttaksdato, ytelsetype);
+
+        var vasketDialogUuid = dialogPortenUuid.replace("\"", "");
+        LOG.info("Mottok UUID {} fra dialogporten", vasketDialogUuid);
+        forespørselTjeneste.setDialogportenUuid(forespørselUuid, UUID.fromString(vasketDialogUuid));
+    }
+
+    private String lagSaksTittelForDialogporten(AktørId aktørId) {
+        var person = personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørId.getAktørId()));
+        return ForespørselTekster.lagSaksTittelInntektsmelding(person.mapFulltNavn(), person.fødselsdato());
+    }
+
     public UUID opprettForespørselForArbeidsgiverInitiertInntektsmelding(AktørIdEntitet aktørId,
                                                                          OrganisasjonsnummerDto organisasjonsnummer,
                                                                          LocalDate skjæringstidspunkt,
@@ -397,6 +453,15 @@ public class ForespørselBehandlingTjeneste {
         // oppdater forespørsel med sakId fra min side arbeidsgiver
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(forespørselUuid, arbeidsgiverNotifikasjonSakId);
 
+        if (dialogportenEnabled) {
+            try {
+                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), new AktørId(aktørId.getAktørId()), ytelsetype, skjæringstidspunkt);
+            } catch (Exception e) {
+                // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
+                LOG.warn("Feil ved kall til dialogporten: ", e);
+            }
+        }
+
         return forespørselUuid;
     }
 
@@ -415,6 +480,15 @@ public class ForespørselBehandlingTjeneste {
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(forespørselUuid, arbeidsgiverNotifikasjonSakId);
 
+        if (dialogportenEnabled) {
+            try {
+                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), new AktørId(aktørId.getAktørId()), Ytelsetype.OMSORGSPENGER, skjæringstidspunkt);
+            } catch (Exception e) {
+                // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
+                LOG.warn("Feil ved kall til dialogporten: ", e);
+            }
+        }
+
         return forespørselUuid;
     }
 
@@ -427,7 +501,10 @@ public class ForespørselBehandlingTjeneste {
             var lukketForespørsel = ferdigstillForespørsel(f.getUuid(),
                 f.getAktørId(),
                 new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()),
-                LukkeÅrsak.EKSTERN_INNSENDING, List.of(), List.of());
+                LukkeÅrsak.EKSTERN_INNSENDING,
+                List.of(),
+                List.of(),
+                Optional.empty());
             MetrikkerTjeneste.loggForespørselLukkEkstern(lukketForespørsel);
         });
     }

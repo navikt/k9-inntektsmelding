@@ -32,6 +32,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OppdaterForesp
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -75,6 +76,8 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
     private ProsessTaskTjeneste prosessTaskTjeneste;
     @Mock
     private OrganisasjonTjeneste organisasjonTjeneste;
+    @Mock
+    private DialogportenKlient dialogportenKlient;
 
     private ForespørselRepository forespørselRepository;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
@@ -84,6 +87,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         this.forespørselRepository = new ForespørselRepository(getEntityManager());
         this.forespørselBehandlingTjeneste = new ForespørselBehandlingTjeneste(new ForespørselTjeneste(forespørselRepository),
             minSideArbeidsgiverTjeneste,
+            dialogportenKlient,
             personTjeneste,
             prosessTaskTjeneste,
             organisasjonTjeneste);
@@ -124,7 +128,8 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
             LukkeÅrsak.EKSTERN_INNSENDING,
             List.of(),
-            List.of());
+            List.of(),
+            Optional.empty());
 
         clearHibernateCache();
 
@@ -144,7 +149,8 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
             LukkeÅrsak.EKSTERN_INNSENDING,
             List.of(),
-            List.of());
+            List.of(),
+            Optional.empty());
 
         clearHibernateCache();
 

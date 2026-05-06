@@ -55,6 +55,10 @@ public class ForespørselTjeneste {
         forespørselRepository.oppdaterOppgaveId(forespørselUUID, oppgaveId);
     }
 
+    public void setDialogportenUuid(UUID forespørselUuid, UUID dialogportenUuid) {
+        forespørselRepository.oppdaterDialogportenUuid(forespørselUuid, dialogportenUuid);
+
+    }
 
     public void setArbeidsgiverNotifikasjonSakId(UUID forespørselUUID, String arbeidsgiverNotifikasjonSakId) {
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUUID, arbeidsgiverNotifikasjonSakId);
