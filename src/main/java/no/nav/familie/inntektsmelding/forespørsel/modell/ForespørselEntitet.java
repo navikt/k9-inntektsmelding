@@ -123,7 +123,11 @@ public class ForespørselEntitet {
     }
 
     void setDialogportenUuid(UUID dialogportenUuid) {
-        this.dialogportenUuid = dialogportenUuid;
+        if (this.dialogportenUuid == null) {
+            this.dialogportenUuid = dialogportenUuid;
+        } else {
+            throw new IllegalArgumentException("Dialogporten UUID kan ikke endres");
+        }
     }
 
     public ForespørselStatus getStatus() {
