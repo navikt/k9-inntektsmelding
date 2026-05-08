@@ -420,10 +420,10 @@ public class ForespørselBehandlingTjeneste {
                                                 AktørId aktørId,
                                                 Ytelsetype ytelsetype,
                                                 LocalDate førsteUttaksdato) {
-        var saksTittelDialog = lagSaksTittelForDialogporten(aktørId);
-        var dialogPortenUuid = dialogportenKlient.opprettDialog(forespørselUuid, arbeidsgiver, saksTittelDialog, førsteUttaksdato, ytelsetype);
+        String saksTittelDialog = lagSaksTittelForDialogporten(aktørId);
+        String dialogPortenUuid = dialogportenKlient.opprettDialog(forespørselUuid, arbeidsgiver, saksTittelDialog, førsteUttaksdato, ytelsetype);
 
-        var vasketDialogUuid = dialogPortenUuid.replace("\"", "");
+        String vasketDialogUuid = dialogPortenUuid.replace("\"", "");
         LOG.info("Mottok UUID {} fra dialogporten", vasketDialogUuid);
         forespørselTjeneste.setDialogportenUuid(forespørselUuid, UUID.fromString(vasketDialogUuid));
     }
