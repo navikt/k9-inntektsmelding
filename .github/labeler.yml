@@ -1,3 +1,8 @@
 flyway:
   - changed-files:
       - any-glob-to-any-file: 'src/main/resources/db/postgres/**'
+pom:
+- any:
+  - changed-files:
+    - any-glob-to-any-file: "**/*/pom.xml"
+    - any-glob-to-any-file: "pom.xml"
