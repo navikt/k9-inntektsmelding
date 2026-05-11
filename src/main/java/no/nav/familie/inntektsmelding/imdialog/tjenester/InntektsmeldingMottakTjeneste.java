@@ -73,7 +73,7 @@ public class InntektsmeldingMottakTjeneste {
                                                                                ? inntektsmeldingEntitet.getOmsorgspenger().getDelvisFraværsPerioder()
                                                                                : List.of();
 
-            var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(
+        var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(
             sendInntektsmeldingRequest.foresporselUuid(),
             aktorId,
             orgnummer,
