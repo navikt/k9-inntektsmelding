@@ -12,7 +12,9 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +34,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OppdaterForesp
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -75,22 +78,32 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
     private ProsessTaskTjeneste prosessTaskTjeneste;
     @Mock
     private OrganisasjonTjeneste organisasjonTjeneste;
+    @Mock
+    private DialogportenKlient dialogportenKlient;
 
     private ForespørselRepository forespørselRepository;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
     @BeforeEach
     void setUp() {
+        System.setProperty("dialogporten.enabled", "true");
         this.forespørselRepository = new ForespørselRepository(getEntityManager());
         this.forespørselBehandlingTjeneste = new ForespørselBehandlingTjeneste(new ForespørselTjeneste(forespørselRepository),
             minSideArbeidsgiverTjeneste,
+            dialogportenKlient,
             personTjeneste,
             prosessTaskTjeneste,
             organisasjonTjeneste);
+        lenient().when(dialogportenKlient.opprettDialog(any(), any(), any(), any(), any())).thenReturn(UUID.randomUUID().toString());
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.clearProperty("dialogporten.enabled");
     }
 
     @Test
-    void skal_opprette_opprette_arbeidsgiverinitiert_forespørsel_uten_oppgave() {
+    void skal_opprette_arbeidsgiverinitiert_forespørsel_uten_oppgave() {
         var aktørIdent = new AktørIdEntitet(AKTØR_ID);
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
         when(personTjeneste.hentPersonInfoFraAktørId(any())).thenReturn(new PersonInfo("12345678910", "test", "test", new PersonIdent("12345678910"), aktørIdent, LocalDate.now(), null, null));
@@ -111,45 +124,72 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(lagret.getOrganisasjonsnummer()).isEqualTo(BRREG_ORGNUMMER);
         assertThat(lagret.getFørsteUttaksdato().orElse(null)).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(lagret.getForespørselType()).isEqualTo(ForespørselType.OMSORGSPENGER_REFUSJON);
+        verify(dialogportenKlient).opprettDialog(any(), any(), any(), any(), any());
     }
 
     @Test
     void skal_ferdigstille_forespørsel() {
+        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
+        var dialogUuid = UUID.randomUUID();
+        var inntektsmeldingUuid = UUID.randomUUID();
+
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER,
             SAKSNUMMMER, ForespørselType.BESTILT_AV_FAGSYSTEM, SKJÆRINGSTIDSPUNKT, null);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+        forespørselRepository.oppdaterDialogportenUuid(forespørselUuid, dialogUuid);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
             new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            LukkeÅrsak.EKSTERN_INNSENDING,
+            LukkeÅrsak.ORDINÆR_INNSENDING,
             List.of(),
-            List.of());
+            List.of(),
+            Optional.of(inntektsmeldingUuid));
 
         clearHibernateCache();
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
         assertThat(lagret.get().getForespørselType()).isEqualTo(ForespørselType.BESTILT_AV_FAGSYSTEM);
+
+        // Verifiser at ferdigstillDialog ble kalt med riktige verdier
+        var inntektsmeldingUuidCaptor = ArgumentCaptor.forClass(Optional.class);
+        var lukkeÅrsakCaptor = ArgumentCaptor.forClass(LukkeÅrsak.class);
+        verify(dialogportenKlient).ferdigstillDialog(eq(dialogUuid), any(), any(), any(), any(), inntektsmeldingUuidCaptor.capture(), lukkeÅrsakCaptor.capture());
+        assertThat(lukkeÅrsakCaptor.getValue()).isEqualTo(LukkeÅrsak.ORDINÆR_INNSENDING);
+        assertThat(inntektsmeldingUuidCaptor.getValue()).isEqualTo(Optional.of(inntektsmeldingUuid));
     }
 
     @Test
     void skal_ferdigstille_forespørsel_ulik_stp_og_startdato() {
+        mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
+        var dialogUuid = UUID.randomUUID();
+        var inntektsmeldingUuid = UUID.randomUUID();
+
         var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER,
             SAKSNUMMMER, ForespørselType.BESTILT_AV_FAGSYSTEM, FØRSTE_UTTAKSDATO, null);
         forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+        forespørselRepository.oppdaterDialogportenUuid(forespørselUuid, dialogUuid);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
             new AktørIdEntitet(AKTØR_ID),
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            LukkeÅrsak.EKSTERN_INNSENDING,
+            LukkeÅrsak.ORDINÆR_INNSENDING,
             List.of(),
-            List.of());
+            List.of(),
+            Optional.of(inntektsmeldingUuid));
 
         clearHibernateCache();
 
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
+
+        // Verifiser at ferdigstillDialog ble kalt med riktige verdier
+        var inntektsmeldingUuidCaptor = ArgumentCaptor.forClass(Optional.class);
+        var lukkeÅrsakCaptor = ArgumentCaptor.forClass(LukkeÅrsak.class);
+        verify(dialogportenKlient).ferdigstillDialog(eq(dialogUuid), any(), any(), any(), any(), inntektsmeldingUuidCaptor.capture(), lukkeÅrsakCaptor.capture());
+        assertThat(lukkeÅrsakCaptor.getValue()).isEqualTo(LukkeÅrsak.ORDINÆR_INNSENDING);
+        assertThat(inntektsmeldingUuidCaptor.getValue()).isEqualTo(Optional.of(inntektsmeldingUuid));
     }
 
     @Test
@@ -169,6 +209,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
         var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
         assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
+        verify(dialogportenKlient, Mockito.never()).ferdigstillDialog(any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -210,6 +251,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
         var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
         assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
+        verify(dialogportenKlient, Mockito.never()).ferdigstillDialog(any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -61,19 +62,26 @@ public class InntektsmeldingMottakTjeneste {
 
         var aktorId = new AktørIdEntitet(sendInntektsmeldingRequest.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequest.arbeidsgiverIdent().ident());
-        var entitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEntitet);
-        var imId = lagreOgLagJournalførTask(entitet, forespørselEntitet);
+        var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEntitet);
+        var imId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
 
-        List<FraværsPeriodeEntitet> omsorgspengerFraværsPerioder = entitet.getOmsorgspenger() != null
-                                                                   ? entitet.getOmsorgspenger().getFraværsPerioder()
+        List<FraværsPeriodeEntitet> omsorgspengerFraværsPerioder = inntektsmeldingEntitet.getOmsorgspenger() != null
+                                                                   ? inntektsmeldingEntitet.getOmsorgspenger().getFraværsPerioder()
                                                                    : List.of();
 
-        List<DelvisFraværsPeriodeEntitet> omsorgspengerDelvisFraværsPerioder = entitet.getOmsorgspenger() != null
-                                                                               ? entitet.getOmsorgspenger().getDelvisFraværsPerioder()
+        List<DelvisFraværsPeriodeEntitet> omsorgspengerDelvisFraværsPerioder = inntektsmeldingEntitet.getOmsorgspenger() != null
+                                                                               ? inntektsmeldingEntitet.getOmsorgspenger().getDelvisFraværsPerioder()
                                                                                : List.of();
 
-        var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(sendInntektsmeldingRequest.foresporselUuid(), aktorId, orgnummer,
-            LukkeÅrsak.ORDINÆR_INNSENDING, omsorgspengerFraværsPerioder, omsorgspengerDelvisFraværsPerioder);
+        var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(
+            sendInntektsmeldingRequest.foresporselUuid(),
+            aktorId,
+            orgnummer,
+            LukkeÅrsak.ORDINÆR_INNSENDING,
+            omsorgspengerFraværsPerioder,
+            omsorgspengerDelvisFraværsPerioder,
+            Optional.of(inntektsmeldingEntitet.getUuid())
+        );
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
 
@@ -110,7 +118,8 @@ public class InntektsmeldingMottakTjeneste {
             organisasjonsnummer,
             LukkeÅrsak.ORDINÆR_INNSENDING,
             fraværsPerioder,
-            delvisFraværsPerioder);
+            delvisFraværsPerioder,
+            Optional.of(imEnitet.getUuid()));
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
 
@@ -141,7 +150,12 @@ public class InntektsmeldingMottakTjeneste {
 
         MetrikkerTjeneste.loggInnsendtAGIRefusjonNyansatt(inntektsmeldingEntitet);
 
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, LukkeÅrsak.ORDINÆR_INNSENDING);
+        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
+            aktørId,
+            organisasjonsnummer,
+            LukkeÅrsak.ORDINÆR_INNSENDING,
+            Optional.of(inntektsmeldingEntitet.getUuid()));
+
         var opprettetInntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
 
         return InntektsmeldingMapper.mapFraEntitet(opprettetInntektsmeldingEntitet, forespørselUuid);
@@ -169,14 +183,21 @@ public class InntektsmeldingMottakTjeneste {
         MetrikkerTjeneste.loggInnsendtAGIUregistrert(inntektsmeldingEntitet);
 
         if (inntektsmeldingEntitet.getOmsorgspenger() == null) {
-            forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, LukkeÅrsak.ORDINÆR_INNSENDING);
+            forespørselBehandlingTjeneste.ferdigstillForespørsel(
+                forespørselUuid,
+                aktørId,
+                organisasjonsnummer,
+                LukkeÅrsak.ORDINÆR_INNSENDING,
+                Optional.of(inntektsmeldingEntitet.getUuid())
+            );
         } else {
             forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
                 aktørId,
                 organisasjonsnummer,
-                LukkeÅrsak.ORDINÆR_INNSENDING, 
+                LukkeÅrsak.ORDINÆR_INNSENDING,
                 inntektsmeldingEntitet.getOmsorgspenger().getFraværsPerioder(),
-                inntektsmeldingEntitet.getOmsorgspenger().getDelvisFraværsPerioder()
+                inntektsmeldingEntitet.getOmsorgspenger().getDelvisFraværsPerioder(),
+                Optional.of(inntektsmeldingEntitet.getUuid())
             );
         }
 

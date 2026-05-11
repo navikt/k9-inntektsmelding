@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
@@ -38,6 +39,9 @@ public class InntektsmeldingEntitet {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
     private Long id;
+
+    @Column(name = "uuid", nullable = false, updatable = false)
+    private UUID uuid;
 
     @Embedded
     @AttributeOverrides(@AttributeOverride(name = "aktørId", column = @Column(name = "bruker_aktoer_id", nullable = false, updatable = false)))
@@ -96,11 +100,15 @@ public class InntektsmeldingEntitet {
     private ForespørselEntitet forespørsel;
 
     InntektsmeldingEntitet() {
-        // Hibernate
+        this.uuid = UUID.randomUUID();
     }
 
     public Long getId() {
         return id;
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     public AktørIdEntitet getAktørId() {
@@ -219,6 +227,7 @@ public class InntektsmeldingEntitet {
     public String toString() {
         return "InntektsmeldingEntitet{"
             + "id=" + id
+            + ", uuid=" + uuid
             + ", aktørId=" + maskerId(aktørId.getAktørId())
             + ", ytelsetype=" + ytelsetype
             + ", arbeidsgiverIdent='" + maskerId(arbeidsgiverIdent) + '\''

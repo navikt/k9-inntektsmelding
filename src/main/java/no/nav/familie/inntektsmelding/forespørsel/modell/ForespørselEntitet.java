@@ -84,6 +84,9 @@ public class ForespørselEntitet {
     @Column(name = "endret_tid")
     private LocalDateTime endretTidspunkt;
 
+    @Column(name = "dialogporten_uuid")
+    private UUID dialogportenUuid;
+
     @OneToMany(mappedBy = "forespørsel", fetch = FetchType.LAZY)
     private List<InntektsmeldingEntitet> inntektsmeldinger;
 
@@ -113,6 +116,18 @@ public class ForespørselEntitet {
 
     void setArbeidsgiverNotifikasjonSakId(String arbeidsgiverNotifikasjonSakId) {
         this.sakId = arbeidsgiverNotifikasjonSakId;
+    }
+
+    public Optional<UUID> getDialogportenUuid() {
+        return Optional.ofNullable(dialogportenUuid);
+    }
+
+    void setDialogportenUuid(UUID dialogportenUuid) {
+        if (this.dialogportenUuid == null) {
+            this.dialogportenUuid = dialogportenUuid;
+        } else {
+            throw new IllegalArgumentException("Dialogporten UUID kan ikke endres");
+        }
     }
 
     public ForespørselStatus getStatus() {

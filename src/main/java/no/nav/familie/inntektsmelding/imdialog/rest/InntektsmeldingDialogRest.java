@@ -123,6 +123,7 @@ public class InntektsmeldingDialogRest {
         LOG.info("Mottok inntektsmelding for forespørsel {}", sendInntektsmeldingRequest.foresporselUuid());
         return Response.ok(inntektsmeldingMottakTjeneste.mottaInntektsmelding(sendInntektsmeldingRequest)).build();
     }
+
     @POST
     @Path(SEND_INNTEKTSMELDING_OMS_REFUSJON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -154,7 +155,6 @@ public class InntektsmeldingDialogRest {
         InntektsmeldingResponseDto response = inntektsmeldingMottakTjeneste.mottaArbeidsgiverinitiertUregistrertInntektsmelding(request);
         return Response.ok(response).build();
     }
-
 
     @GET
     @Path(LAST_NED_PDF)
