@@ -82,7 +82,17 @@ public class DialogportenForvaltningRestTjeneste {
         }
         sjekkAtKallerHarRollenDrift();
         LOG.info("Oppdatere en dialog med dialogUuid {}", dialogUuid);
-        dialogportenKlient.ferdigstillDialog(UUID.fromString(dialogUuid),
+
+        final UUID parsedDialogUuid;
+        try {
+            parsedDialogUuid = UUID.fromString(dialogUuid);
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity("Ugyldig dialogUuid")
+                .build();
+        }
+
+        dialogportenKlient.ferdigstillDialog(parsedDialogUuid,
             null,
             "Sakstittel",
             Ytelsetype.PLEIEPENGER_SYKT_BARN,
