@@ -107,8 +107,6 @@ spec:
           namespace: fager
         - application: arbeidsgiver-altinn-tilganger
           namespace: fager
-        - application: k9-dokgen
-          namespace: k9saksbehandling
         - application: k9-pdfgen-psb
           namespace: k9saksbehandling
         - application: sif-abac-pdp
