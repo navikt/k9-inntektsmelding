@@ -13,8 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
@@ -26,7 +24,6 @@ class OppdaterForespørselTaskTest {
     private OppdaterForespørselTask task;
     private UUID forespørselUuid;
     private List<PeriodeDto> etterspurtePerioder;
-    private static final ObjectMapper OBJECT_MAPPER = DefaultJsonMapper.getObjectMapper();
 
     @BeforeEach
     void setUp() {
@@ -89,10 +86,7 @@ class OppdaterForespørselTaskTest {
         assertEquals(Ytelsetype.OMSORGSPENGER.name(), taskdata.getPropertyValue(OppdaterForespørselTask.YTELSETYPE));
 
         // Verifiser at payload inneholder riktige perioder
-        List<PeriodeDto> deserialisertePerioder = OBJECT_MAPPER.readValue(
-            taskdata.getPayloadAsString(),
-            OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class)
-        );
+        List<PeriodeDto> deserialisertePerioder = DefaultJsonMapper.listFromJson(taskdata.getPayloadAsString(), PeriodeDto.class);
         assertEquals(etterspurtePerioder.size(), deserialisertePerioder.size());
         assertEquals(etterspurtePerioder.get(0).fom(), deserialisertePerioder.get(0).fom());
         assertEquals(etterspurtePerioder.get(0).tom(), deserialisertePerioder.get(0).tom());
