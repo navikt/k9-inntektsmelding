@@ -23,8 +23,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
@@ -68,7 +66,6 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusYears(1);
     private static final LocalDate FØRSTE_UTTAKSDATO = LocalDate.now().minusYears(1).plusDays(1);
     private static final Ytelsetype YTELSETYPE = Ytelsetype.PLEIEPENGER_SYKT_BARN;
-    private static final ObjectMapper OBJECT_MAPPER = DefaultJsonMapper.getObjectMapper();
 
     @Mock
     private MinSideArbeidsgiverTjeneste minSideArbeidsgiverTjeneste;
@@ -288,10 +285,8 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(taskdata.getPropertyValue(OppdaterForespørselTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
 
         // Verifiser at payload inneholder riktige perioder
-        List<PeriodeDto> deserialisertePerioder = OBJECT_MAPPER.readValue(
-            taskdata.getPayloadAsString(),
-            OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class)
-        );
+        List<PeriodeDto> deserialisertePerioder = DefaultJsonMapper.listFromJson(taskdata.getPayloadAsString(), PeriodeDto.class);
+
         assertEquals(nyeEtterspurtePerioder.size(), deserialisertePerioder.size());
         assertEquals(nyeEtterspurtePerioder.get(0).fom(), deserialisertePerioder.get(0).fom());
         assertEquals(nyeEtterspurtePerioder.get(0).tom(), deserialisertePerioder.get(0).tom());
