@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -23,7 +22,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 @ProsessTask("forespørsel.oppdater")
 public class OppdaterForespørselTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterForespørselTask.class);
-    private static final ObjectMapper OBJECT_MAPPER = DefaultJsonMapper.getObjectMapper();
 
     public static final String FORESPØRSEL_UUID = "forespoersel_uuid";
     public static final String YTELSETYPE = "ytelsetype";
@@ -56,7 +54,7 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
         List<PeriodeDto> etterspurtePerioder;
 
         try {
-            etterspurtePerioder = OBJECT_MAPPER.readValue(prosessTaskData.getPayloadAsString(), OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class));
+            etterspurtePerioder = DefaultJsonMapper.listFromJson(prosessTaskData.getPayloadAsString(), PeriodeDto.class);
             return etterspurtePerioder;
         } catch (Exception e) {
             throw new RuntimeException("Kunne ikke deserialisere etterspurtePerioder", e);
@@ -72,7 +70,7 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
 
         if (etterspurtePerioder != null) {
             try {
-                taskData.setPayload(OBJECT_MAPPER.writeValueAsString(etterspurtePerioder));
+                taskData.setPayload(DefaultJsonMapper.toJson(etterspurtePerioder));
             } catch (Exception e) {
                 throw new RuntimeException("Kunne ikke serialisere etterspurtePerioder for ytelse: " + ytelseType, e);
             }

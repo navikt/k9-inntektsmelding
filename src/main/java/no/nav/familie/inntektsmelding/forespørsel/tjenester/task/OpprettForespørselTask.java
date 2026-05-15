@@ -9,8 +9,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -31,7 +29,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 @ProsessTask("forespørsel.opprett")
 public class OpprettForespørselTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OpprettForespørselTask.class);
-    private static final ObjectMapper OBJECT_MAPPER = DefaultJsonMapper.getObjectMapper();
 
     public static final String YTELSETYPE = "ytelsetype";
     public static final String ORGNR = "orgnr";
@@ -85,10 +82,7 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         }
 
         try {
-            etterspurtePerioder = OBJECT_MAPPER.readValue(
-                prosessTaskData.getPayloadAsString(),
-                OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, PeriodeDto.class)
-            );
+            etterspurtePerioder = DefaultJsonMapper.listFromJson(prosessTaskData.getPayloadAsString(), PeriodeDto.class);
             return etterspurtePerioder;
         } catch (Exception e) {
             throw new RuntimeException("Kunne ikke deserialisere etterspurtePerioder for ytelse: " + ytelsetype, e);
@@ -107,7 +101,7 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         taskdata.setProperty(OpprettForespørselTask.STP, forespørselDto.skjæringstidspunkt().toString());
         if (forespørselDto.etterspurtePerioder() != null) {
             try {
-                taskdata.setPayload(OBJECT_MAPPER.writeValueAsString(forespørselDto.etterspurtePerioder()));
+                taskdata.setPayload(DefaultJsonMapper.toJson(forespørselDto.etterspurtePerioder()));
             } catch (Exception e) {
                 LOG.error("Kunne ikke serialisere etterspurtePerioder til JSON", e);
                 throw new RuntimeException("Kunne ikke serialisere etterspurtePerioder", e);
