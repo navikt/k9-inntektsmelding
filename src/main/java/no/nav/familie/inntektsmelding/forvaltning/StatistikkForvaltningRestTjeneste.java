@@ -6,6 +6,7 @@ import java.util.List;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -109,7 +110,8 @@ public class StatistikkForvaltningRestTjeneste {
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @Tilgangskontrollert
-    public Response hentAntallFerdigeForespørsler(@QueryParam("fraDato") LocalDate fraDato, @QueryParam("tilDato") LocalDate tilDato) {
+    public Response hentAntallFerdigeForespørsler(@Valid @QueryParam("fraDato") LocalDate fraDato,
+                                                  @Valid @QueryParam("tilDato") LocalDate tilDato) {
         sjekkAtKallerHarRollenDrift();
         validerDatoParametere(fraDato, tilDato);
         long antall = forespørselRepository.tellForespørslerMedStatus(fraDato, tilDato, ForespørselStatus.FERDIG);
@@ -123,7 +125,8 @@ public class StatistikkForvaltningRestTjeneste {
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @Tilgangskontrollert
-    public Response hentAntallUnderBehandlingForespørsler(@QueryParam("fraDato") LocalDate fraDato, @QueryParam("tilDato") LocalDate tilDato) {
+    public Response hentAntallUnderBehandlingForespørsler(@Valid @QueryParam("fraDato") LocalDate fraDato,
+                                                          @Valid @QueryParam("tilDato") LocalDate tilDato) {
         sjekkAtKallerHarRollenDrift();
         validerDatoParametere(fraDato, tilDato);
         long antall = forespørselRepository.tellForespørslerMedStatus(fraDato, tilDato, ForespørselStatus.UNDER_BEHANDLING);
@@ -137,7 +140,8 @@ public class StatistikkForvaltningRestTjeneste {
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @Tilgangskontrollert
-    public Response hentDagerTilLukking(@QueryParam("fraDato") LocalDate fraDato, @QueryParam("tilDato") LocalDate tilDato) {
+    public Response hentDagerTilLukking(@Valid @QueryParam("fraDato") LocalDate fraDato,
+                                        @Valid @QueryParam("tilDato") LocalDate tilDato) {
         sjekkAtKallerHarRollenDrift();
         validerDatoParametere(fraDato, tilDato);
         var rader = forespørselRepository.hentDagerTilLukkingFordeling(fraDato, tilDato).stream()
