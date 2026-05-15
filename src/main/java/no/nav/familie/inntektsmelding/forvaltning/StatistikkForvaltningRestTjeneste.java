@@ -6,6 +6,8 @@ import java.util.List;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -109,8 +111,8 @@ public class StatistikkForvaltningRestTjeneste {
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @Tilgangskontrollert
-    public Response hentAntallFerdigeForespørsler(@QueryParam("fraDato") String fraDatoStr,
-                                                  @QueryParam("tilDato") String tilDatoStr) {
+    public Response hentAntallFerdigeForespørsler(@Valid @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}") @QueryParam("fraDato") String fraDatoStr,
+                                                  @Valid @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}") @QueryParam("tilDato") String tilDatoStr) {
         sjekkAtKallerHarRollenDrift();
         var fraDato = parseDato(fraDatoStr, "fraDato");
         var tilDato = parseDato(tilDatoStr, "tilDato");
@@ -126,8 +128,8 @@ public class StatistikkForvaltningRestTjeneste {
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @Tilgangskontrollert
-    public Response hentAntallUnderBehandlingForespørsler(@QueryParam("fraDato") String fraDatoStr,
-                                                          @QueryParam("tilDato") String tilDatoStr) {
+    public Response hentAntallUnderBehandlingForespørsler(@Valid @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}") @QueryParam("fraDato") String fraDatoStr,
+                                                          @Valid @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}") @QueryParam("tilDato") String tilDatoStr) {
         sjekkAtKallerHarRollenDrift();
         var fraDato = parseDato(fraDatoStr, "fraDato");
         var tilDato = parseDato(tilDatoStr, "tilDato");
@@ -143,8 +145,8 @@ public class StatistikkForvaltningRestTjeneste {
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @Tilgangskontrollert
-    public Response hentDagerTilLukking(@QueryParam("fraDato") String fraDatoStr,
-                                        @QueryParam("tilDato") String tilDatoStr) {
+    public Response hentDagerTilLukking(@Valid @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}") @QueryParam("fraDato") String fraDatoStr,
+                                        @Valid @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}") @QueryParam("tilDato") String tilDatoStr) {
         sjekkAtKallerHarRollenDrift();
         var fraDato = parseDato(fraDatoStr, "fraDato");
         var tilDato = parseDato(tilDatoStr, "tilDato");
