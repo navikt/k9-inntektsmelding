@@ -6,7 +6,6 @@ import java.util.List;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -110,9 +109,11 @@ public class StatistikkForvaltningRestTjeneste {
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @Tilgangskontrollert
-    public Response hentAntallFerdigeForespørsler(@Valid @QueryParam("fraDato") LocalDate fraDato,
-                                                  @Valid @QueryParam("tilDato") LocalDate tilDato) {
+    public Response hentAntallFerdigeForespørsler(@QueryParam("fraDato") String fraDatoStr,
+                                                  @QueryParam("tilDato") String tilDatoStr) {
         sjekkAtKallerHarRollenDrift();
+        var fraDato = parseDato(fraDatoStr, "fraDato");
+        var tilDato = parseDato(tilDatoStr, "tilDato");
         validerDatoParametere(fraDato, tilDato);
         long antall = forespørselRepository.tellForespørslerMedStatus(fraDato, tilDato, ForespørselStatus.FERDIG);
         return Response.ok(new AntallForespørslerResponse(antall)).build();
@@ -125,9 +126,11 @@ public class StatistikkForvaltningRestTjeneste {
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @Tilgangskontrollert
-    public Response hentAntallUnderBehandlingForespørsler(@Valid @QueryParam("fraDato") LocalDate fraDato,
-                                                          @Valid @QueryParam("tilDato") LocalDate tilDato) {
+    public Response hentAntallUnderBehandlingForespørsler(@QueryParam("fraDato") String fraDatoStr,
+                                                          @QueryParam("tilDato") String tilDatoStr) {
         sjekkAtKallerHarRollenDrift();
+        var fraDato = parseDato(fraDatoStr, "fraDato");
+        var tilDato = parseDato(tilDatoStr, "tilDato");
         validerDatoParametere(fraDato, tilDato);
         long antall = forespørselRepository.tellForespørslerMedStatus(fraDato, tilDato, ForespørselStatus.UNDER_BEHANDLING);
         return Response.ok(new AntallForespørslerResponse(antall)).build();
@@ -140,9 +143,11 @@ public class StatistikkForvaltningRestTjeneste {
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @Tilgangskontrollert
-    public Response hentDagerTilLukking(@Valid @QueryParam("fraDato") LocalDate fraDato,
-                                        @Valid @QueryParam("tilDato") LocalDate tilDato) {
+    public Response hentDagerTilLukking(@QueryParam("fraDato") String fraDatoStr,
+                                        @QueryParam("tilDato") String tilDatoStr) {
         sjekkAtKallerHarRollenDrift();
+        var fraDato = parseDato(fraDatoStr, "fraDato");
+        var tilDato = parseDato(tilDatoStr, "tilDato");
         validerDatoParametere(fraDato, tilDato);
         var rader = forespørselRepository.hentDagerTilLukkingFordeling(fraDato, tilDato).stream()
             .map(row -> new DagerTilLukking(((Number) row[0]).intValue(), ((Number) row[1]).longValue()))
@@ -164,6 +169,17 @@ public class StatistikkForvaltningRestTjeneste {
 
     private void sjekkAtKallerHarRollenDrift() {
         tilgang.sjekkAtAnsattHarRollenDrift();
+    }
+
+    private static LocalDate parseDato(String verdi, String paramNavn) {
+        if (verdi == null || verdi.isBlank()) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(verdi);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Ugyldig datoformat for " + paramNavn + ": '" + verdi + "'. Forventet ISO-8601 (yyyy-MM-dd).");
+        }
     }
 
     private void validerDatoParametere(LocalDate fraDato, LocalDate tilDato) {
