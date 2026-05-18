@@ -185,14 +185,14 @@ public class ForespørselRepository {
                 SELECT CAST(endret_tid AS DATE) - CAST(opprettet_tid AS DATE) AS antall_dager,
                        COUNT(*) AS antall_forespoersler
                 FROM forespoersel
-                WHERE CAST(opprettet_tid AS DATE) >= :fraDato
-                  AND CAST(opprettet_tid AS DATE) <= :tilDato
+                WHERE opprettet_tid >= :fraDato
+                  AND opprettet_tid < :tilDato
                   AND status = 'FERDIG'
                 GROUP BY 1
                 ORDER BY 1
                 """)
-            .setParameter("fraDato", fraDato)
-            .setParameter("tilDato", tilDato);
+            .setParameter("fraDato", fraDato.atStartOfDay())
+            .setParameter("tilDato", tilDato.plusDays(1).atStartOfDay());
         return query.getResultList();
     }
 }
