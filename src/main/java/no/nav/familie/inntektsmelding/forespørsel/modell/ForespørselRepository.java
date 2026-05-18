@@ -170,11 +170,11 @@ public class ForespørselRepository {
         var query = entityManager.createQuery("""
                 SELECT COUNT(f) FROM ForespørselEntitet f
                 WHERE f.opprettetTidspunkt >= :fraDato
-                  AND f.opprettetTidspunkt < :tilDato
+                  AND f.opprettetTidspunkt <= :tilDato
                   AND f.status = :status
                 """, Long.class)
             .setParameter("fraDato", fraDato.atStartOfDay())
-            .setParameter("tilDato", tilDato.plusDays(1).atStartOfDay())
+            .setParameter("tilDato", tilDato.atStartOfDay())
             .setParameter("status", status);
         return query.getSingleResult();
     }
@@ -191,8 +191,8 @@ public class ForespørselRepository {
                 GROUP BY 1
                 ORDER BY 1
                 """)
-            .setParameter("fraDato", fraDato)
-            .setParameter("tilDato", tilDato);
+            .setParameter("fraDato", fraDato.atStartOfDay())
+            .setParameter("tilDato", tilDato.atStartOfDay());
         return query.getResultList();
     }
 }
