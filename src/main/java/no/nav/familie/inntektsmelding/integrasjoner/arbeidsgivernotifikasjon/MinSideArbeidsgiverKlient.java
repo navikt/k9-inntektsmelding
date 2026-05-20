@@ -3,8 +3,6 @@ package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleError;
 import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonErrorHandler.handleValidationError;
 
-import java.net.http.HttpRequest;
-
 import jakarta.enterprise.context.Dependent;
 
 import no.nav.vedtak.exception.TekniskException;
@@ -12,8 +10,8 @@ import no.nav.vedtak.exception.TekniskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLRequest;
-import com.kobylynskyi.graphql.codegen.model.graphql.GraphQLResult;
+import no.nav.foreldrepenger.graphql.GraphQLRequest;
+import no.nav.foreldrepenger.graphql.GraphQLResult;
 
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -135,7 +133,7 @@ class MinSideArbeidsgiverKlient {
     }
 
     private <T extends GraphQLResult<?>> T query(GraphQLRequest req, Class<T> clazz) {
-        var method = new RestRequest.Method(RestRequest.WebMethod.POST, HttpRequest.BodyPublishers.ofString(req.toHttpJsonBody()));
+        var method = RestRequest.Method.postJson(req.toQueryObject());
         var restRequest = RestRequest.newRequest(method, restConfig.endpoint(), restConfig);
         var response = restKlient.sendReturnUnhandled(restRequest);
         if (LOG.isInfoEnabled()) {
