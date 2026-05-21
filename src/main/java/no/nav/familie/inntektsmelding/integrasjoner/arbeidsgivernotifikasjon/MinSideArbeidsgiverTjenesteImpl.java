@@ -11,13 +11,12 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnRessurser;
 import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 class MinSideArbeidsgiverTjenesteImpl implements MinSideArbeidsgiverTjeneste {
 
-    static final String SERVICE_CODE = "4936";
-    static final String SERVICE_EDITION_CODE = "1";
     static final String SAK_STATUS_TEKST = "";
     static final String SAK_STATUS_TEKST_ARBEIDSGIVERINITIERT = "Mottatt - Se kvittering eller korriger refusjonskrav";
     static final Sendevindu VARSEL_SENDEVINDU = Sendevindu.LOEPENDE;
@@ -136,16 +135,18 @@ class MinSideArbeidsgiverTjenesteImpl implements MinSideArbeidsgiverTjeneste {
 
     private static MottakerInput lagAltinnMottakerInput() {
         return MottakerInput.builder()
-            .setAltinn(AltinnMottakerInput.builder().setServiceCode(SERVICE_CODE).setServiceEdition(SERVICE_EDITION_CODE).build())
+            .setAltinnRessurs(lagAltinnRessursMottakerInput())
             .build();
     }
 
     private static EksterntVarselInput lagEksternVarselAltinn(String varselTekst, Integer minutterForsinkelse) {
+        String tittel = "Nav trenger inntektsmelding";
         return EksterntVarselInput.builder()
-            .setAltinntjeneste(EksterntVarselAltinntjenesteInput.builder()
-                .setTittel("Nav trenger inntektsmelding")
-                .setInnhold(varselTekst)
-                .setMottaker(lagAltinnTjenesteMottakerInput())
+            .setAltinnressurs(EksterntVarselAltinnressursInput.builder()
+                .setEpostTittel(tittel)
+                .setEpostHtmlBody(varselTekst)
+                .setSmsTekst("%s. %s".formatted(tittel, varselTekst))
+                .setMottaker(lagAltinnRessursMottakerInput())
                 .setSendetidspunkt(SendetidspunktInput.builder()
                     .setTidspunkt(LocalDateTime.now().plusMinutes(minutterForsinkelse).toString())
                     .build())
@@ -154,18 +155,20 @@ class MinSideArbeidsgiverTjenesteImpl implements MinSideArbeidsgiverTjeneste {
     }
 
     private static PaaminnelseEksterntVarselInput lagPåminnelseVarselAltinn(String påminnelseTekst) {
+        String tittel = "Påminnelse: Nav trenger inntektsmelding";
         return PaaminnelseEksterntVarselInput.builder()
-            .setAltinntjeneste(PaaminnelseEksterntVarselAltinntjenesteInput.builder()
-                .setTittel("Påminnelse: Nav trenger inntektsmelding")
-                .setInnhold(påminnelseTekst)
-                .setMottaker(lagAltinnTjenesteMottakerInput())
+            .setAltinnressurs(PaaminnelseEksterntVarselAltinnressursInput.builder()
+                .setEpostTittel(tittel)
+                .setEpostHtmlBody(påminnelseTekst)
+                .setSmsTekst("%s. %s".formatted(tittel, påminnelseTekst))
+                .setMottaker(lagAltinnRessursMottakerInput())
                 .setSendevindu(VARSEL_SENDEVINDU)
                 .build())
             .build();
     }
 
-    private static AltinntjenesteMottakerInput lagAltinnTjenesteMottakerInput() {
-        return AltinntjenesteMottakerInput.builder().setServiceCode(SERVICE_CODE).setServiceEdition(SERVICE_EDITION_CODE).build();
+    private static AltinnRessursMottakerInput lagAltinnRessursMottakerInput() {
+        return AltinnRessursMottakerInput.builder().setRessursId(AltinnRessurser.ALTINN_TRE_RESSURS).build();
     }
 
     @Override
