@@ -79,7 +79,8 @@ class MinSideArbeidsgiverTjenesteImplTest {
         var expectedNotifikasjonsTekst = "Du har en ny oppgave i AG-portalen";
         var expectedTittel = "Nav trenger inntektsmelding";
         var expectedEksternvarselTekst = "En ansatt har søkt pleiepenger sykt barn";
-        var expectedPåminnelseTekst = "Påmminnelse: En ansatt har søkt pleiepenger sykt barn";
+        var expectedPåminnelseTittel = "Påminnelse: Nav trenger inntektsmelding";
+        var expectedPåminnelseTekst = "Påminnelse: En ansatt har søkt pleiepenger sykt barn";
         var expectedNotifikasjonsLenke = "https://arbeidsgiver-portal.com";
         var expectedNotifikasjonsMerkelapp = Merkelapp.INNTEKTSMELDING_PSB;
 
@@ -122,11 +123,13 @@ class MinSideArbeidsgiverTjenesteImplTest {
         assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinnressurs()).isNotNull();
         assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinnressurs().getEpostTittel()).isEqualTo(expectedTittel);
         assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinnressurs().getEpostHtmlBody()).isEqualTo(expectedEksternvarselTekst);
+        assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinnressurs().getSmsTekst()).isEqualTo(expectedTittel + ". " + expectedEksternvarselTekst);
 
         assertThat(nyOppgave.getPaaminnelse()).isNotNull();
         assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler()).isNotNull().hasSize(1);
         assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler().getFirst().getAltinnressurs()).isNotNull();
         assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler().getFirst().getAltinnressurs().getEpostHtmlBody()).isEqualTo(expectedPåminnelseTekst);
+        assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler().getFirst().getAltinnressurs().getSmsTekst()).isEqualTo(expectedPåminnelseTittel + ". " + expectedPåminnelseTekst);
 
         assertThat(nyOppgave.getFrist()).isNull();
         assertThat(nyOppgave.getMottakere()).isEmpty();
