@@ -1,7 +1,5 @@
 package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 
-import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjenesteImpl.SERVICE_CODE;
-import static no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjenesteImpl.SERVICE_EDITION_CODE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -16,6 +14,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnRessurser;
 
 @ExtendWith(MockitoExtension.class)
 class MinSideArbeidsgiverTjenesteImplTest {
@@ -77,8 +77,10 @@ class MinSideArbeidsgiverTjenesteImplTest {
         var expectedGrupperingsid = "id-som-knytter-sak-til-notifikasjon";
         var expectedVirksomhetsnummer = "2342342334";
         var expectedNotifikasjonsTekst = "Du har en ny oppgave i AG-portalen";
+        var expectedTittel = "Nav trenger inntektsmelding";
         var expectedEksternvarselTekst = "En ansatt har søkt pleiepenger sykt barn";
-        var expectedPåminnelseTekst = "Påmminnelse: En ansatt har søkt pleiepenger sykt barn";
+        var expectedPåminnelseTittel = "Påminnelse: Nav trenger inntektsmelding";
+        var expectedPåminnelseTekst = "Påminnelse: En ansatt har søkt pleiepenger sykt barn";
         var expectedNotifikasjonsLenke = "https://arbeidsgiver-portal.com";
         var expectedNotifikasjonsMerkelapp = Merkelapp.INNTEKTSMELDING_PSB;
 
@@ -104,8 +106,7 @@ class MinSideArbeidsgiverTjenesteImplTest {
         var nyOppgave = (NyOppgaveInput) input.get(inputKey);
 
         assertThat(nyOppgave.getMottaker()).isNotNull();
-        assertThat(nyOppgave.getMottaker().getAltinn().getServiceCode()).isEqualTo(SERVICE_CODE);
-        assertThat(nyOppgave.getMottaker().getAltinn().getServiceEdition()).isEqualTo(SERVICE_EDITION_CODE);
+        assertThat(nyOppgave.getMottaker().getAltinnRessurs().getRessursId()).isEqualTo(AltinnRessurser.ALTINN_TRE_RESSURS);
 
         assertThat(nyOppgave.getMetadata()).isNotNull();
         assertThat(nyOppgave.getMetadata().getEksternId()).isNotNull().isEqualTo(expectedEksternId);
@@ -119,13 +120,16 @@ class MinSideArbeidsgiverTjenesteImplTest {
         assertThat(nyOppgave.getNotifikasjon().getMerkelapp()).isEqualTo(expectedNotifikasjonsMerkelapp.getBeskrivelse());
 
         assertThat(nyOppgave.getEksterneVarsler()).hasSize(1);
-        assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinntjeneste()).isNotNull();
-        assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinntjeneste().getInnhold()).isEqualTo(expectedEksternvarselTekst);
+        assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinnressurs()).isNotNull();
+        assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinnressurs().getEpostTittel()).isEqualTo(expectedTittel);
+        assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinnressurs().getEpostHtmlBody()).isEqualTo(expectedEksternvarselTekst);
+        assertThat(nyOppgave.getEksterneVarsler().getFirst().getAltinnressurs().getSmsTekst()).isEqualTo(expectedTittel + ". " + expectedEksternvarselTekst);
 
         assertThat(nyOppgave.getPaaminnelse()).isNotNull();
         assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler()).isNotNull().hasSize(1);
-        assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler().getFirst().getAltinntjeneste()).isNotNull();
-        assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler().getFirst().getAltinntjeneste().getInnhold()).isEqualTo(expectedPåminnelseTekst);
+        assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler().getFirst().getAltinnressurs()).isNotNull();
+        assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler().getFirst().getAltinnressurs().getEpostHtmlBody()).isEqualTo(expectedPåminnelseTekst);
+        assertThat(nyOppgave.getPaaminnelse().getEksterneVarsler().getFirst().getAltinnressurs().getSmsTekst()).isEqualTo(expectedPåminnelseTittel + ". " + expectedPåminnelseTekst);
 
         assertThat(nyOppgave.getFrist()).isNull();
         assertThat(nyOppgave.getMottakere()).isEmpty();
