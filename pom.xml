@@ -153,10 +153,6 @@
             <artifactId>kontrakt</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.k9.felles.integrasjon</groupId>
-            <artifactId>k9-bigquery-klient</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav.sif.abac</groupId>
             <artifactId>kontrakt</artifactId>
         </dependency>
