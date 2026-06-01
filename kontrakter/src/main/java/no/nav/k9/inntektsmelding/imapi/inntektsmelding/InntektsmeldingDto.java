@@ -31,6 +31,8 @@ public record InntektsmeldingDto(
     @NotNull @Valid OrganisasjonsnummerDto arbeidsgiver,
     @NotNull @Valid KontaktpersonDto kontaktperson,
     @NotNull LocalDate startdato,
+    @NotNull @Valid InnsendingstypeDto innsendingstype,
+    @NotNull @Valid InnsendingsårsakDto innsendingsårsak,
     @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
     @NotNull LocalDateTime innsendtTidspunkt,
     @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal refusjonPrMnd,
