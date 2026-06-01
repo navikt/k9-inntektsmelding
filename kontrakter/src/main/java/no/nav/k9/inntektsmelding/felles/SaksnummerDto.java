@@ -33,5 +33,4 @@ public record SaksnummerDto(
     public String toString() {
         return "SaksnummerDto[saksnr=" + saksnr + ']';
     }
-    }
 }
