@@ -20,7 +20,7 @@ import no.nav.k9.inntektsmelding.felles.InnsendingstypeDto;
 import no.nav.k9.inntektsmelding.felles.InnsendingsårsakDto;
 import no.nav.k9.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
-import no.nav.k9.inntektsmelding.felles.SøktRefusjonDto;
+import no.nav.k9.inntektsmelding.felles.RefusjonDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
 
 public record InntektsmeldingDto(
@@ -38,7 +38,7 @@ public record InntektsmeldingDto(
     @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal refusjonPrMnd,
     LocalDate opphørsdatoRefusjon,
     @NotNull @Valid AvsenderSystemDto avsenderSystem,
-    @NotNull List<@Valid SøktRefusjonDto> refusjonsendringer,
+    @NotNull List<@Valid RefusjonDto> refusjonsendringer,
     @NotNull List<@Valid BortfaltNaturalytelseDto> bortfaltNaturalytelsePerioder,
     @NotNull List<@Valid EndringsårsakerDto> endringAvInntektÅrsaker
 ) {

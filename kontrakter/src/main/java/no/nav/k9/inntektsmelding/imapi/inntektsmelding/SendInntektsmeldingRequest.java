@@ -17,7 +17,7 @@ import no.nav.k9.inntektsmelding.felles.EndringsårsakerDto;
 import no.nav.k9.inntektsmelding.felles.FødselsnummerDto;
 import no.nav.k9.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
-import no.nav.k9.inntektsmelding.felles.SøktRefusjonDto;
+import no.nav.k9.inntektsmelding.felles.RefusjonDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
 
 public record SendInntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
@@ -28,7 +28,7 @@ public record SendInntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
                                          @NotNull @Valid KontaktpersonDto kontaktperson,
                                          //kan inntekt noen gang være 0?
                                          @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
-                                         @NotNull List<@Valid SøktRefusjonDto> refusjon,
+                                         @NotNull List<@Valid RefusjonDto> refusjon,
                                          @NotNull List<@Valid BortfaltNaturalytelseDto> bortfaltNaturalytelsePerioder,
                                          @NotNull List<@Valid EndringsårsakerDto> endringAvInntektÅrsaker,
                                          @NotNull @Valid AvsenderSystemDto avsenderSystem) {
