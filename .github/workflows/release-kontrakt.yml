@@ -4,12 +4,18 @@ on:
     types: [ published ]
 
 jobs:
-  release:
-    name: Kontrakt
+  build:
+    name: Release kontrakt
+    runs-on: ubuntu-latest
     permissions:
+      contents: read
       packages: write
-    uses: navikt/fp-gha-workflows/.github/workflows/release-feature.yml@main
-    with:
-      release-version: ${{ github.event.release.tag_name }}
-      mvn-projects: '-am -pl kontrakt'
-    secrets: inherit
+    steps:
+      - name: Release
+        uses: navikt/sif-gha-workflows/.github/actions/maven/release@main
+        with:
+          release-version: ${{ github.event.release.tag_name }}
+          java-version: '25'
+          build-token: ${{ secrets.READER_TOKEN }}
+          release-token: ${{ secrets.GITHUB_TOKEN }}
+          release-file: '-f kontrakter/pom.xml'
