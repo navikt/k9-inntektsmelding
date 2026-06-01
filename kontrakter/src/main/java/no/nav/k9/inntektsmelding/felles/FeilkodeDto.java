@@ -6,5 +6,5 @@ public enum FeilkodeDto {
     UGYLDIG_FORESPOERSEL,
     DUPLIKAT,
     NEDETID_AINNTEKT,
-    ULIK_INNTEKT,
+    ULIK_INNTEKT
 }
