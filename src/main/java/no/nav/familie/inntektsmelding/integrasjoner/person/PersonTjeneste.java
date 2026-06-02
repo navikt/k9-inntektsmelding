@@ -2,8 +2,11 @@ package no.nav.familie.inntektsmelding.integrasjoner.person;
 
 import java.net.SocketTimeoutException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -89,6 +92,18 @@ public class PersonTjeneste {
             case KVINNE -> Kjønn.KVINNE;
             default -> Kjønn.UKJENT;
         };
+    }
+
+    public Optional<AktørIdEntitet> finnAktørIdForPersonIdent(String fnr) {
+        return finnAktørIdForIdent(new PersonIdent(fnr));
+    }
+
+    public Map<AktørIdEntitet, PersonIdent> finnPersonIdentForAktørIdBolk(Set<AktørIdEntitet> aktørIder) {
+        var result = new HashMap<AktørIdEntitet, PersonIdent>();
+        for (var aktørId : aktørIder) {
+            hentPersonidentForAktørId(aktørId).ifPresent(ident -> result.put(aktørId, ident));
+        }
+        return result;
     }
 
     private Optional<AktørIdEntitet> finnAktørIdForIdent(PersonIdent personIdent) {

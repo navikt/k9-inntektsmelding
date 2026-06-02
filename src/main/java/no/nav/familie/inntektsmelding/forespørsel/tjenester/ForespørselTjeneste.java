@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
+import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
@@ -95,5 +96,14 @@ public class ForespørselTjeneste {
 
     public void oppdaterForespørselMedNyeEtterspurtePerioder(UUID forespørselUuid, List<PeriodeDto> etterspurtePerioder) {
         forespørselRepository.oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUuid, etterspurtePerioder);
+    }
+
+    public List<ForespørselEntitet> hentForespørslerFraFilter(String orgnr,
+                                                              AktørIdEntitet aktørId,
+                                                              ForespørselStatus status,
+                                                              Ytelsetype ytelseType,
+                                                              LocalDate fom,
+                                                              LocalDate tom) {
+        return forespørselRepository.hentForespørslerFraFilter(orgnr, aktørId, status, ytelseType, fom, tom);
     }
 }
