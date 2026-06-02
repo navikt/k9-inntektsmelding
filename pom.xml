@@ -159,11 +159,6 @@
             <version>${fp-graphql.version}</version>
         </dependency>
         <dependency>
-            <groupId>no.nav.k9.inntektsmelding</groupId>
-            <artifactId>k9-inntektsmelding-kontrakt</artifactId>
-            <version>${k9-inntektsmelding-kontrakt.version}</version>
-        </dependency>
-        <dependency>
             <groupId>no.nav.k9.sak</groupId>
             <artifactId>kontrakt</artifactId>
         </dependency>
