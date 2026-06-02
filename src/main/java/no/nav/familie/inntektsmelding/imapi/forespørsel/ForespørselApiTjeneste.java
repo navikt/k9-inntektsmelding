@@ -46,8 +46,8 @@ public class ForespørselApiTjeneste {
 
         return forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .map(forespørsel -> {
-                var fnr = personTjeneste.finnPersonIdentForAktørId(forespørsel.getAktørId());
-                return mapTilResponseDto(forespørsel, fnr);
+                var personIdent = personTjeneste.finnPersonIdentForAktørId(forespørsel.getAktørId());
+                return mapTilResponseDto(forespørsel, personIdent);
             });
     }
 
