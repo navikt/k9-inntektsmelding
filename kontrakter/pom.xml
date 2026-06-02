@@ -46,7 +46,7 @@
 
 	<distributionManagement>
 		<repository>
-			<id>k9-inntektsmelding</id>
+			<id>github</id>
 			<name>Github navikt Maven Packages</name>
 			<url>https://maven.pkg.github.com/navikt/k9-inntektsmelding</url>
 		</repository>
