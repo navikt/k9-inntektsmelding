@@ -149,6 +149,15 @@ public class ForespørselBehandlingTjeneste {
         return forespørselTjeneste.hentForespørsel(forespørselUUID);
     }
 
+    public List<ForespørselEntitet> hentForespørsler(ArbeidsgiverDto arbeidsgiver,
+                                                     AktørIdEntitet aktørId,
+                                                     ForespørselStatus status,
+                                                     Ytelsetype ytelseType,
+                                                     LocalDate fom,
+                                                     LocalDate tom) {
+        return forespørselTjeneste.hentForespørslerFraFilter(arbeidsgiver.ident(), aktørId, status, ytelseType, fom, tom);
+    }
+
     public List<ForespørselEntitet> finnAlleForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
         return forespørselTjeneste.finnAlleForespørsler(aktørId, ytelsetype, orgnr);
     }
