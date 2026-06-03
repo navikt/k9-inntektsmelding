@@ -16,8 +16,6 @@ import no.nav.k9.inntektsmelding.felles.AvsenderSystemDto;
 import no.nav.k9.inntektsmelding.felles.BortfaltNaturalytelseDto;
 import no.nav.k9.inntektsmelding.felles.EndringsårsakerDto;
 import no.nav.k9.inntektsmelding.felles.FødselsnummerDto;
-import no.nav.k9.inntektsmelding.felles.InnsendingstypeDto;
-import no.nav.k9.inntektsmelding.felles.InnsendingsårsakDto;
 import no.nav.k9.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
 import no.nav.k9.inntektsmelding.felles.RefusjonDto;
@@ -31,8 +29,6 @@ public record InntektsmeldingDto(
     @NotNull @Valid OrganisasjonsnummerDto arbeidsgiver,
     @NotNull @Valid KontaktpersonDto kontaktperson,
     @NotNull LocalDate startdato,
-    @NotNull @Valid InnsendingstypeDto innsendingstype,
-    @NotNull @Valid InnsendingsårsakDto innsendingsårsak,
     @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
     @NotNull LocalDateTime innsendtTidspunkt,
     @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal refusjonPrMnd,
