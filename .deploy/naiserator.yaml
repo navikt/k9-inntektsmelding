@@ -101,6 +101,8 @@ spec:
           namespace: k9saksbehandling
           cluster: {{environment}}-fss
         - application: k9-inntektsmelding-frontend
+        - application: k9-inntektsmelding-api
+          namespace: k9saksbehandling
     outbound:
       rules:
         - application: notifikasjon-produsent-api
@@ -110,6 +112,8 @@ spec:
         - application: k9-pdfgen-psb
           namespace: k9saksbehandling
         - application: sif-abac-pdp
+          namespace: k9saksbehandling
+        - application: k9-inntektsmelding-api
           namespace: k9saksbehandling
       external:
         - host: pdl-api.{{environment}}-fss-pub.nais.io
