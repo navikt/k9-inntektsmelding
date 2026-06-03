@@ -1,6 +1,9 @@
 package no.nav.familie.inntektsmelding.imdialog.modell;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -33,6 +36,51 @@ public class InntektsmeldingRepository {
 
     public InntektsmeldingEntitet hentInntektsmelding(long inntektsmeldingId) {
         return entityManager.find(InntektsmeldingEntitet.class, inntektsmeldingId);
+    }
+
+    public Optional<InntektsmeldingEntitet> hentInntektsmeldingForUuid(UUID uuid) {
+        var query = entityManager.createQuery(
+                "FROM InntektsmeldingEntitet where uuid = :uuid",
+                InntektsmeldingEntitet.class)
+            .setParameter("uuid", uuid);
+        return query.getResultStream().findFirst();
+    }
+
+    public List<InntektsmeldingEntitet> hentInntektsmeldingerFraFilter(String orgnr,
+                                                                       AktørIdEntitet aktørId,
+                                                                       Ytelsetype ytelsetype,
+                                                                       LocalDate fom,
+                                                                       LocalDate tom) {
+        var jpql = new StringBuilder("FROM InntektsmeldingEntitet where arbeidsgiverIdent = :orgnr");
+        if (aktørId != null) {
+            jpql.append(" and aktørId = :aktørId");
+        }
+        if (ytelsetype != null) {
+            jpql.append(" and ytelsetype = :ytelsetype");
+        }
+        if (fom != null) {
+            jpql.append(" and startDato >= :fom");
+        }
+        if (tom != null) {
+            jpql.append(" and startDato <= :tom");
+        }
+        jpql.append(" order by opprettetTidspunkt desc");
+
+        var query = entityManager.createQuery(jpql.toString(), InntektsmeldingEntitet.class)
+            .setParameter("orgnr", orgnr);
+        if (aktørId != null) {
+            query.setParameter("aktørId", aktørId);
+        }
+        if (ytelsetype != null) {
+            query.setParameter("ytelsetype", ytelsetype);
+        }
+        if (fom != null) {
+            query.setParameter("fom", fom);
+        }
+        if (tom != null) {
+            query.setParameter("tom", tom);
+        }
+        return query.getResultList();
     }
 
     public List<InntektsmeldingEntitet> hentInntektsmeldingerForÅr(AktørIdEntitet aktørId, String arbeidsgiverIdent, int år, Ytelsetype ytelsetype) {

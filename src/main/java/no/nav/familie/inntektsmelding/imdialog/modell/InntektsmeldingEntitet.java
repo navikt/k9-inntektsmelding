@@ -95,6 +95,9 @@ public class InntektsmeldingEntitet {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private OmsorgspengerEntitet omsorgspenger;
 
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
+    private LpsSystemInfoEntitet lpsSystem;
+
     @ManyToOne()
     @JoinColumn(name = "foresporsel_id", nullable = false, updatable = false)
     private ForespørselEntitet forespørsel;
@@ -177,6 +180,10 @@ public class InntektsmeldingEntitet {
 
     public ForespørselEntitet getForespørsel() {
         return forespørsel;
+    }
+
+    public LpsSystemInfoEntitet getLpsSystem() {
+        return lpsSystem;
     }
 
     private void leggTilRefusjonsendring(RefusjonsendringEntitet refusjonsendringEntitet) {
@@ -341,6 +348,12 @@ public class InntektsmeldingEntitet {
         public Builder medOmsorgspenger(OmsorgspengerEntitet omsorgspenger) {
             omsorgspenger.setInntektsmelding(kladd);
             kladd.omsorgspenger = omsorgspenger;
+            return this;
+        }
+
+        public Builder medLpsSystemInfo(LpsSystemInfoEntitet lpsSystem) {
+            lpsSystem.setInntektsmelding(kladd);
+            kladd.lpsSystem = lpsSystem;
             return this;
         }
 
