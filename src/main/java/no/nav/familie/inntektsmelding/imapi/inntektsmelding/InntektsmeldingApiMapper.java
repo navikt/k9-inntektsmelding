@@ -71,7 +71,10 @@ class InntektsmeldingApiMapper {
 
     static InntektsmeldingDto mapFraEntitet(InntektsmeldingEntitet inntektsmelding, PersonIdent personIdent) {
         var forespørsel = inntektsmelding.getForespørsel();
-        return new InntektsmeldingDto(
+        if (personIdent == null) {
+            throw new IllegalArgumentException("Finner ikke fødselsnummer for aktørId når personIdent er null." );
+        }
+            return new InntektsmeldingDto(
             inntektsmelding.getUuid(),
             forespørsel.getUuid(),
             new FødselsnummerDto(personIdent.getIdent()),
