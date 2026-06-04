@@ -24,7 +24,7 @@ public class LpsSystemInfoEntitet {
     @Column(name = "versjon", length = 100, nullable = false, updatable = false)
     private String versjon;
 
-    public LpsSystemInfoEntitet() {
+    LpsSystemInfoEntitet() {
         // Hibernate
     }
 
