@@ -1,11 +1,11 @@
-create table if not exists lps_system_informasjon (
-    inntektsmelding_id bigint not null
-        constraint pk_lps_system_id primary key
-        constraint fk_lps_system_id references inntektsmelding,
-    navn varchar(100) not null,
-    versjon varchar(100) not null
+CREATE TABLE LPS_SYSTEM_INFORMASJON (
+    INNTEKTSMELDING_ID BIGINT NOT NULL
+        CONSTRAINT pk_lps_system_id PRIMARY KEY
+        CONSTRAINT fk_lps_system_id REFERENCES INNTEKTSMELDING,
+    NAVN VARCHAR(100) NOT NULL,
+    VERSJON VARCHAR(100) NOT NULL
 );
-comment on table lps_system_informasjon is 'Informasjon om LPS systemet som sendte inntektsmeldingen';
-comment on column lps_system_informasjon.inntektsmelding_id is 'Natural Primary Key og Foreign Key til inntektsmelding';
-comment on column lps_system_informasjon.navn is 'Navn på system som har sendt inntektsmeldingen';
-comment on column lps_system_informasjon.versjon is 'Versjon på system som har sendt inntektsmeldingen';
+COMMENT ON TABLE LPS_SYSTEM_INFORMASJON IS 'Informasjon om LPS systemet som sendte inntektsmeldingen';
+COMMENT ON COLUMN LPS_SYSTEM_INFORMASJON.INNTEKTSMELDING_ID IS 'Natural Primary Key og Foreign Key til inntektsmelding';
+COMMENT ON COLUMN LPS_SYSTEM_INFORMASJON.NAVN IS 'Navn på system som har sendt inntektsmeldingen';
+COMMENT ON COLUMN LPS_SYSTEM_INFORMASJON.VERSJON IS 'Versjon på system som har sendt inntektsmeldingen';
