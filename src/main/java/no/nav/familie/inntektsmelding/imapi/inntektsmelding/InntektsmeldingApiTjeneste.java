@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
@@ -25,6 +28,7 @@ import no.nav.k9.inntektsmelding.imapi.inntektsmelding.InntektsmeldingDto;
 
 @ApplicationScoped
 public class InntektsmeldingApiTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingApiTjeneste.class);
 
     private InntektsmeldingRepository inntektsmeldingRepository;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
@@ -71,9 +75,15 @@ public class InntektsmeldingApiTjeneste {
     }
 
     private List<InntektsmeldingDto> hentInntektsmeldingerFraFilter(HentInntektsmeldingerRequest request) {
-        AktørIdEntitet aktørId = request.fnr() != null
-            ? personTjeneste.finnAktørIdForPersonIdent(request.fnr().fnr()).orElse(null)
-            : null;
+        AktørIdEntitet aktørId = null;
+        if (request.fnr() != null) {
+            aktørId = personTjeneste.finnAktørIdForPersonIdent(request.fnr().fnr()).orElse(null);
+            if (aktørId == null) {
+                LOG.warn("Finner ikke aktørId ved henting av inntektsmelding fra filter, returnerer tom liste");
+                return List.of();
+            }
+        }
+
         Ytelsetype ytelsetype = request.ytelseType() != null ? mapYtelsetype(request.ytelseType()) : null;
         List<InntektsmeldingEntitet> inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldingerFraFilter(
             request.orgnr().orgnr(), aktørId, ytelsetype, request.fom(), request.tom());
@@ -82,7 +92,13 @@ public class InntektsmeldingApiTjeneste {
         Map<AktørIdEntitet, PersonIdent> aktørIdPersonIdentMap = personTjeneste.finnPersonIdentForAktørIdBolk(aktørIder);
 
         return inntektsmeldinger.stream()
-            .map(im -> InntektsmeldingApiMapper.mapFraEntitet(im, aktørIdPersonIdentMap.get(im.getAktørId())))
+            .map(im -> {
+                var personIdent = aktørIdPersonIdentMap.get(im.getAktørId());
+                if (personIdent == null) {
+                    throw new IllegalArgumentException("Finner ikke fødselsnummer for aktørId.");
+                }
+                return InntektsmeldingApiMapper.mapFraEntitet(im, personIdent);
+            })
             .toList();
     }
 }
