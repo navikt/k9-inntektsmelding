@@ -84,12 +84,12 @@ public class InntektsmeldingApiMottakTjeneste {
                     sisteIm.getUuid().toString()));
         }
 
-        var inntektSjekk = sjekkMånedInntektMotRapportertInntekt(request, aktørId, forespørsel, nyIm);
+        SendInntektsmeldingResponse inntektSjekk = sjekkMånedInntektMotRapportertInntekt(request, aktørId, forespørsel, nyIm);
         if (!inntektSjekk.success()) {
             return inntektSjekk;
         }
 
-        var imId = lagreOgLagJournalførTask(nyIm, forespørsel);
+        Long imId = lagreOgLagJournalførTask(nyIm, forespørsel);
 
         forespørselBehandlingTjeneste.ferdigstillForespørsel(
             request.foresporselUuid(),
@@ -99,7 +99,7 @@ public class InntektsmeldingApiMottakTjeneste {
             Optional.of(nyIm.getUuid())
         );
 
-        var lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
+        InntektsmeldingEntitet lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
         MetrikkerTjeneste.loggInnsendtInntektsmelding(lagretEntitet);
 
         return new SendInntektsmeldingResponse(true, lagretEntitet.getUuid(), null);
@@ -117,7 +117,7 @@ public class InntektsmeldingApiMottakTjeneste {
             forespørsel.getYtelseType()
         );
 
-        var nedetidAInntekt = inntektFraAInntekt.måneder() != null && inntektFraAInntekt.måneder().stream()
+        boolean nedetidAInntekt = inntektFraAInntekt.måneder() != null && inntektFraAInntekt.måneder().stream()
             .anyMatch(m -> MånedslønnStatus.NEDETID_AINNTEKT.equals(m.status()));
 
         if (nedetidAInntekt) {
@@ -128,12 +128,12 @@ public class InntektsmeldingApiMottakTjeneste {
                     request.foresporselUuid().toString()));
         }
 
-        var inntektErUlikOgIngenÅrsakOppgitt = inntektFraAInntekt.gjennomsnitt() != null
+        boolean inntektErUlikOgIngenÅrsakOppgitt = inntektFraAInntekt.gjennomsnitt() != null
             && inntektFraAInntekt.gjennomsnitt().subtract(entitet.getMånedInntekt()).abs().compareTo(AKSEPTERT_AVVIK) > 0
             && (entitet.getEndringsårsaker() == null || entitet.getEndringsårsaker().isEmpty());
 
         if (inntektErUlikOgIngenÅrsakOppgitt) {
-            var feilmelding = String.format(
+            String feilmelding = String.format(
                 "Inntekt i inntektsmelding er ulik inntekt fra A-inntekt, og ingen endringsårsak er oppgitt. Gjennomsnittlig inntekt fra A-inntekt: %s, oppgitt inntekt: %s",
                 inntektFraAInntekt.gjennomsnitt(), entitet.getMånedInntekt());
             return new SendInntektsmeldingResponse(false, null,
@@ -154,13 +154,13 @@ public class InntektsmeldingApiMottakTjeneste {
 
     private Long lagreOgLagJournalførTask(InntektsmeldingEntitet inntektsmelding, ForespørselEntitet forespørsel) {
         LOG.info("Lagrer inntektsmelding fra LPS-system for ytelse {} og saksnummer {}", inntektsmelding.getYtelsetype(), forespørsel.getSaksnummer().orElse(null));
-        var imId = inntektsmeldingRepository.lagreInntektsmelding(inntektsmelding);
+        Long imId = inntektsmeldingRepository.lagreInntektsmelding(inntektsmelding);
         opprettTaskForSendTilJoark(inntektsmelding, forespørsel, imId);
         return imId;
     }
 
     private void opprettTaskForSendTilJoark(InntektsmeldingEntitet inntektsmelding, ForespørselEntitet forespørsel, Long imId) {
-        var task = ProsessTaskData.forProsessTask(SendTilJoarkTask.class);
+        ProsessTaskData task = ProsessTaskData.forProsessTask(SendTilJoarkTask.class);
         forespørsel.getSaksnummer().ifPresent(task::setSaksnummer);
         task.setProperty(SendTilJoarkTask.KEY_INNTEKTSMELDING_ID, imId.toString());
         task.setProperty(SendTilJoarkTask.KEY_YTELSE_TYPE, inntektsmelding.getYtelsetype().toString());
