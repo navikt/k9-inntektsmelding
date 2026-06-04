@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.imapi.inntektsmelding;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -151,7 +152,9 @@ public class InntektsmeldingApiMottakTjeneste {
             && Objects.equals(ny.getMånedRefusjon(), gammel.getMånedRefusjon())
             && Objects.equals(ny.getOpphørsdatoRefusjon(), gammel.getOpphørsdatoRefusjon())
             && Objects.equals(ny.getKontaktperson().getNavn(), gammel.getKontaktperson().getNavn())
-            && Objects.equals(ny.getKontaktperson().getTelefonnummer(), gammel.getKontaktperson().getTelefonnummer());
+            && Objects.equals(ny.getKontaktperson().getTelefonnummer(), gammel.getKontaktperson().getTelefonnummer())
+            && new HashSet<>(ny.getBorfalteNaturalYtelser()).equals(new HashSet<>(gammel.getBorfalteNaturalYtelser()))
+            && Objects.equals(ny.getOmsorgspenger(), gammel.getOmsorgspenger());
     }
 
     private Long lagreOgLagJournalførTask(InntektsmeldingEntitet inntektsmelding, ForespørselEntitet forespørsel) {

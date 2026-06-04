@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity(name = "DelvisFraværsPeriodeEntitet")
 @Table(name = "DELVIS_FRAVAERS_PERIODE")
@@ -57,6 +58,19 @@ public class DelvisFraværsPeriodeEntitet {
             "dato=" + dato +
             ", timer=" + timer +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DelvisFraværsPeriodeEntitet that)) return false;
+        return Objects.equals(dato, that.dato)
+            && (timer == null ? that.timer == null : timer.compareTo(that.timer) == 0);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dato, timer == null ? null : timer.stripTrailingZeros());
     }
 
 }

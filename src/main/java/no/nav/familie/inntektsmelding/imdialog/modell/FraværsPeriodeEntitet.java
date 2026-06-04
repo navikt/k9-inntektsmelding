@@ -9,6 +9,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import java.util.Objects;
+
 @Entity(name = "FraværsPeriodeEntitet")
 @Table(name = "FRAVAERS_PERIODE")
 public class FraværsPeriodeEntitet {
@@ -49,6 +51,18 @@ public class FraværsPeriodeEntitet {
         return "FraværsPeriodeEntitet{" +
             "periode=" + periode +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FraværsPeriodeEntitet that)) return false;
+        return Objects.equals(periode, that.periode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(periode);
     }
 
 }
