@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.imapi.inntektsmelding;
 
+import static no.nav.familie.inntektsmelding.imapi.inntektsmelding.InntektsmeldingApiMapper.mapYtelsetype;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -82,14 +84,5 @@ public class InntektsmeldingApiTjeneste {
         return inntektsmeldinger.stream()
             .map(im -> InntektsmeldingApiMapper.mapFraEntitet(im, aktørIdPersonIdentMap.get(im.getAktørId())))
             .toList();
-    }
-
-    private static Ytelsetype mapYtelsetype(no.nav.k9.inntektsmelding.felles.YtelseTypeDto dto) {
-        return switch (dto) {
-            case OMSORGSPENGER -> Ytelsetype.OMSORGSPENGER;
-            case OPPLÆRINGSPENGER -> Ytelsetype.OPPLÆRINGSPENGER;
-            case PLEIEPENGER_SYKT_BARN -> Ytelsetype.PLEIEPENGER_SYKT_BARN;
-            case PLEIEPENGER_I_LIVETS_SLUTTFASE -> Ytelsetype.PLEIEPENGER_NÆRSTÅENDE;
-        };
     }
 }

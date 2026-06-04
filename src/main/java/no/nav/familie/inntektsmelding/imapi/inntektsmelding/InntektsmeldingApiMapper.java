@@ -110,7 +110,7 @@ class InntektsmeldingApiMapper {
         return new AvsenderSystemDto("NAV_NO", "1.0");
     }
 
-    private static Ytelsetype mapYtelsetype(YtelseTypeDto ytelseTypeDto) {
+    static Ytelsetype mapYtelsetype(YtelseTypeDto ytelseTypeDto) {
         return switch (ytelseTypeDto) {
             case OMSORGSPENGER -> Ytelsetype.OMSORGSPENGER;
             case OPPLÆRINGSPENGER -> Ytelsetype.OPPLÆRINGSPENGER;
