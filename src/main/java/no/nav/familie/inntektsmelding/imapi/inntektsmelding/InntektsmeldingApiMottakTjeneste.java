@@ -75,7 +75,9 @@ public class InntektsmeldingApiMottakTjeneste {
 
         InntektsmeldingEntitet nyIm = InntektsmeldingApiMapper.mapTilEntitet(request, aktørId, forespørsel);
 
-        InntektsmeldingEntitet sisteIm = forespørsel.getInntektsmeldinger().stream().findFirst().orElse(null);
+        InntektsmeldingEntitet sisteIm = forespørsel.getInntektsmeldinger().stream()
+            .max(java.util.Comparator.comparing(InntektsmeldingEntitet::getOpprettetTidspunkt))
+            .orElse(null);
         if (sisteIm != null && inntektsmeldingerErLike(nyIm, sisteIm)) {
             LOG.info("Inntektsmelding avvises. Ingen endring sammenlignet med sist innsendt. forespørselUuid: {}", request.foresporselUuid());
             return new SendInntektsmeldingResponse(false, null,
