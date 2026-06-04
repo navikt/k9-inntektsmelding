@@ -101,6 +101,8 @@ spec:
           namespace: k9saksbehandling
           cluster: {{environment}}-fss
         - application: k9-inntektsmelding-frontend
+        - application: k9-inntektsmelding-api
+          namespace: k9saksbehandling
     outbound:
       rules:
         - application: notifikasjon-produsent-api
