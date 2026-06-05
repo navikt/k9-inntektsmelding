@@ -80,11 +80,6 @@
                 <version>${k9-sak.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.k9.felles.integrasjon</groupId>
-                <artifactId>k9-bigquery-klient</artifactId>
-                <version>${k9-felles.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>no.nav.sif.abac</groupId>
                 <artifactId>kontrakt</artifactId>
                 <version>${sif-abac-kontrakt.version}</version>
@@ -161,10 +156,6 @@
         <dependency>
             <groupId>no.nav.k9.sak</groupId>
             <artifactId>kontrakt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.k9.felles.integrasjon</groupId>
-            <artifactId>k9-bigquery-klient</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.sif.abac</groupId>

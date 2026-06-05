@@ -72,10 +72,6 @@ spec:
           - name: "pgaudit.log_parameter"
             value: "on"
         {{/if}}
-    bigQueryDatasets:
-      -  name: k9_inntektsmelding_statistikk_dataset
-         description: Inneholder tabeller for k9-inntektsmelding statistikk
-         permission: READWRITE
   tokenx:
     enabled: true
   azure:
@@ -129,8 +125,6 @@ spec:
       value: {{driftGruppeOid}}
     - name: gruppe.oid.saksbehandler
       value: {{saksbehandlerGruppeOid}}
-    - name: BIGQUERY_ENABLED
-      value: "true"
     - name: AUDITLOGGER_ENABLED
       value: "true"
     - name: AUDITLOGGER_VENDOR
