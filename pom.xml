@@ -14,7 +14,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <k9-inntektsmelding-kontrakt.version>0.1.0</k9-inntektsmelding-kontrakt.version>
+        <k9-inntektsmelding-kontrakt.version>0.1.1</k9-inntektsmelding-kontrakt.version>
         <felles.version>7.8.2</felles.version>
         <prosesstask.version>5.2.6</prosesstask.version>
         <fp-kontrakter.version>9.4.34</fp-kontrakter.version>

@@ -1,0 +1,11 @@
+CREATE TABLE LPS_SYSTEM_INFORMASJON (
+    INNTEKTSMELDING_ID BIGINT NOT NULL
+        CONSTRAINT pk_lps_system_id PRIMARY KEY
+        CONSTRAINT fk_lps_system_id REFERENCES INNTEKTSMELDING,
+    NAVN VARCHAR(100) NOT NULL,
+    VERSJON VARCHAR(100) NOT NULL
+);
+COMMENT ON TABLE LPS_SYSTEM_INFORMASJON IS 'Informasjon om LPS systemet som sendte inntektsmeldingen';
+COMMENT ON COLUMN LPS_SYSTEM_INFORMASJON.INNTEKTSMELDING_ID IS 'Natural Primary Key og Foreign Key til inntektsmelding';
+COMMENT ON COLUMN LPS_SYSTEM_INFORMASJON.NAVN IS 'Navn på system som har sendt inntektsmeldingen';
+COMMENT ON COLUMN LPS_SYSTEM_INFORMASJON.VERSJON IS 'Versjon på system som har sendt inntektsmeldingen';

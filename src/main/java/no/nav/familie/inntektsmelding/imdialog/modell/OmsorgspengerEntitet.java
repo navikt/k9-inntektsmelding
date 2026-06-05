@@ -12,7 +12,9 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 @Entity(name = "OmsorgspengerEntitet")
 @Table(name = "OMSORGSPENGER")
@@ -104,5 +106,19 @@ public class OmsorgspengerEntitet {
             ", fraværsPerioder=" + fraværsPerioder +
             ", delvisFraværsPerioder=" + delvisFraværsPerioder +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OmsorgspengerEntitet that)) return false;
+        return harUtbetaltPliktigeDager == that.harUtbetaltPliktigeDager
+            && new HashSet<>(fraværsPerioder).equals(new HashSet<>(that.fraværsPerioder))
+            && new HashSet<>(delvisFraværsPerioder).equals(new HashSet<>(that.delvisFraværsPerioder));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(harUtbetaltPliktigeDager, new HashSet<>(fraværsPerioder), new HashSet<>(delvisFraværsPerioder));
     }
 }

@@ -76,6 +76,21 @@ public class EndringsårsakEntitet {
             '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EndringsårsakEntitet that)) return false;
+        return årsak == that.årsak
+            && Objects.equals(fom, that.fom)
+            && Objects.equals(tom, that.tom)
+            && Objects.equals(bleKjentFom, that.bleKjentFom);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(årsak, fom, tom, bleKjentFom);
+    }
+
     public static Builder builder() {
         return new Builder();
     }
