@@ -154,6 +154,8 @@ public class InntektsmeldingApiMottakTjeneste {
             && Objects.equals(ny.getKontaktperson().getNavn(), gammel.getKontaktperson().getNavn())
             && Objects.equals(ny.getKontaktperson().getTelefonnummer(), gammel.getKontaktperson().getTelefonnummer())
             && new HashSet<>(ny.getBorfalteNaturalYtelser()).equals(new HashSet<>(gammel.getBorfalteNaturalYtelser()))
+            && new HashSet<>(ny.getRefusjonsendringer()).equals(new HashSet<>(gammel.getRefusjonsendringer()))
+            && new HashSet<>(ny.getEndringsårsaker()).equals(new HashSet<>(gammel.getEndringsårsaker()))
             && Objects.equals(ny.getOmsorgspenger(), gammel.getOmsorgspenger());
     }
 

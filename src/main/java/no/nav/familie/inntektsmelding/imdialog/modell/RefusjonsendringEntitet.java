@@ -2,6 +2,7 @@ package no.nav.familie.inntektsmelding.imdialog.modell;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -56,6 +57,19 @@ public class RefusjonsendringEntitet {
             "fom=" + fom +
             ", refusjonPrMnd=" + refusjonPrMnd +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RefusjonsendringEntitet that)) return false;
+        return Objects.equals(fom, that.fom)
+            && (refusjonPrMnd == null ? that.refusjonPrMnd == null : refusjonPrMnd.compareTo(that.refusjonPrMnd) == 0);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fom, refusjonPrMnd == null ? null : refusjonPrMnd.stripTrailingZeros());
     }
 
 }
