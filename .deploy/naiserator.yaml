@@ -76,6 +76,11 @@ spec:
       -  name: k9_inntektsmelding_statistikk_dataset
          description: Inneholder tabeller for k9-inntektsmelding statistikk
          permission: READWRITE
+  maskinporten:
+    enabled: true
+    scopes:
+      consumes:
+        - name: "digdir:dialogporten.serviceprovider"
   tokenx:
     enabled: true
   azure:
@@ -121,8 +126,10 @@ spec:
         - host: aareg-services.{{environment}}-fss-pub.nais.io
       {{#if devOnly}}
         - host: dokarkiv-q2.{{environment}}-fss-pub.nais.io
+        - host: platform.tt02.altinn.no
       {{else}}
         - host: dokarkiv.{{environment}}-fss-pub.nais.io
+        - host: platform.altinn.no
       {{/if}}
   env:
     - name: gruppe.oid.drift
