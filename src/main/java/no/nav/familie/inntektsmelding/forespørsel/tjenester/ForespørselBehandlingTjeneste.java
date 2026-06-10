@@ -46,7 +46,6 @@ import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.k9.sak.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -131,7 +130,7 @@ public class ForespørselBehandlingTjeneste {
                 try {
                     dialogportenKlient.ferdigstillDialog(forespørsel.getDialogportenUuid().get(),
                         new ArbeidsgiverDto(organisasjonsnummerDto.orgnr()),
-                        lagSaksTittelForDialogporten(new AktørId(aktorId.getAktørId())),
+                        lagSaksTittelForDialogporten(aktorId),
                         forespørsel.getYtelseType(),
                         forespørsel.getSkjæringstidspunkt(),
                         inntektsmeldingUuid,
@@ -323,6 +322,11 @@ public class ForespørselBehandlingTjeneste {
         minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
             ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT, eksisterendeForespørsel.getSkjæringstidspunkt()));
         forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
+        //oppdaterer status til not applicable i altinn dialogporten
+        if (dialogportenEnabled) {
+            eksisterendeForespørsel.getDialogportenUuid().ifPresent(dialogUuid ->
+                dialogportenKlient.settDialogTilUtgått(dialogUuid, lagSaksTittelForDialogporten(eksisterendeForespørsel.getAktørId())));
+        }
 
         LOG.info("Setter forespørsel til utgått, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             eksisterendeForespørsel.getOrganisasjonsnummer(),
@@ -373,7 +377,7 @@ public class ForespørselBehandlingTjeneste {
 
         if (dialogportenEnabled) {
             try {
-                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), new AktørId(aktørId.getAktørId()), ytelsetype, skjæringstidspunkt);
+                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), aktørId, ytelsetype, skjæringstidspunkt);
             } catch (Exception e) {
                 // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
                 LOG.warn("Feil ved kall til dialogporten: ", e);
@@ -426,7 +430,7 @@ public class ForespørselBehandlingTjeneste {
 
     private void opprettForespørselDialogporten(UUID forespørselUuid,
                                                 ArbeidsgiverDto arbeidsgiver,
-                                                AktørId aktørId,
+                                                AktørIdEntitet aktørId,
                                                 Ytelsetype ytelsetype,
                                                 LocalDate førsteUttaksdato) {
         String saksTittelDialog = lagSaksTittelForDialogporten(aktørId);
@@ -437,8 +441,8 @@ public class ForespørselBehandlingTjeneste {
         forespørselTjeneste.setDialogportenUuid(forespørselUuid, UUID.fromString(vasketDialogUuid));
     }
 
-    private String lagSaksTittelForDialogporten(AktørId aktørId) {
-        var person = personTjeneste.hentPersonInfoFraAktørId(new AktørIdEntitet(aktørId.getAktørId()));
+    private String lagSaksTittelForDialogporten(AktørIdEntitet aktørId) {
+        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         return ForespørselTekster.lagSaksTittelInntektsmelding(person.mapFulltNavn(), person.fødselsdato());
     }
 
@@ -464,7 +468,7 @@ public class ForespørselBehandlingTjeneste {
 
         if (dialogportenEnabled) {
             try {
-                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), new AktørId(aktørId.getAktørId()), ytelsetype, skjæringstidspunkt);
+                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), aktørId, ytelsetype, skjæringstidspunkt);
             } catch (Exception e) {
                 // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
                 LOG.warn("Feil ved kall til dialogporten: ", e);
@@ -491,7 +495,7 @@ public class ForespørselBehandlingTjeneste {
 
         if (dialogportenEnabled) {
             try {
-                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), new AktørId(aktørId.getAktørId()), Ytelsetype.OMSORGSPENGER, skjæringstidspunkt);
+                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), aktørId, Ytelsetype.OMSORGSPENGER, skjæringstidspunkt);
             } catch (Exception e) {
                 // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
                 LOG.warn("Feil ved kall til dialogporten: ", e);
