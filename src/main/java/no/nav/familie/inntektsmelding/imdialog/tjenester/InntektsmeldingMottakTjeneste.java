@@ -65,8 +65,6 @@ public class InntektsmeldingMottakTjeneste {
         var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEntitet);
         var imId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
 
-        forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(forespørselEntitet, Optional.ofNullable(inntektsmeldingEntitet.getUuid()), orgnummer);
-
         List<FraværsPeriodeEntitet> omsorgspengerFraværsPerioder = inntektsmeldingEntitet.getOmsorgspenger() != null
                                                                    ? inntektsmeldingEntitet.getOmsorgspenger().getFraværsPerioder()
                                                                    : List.of();
@@ -76,6 +74,7 @@ public class InntektsmeldingMottakTjeneste {
                                                                                : List.of();
 
         // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
+        forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(forespørselEntitet, Optional.ofNullable(inntektsmeldingEntitet.getUuid()), orgnummer);
         var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(
             sendInntektsmeldingRequest.foresporselUuid(),
             aktorId,
