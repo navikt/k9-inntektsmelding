@@ -75,6 +75,7 @@ public class InntektsmeldingMottakTjeneste {
                                                                                ? inntektsmeldingEntitet.getOmsorgspenger().getDelvisFraværsPerioder()
                                                                                : List.of();
 
+        // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
         var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(
             sendInntektsmeldingRequest.foresporselUuid(),
             aktorId,
@@ -115,6 +116,7 @@ public class InntektsmeldingMottakTjeneste {
         var fraværsPerioder = imEnitet.getOmsorgspenger().getFraværsPerioder();
         var delvisFraværsPerioder = imEnitet.getOmsorgspenger().getDelvisFraværsPerioder();
 
+        // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
             aktørId,
             organisasjonsnummer,
@@ -152,6 +154,7 @@ public class InntektsmeldingMottakTjeneste {
 
         MetrikkerTjeneste.loggInnsendtAGIRefusjonNyansatt(inntektsmeldingEntitet);
 
+        // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
             aktørId,
             organisasjonsnummer,
@@ -184,6 +187,8 @@ public class InntektsmeldingMottakTjeneste {
 
         MetrikkerTjeneste.loggInnsendtAGIUregistrert(inntektsmeldingEntitet);
 
+        // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
+        // Denne flyten burde også kunne forenkles for å enklere støtte omsorgspenger
         if (inntektsmeldingEntitet.getOmsorgspenger() == null) {
             forespørselBehandlingTjeneste.ferdigstillForespørsel(
                 forespørselUuid,

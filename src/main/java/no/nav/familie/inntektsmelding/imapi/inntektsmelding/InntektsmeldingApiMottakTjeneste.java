@@ -94,6 +94,7 @@ public class InntektsmeldingApiMottakTjeneste {
 
         Long imId = lagreOgLagJournalførTask(nyIm, forespørsel);
 
+        // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
         forespørselBehandlingTjeneste.ferdigstillForespørsel(
             request.foresporselUuid(),
             aktørId,
