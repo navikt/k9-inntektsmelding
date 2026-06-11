@@ -109,7 +109,9 @@ public class ForespørselBehandlingTjeneste {
         validerOrganisasjon(forespørsel, organisasjonsnummerDto);
 
         // Arbeidsgiverinitierte forespørsler har ingen oppgave
-        forespørsel.getOppgaveId().ifPresent(oppgaveId -> minSideArbeidsgiverTjeneste.oppgaveUtført(oppgaveId, OffsetDateTime.now()));
+        if (forespørsel.getOppgaveId().isPresent()) {
+            minSideArbeidsgiverTjeneste.oppgaveUtført(forespørsel.getOppgaveId().get(), OffsetDateTime.now());
+        }
 
         var erArbeidsgiverinitiert = forespørsel.getOppgaveId().isEmpty();
         minSideArbeidsgiverTjeneste.ferdigstillSak(forespørsel.getArbeidsgiverNotifikasjonSakId(), erArbeidsgiverinitiert); // Oppdaterer status i arbeidsgiver-notifikasjon
