@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>5.3.3</version>
+        <version>5.3.4</version>
     </parent>
 
     <groupId>no.nav.familie.inntektsmelding</groupId>
@@ -15,8 +15,8 @@
 
     <properties>
         <k9-inntektsmelding-kontrakt.version>0.1.1</k9-inntektsmelding-kontrakt.version>
-        <felles.version>7.8.2</felles.version>
-        <prosesstask.version>5.2.6</prosesstask.version>
+        <felles.version>7.8.3</felles.version>
+        <prosesstask.version>5.2.7</prosesstask.version>
         <fp-kontrakter.version>9.4.36</fp-kontrakter.version>
         <k9-felles.version>11.2.4</k9-felles.version>
         <k9-sak.version>7.2.0</k9-sak.version>
@@ -29,7 +29,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>5.3.3</version>
+                <version>5.3.4</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
