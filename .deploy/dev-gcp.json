@@ -17,6 +17,7 @@
   "dbDiskAutoresize": "false",
   "dbHighAvailability": "false",
   "dbPointInTimeRecovery": "false",
+  "dbRetainedBackups": "7",
   "AZURE_IAC_RULES": [
     {
       "app": "k9-swagger",
