@@ -22,7 +22,7 @@ public class DialogportenRequestMapper {
     public static DialogportenRequest opprettDialogRequest(ArbeidsgiverDto arbeidsgiver,
                                                            UUID forespørselUuid,
                                                            String sakstittel,
-                                                           LocalDate førsteUttaksdato,
+                                                           LocalDate skjæringstidspunkt,
                                                            Ytelsetype ytelsetype,
                                                            String arbeidsgiverportalSkjemaLenke,
                                                            String sendInntektsmeldingApiLenke,
@@ -33,8 +33,8 @@ public class DialogportenRequestMapper {
 
         //Oppretter dialog
         var summaryDialog = String.format("Nav trenger inntektsmelding for å behandle søknad om %s med startdato %s.",
-            ytelsetype.name().toLowerCase(),
-            førsteUttaksdato);
+            mapYtelsestypeNavn(ytelsetype),
+            formaterDato(skjæringstidspunkt));
         var contentDialog = new DialogportenRequest.Content(lagContentValue(sakstittel), lagContentValue(summaryDialog), null);
 
         //Oppretter transmission
@@ -59,8 +59,8 @@ public class DialogportenRequestMapper {
 
         //oppretter api action
         var apiAction = new DialogportenRequest.ApiAction(String.format("Innsending av inntektsmelding for %s med startdato %s",
-            ytelsetype.name().toLowerCase(),
-            førsteUttaksdato.format(DateTimeFormatter.ofPattern("dd.MM.yy"))),
+            mapYtelsestypeNavn(ytelsetype),
+            formaterDato(skjæringstidspunkt)),
             List.of(new DialogportenRequest.Endpoint(sendInntektsmeldingApiLenke, DialogportenRequest.HttpMethod.POST, dokumentasjonsLenke)),
             DialogportenRequest.ACTION_WRITE);
 
@@ -76,7 +76,7 @@ public class DialogportenRequestMapper {
     public static List<DialogportenPatchRequest> opprettFerdigstillPatchRequest(String sakstittel,
                                                                                 ArbeidsgiverDto arbeidsgiver,
                                                                                 Ytelsetype ytelsetype,
-                                                                                LocalDate førsteUttaksdato,
+                                                                                LocalDate skjæringstidspunkt,
                                                                                 Optional<UUID> inntektsmeldingUuid,
                                                                                 LukkeÅrsak årsak,
                                                                                 String arbeidsgiverportalSkjemaLenke) {
@@ -87,9 +87,8 @@ public class DialogportenRequestMapper {
 
         //oppdatere innholdet i dialogen
         var summaryDialog = String.format("Nav har mottatt inntektsmelding for søknad om %s med startdato %s",
-            ytelsetype.name().toLowerCase(),
-            førsteUttaksdato.format(
-                DateTimeFormatter.ofPattern("dd.MM.yy")));
+            mapYtelsestypeNavn(ytelsetype),
+            formaterDato(skjæringstidspunkt));
         var contentRequest = new DialogportenRequest.Content(lagContentValue(sakstittel), lagContentValue(summaryDialog), null);
         var patchContent = new DialogportenPatchRequest(DialogportenPatchRequest.OP_REPLACE,
             DialogportenPatchRequest.PATH_CONTENT,
@@ -186,5 +185,18 @@ public class DialogportenRequestMapper {
     private static DialogportenRequest.ContentValue lagContentValue(String verdi) {
         return new DialogportenRequest.ContentValue(List.of(new DialogportenRequest.ContentValueItem(verdi, DialogportenRequest.NB)),
             DialogportenRequest.TEXT_PLAIN);
+    }
+
+    private static String formaterDato(LocalDate dato) {
+        return dato.format(DateTimeFormatter.ofPattern("dd.MM.yy"));
+    }
+
+    private static String mapYtelsestypeNavn(Ytelsetype ytelsetype) {
+        return switch (ytelsetype) {
+            case PLEIEPENGER_SYKT_BARN -> "pleiepenger sykt barn";
+            case OMSORGSPENGER -> "omsorgspenger";
+            case PLEIEPENGER_NÆRSTÅENDE -> "pleiepenger i livets sluttfase";
+            case OPPLÆRINGSPENGER -> "opplæringspenger";
+        };
     }
 }
