@@ -65,6 +65,8 @@ public class InntektsmeldingMottakTjeneste {
         var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEntitet);
         var imId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
 
+        forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(forespørselEntitet, Optional.ofNullable(inntektsmeldingEntitet.getUuid()), orgnummer);
+
         List<FraværsPeriodeEntitet> omsorgspengerFraværsPerioder = inntektsmeldingEntitet.getOmsorgspenger() != null
                                                                    ? inntektsmeldingEntitet.getOmsorgspenger().getFraværsPerioder()
                                                                    : List.of();
@@ -142,11 +144,11 @@ public class InntektsmeldingMottakTjeneste {
                                   ytelseType,
                                   ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
 
-        var forespørselEnitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
+        var forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(this::manglerForespørselFeil);
 
-        var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitetForArbeidsgiverinitiertNyansatt(request, forespørselEnitet);
-        var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEnitet);
+        var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitetForArbeidsgiverinitiertNyansatt(request, forespørselEntitet);
+        var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
 
         MetrikkerTjeneste.loggInnsendtAGIRefusjonNyansatt(inntektsmeldingEntitet);
 
@@ -174,11 +176,11 @@ public class InntektsmeldingMottakTjeneste {
                                   ytelseType,
                                   ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
 
-        var forespørselEnitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
+        var forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(this::manglerForespørselFeil);
 
-        var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(request, forespørselEnitet);
-        var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEnitet);
+        var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(request, forespørselEntitet);
+        var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
 
         MetrikkerTjeneste.loggInnsendtAGIUregistrert(inntektsmeldingEntitet);
 

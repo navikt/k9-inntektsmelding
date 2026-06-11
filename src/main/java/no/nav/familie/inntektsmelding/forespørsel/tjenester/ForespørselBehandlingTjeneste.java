@@ -25,6 +25,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørs
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.rest.kvittering.PdfDokumentRest;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
@@ -61,7 +62,7 @@ public class ForespørselBehandlingTjeneste {
     private PersonTjeneste personTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
-    private String inntektsmeldingSkjemaLenke;
+    private String arbeidsgiverportalSkjemaLenke;
     private boolean dialogportenEnabled;
 
     ForespørselBehandlingTjeneste() {
@@ -81,7 +82,7 @@ public class ForespørselBehandlingTjeneste {
         this.personTjeneste = personTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
-        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
+        this.arbeidsgiverportalSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
         this.dialogportenEnabled = ENV.getProperty("dialogporten.enabled", Boolean.class, false);
     }
 
@@ -394,7 +395,7 @@ public class ForespørselBehandlingTjeneste {
         var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr());
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
-        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
+        var skjemaUri = URI.create(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid);
         var arbeidsgiverNotifikasjonSakId = minSideArbeidsgiverTjeneste.opprettSak(forespørselUuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
@@ -439,6 +440,27 @@ public class ForespørselBehandlingTjeneste {
         String vasketDialogUuid = dialogPortenUuid.replace("\"", "");
         LOG.info("Mottok UUID {} fra dialogporten", vasketDialogUuid);
         forespørselTjeneste.setDialogportenUuid(forespørselUuid, UUID.fromString(vasketDialogUuid));
+    }
+
+    public void oppdaterPortalerMedEndretInntektsmelding(ForespørselEntitet forespørsel,
+                                                         Optional<UUID> inntektsmeldingUuid,
+                                                         OrganisasjonsnummerDto arbeidsgiver) {
+        // Oppdater status i arbeidsgiverportalen
+        var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
+        var beskjedTekst = ForespørselTekster.lagBeskjedOmOppdatertInntektsmelding();
+        var hentInntektsmeldingPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api/" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + inntektsmeldingUuid;
+        minSideArbeidsgiverTjeneste.sendNyBeskjedMedKvittering(forespørsel.getUuid().toString(),
+            merkelapp,
+            arbeidsgiver.orgnr(),
+            beskjedTekst,
+            URI.create(hentInntektsmeldingPdfUrl));
+
+        // Oppdater status i altinn dialogporten
+        if (forespørsel.getDialogportenUuid().isPresent()) {
+            dialogportenKlient.oppdaterDialogMedEndretInntektsmelding(forespørsel.getDialogportenUuid().get(),
+                new ArbeidsgiverDto(arbeidsgiver.orgnr()),
+                inntektsmeldingUuid);
+        }
     }
 
     private String lagSaksTittelForDialogporten(AktørIdEntitet aktørId) {
@@ -487,7 +509,7 @@ public class ForespørselBehandlingTjeneste {
 
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = Merkelapp.REFUSJONSKRAV_OMP;
-        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + forespørselUuid);
+        var skjemaUri = URI.create(arbeidsgiverportalSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + forespørselUuid);
         var sakstittel = ForespørselTekster.lagSaksTittelRefusjonskrav(person.mapFulltNavn(), person.fødselsdato());
         var arbeidsgiverNotifikasjonSakId = minSideArbeidsgiverTjeneste.opprettSak(forespørselUuid.toString(), merkelapp, organisasjonsnummer.orgnr(), sakstittel, skjemaUri);
 
@@ -616,18 +638,18 @@ public class ForespørselBehandlingTjeneste {
     public void opprettNyBeskjedMedEksternVarsling(ForespørselEntitet forespørsel) {
         Merkelapp merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
         UUID forespørselUuid = forespørsel.getUuid();
-        URI skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
+        URI hentInntektsmeldingPdfUri = URI.create(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid);
         Organisasjon organisasjon = organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer());
         PersonInfo person = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId());
         String varselTekst = ForespørselTekster.lagVarselFraSaksbehandlerTekst(forespørsel.getYtelseType(), organisasjon);
         String beskjedTekst = ForespørselTekster.lagBeskjedFraSaksbehandlerTekst(forespørsel.getYtelseType(), person.mapFulltNavn());
 
-        minSideArbeidsgiverTjeneste.sendNyBeskjed(forespørselUuid.toString(),
+        minSideArbeidsgiverTjeneste.sendNyBeskjedMedEksternVarsling(forespørselUuid.toString(),
             merkelapp,
             organisasjon.orgnr(),
             beskjedTekst,
             varselTekst,
-            skjemaUri);
+            hentInntektsmeldingPdfUri);
     }
 
     private void validerOrganisasjon(ForespørselEntitet forespørsel, OrganisasjonsnummerDto orgnummer) {
@@ -643,6 +665,6 @@ public class ForespørselBehandlingTjeneste {
     }
 
     private URI lagUriForInntektsmeldingOppsummering(UUID forespørselUuid) {
-        return URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
+        return URI.create(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid);
     }
 }

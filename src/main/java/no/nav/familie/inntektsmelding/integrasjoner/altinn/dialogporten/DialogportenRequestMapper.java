@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
+import no.nav.familie.inntektsmelding.imdialog.rest.kvittering.PdfDokumentRest;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnRessurser;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
@@ -79,7 +80,8 @@ public class DialogportenRequestMapper {
                                                                                 LocalDate skjæringstidspunkt,
                                                                                 Optional<UUID> inntektsmeldingUuid,
                                                                                 LukkeÅrsak årsak,
-                                                                                String arbeidsgiverportalSkjemaLenke) {
+                                                                                String arbeidsgiverportalSkjemaLenke,
+                                                                                String hentInntektsmeldingApiLenke) {
         //oppdatere status på meldingen til fullført
         var patchStatus = new DialogportenPatchRequest(DialogportenPatchRequest.OP_REPLACE,
             DialogportenPatchRequest.PATH_STATUS,
@@ -94,18 +96,25 @@ public class DialogportenRequestMapper {
             DialogportenPatchRequest.PATH_CONTENT,
             contentRequest);
 
-        var patchTransmission = inntektsmeldingMottattTransmission(arbeidsgiver, inntektsmeldingUuid, årsak, arbeidsgiverportalSkjemaLenke, true);
+        var patchTransmission = inntektsmeldingMottattTransmission(arbeidsgiver,
+            inntektsmeldingUuid,
+            årsak,
+            arbeidsgiverportalSkjemaLenke,
+            hentInntektsmeldingApiLenke,
+            true);
 
         return List.of(patchStatus, patchContent, patchTransmission);
     }
 
     public static List<DialogportenPatchRequest> opprettInnsendtInntektsmeldingPatchRequest(ArbeidsgiverDto arbeidsgiver,
                                                                                             Optional<UUID> inntektsmeldingUuid,
-                                                                                            String arbeidsgiverportalSkjemaLenke) {
+                                                                                            String arbeidsgiverportalSkjemaLenke,
+                                                                                            String hentInntektsmeldingApiLenke) {
         var patchTransmission = inntektsmeldingMottattTransmission(arbeidsgiver,
             inntektsmeldingUuid,
             LukkeÅrsak.ORDINÆR_INNSENDING,
             arbeidsgiverportalSkjemaLenke,
+            hentInntektsmeldingApiLenke,
             false);
 
         return List.of(patchTransmission);
@@ -115,6 +124,7 @@ public class DialogportenRequestMapper {
                                                                                Optional<UUID> inntektsmeldingUuid,
                                                                                LukkeÅrsak årsak,
                                                                                String arbeidsgiverportalSkjemaLenke,
+                                                                               String hentInntektsmeldingApiLenke,
                                                                                boolean førsteInnsending) {
         //Ny transmission som sier at inntektsmelding er mottatt, og med en lenke til kvittering. Ekstern innsending har ingen kvittering.
         var mottattTekst = førsteInnsending ? "Inntektsmelding er mottatt" : "Oppdatert inntektsmelding er mottatt";
@@ -128,9 +138,10 @@ public class DialogportenRequestMapper {
         var apiActions = inntektsmeldingUuid.map(imUuid -> {
             var innsendingTekst = førsteInnsending ? "Innsendt inntektsmelding" : "Oppdatert inntektsmelding";
             var contentAttachement = List.of(new DialogportenRequest.ContentValueItem(innsendingTekst, DialogportenRequest.NB));
-            var url = arbeidsgiverportalSkjemaLenke + "/server/api/ekstern/innsendt/inntektsmelding/" + imUuid;
-            var urlApi = new DialogportenRequest.Url(url, DialogportenRequest.TEXT_PLAIN, DialogportenRequest.AttachmentUrlConsumerType.Api);
-            var urlGui = new DialogportenRequest.Url(url, DialogportenRequest.TEXT_PLAIN, DialogportenRequest.AttachmentUrlConsumerType.Gui);
+            var imPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api/" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + inntektsmeldingUuid;
+            var imJsonUrl = hentInntektsmeldingApiLenke + "/" + inntektsmeldingUuid;
+            var urlApi = new DialogportenRequest.Url(imJsonUrl, DialogportenRequest.TEXT_PLAIN, DialogportenRequest.AttachmentUrlConsumerType.Api);
+            var urlGui = new DialogportenRequest.Url(imPdfUrl, DialogportenRequest.TEXT_PLAIN, DialogportenRequest.AttachmentUrlConsumerType.Gui);
             var attachment = new DialogportenRequest.Attachment(contentAttachement, List.of(urlApi, urlGui));
             return List.of(attachment);
         }).orElse(List.of());

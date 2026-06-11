@@ -86,7 +86,8 @@ public class DialogportenKlient {
             førsteUttaksdato,
             inntektsmeldingUuid,
             lukkeÅrsak,
-            arbeidsgiverportalSkjemaLenke);
+            arbeidsgiverportalSkjemaLenke,
+            hentInntektsmeldingApiLenke);
         sendPatchRequest(dialogUuid, patchRequestFerdig);
     }
 
@@ -96,7 +97,8 @@ public class DialogportenKlient {
         var patchRequestInnsendt = DialogportenRequestMapper.opprettInnsendtInntektsmeldingPatchRequest(
             arbeidsgiver,
             inntektsmeldingUuid,
-            arbeidsgiverportalSkjemaLenke);
+            arbeidsgiverportalSkjemaLenke,
+            hentInntektsmeldingApiLenke);
         sendPatchRequest(dialogUuid, patchRequestInnsendt);
     }
 

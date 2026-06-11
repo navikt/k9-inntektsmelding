@@ -39,6 +39,7 @@ import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 public class PdfDokumentRest {
     public static final String BASE_PATH = "/pdf";
     public static final String INNTEKTSMELDING_PATH = "/inntektsmelding";
+    public static final String INNTEKTSMELDING_FULL_PATH = BASE_PATH + INNTEKTSMELDING_PATH;
     private static final Logger LOG = LoggerFactory.getLogger(PdfDokumentRest.class);
     private static final String APPLICATION_PDF = "application/pdf";
     private static final String CONTENT_DISPOSITION = "Content-Disposition";

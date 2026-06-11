@@ -36,6 +36,8 @@ class ForespørselTekster {
     private static final String TILLEGGSINFORMASJON_FOR_FRAVÆRSDAG = "For fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_FOR_FRAVÆRSPERIODE = "For fraværsperiode %s–%s";
 
+    private static final String BESKJED_OM_OPPDATERT_INNTEKTSMELDING = "Oppdatert inntektsmelding";
+
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselTekster.class);
 
     private ForespørselTekster() {
@@ -178,6 +180,10 @@ class ForespørselTekster {
             case PLEIEPENGER_NÆRSTÅENDE -> "pleiepenger i livets sluttfase";
             case OPPLÆRINGSPENGER -> "opplæringspenger";
         };
+    }
+
+    public static String lagBeskjedOmOppdatertInntektsmelding() {
+        return BESKJED_OM_OPPDATERT_INNTEKTSMELDING;
     }
 
     public static String lagBeskjedFraSaksbehandlerTekst(Ytelsetype ytelseType, String søkerNavn) {
