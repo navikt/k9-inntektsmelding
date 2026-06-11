@@ -62,6 +62,7 @@ spec:
         diskAutoresize: {{dbDiskAutoresize}}
         highAvailability: {{dbHighAvailability}}
         pointInTimeRecovery: {{dbPointInTimeRecovery}}
+        retainedBackups: {{dbRetainedBackups}}
         collation: nb_NO.UTF8
         {{#if enableDBAudit}}
         flags:
