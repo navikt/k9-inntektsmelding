@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTekster;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 import no.nav.familie.inntektsmelding.imdialog.rest.kvittering.PdfDokumentRest;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnRessurser;
@@ -34,7 +35,7 @@ public class DialogportenRequestMapper {
 
         //Oppretter dialog
         var summaryDialog = String.format("Nav trenger inntektsmelding for å behandle søknad om %s med startdato %s.",
-            mapYtelsestypeNavn(ytelsetype),
+            ForespørselTekster.mapYtelsestypeNavn(ytelsetype),
             formaterDato(skjæringstidspunkt));
         var contentDialog = new DialogportenRequest.Content(lagContentValue(sakstittel), lagContentValue(summaryDialog), null);
 
@@ -60,7 +61,7 @@ public class DialogportenRequestMapper {
 
         //oppretter api action
         var apiAction = new DialogportenRequest.ApiAction(String.format("Innsending av inntektsmelding for %s med startdato %s",
-            mapYtelsestypeNavn(ytelsetype),
+            ForespørselTekster.mapYtelsestypeNavn(ytelsetype),
             formaterDato(skjæringstidspunkt)),
             List.of(new DialogportenRequest.Endpoint(sendInntektsmeldingApiLenke, DialogportenRequest.HttpMethod.POST, dokumentasjonsLenke)),
             DialogportenRequest.ACTION_WRITE);
@@ -89,7 +90,7 @@ public class DialogportenRequestMapper {
 
         //oppdatere innholdet i dialogen
         var summaryDialog = String.format("Nav har mottatt inntektsmelding for søknad om %s med startdato %s",
-            mapYtelsestypeNavn(ytelsetype),
+            ForespørselTekster.mapYtelsestypeNavn(ytelsetype),
             formaterDato(skjæringstidspunkt));
         var contentRequest = new DialogportenRequest.Content(lagContentValue(sakstittel), lagContentValue(summaryDialog), null);
         var patchContent = new DialogportenPatchRequest(DialogportenPatchRequest.OP_REPLACE,
@@ -200,14 +201,5 @@ public class DialogportenRequestMapper {
 
     private static String formaterDato(LocalDate dato) {
         return dato.format(DateTimeFormatter.ofPattern("dd.MM.yy"));
-    }
-
-    private static String mapYtelsestypeNavn(Ytelsetype ytelsetype) {
-        return switch (ytelsetype) {
-            case PLEIEPENGER_SYKT_BARN -> "pleiepenger sykt barn";
-            case OMSORGSPENGER -> "omsorgspenger";
-            case PLEIEPENGER_NÆRSTÅENDE -> "pleiepenger i livets sluttfase";
-            case OPPLÆRINGSPENGER -> "opplæringspenger";
-        };
     }
 }
