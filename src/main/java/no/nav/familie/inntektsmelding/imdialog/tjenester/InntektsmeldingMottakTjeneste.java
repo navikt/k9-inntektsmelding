@@ -1,6 +1,5 @@
 package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
-import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,8 +11,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
-import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
@@ -65,14 +62,6 @@ public class InntektsmeldingMottakTjeneste {
         var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEntitet);
         var imId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
 
-        List<FraværsPeriodeEntitet> omsorgspengerFraværsPerioder = inntektsmeldingEntitet.getOmsorgspenger() != null
-                                                                   ? inntektsmeldingEntitet.getOmsorgspenger().getFraværsPerioder()
-                                                                   : List.of();
-
-        List<DelvisFraværsPeriodeEntitet> omsorgspengerDelvisFraværsPerioder = inntektsmeldingEntitet.getOmsorgspenger() != null
-                                                                               ? inntektsmeldingEntitet.getOmsorgspenger().getDelvisFraværsPerioder()
-                                                                               : List.of();
-
         // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
         forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(forespørselEntitet, Optional.ofNullable(inntektsmeldingEntitet.getUuid()), orgnummer);
         var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(
@@ -80,9 +69,7 @@ public class InntektsmeldingMottakTjeneste {
             aktorId,
             orgnummer,
             LukkeÅrsak.ORDINÆR_INNSENDING,
-            omsorgspengerFraværsPerioder,
-            omsorgspengerDelvisFraværsPerioder,
-            Optional.of(inntektsmeldingEntitet.getUuid())
+            Optional.of(inntektsmeldingEntitet)
         );
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
@@ -112,17 +99,12 @@ public class InntektsmeldingMottakTjeneste {
         var imEnitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEnitet);
         var imId = lagreOgLagJournalførTask(imEnitet, forespørselEnitet);
 
-        var fraværsPerioder = imEnitet.getOmsorgspenger().getFraværsPerioder();
-        var delvisFraværsPerioder = imEnitet.getOmsorgspenger().getDelvisFraværsPerioder();
-
         // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
             aktørId,
             organisasjonsnummer,
             LukkeÅrsak.ORDINÆR_INNSENDING,
-            fraværsPerioder,
-            delvisFraværsPerioder,
-            Optional.of(imEnitet.getUuid()));
+            Optional.of(imEnitet));
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
 
@@ -158,7 +140,7 @@ public class InntektsmeldingMottakTjeneste {
             aktørId,
             organisasjonsnummer,
             LukkeÅrsak.ORDINÆR_INNSENDING,
-            Optional.of(inntektsmeldingEntitet.getUuid()));
+            Optional.of(inntektsmeldingEntitet));
 
         var opprettetInntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
 
@@ -187,26 +169,13 @@ public class InntektsmeldingMottakTjeneste {
         MetrikkerTjeneste.loggInnsendtAGIUregistrert(inntektsmeldingEntitet);
 
         // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
-        // Denne flyten burde også kunne forenkles for å enklere støtte omsorgspenger
-        if (inntektsmeldingEntitet.getOmsorgspenger() == null) {
-            forespørselBehandlingTjeneste.ferdigstillForespørsel(
-                forespørselUuid,
-                aktørId,
-                organisasjonsnummer,
-                LukkeÅrsak.ORDINÆR_INNSENDING,
-                Optional.of(inntektsmeldingEntitet.getUuid())
-            );
-        } else {
-            forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
-                aktørId,
-                organisasjonsnummer,
-                LukkeÅrsak.ORDINÆR_INNSENDING,
-                inntektsmeldingEntitet.getOmsorgspenger().getFraværsPerioder(),
-                inntektsmeldingEntitet.getOmsorgspenger().getDelvisFraværsPerioder(),
-                Optional.of(inntektsmeldingEntitet.getUuid())
-            );
-        }
-
+        forespørselBehandlingTjeneste.ferdigstillForespørsel(
+            forespørselUuid,
+            aktørId,
+            organisasjonsnummer,
+            LukkeÅrsak.ORDINÆR_INNSENDING,
+            Optional.of(inntektsmeldingEntitet)
+        );
 
         var opprettetInntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
 

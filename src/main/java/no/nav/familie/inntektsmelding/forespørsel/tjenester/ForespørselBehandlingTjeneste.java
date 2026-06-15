@@ -25,6 +25,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørs
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.kvittering.PdfDokumentRest;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
@@ -86,23 +87,13 @@ public class ForespørselBehandlingTjeneste {
         this.dialogportenEnabled = ENV.getProperty("dialogporten.enabled", Boolean.class, false);
     }
 
-    public ForespørselEntitet ferdigstillForespørsel(UUID forespørselUuid,
-                                                     AktørIdEntitet aktørId,
-                                                     OrganisasjonsnummerDto organisasjonsnummer,
-                                                     LukkeÅrsak lukkeÅrsak,
-                                                     Optional<UUID> inntektsmeldingUuid) {
-        return ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, lukkeÅrsak, List.of(), List.of(), inntektsmeldingUuid);
-    }
-
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
                                                      AktørIdEntitet aktorId,
                                                      OrganisasjonsnummerDto organisasjonsnummerDto,
                                                      LukkeÅrsak årsak,
-                                                     List<FraværsPeriodeEntitet> fraværsPerioder,
-                                                     List<DelvisFraværsPeriodeEntitet> delvisFraværDag,
-                                                     // inntektsmeldingUuid er optional fordi vi ikke har inntektsmeldingen lagret hvis den er innsendt via Altinn / LPS'er
-                                                     Optional<UUID> inntektsmeldingUuid) {
-        var forespørsel = forespørselTjeneste.hentForespørsel(foresporselUuid)
+                                                     // inntektsmeldingEntitet er optional fordi vi ikke har inntektsmeldingen lagret hvis den er innsendt via Altinn / LPS'er
+                                                     Optional<InntektsmeldingEntitet> inntektsmeldingEntitet) {
+        ForespørselEntitet forespørsel = forespørselTjeneste.hentForespørsel(foresporselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
 
         validerAktør(forespørsel, aktorId);
@@ -113,13 +104,15 @@ public class ForespørselBehandlingTjeneste {
             minSideArbeidsgiverTjeneste.oppgaveUtført(forespørsel.getOppgaveId().get(), OffsetDateTime.now());
         }
 
-        var erArbeidsgiverinitiert = forespørsel.getOppgaveId().isEmpty();
+        boolean erArbeidsgiverinitiert = forespørsel.getOppgaveId().isEmpty();
         minSideArbeidsgiverTjeneste.ferdigstillSak(forespørsel.getArbeidsgiverNotifikasjonSakId(), erArbeidsgiverinitiert); // Oppdaterer status i arbeidsgiver-notifikasjon
 
-        var erOmsorgspenger = forespørsel.getYtelseType().equals(Ytelsetype.OMSORGSPENGER);
+        boolean erOmsorgspenger = forespørsel.getYtelseType().equals(Ytelsetype.OMSORGSPENGER);
         String tilleggsinformasjon;
-        if (erOmsorgspenger) {
-            tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, delvisFraværDag);
+        if (erOmsorgspenger && inntektsmeldingEntitet.isPresent()) {
+            List<FraværsPeriodeEntitet> fraværsPerioder = inntektsmeldingEntitet.get().getOmsorgspenger().getFraværsPerioder();
+            List<DelvisFraværsPeriodeEntitet> delvisFraværDager = inntektsmeldingEntitet.get().getOmsorgspenger().getDelvisFraværsPerioder();
+            tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, delvisFraværDager);
         } else {
             tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjon(årsak, forespørsel.getSkjæringstidspunkt());
         }
@@ -136,7 +129,7 @@ public class ForespørselBehandlingTjeneste {
                         lagSaksTittelForDialogporten(aktorId),
                         forespørsel.getYtelseType(),
                         forespørsel.getSkjæringstidspunkt(),
-                        inntektsmeldingUuid,
+                        inntektsmeldingEntitet.map(InntektsmeldingEntitet::getUuid),
                         årsak);
                 } catch (Exception e) {
                     // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
@@ -539,8 +532,6 @@ public class ForespørselBehandlingTjeneste {
                 f.getAktørId(),
                 new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()),
                 LukkeÅrsak.EKSTERN_INNSENDING,
-                List.of(),
-                List.of(),
                 Optional.empty());
             MetrikkerTjeneste.loggForespørselLukkEkstern(lukketForespørsel);
         });

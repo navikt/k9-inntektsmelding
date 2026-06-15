@@ -100,7 +100,7 @@ public class InntektsmeldingApiMottakTjeneste {
             aktørId,
             new OrganisasjonsnummerDto(request.organisasjonsnummer().orgnr()),
             LukkeÅrsak.ORDINÆR_INNSENDING,
-            Optional.of(nyIm.getUuid())
+            Optional.of(nyIm)
         );
 
         InntektsmeldingEntitet lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
