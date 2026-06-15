@@ -44,7 +44,7 @@ public record OmsorgspengerDto(@NotNull Boolean harUtbetaltPliktigeDager,
         }
         return fraværHeleDager.stream()
             .noneMatch(periode -> fraværHeleDager.stream()
-                .anyMatch(annen -> !annen.equals(periode) && annen.overlapper(periode)));
+                .anyMatch(annen -> annen != periode && annen.overlapper(periode)));
     }
 
     @AssertTrue(message = "Ingen duplikate fraværDelerAvDagen finnes")
