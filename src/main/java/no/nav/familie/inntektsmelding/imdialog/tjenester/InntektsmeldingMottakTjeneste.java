@@ -62,20 +62,27 @@ public class InntektsmeldingMottakTjeneste {
         var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEntitet);
         var imId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
 
-        // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
-        forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(forespørselEntitet, Optional.ofNullable(inntektsmeldingEntitet.getUuid()), orgnummer);
-        var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(
-            sendInntektsmeldingRequest.foresporselUuid(),
-            aktorId,
-            orgnummer,
-            LukkeÅrsak.ORDINÆR_INNSENDING,
-            Optional.of(inntektsmeldingEntitet)
-        );
+        // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
+        if (forespørselEntitet.getInntektsmeldinger().size() == 1) {
+            var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(
+                sendInntektsmeldingRequest.foresporselUuid(),
+                aktorId,
+                orgnummer,
+                LukkeÅrsak.ORDINÆR_INNSENDING,
+                Optional.of(inntektsmeldingEntitet)
+            );
+            MetrikkerTjeneste.loggForespørselLukkIntern(lukketForespørsel);
+        } else {
+            forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(
+                forespørselEntitet,
+                orgnummer,
+                Optional.ofNullable(inntektsmeldingEntitet.getUuid())
+            );
+        }
 
         var imEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
 
         // Metrikker i prometheus
-        MetrikkerTjeneste.loggForespørselLukkIntern(lukketForespørsel);
         MetrikkerTjeneste.loggInnsendtInntektsmelding(imEntitet);
 
         return InntektsmeldingMapper.mapFraEntitet(imEntitet, sendInntektsmeldingRequest.foresporselUuid());
@@ -99,7 +106,7 @@ public class InntektsmeldingMottakTjeneste {
         var imEnitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEnitet);
         var imId = lagreOgLagJournalførTask(imEnitet, forespørselEnitet);
 
-        // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
+        // for omsorgspenger refusjon oppretter vi alltid en ny forespørsel som vi må ferdigstille
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
             aktørId,
             organisasjonsnummer,
@@ -135,12 +142,20 @@ public class InntektsmeldingMottakTjeneste {
 
         MetrikkerTjeneste.loggInnsendtAGIRefusjonNyansatt(inntektsmeldingEntitet);
 
-        // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
-            aktørId,
-            organisasjonsnummer,
-            LukkeÅrsak.ORDINÆR_INNSENDING,
-            Optional.of(inntektsmeldingEntitet));
+        // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
+        if (forespørselEntitet.getInntektsmeldinger().size() == 1) {
+            forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
+                aktørId,
+                organisasjonsnummer,
+                LukkeÅrsak.ORDINÆR_INNSENDING,
+                Optional.of(inntektsmeldingEntitet));
+        } else {
+            forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(
+                forespørselEntitet,
+                organisasjonsnummer,
+                Optional.ofNullable(inntektsmeldingEntitet.getUuid())
+            );
+        }
 
         var opprettetInntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
 
@@ -168,14 +183,21 @@ public class InntektsmeldingMottakTjeneste {
 
         MetrikkerTjeneste.loggInnsendtAGIUregistrert(inntektsmeldingEntitet);
 
-        // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(
-            forespørselUuid,
-            aktørId,
-            organisasjonsnummer,
-            LukkeÅrsak.ORDINÆR_INNSENDING,
-            Optional.of(inntektsmeldingEntitet)
-        );
+        // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
+        if (forespørselEntitet.getInntektsmeldinger().size() == 1) {
+            forespørselBehandlingTjeneste.ferdigstillForespørsel(
+                forespørselUuid,
+                aktørId,
+                organisasjonsnummer,
+                LukkeÅrsak.ORDINÆR_INNSENDING,
+                Optional.of(inntektsmeldingEntitet));
+        } else {
+            forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(
+                forespørselEntitet,
+                organisasjonsnummer,
+                Optional.ofNullable(inntektsmeldingEntitet.getUuid())
+            );
+        }
 
         var opprettetInntektsmeldingEntitet = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
 

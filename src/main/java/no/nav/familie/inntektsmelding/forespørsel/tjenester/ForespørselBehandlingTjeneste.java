@@ -438,8 +438,8 @@ public class ForespørselBehandlingTjeneste {
     }
 
     public void oppdaterPortalerMedEndretInntektsmelding(ForespørselEntitet forespørsel,
-                                                         Optional<UUID> inntektsmeldingUuid,
-                                                         OrganisasjonsnummerDto arbeidsgiver) {
+                                                         OrganisasjonsnummerDto arbeidsgiver,
+                                                         Optional<UUID> inntektsmeldingUuid) {
         // Oppdater status i arbeidsgiverportalen
         var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
         var beskjedTekst = ForespørselTekster.lagBeskjedOmOppdatertInntektsmelding();

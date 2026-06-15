@@ -93,15 +93,25 @@ public class InntektsmeldingApiMottakTjeneste {
         }
 
         Long imId = lagreOgLagJournalførTask(nyIm, forespørsel);
+        OrganisasjonsnummerDto orgnummer = new OrganisasjonsnummerDto(request.organisasjonsnummer().orgnr());
 
-        // TODO: ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(
-            request.foresporselUuid(),
-            aktørId,
-            new OrganisasjonsnummerDto(request.organisasjonsnummer().orgnr()),
-            LukkeÅrsak.ORDINÆR_INNSENDING,
-            Optional.of(nyIm)
-        );
+        // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
+        if (sisteIm == null) {
+            forespørselBehandlingTjeneste.ferdigstillForespørsel(
+                request.foresporselUuid(),
+                aktørId,
+                orgnummer,
+                LukkeÅrsak.ORDINÆR_INNSENDING,
+                Optional.of(nyIm)
+            );
+        } else {
+            forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(
+                forespørsel,
+                orgnummer,
+                Optional.ofNullable(nyIm.getUuid())
+            );
+        }
+
 
         InntektsmeldingEntitet lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
         MetrikkerTjeneste.loggInnsendtInntektsmelding(lagretEntitet);
