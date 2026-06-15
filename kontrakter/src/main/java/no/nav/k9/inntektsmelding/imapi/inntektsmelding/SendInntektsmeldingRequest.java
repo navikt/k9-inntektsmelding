@@ -37,7 +37,7 @@ public record SendInntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
 
     @AssertTrue(message = "ytelseType omsorgspenger må ha omsorgspengerDto")
     private boolean isValidOmsorgspengerInfo() {
-        if (ytelseType.equals(YtelseTypeDto.OMSORGSPENGER)) {
+        if (YtelseTypeDto.OMSORGSPENGER.equals(ytelseType)) {
             return omsorgspenger != null;
         } else {
             return omsorgspenger == null;
