@@ -443,7 +443,7 @@ public class ForespørselBehandlingTjeneste {
         // Oppdater status i arbeidsgiverportalen
         var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
         var beskjedTekst = ForespørselTekster.lagBeskjedOmOppdatertInntektsmelding();
-        var hentInntektsmeldingPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api/" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + inntektsmeldingUuid;
+        var hentInntektsmeldingPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + inntektsmeldingUuid;
         minSideArbeidsgiverTjeneste.sendNyBeskjedMedKvittering(forespørsel.getUuid().toString(),
             merkelapp,
             arbeidsgiver.orgnr(),
