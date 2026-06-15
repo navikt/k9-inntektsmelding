@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -16,6 +17,7 @@ import no.nav.k9.inntektsmelding.felles.BortfaltNaturalytelseDto;
 import no.nav.k9.inntektsmelding.felles.EndringsårsakerDto;
 import no.nav.k9.inntektsmelding.felles.FødselsnummerDto;
 import no.nav.k9.inntektsmelding.felles.KontaktpersonDto;
+import no.nav.k9.inntektsmelding.felles.OmsorgspengerDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
 import no.nav.k9.inntektsmelding.felles.RefusjonDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
@@ -30,5 +32,15 @@ public record SendInntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
                                          @NotNull List<@Valid RefusjonDto> refusjon,
                                          @NotNull List<@Valid BortfaltNaturalytelseDto> bortfaltNaturalytelsePerioder,
                                          @NotNull List<@Valid EndringsårsakerDto> endringAvInntektÅrsaker,
-                                         @NotNull @Valid AvsenderSystemDto avsenderSystem) {
+                                         @NotNull @Valid AvsenderSystemDto avsenderSystem,
+                                         @Valid OmsorgspengerDto omsorgspenger) {
+
+    @AssertTrue(message = "ytelseType omsorgspenger må ha omsorgspengerDto")
+    private boolean isValidOmsorgspengerInfo() {
+        if (ytelseType.equals(YtelseTypeDto.OMSORGSPENGER)) {
+            return omsorgspenger != null;
+        } else {
+            return omsorgspenger == null;
+        }
+    }
 }
