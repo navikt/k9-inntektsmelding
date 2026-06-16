@@ -16,7 +16,7 @@ public record OmsorgspengerDto(@NotNull Boolean harUtbetaltPliktigeDager,
                                List<@Valid FraværDelerAvDagenDto> fraværDelerAvDagen) {
 
     public record FraværDelerAvDagenDto(@NotNull LocalDate dato,
-                                        @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 2, fraction = 2) BigDecimal timer) {
+                                        @NotNull @Min(0) @Max(24) @Digits(integer = 2, fraction = 2) BigDecimal timer) {
     }
 
     public record FraværHeleDagerDto(@NotNull LocalDate fom,
