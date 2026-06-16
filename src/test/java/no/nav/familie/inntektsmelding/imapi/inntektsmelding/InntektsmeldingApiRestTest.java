@@ -138,7 +138,8 @@ class InntektsmeldingApiRestTest {
             new AvsenderSystemDto("NAV_NO", "1.0"),
             List.of(),
             List.of(),
-            List.of()
+            List.of(),
+            null
         );
     }
 
@@ -154,6 +155,7 @@ class InntektsmeldingApiRestTest {
             List.of(),
             List.of(),
             List.of(),
+            null,
             null
         );
     }

@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.imapi.inntektsmelding;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
@@ -94,13 +97,27 @@ public class InntektsmeldingApiMottakTjeneste {
 
         Long imId = lagreOgLagJournalførTask(nyIm, forespørsel);
 
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(
-            request.foresporselUuid(),
-            aktørId,
-            new OrganisasjonsnummerDto(request.organisasjonsnummer().orgnr()),
-            LukkeÅrsak.ORDINÆR_INNSENDING,
-            Optional.of(nyIm.getUuid())
-        );
+        if (nyIm.getOmsorgspenger() != null) {
+            List<FraværsPeriodeEntitet> fraværsPerioder = nyIm.getOmsorgspenger().getFraværsPerioder();
+            List<DelvisFraværsPeriodeEntitet> delvisFraværsPerioder = nyIm.getOmsorgspenger().getDelvisFraværsPerioder();
+            forespørselBehandlingTjeneste.ferdigstillForespørsel(
+                request.foresporselUuid(),
+                aktørId,
+                new OrganisasjonsnummerDto(request.organisasjonsnummer().orgnr()),
+                LukkeÅrsak.ORDINÆR_INNSENDING,
+                fraværsPerioder,
+                delvisFraværsPerioder,
+                Optional.of(nyIm.getUuid())
+            );
+        } else {
+            forespørselBehandlingTjeneste.ferdigstillForespørsel(
+                request.foresporselUuid(),
+                aktørId,
+                new OrganisasjonsnummerDto(request.organisasjonsnummer().orgnr()),
+                LukkeÅrsak.ORDINÆR_INNSENDING,
+                Optional.of(nyIm.getUuid())
+            );
+        }
 
         InntektsmeldingEntitet lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
         MetrikkerTjeneste.loggInnsendtInntektsmelding(lagretEntitet);
