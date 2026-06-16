@@ -441,14 +441,16 @@ public class ForespørselBehandlingTjeneste {
                                                          OrganisasjonsnummerDto arbeidsgiver,
                                                          Optional<UUID> inntektsmeldingUuid) {
         // Oppdater status i arbeidsgiverportalen
-        var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
-        var beskjedTekst = ForespørselTekster.lagBeskjedOmOppdatertInntektsmelding();
-        var hentInntektsmeldingPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + inntektsmeldingUuid;
-        minSideArbeidsgiverTjeneste.sendNyBeskjedMedKvittering(forespørsel.getUuid().toString(),
-            merkelapp,
-            arbeidsgiver.orgnr(),
-            beskjedTekst,
-            URI.create(hentInntektsmeldingPdfUrl));
+        if (inntektsmeldingUuid.isPresent()) {
+            var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
+            var beskjedTekst = ForespørselTekster.lagBeskjedOmOppdatertInntektsmelding();
+            var hentInntektsmeldingPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + inntektsmeldingUuid.get();
+            minSideArbeidsgiverTjeneste.sendNyBeskjedMedKvittering(forespørsel.getUuid().toString(),
+                merkelapp,
+                arbeidsgiver.orgnr(),
+                beskjedTekst,
+                URI.create(hentInntektsmeldingPdfUrl));
+        }
 
         // Oppdater status i altinn dialogporten
         if (forespørsel.getDialogportenUuid().isPresent()) {
