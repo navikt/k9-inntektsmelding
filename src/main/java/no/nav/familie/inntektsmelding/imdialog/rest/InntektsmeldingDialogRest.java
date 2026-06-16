@@ -156,6 +156,11 @@ public class InntektsmeldingDialogRest {
         return Response.ok(response).build();
     }
 
+
+    /**
+     * @deprecated Bruk {@link no.nav.familie.inntektsmelding.imdialog.rest.kvittering.PdfDokumentRest#hentInnsendtInntektsmeldingPdf(UUID)} i stedet.
+     */
+    @Deprecated(forRemoval = true)
     @GET
     @Path(LAST_NED_PDF)
     @Produces("application/pdf")

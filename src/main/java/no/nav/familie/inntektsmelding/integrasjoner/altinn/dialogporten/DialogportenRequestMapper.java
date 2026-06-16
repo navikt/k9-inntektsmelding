@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTekster;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
+import no.nav.familie.inntektsmelding.imdialog.rest.kvittering.PdfDokumentRest;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnRessurser;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
@@ -22,10 +24,10 @@ public class DialogportenRequestMapper {
     public static DialogportenRequest opprettDialogRequest(ArbeidsgiverDto arbeidsgiver,
                                                            UUID forespørselUuid,
                                                            String sakstittel,
-                                                           LocalDate førsteUttaksdato,
+                                                           LocalDate skjæringstidspunkt,
                                                            Ytelsetype ytelsetype,
-                                                           String inntektsmeldingSkjemaLenke,
-                                                           String inntektsmeldingApiLenke,
+                                                           String arbeidsgiverportalSkjemaLenke,
+                                                           String sendInntektsmeldingApiLenke,
                                                            String forespørselApiLenke,
                                                            String dokumentasjonsLenke) {
         var party = String.format("urn:altinn:organization:identifier-no:%s", arbeidsgiver.ident());
@@ -33,15 +35,15 @@ public class DialogportenRequestMapper {
 
         //Oppretter dialog
         var summaryDialog = String.format("Nav trenger inntektsmelding for å behandle søknad om %s med startdato %s.",
-            ytelsetype.name().toLowerCase(),
-            førsteUttaksdato);
+            ForespørselTekster.mapYtelsestypeNavn(ytelsetype),
+            formaterDato(skjæringstidspunkt));
         var contentDialog = new DialogportenRequest.Content(lagContentValue(sakstittel), lagContentValue(summaryDialog), null);
 
         //Oppretter transmission
         var contentTransmission = new DialogportenRequest.Content(lagContentValue("Send inn inntektsmelding"), null, null);
-        var guiUrl = new DialogportenRequest.Url(inntektsmeldingSkjemaLenke + "/" + forespørselUuid.toString(), DialogportenRequest.NB,
+        var guiUrl = new DialogportenRequest.Url(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid.toString(), DialogportenRequest.NB,
             DialogportenRequest.AttachmentUrlConsumerType.Gui);
-        var apiUrl = new DialogportenRequest.Url(inntektsmeldingApiLenke,
+        var apiUrl = new DialogportenRequest.Url(sendInntektsmeldingApiLenke,
             DialogportenRequest.TEXT_PLAIN,
             DialogportenRequest.AttachmentUrlConsumerType.Api);
         var forespørselApiUrl = new DialogportenRequest.Url(forespørselApiLenke + "/" + forespørselUuid,
@@ -59,9 +61,9 @@ public class DialogportenRequestMapper {
 
         //oppretter api action
         var apiAction = new DialogportenRequest.ApiAction(String.format("Innsending av inntektsmelding for %s med startdato %s",
-            ytelsetype.name().toLowerCase(),
-            førsteUttaksdato.format(DateTimeFormatter.ofPattern("dd.MM.yy"))),
-            List.of(new DialogportenRequest.Endpoint(inntektsmeldingApiLenke, DialogportenRequest.HttpMethod.POST, dokumentasjonsLenke)),
+            ForespørselTekster.mapYtelsestypeNavn(ytelsetype),
+            formaterDato(skjæringstidspunkt)),
+            List.of(new DialogportenRequest.Endpoint(sendInntektsmeldingApiLenke, DialogportenRequest.HttpMethod.POST, dokumentasjonsLenke)),
             DialogportenRequest.ACTION_WRITE);
 
         return new DialogportenRequest(altinnressursSIF,
@@ -76,10 +78,11 @@ public class DialogportenRequestMapper {
     public static List<DialogportenPatchRequest> opprettFerdigstillPatchRequest(String sakstittel,
                                                                                 ArbeidsgiverDto arbeidsgiver,
                                                                                 Ytelsetype ytelsetype,
-                                                                                LocalDate førsteUttaksdato,
+                                                                                LocalDate skjæringstidspunkt,
                                                                                 Optional<UUID> inntektsmeldingUuid,
                                                                                 LukkeÅrsak årsak,
-                                                                                String inntektsmeldingSkjemaLenke) {
+                                                                                String arbeidsgiverportalSkjemaLenke,
+                                                                                String hentInntektsmeldingApiLenke) {
         //oppdatere status på meldingen til fullført
         var patchStatus = new DialogportenPatchRequest(DialogportenPatchRequest.OP_REPLACE,
             DialogportenPatchRequest.PATH_STATUS,
@@ -87,26 +90,32 @@ public class DialogportenRequestMapper {
 
         //oppdatere innholdet i dialogen
         var summaryDialog = String.format("Nav har mottatt inntektsmelding for søknad om %s med startdato %s",
-            ytelsetype.name().toLowerCase(),
-            førsteUttaksdato.format(
-                DateTimeFormatter.ofPattern("dd.MM.yy")));
+            ForespørselTekster.mapYtelsestypeNavn(ytelsetype),
+            formaterDato(skjæringstidspunkt));
         var contentRequest = new DialogportenRequest.Content(lagContentValue(sakstittel), lagContentValue(summaryDialog), null);
         var patchContent = new DialogportenPatchRequest(DialogportenPatchRequest.OP_REPLACE,
             DialogportenPatchRequest.PATH_CONTENT,
             contentRequest);
 
-        var patchTransmission = inntektsmeldingMottattTransmission(arbeidsgiver, inntektsmeldingUuid, årsak, inntektsmeldingSkjemaLenke, true);
+        var patchTransmission = inntektsmeldingMottattTransmission(arbeidsgiver,
+            inntektsmeldingUuid,
+            årsak,
+            arbeidsgiverportalSkjemaLenke,
+            hentInntektsmeldingApiLenke,
+            true);
 
         return List.of(patchStatus, patchContent, patchTransmission);
     }
 
     public static List<DialogportenPatchRequest> opprettInnsendtInntektsmeldingPatchRequest(ArbeidsgiverDto arbeidsgiver,
                                                                                             Optional<UUID> inntektsmeldingUuid,
-                                                                                            String inntektsmeldingSkjemaLenke) {
+                                                                                            String arbeidsgiverportalSkjemaLenke,
+                                                                                            String hentInntektsmeldingApiLenke) {
         var patchTransmission = inntektsmeldingMottattTransmission(arbeidsgiver,
             inntektsmeldingUuid,
             LukkeÅrsak.ORDINÆR_INNSENDING,
-            inntektsmeldingSkjemaLenke,
+            arbeidsgiverportalSkjemaLenke,
+            hentInntektsmeldingApiLenke,
             false);
 
         return List.of(patchTransmission);
@@ -115,7 +124,8 @@ public class DialogportenRequestMapper {
     private static DialogportenPatchRequest inntektsmeldingMottattTransmission(ArbeidsgiverDto arbeidsgiver,
                                                                                Optional<UUID> inntektsmeldingUuid,
                                                                                LukkeÅrsak årsak,
-                                                                               String inntektsmeldingSkjemaLenke,
+                                                                               String arbeidsgiverportalSkjemaLenke,
+                                                                               String hentInntektsmeldingApiLenke,
                                                                                boolean førsteInnsending) {
         //Ny transmission som sier at inntektsmelding er mottatt, og med en lenke til kvittering. Ekstern innsending har ingen kvittering.
         var mottattTekst = førsteInnsending ? "Inntektsmelding er mottatt" : "Oppdatert inntektsmelding er mottatt";
@@ -129,9 +139,10 @@ public class DialogportenRequestMapper {
         var apiActions = inntektsmeldingUuid.map(imUuid -> {
             var innsendingTekst = førsteInnsending ? "Innsendt inntektsmelding" : "Oppdatert inntektsmelding";
             var contentAttachement = List.of(new DialogportenRequest.ContentValueItem(innsendingTekst, DialogportenRequest.NB));
-            var url = inntektsmeldingSkjemaLenke + "/server/api/ekstern/innsendt/inntektsmelding/" + imUuid;
-            var urlApi = new DialogportenRequest.Url(url, DialogportenRequest.TEXT_PLAIN, DialogportenRequest.AttachmentUrlConsumerType.Api);
-            var urlGui = new DialogportenRequest.Url(url, DialogportenRequest.TEXT_PLAIN, DialogportenRequest.AttachmentUrlConsumerType.Gui);
+            var imPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + imUuid;
+            var imJsonUrl = hentInntektsmeldingApiLenke + "/" + imUuid;
+            var urlApi = new DialogportenRequest.Url(imJsonUrl, DialogportenRequest.TEXT_PLAIN, DialogportenRequest.AttachmentUrlConsumerType.Api);
+            var urlGui = new DialogportenRequest.Url(imPdfUrl, DialogportenRequest.TEXT_PLAIN, DialogportenRequest.AttachmentUrlConsumerType.Gui);
             var attachment = new DialogportenRequest.Attachment(contentAttachement, List.of(urlApi, urlGui));
             return List.of(attachment);
         }).orElse(List.of());
@@ -186,5 +197,9 @@ public class DialogportenRequestMapper {
     private static DialogportenRequest.ContentValue lagContentValue(String verdi) {
         return new DialogportenRequest.ContentValue(List.of(new DialogportenRequest.ContentValueItem(verdi, DialogportenRequest.NB)),
             DialogportenRequest.TEXT_PLAIN);
+    }
+
+    private static String formaterDato(LocalDate dato) {
+        return dato.format(DateTimeFormatter.ofPattern("dd.MM.yy"));
     }
 }

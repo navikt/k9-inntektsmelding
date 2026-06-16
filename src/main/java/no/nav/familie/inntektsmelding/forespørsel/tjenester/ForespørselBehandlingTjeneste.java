@@ -25,6 +25,8 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørs
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.rest.kvittering.PdfDokumentRest;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
@@ -61,7 +63,7 @@ public class ForespørselBehandlingTjeneste {
     private PersonTjeneste personTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
-    private String inntektsmeldingSkjemaLenke;
+    private String arbeidsgiverportalSkjemaLenke;
     private boolean dialogportenEnabled;
 
     ForespørselBehandlingTjeneste() {
@@ -81,42 +83,36 @@ public class ForespørselBehandlingTjeneste {
         this.personTjeneste = personTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
-        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
+        this.arbeidsgiverportalSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
         this.dialogportenEnabled = ENV.getProperty("dialogporten.enabled", Boolean.class, false);
-    }
-
-    public ForespørselEntitet ferdigstillForespørsel(UUID forespørselUuid,
-                                                     AktørIdEntitet aktørId,
-                                                     OrganisasjonsnummerDto organisasjonsnummer,
-                                                     LukkeÅrsak lukkeÅrsak,
-                                                     Optional<UUID> inntektsmeldingUuid) {
-        return ferdigstillForespørsel(forespørselUuid, aktørId, organisasjonsnummer, lukkeÅrsak, List.of(), List.of(), inntektsmeldingUuid);
     }
 
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
                                                      AktørIdEntitet aktorId,
                                                      OrganisasjonsnummerDto organisasjonsnummerDto,
                                                      LukkeÅrsak årsak,
-                                                     List<FraværsPeriodeEntitet> fraværsPerioder,
-                                                     List<DelvisFraværsPeriodeEntitet> delvisFraværDag,
-                                                     // inntektsmeldingUuid er optional fordi vi ikke har inntektsmeldingen lagret hvis den er innsendt via Altinn / LPS'er
-                                                     Optional<UUID> inntektsmeldingUuid) {
-        var forespørsel = forespørselTjeneste.hentForespørsel(foresporselUuid)
+                                                     // inntektsmeldingEntitet er optional fordi vi ikke har inntektsmeldingen lagret hvis den er innsendt via Altinn / LPS'er
+                                                     Optional<InntektsmeldingEntitet> inntektsmeldingEntitet) {
+        ForespørselEntitet forespørsel = forespørselTjeneste.hentForespørsel(foresporselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
 
         validerAktør(forespørsel, aktorId);
         validerOrganisasjon(forespørsel, organisasjonsnummerDto);
 
         // Arbeidsgiverinitierte forespørsler har ingen oppgave
-        forespørsel.getOppgaveId().ifPresent(oppgaveId -> minSideArbeidsgiverTjeneste.oppgaveUtført(oppgaveId, OffsetDateTime.now()));
+        if (forespørsel.getOppgaveId().isPresent()) {
+            minSideArbeidsgiverTjeneste.oppgaveUtført(forespørsel.getOppgaveId().get(), OffsetDateTime.now());
+        }
 
-        var erArbeidsgiverinitiert = forespørsel.getOppgaveId().isEmpty();
+        boolean erArbeidsgiverinitiert = forespørsel.getOppgaveId().isEmpty();
         minSideArbeidsgiverTjeneste.ferdigstillSak(forespørsel.getArbeidsgiverNotifikasjonSakId(), erArbeidsgiverinitiert); // Oppdaterer status i arbeidsgiver-notifikasjon
 
-        var erOmsorgspenger = forespørsel.getYtelseType().equals(Ytelsetype.OMSORGSPENGER);
+        boolean erOmsorgspenger = forespørsel.getYtelseType().equals(Ytelsetype.OMSORGSPENGER);
         String tilleggsinformasjon;
-        if (erOmsorgspenger) {
-            tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, delvisFraværDag);
+        if (erOmsorgspenger && inntektsmeldingEntitet.isPresent()) {
+            List<FraværsPeriodeEntitet> fraværsPerioder = inntektsmeldingEntitet.get().getOmsorgspenger().getFraværsPerioder();
+            List<DelvisFraværsPeriodeEntitet> delvisFraværDager = inntektsmeldingEntitet.get().getOmsorgspenger().getDelvisFraværsPerioder();
+            tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjonForOmsorgspenger(fraværsPerioder, delvisFraværDager);
         } else {
             tilleggsinformasjon = ForespørselTekster.lagTilleggsInformasjon(årsak, forespørsel.getSkjæringstidspunkt());
         }
@@ -133,7 +129,7 @@ public class ForespørselBehandlingTjeneste {
                         lagSaksTittelForDialogporten(aktorId),
                         forespørsel.getYtelseType(),
                         forespørsel.getSkjæringstidspunkt(),
-                        inntektsmeldingUuid,
+                        inntektsmeldingEntitet.map(InntektsmeldingEntitet::getUuid),
                         årsak);
                 } catch (Exception e) {
                     // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
@@ -394,7 +390,7 @@ public class ForespørselBehandlingTjeneste {
         var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr());
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
-        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
+        var skjemaUri = URI.create(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid);
         var arbeidsgiverNotifikasjonSakId = minSideArbeidsgiverTjeneste.opprettSak(forespørselUuid.toString(),
             merkelapp,
             organisasjonsnummer.orgnr(),
@@ -439,6 +435,27 @@ public class ForespørselBehandlingTjeneste {
         String vasketDialogUuid = dialogPortenUuid.replace("\"", "");
         LOG.info("Mottok UUID {} fra dialogporten", vasketDialogUuid);
         forespørselTjeneste.setDialogportenUuid(forespørselUuid, UUID.fromString(vasketDialogUuid));
+    }
+
+    public void oppdaterPortalerMedEndretInntektsmelding(ForespørselEntitet forespørsel,
+                                                         OrganisasjonsnummerDto arbeidsgiver,
+                                                         Optional<UUID> inntektsmeldingUuid) {
+        // Oppdater status i arbeidsgiverportalen
+        var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
+        var beskjedTekst = ForespørselTekster.lagBeskjedOmOppdatertInntektsmelding();
+        var hentInntektsmeldingPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + inntektsmeldingUuid;
+        minSideArbeidsgiverTjeneste.sendNyBeskjedMedKvittering(forespørsel.getUuid().toString(),
+            merkelapp,
+            arbeidsgiver.orgnr(),
+            beskjedTekst,
+            URI.create(hentInntektsmeldingPdfUrl));
+
+        // Oppdater status i altinn dialogporten
+        if (forespørsel.getDialogportenUuid().isPresent()) {
+            dialogportenKlient.oppdaterDialogMedEndretInntektsmelding(forespørsel.getDialogportenUuid().get(),
+                new ArbeidsgiverDto(arbeidsgiver.orgnr()),
+                inntektsmeldingUuid);
+        }
     }
 
     private String lagSaksTittelForDialogporten(AktørIdEntitet aktørId) {
@@ -487,7 +504,7 @@ public class ForespørselBehandlingTjeneste {
 
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
         var merkelapp = Merkelapp.REFUSJONSKRAV_OMP;
-        var skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + forespørselUuid);
+        var skjemaUri = URI.create(arbeidsgiverportalSkjemaLenke + "/refusjon-omsorgspenger/" + organisasjonsnummer.orgnr() + "/" + forespørselUuid);
         var sakstittel = ForespørselTekster.lagSaksTittelRefusjonskrav(person.mapFulltNavn(), person.fødselsdato());
         var arbeidsgiverNotifikasjonSakId = minSideArbeidsgiverTjeneste.opprettSak(forespørselUuid.toString(), merkelapp, organisasjonsnummer.orgnr(), sakstittel, skjemaUri);
 
@@ -515,8 +532,6 @@ public class ForespørselBehandlingTjeneste {
                 f.getAktørId(),
                 new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()),
                 LukkeÅrsak.EKSTERN_INNSENDING,
-                List.of(),
-                List.of(),
                 Optional.empty());
             MetrikkerTjeneste.loggForespørselLukkEkstern(lukketForespørsel);
         });
@@ -616,18 +631,18 @@ public class ForespørselBehandlingTjeneste {
     public void opprettNyBeskjedMedEksternVarsling(ForespørselEntitet forespørsel) {
         Merkelapp merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
         UUID forespørselUuid = forespørsel.getUuid();
-        URI skjemaUri = URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
+        URI hentInntektsmeldingPdfUri = URI.create(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid);
         Organisasjon organisasjon = organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer());
         PersonInfo person = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId());
         String varselTekst = ForespørselTekster.lagVarselFraSaksbehandlerTekst(forespørsel.getYtelseType(), organisasjon);
         String beskjedTekst = ForespørselTekster.lagBeskjedFraSaksbehandlerTekst(forespørsel.getYtelseType(), person.mapFulltNavn());
 
-        minSideArbeidsgiverTjeneste.sendNyBeskjed(forespørselUuid.toString(),
+        minSideArbeidsgiverTjeneste.sendNyBeskjedMedEksternVarsling(forespørselUuid.toString(),
             merkelapp,
             organisasjon.orgnr(),
             beskjedTekst,
             varselTekst,
-            skjemaUri);
+            hentInntektsmeldingPdfUri);
     }
 
     private void validerOrganisasjon(ForespørselEntitet forespørsel, OrganisasjonsnummerDto orgnummer) {
@@ -643,6 +658,6 @@ public class ForespørselBehandlingTjeneste {
     }
 
     private URI lagUriForInntektsmeldingOppsummering(UUID forespørselUuid) {
-        return URI.create(inntektsmeldingSkjemaLenke + "/" + forespørselUuid);
+        return URI.create(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid);
     }
 }
