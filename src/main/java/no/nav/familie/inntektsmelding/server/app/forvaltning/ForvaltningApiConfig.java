@@ -22,7 +22,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import no.nav.familie.inntektsmelding.forvaltning.DialogportenForvaltningRestTjeneste;
-import no.nav.familie.inntektsmelding.forvaltning.K9DokgenRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.OppgaverForvaltningRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.ProsessTaskRestTjeneste;
 import no.nav.familie.inntektsmelding.forvaltning.StatistikkForvaltningRestTjeneste;
@@ -89,7 +88,6 @@ public class ForvaltningApiConfig extends ResourceConfig {
     private Set<Class<?>> getApplicationClasses() {
         var classes = new HashSet<Class<?>>();
         classes.add(ProsessTaskRestTjeneste.class);
-        classes.add(K9DokgenRestTjeneste.class);
         classes.add(OppgaverForvaltningRestTjeneste.class);
         classes.add(StatistikkForvaltningRestTjeneste.class);
         if (Environment.current().isLocal()) {

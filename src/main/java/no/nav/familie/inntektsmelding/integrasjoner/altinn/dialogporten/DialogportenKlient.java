@@ -30,8 +30,9 @@ public class DialogportenKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final AltinnExchangeTokenKlient tokenKlient;
-    private final String inntektsmeldingSkjemaLenke;
-    private final String inntektsmeldingApiLenke;
+    private final String arbeidsgiverportalSkjemaLenke;
+    private final String hentInntektsmeldingApiLenke;
+    private final String sendInntektsmeldingApiLenke;
     private final String forespørselApiLenke;
     private final String dokumentasjonsLenke;
 
@@ -43,10 +44,11 @@ public class DialogportenKlient {
         this.restClient = restClient;
         this.restConfig = RestConfig.forClient(this.getClass());
         this.tokenKlient = AltinnExchangeTokenKlient.instance();
-        this.inntektsmeldingSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke", "https://arbeidsgiver.nav.no/k9-im-dialog");
-        this.inntektsmeldingApiLenke = ENV.getProperty("inntektsmelding.api.lenke", "https://sykdom-i-familien-inntektsmelding-api.ekstern.nav.no/v1/inntektsmelding/send-inn");
-        this.forespørselApiLenke = ENV.getProperty("foresporsel.api.lenke", "https://sykdom-i-familien-inntektsmelding-api.ekstern.nav.no/v1/forespoersel");
-        this.dokumentasjonsLenke = ENV.getProperty("inntektsmelding.dokumentasjon.lenke", "https://sykdom-i-familien-inntektsmelding-api.ekstern.nav.no/forvaltning/api/openapi.json");
+        this.arbeidsgiverportalSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
+        this.hentInntektsmeldingApiLenke = ENV.getProperty("inntektsmelding.hent.api.lenke");
+        this.sendInntektsmeldingApiLenke = ENV.getProperty("inntektsmelding.api.lenke");
+        this.forespørselApiLenke = ENV.getProperty("foresporsel.api.lenke");
+        this.dokumentasjonsLenke = ENV.getProperty("inntektsmelding.dokumentasjon.lenke");
     }
 
     public String opprettDialog(UUID forespørselUuid,
@@ -60,8 +62,8 @@ public class DialogportenKlient {
             sakstittel,
             førsteUttaksdato,
             ytelsetype,
-            inntektsmeldingSkjemaLenke,
-            inntektsmeldingApiLenke,
+            arbeidsgiverportalSkjemaLenke,
+            sendInntektsmeldingApiLenke,
             forespørselApiLenke,
             dokumentasjonsLenke);
         var request = RestRequest.newPOSTJson(opprettRequest, uri, restConfig)
@@ -84,7 +86,8 @@ public class DialogportenKlient {
             førsteUttaksdato,
             inntektsmeldingUuid,
             lukkeÅrsak,
-            inntektsmeldingSkjemaLenke);
+            arbeidsgiverportalSkjemaLenke,
+            hentInntektsmeldingApiLenke);
         sendPatchRequest(dialogUuid, patchRequestFerdig);
     }
 
@@ -94,7 +97,8 @@ public class DialogportenKlient {
         var patchRequestInnsendt = DialogportenRequestMapper.opprettInnsendtInntektsmeldingPatchRequest(
             arbeidsgiver,
             inntektsmeldingUuid,
-            inntektsmeldingSkjemaLenke);
+            arbeidsgiverportalSkjemaLenke,
+            hentInntektsmeldingApiLenke);
         sendPatchRequest(dialogUuid, patchRequestInnsendt);
     }
 
