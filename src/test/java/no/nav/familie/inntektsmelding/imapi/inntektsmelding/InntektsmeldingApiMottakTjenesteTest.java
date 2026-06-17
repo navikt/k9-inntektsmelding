@@ -202,7 +202,6 @@ class InntektsmeldingApiMottakTjenesteTest {
         assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
         verify(inntektsmeldingRepository).lagreInntektsmelding(any());
         verify(prosessTaskTjeneste).lagre(any(ProsessTaskData.class));
-        // Verifiser at 7-argumenters-overloaden (med fraværsperioder) brukes
         verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(
             eq(FORESPORSEL_UUID), any(), any(), any(), any());
     }
