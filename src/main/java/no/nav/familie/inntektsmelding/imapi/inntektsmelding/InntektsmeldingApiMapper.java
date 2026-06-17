@@ -196,17 +196,17 @@ class InntektsmeldingApiMapper {
             .toList();
     }
 
-    private static OmsorgspengerDto mapOmsorgspengerTilKontrakt(OmsorgspengerEntitet entitet) {
-        if (entitet == null) {
+    private static OmsorgspengerDto mapOmsorgspengerTilKontrakt(OmsorgspengerEntitet omsorgspenger) {
+        if (omsorgspenger == null) {
             return null;
         }
-        var fraværHeleDager = entitet.getFraværsPerioder().stream()
+        var fraværHeleDager = omsorgspenger.getFraværsPerioder().stream()
             .map(p -> new OmsorgspengerDto.FraværHeleDagerDto(p.getPeriode().getFom(), p.getPeriode().getTom()))
             .toList();
-        var fraværDelerAvDagen = entitet.getDelvisFraværsPerioder().stream()
+        var fraværDelerAvDagen = omsorgspenger.getDelvisFraværsPerioder().stream()
             .map(d -> new OmsorgspengerDto.FraværDelerAvDagenDto(d.getDato(), d.getTimer()))
             .toList();
-        return new OmsorgspengerDto(entitet.isHarUtbetaltPliktigeDager(), fraværHeleDager, fraværDelerAvDagen);
+        return new OmsorgspengerDto(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværHeleDager, fraværDelerAvDagen);
     }
 
     private static OmsorgspengerEntitet mapOmsorgspenger(OmsorgspengerDto omsorgspengerDto) {
