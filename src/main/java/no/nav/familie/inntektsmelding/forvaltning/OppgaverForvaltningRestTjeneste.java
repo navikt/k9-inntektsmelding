@@ -95,7 +95,7 @@ public class OppgaverForvaltningRestTjeneste {
         String tilleggsInfo = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.EKSTERN_INNSENDING, forespørselEntitet.get().getSkjæringstidspunkt());
         forespørselBehandlingTjeneste.gjenåpneForespørsel(forespørselEntitet.get(), tilleggsInfo);
 
-        LOG.info("Gjenopprettet forespørsel med uuid {}", request);
+        LOG.info("Gjenopprettet forespørsel med uuid {}", request.forespørselUuid());
         return Response.ok().build();
     }
 
