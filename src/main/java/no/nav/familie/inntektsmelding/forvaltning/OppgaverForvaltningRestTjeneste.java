@@ -88,7 +88,7 @@ public class OppgaverForvaltningRestTjeneste {
     public Response gjenopprettLukketForesporsel(
         @Parameter(description = "Informasjon om oppgaven") @Valid @NotNull GjenopprettLukketForesporselRequest request) {
         sjekkAtKallerHarRollenDrift();
-        Optional<ForespørselEntitet> forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(request.forespørselUuid);
+        Optional<ForespørselEntitet> forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(request.forespørselUuid());
         if (forespørselEntitet.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
