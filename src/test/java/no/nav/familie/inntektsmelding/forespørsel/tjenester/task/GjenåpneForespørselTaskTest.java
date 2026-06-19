@@ -1,7 +1,5 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -69,7 +67,7 @@ class GjenåpneForespørselTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste).gjenåpneForespørsel(entitet);
+        verify(forespørselBehandlingTjeneste).gjenåpneForespørsel(entitet, null);
     }
 
     @Test
@@ -84,7 +82,7 @@ class GjenåpneForespørselTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste, times(0)).gjenåpneForespørsel(entitet);
+        verify(forespørselBehandlingTjeneste, times(0)).gjenåpneForespørsel(entitet, null);
     }
 
     @Test
@@ -99,7 +97,7 @@ class GjenåpneForespørselTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste, times(0)).gjenåpneForespørsel(entitet);
+        verify(forespørselBehandlingTjeneste, times(0)).gjenåpneForespørsel(entitet, null);
     }
 
     @Test
@@ -114,6 +112,6 @@ class GjenåpneForespørselTaskTest {
 
         task.doTask(taskdata);
 
-        verify(forespørselBehandlingTjeneste, times(0)).gjenåpneForespørsel(entitet);
+        verify(forespørselBehandlingTjeneste, times(0)).gjenåpneForespørsel(entitet, null);
     }
 }

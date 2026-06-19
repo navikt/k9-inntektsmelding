@@ -63,7 +63,7 @@ public class GjenåpneForespørselTask implements ProsessTaskHandler {
             return;
         }
 
-        forespørselBehandlingTjeneste.gjenåpneForespørsel(forespørsel);
+        forespørselBehandlingTjeneste.gjenåpneForespørsel(forespørsel, null);
     }
 
     public static ProsessTaskData lagGjenåpneForespørselTask(UUID forespørselUuid, SaksnummerDto saksnummerDto) {

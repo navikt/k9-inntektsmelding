@@ -1,5 +1,8 @@
 package no.nav.familie.inntektsmelding.forvaltning;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -21,7 +24,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTekster;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
@@ -70,6 +76,31 @@ public class OppgaverForvaltningRestTjeneste {
     protected record SlettOppgaveRequest(@Valid @NotNull SaksnummerDto saksnummer, @Valid @NotNull OrganisasjonsnummerDto orgnr) {
     }
 
+    @POST
+    @Path("/gjenopprett-lukket-foresporsel")
+    @Consumes(MediaType.APPLICATION_JSON)
+@Operation(description = "Gjenoppretter forespørsel som er lukket av LPS eller altinn", summary = "Gjenoppretter forespørsel som er lukket av LPS eller altinn.", tags = "oppgaver", responses = {
+    @ApiResponse(responseCode = "200", description = "Gjenoppretting utført", content = @Content(mediaType = "application/json")),
+    @ApiResponse(responseCode = "404", description = "Forespørsel ikke funnet"),
+    @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+})
+    @Tilgangskontrollert
+    public Response gjenopprettLukketForesporsel(
+        @Parameter(description = "Informasjon om oppgaven") @Valid @NotNull GjenopprettLukketForesporselRequest request) {
+        sjekkAtKallerHarRollenDrift();
+        Optional<ForespørselEntitet> forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(request.forespørselUuid());
+        if (forespørselEntitet.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        String tilleggsInfo = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.EKSTERN_INNSENDING, forespørselEntitet.get().getSkjæringstidspunkt());
+        forespørselBehandlingTjeneste.gjenåpneForespørsel(forespørselEntitet.get(), tilleggsInfo);
+
+        LOG.info("Gjenopprettet forespørsel med uuid {}", request.forespørselUuid());
+        return Response.ok().build();
+    }
+
+    protected record GjenopprettLukketForesporselRequest(@NotNull @Valid UUID forespørselUuid) {
+    }
 
     private void sjekkAtKallerHarRollenDrift() {
         tilgang.sjekkAtAnsattHarRollenDrift();
