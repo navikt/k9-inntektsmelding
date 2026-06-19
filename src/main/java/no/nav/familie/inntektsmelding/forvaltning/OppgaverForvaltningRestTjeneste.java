@@ -85,19 +85,21 @@ public class OppgaverForvaltningRestTjeneste {
     })
     @Tilgangskontrollert
     public Response gjenopprettLukketForesporsel(
-        @Parameter(description = "Informasjon om oppgaven") @Valid @NotNull UUID forespørselUuid) {
+        @Parameter(description = "Informasjon om oppgaven") @Valid @NotNull GjenopprettLukketForesporselRequest request) {
         sjekkAtKallerHarRollenDrift();
-        Optional<ForespørselEntitet> forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid);
+        Optional<ForespørselEntitet> forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(request.forespørselUuid);
         if (forespørselEntitet.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         String tilleggsInfo = ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.EKSTERN_INNSENDING, forespørselEntitet.get().getSkjæringstidspunkt());
         forespørselBehandlingTjeneste.gjenåpneForespørsel(forespørselEntitet.get(), tilleggsInfo);
 
-        LOG.info("Gjenopprettet forespørsel med uuid {}", forespørselUuid);
+        LOG.info("Gjenopprettet forespørsel med uuid {}", request);
         return Response.ok().build();
     }
 
+    protected record GjenopprettLukketForesporselRequest(@NotNull @Valid UUID forespørselUuid) {
+    }
 
     private void sjekkAtKallerHarRollenDrift() {
         tilgang.sjekkAtAnsattHarRollenDrift();
