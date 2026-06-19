@@ -331,12 +331,12 @@ public class ForespørselBehandlingTjeneste {
             eksisterendeForespørsel.getYtelseType());
     }
 
-    public void gjenåpneForespørsel(ForespørselEntitet eksisterendeForespørsel) {
+    public void gjenåpneForespørsel(ForespørselEntitet eksisterendeForespørsel, String tilleggsinformasjon) {
         if (eksisterendeForespørsel.getStatus() != ForespørselStatus.UTGÅTT) {
             throw new IllegalArgumentException(
                 "Forespørsel som skal gjenåpnes må ha status UTGÅTT, var " + eksisterendeForespørsel.getStatus() + ". " + eksisterendeForespørsel);
         }
-        minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), null);
+        minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(), tilleggsinformasjon);
         forespørselTjeneste.ferdigstillForespørsel(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
         LOG.info("Gjenåpner forespørsel, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
