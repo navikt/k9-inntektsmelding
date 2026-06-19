@@ -29,9 +29,9 @@ public record SendInntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
                                          @NotNull YtelseTypeDto ytelseType,
                                          @NotNull @Valid KontaktpersonDto kontaktperson,
                                          @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
-                                         @NotNull List<@Valid RefusjonDto> refusjon,
-                                         @NotNull List<@Valid BortfaltNaturalytelseDto> bortfaltNaturalytelsePerioder,
-                                         @NotNull List<@Valid EndringsårsakerDto> endringAvInntektÅrsaker,
+                                         List<@Valid RefusjonDto> refusjon,
+                                         List<@Valid BortfaltNaturalytelseDto> bortfaltNaturalytelsePerioder,
+                                         List<@Valid EndringsårsakerDto> endringAvInntektÅrsaker,
                                          @NotNull @Valid AvsenderSystemDto avsenderSystem,
                                          @Valid OmsorgspengerDto omsorgspenger) {
 

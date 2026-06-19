@@ -35,9 +35,9 @@ public record InntektsmeldingDto(
     @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal refusjonPrMnd,
     LocalDate opphørsdatoRefusjon,
     @NotNull @Valid AvsenderSystemDto avsenderSystem,
-    @NotNull List<@Valid RefusjonDto> refusjonsendringer,
-    @NotNull List<@Valid BortfaltNaturalytelseDto> bortfaltNaturalytelsePerioder,
-    @NotNull List<@Valid EndringsårsakerDto> endringAvInntektÅrsaker,
+    List<@Valid RefusjonDto> refusjonsendringer,
+    List<@Valid BortfaltNaturalytelseDto> bortfaltNaturalytelsePerioder,
+    List<@Valid EndringsårsakerDto> endringAvInntektÅrsaker,
     @Valid OmsorgspengerDto omsorgspenger
 ) {
 
