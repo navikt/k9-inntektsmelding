@@ -79,10 +79,11 @@ public class OppgaverForvaltningRestTjeneste {
     @POST
     @Path("/gjenopprett-lukket-foresporsel")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Gjenoppretter forespørsel som er lukket av LPS eller altinn", summary = "Gjenoppretter forespørsel som er lukket av LPS eller altinn.", tags = "oppgaver", responses = {
-        @ApiResponse(responseCode = "200", description = "Gjenoppretting utført", content = @Content(mediaType = "application/json")),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
-    })
+@Operation(description = "Gjenoppretter forespørsel som er lukket av LPS eller altinn", summary = "Gjenoppretter forespørsel som er lukket av LPS eller altinn.", tags = "oppgaver", responses = {
+    @ApiResponse(responseCode = "200", description = "Gjenoppretting utført", content = @Content(mediaType = "application/json")),
+    @ApiResponse(responseCode = "404", description = "Forespørsel ikke funnet"),
+    @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+})
     @Tilgangskontrollert
     public Response gjenopprettLukketForesporsel(
         @Parameter(description = "Informasjon om oppgaven") @Valid @NotNull GjenopprettLukketForesporselRequest request) {
