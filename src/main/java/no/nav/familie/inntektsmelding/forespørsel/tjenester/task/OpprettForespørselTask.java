@@ -58,7 +58,7 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
 
         if (eksisterendeForespørsler.stream().anyMatch(eksisterende -> !eksisterende.getStatus().equals(ForespørselStatus.UTGÅTT))) {
             LOG.info("Forespørsel finnes allerede, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
-                organisasjonsnummer.orgnr(), skjæringstidspunkt, saksnummer.saksnr(), ytelsetype);
+                organisasjonsnummer, skjæringstidspunkt, saksnummer.saksnr(), ytelsetype);
             return;
         }
 

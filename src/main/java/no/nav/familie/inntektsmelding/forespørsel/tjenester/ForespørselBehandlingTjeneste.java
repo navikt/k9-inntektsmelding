@@ -325,7 +325,7 @@ public class ForespørselBehandlingTjeneste {
         }
 
         LOG.info("Setter forespørsel til utgått, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
-            eksisterendeForespørsel.getOrganisasjonsnummer(),
+            new OrganisasjonsnummerDto(eksisterendeForespørsel.getOrganisasjonsnummer()),
             eksisterendeForespørsel.getSkjæringstidspunkt(),
             eksisterendeForespørsel.getSaksnummer().orElse(null),
             eksisterendeForespørsel.getYtelseType());
@@ -340,7 +340,7 @@ public class ForespørselBehandlingTjeneste {
         forespørselTjeneste.ferdigstillForespørsel(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
 
         LOG.info("Gjenåpner forespørsel, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
-            eksisterendeForespørsel.getOrganisasjonsnummer(),
+            new OrganisasjonsnummerDto(eksisterendeForespørsel.getOrganisasjonsnummer()),
             eksisterendeForespørsel.getSkjæringstidspunkt(),
             eksisterendeForespørsel.getSaksnummer().orElse(null),
             eksisterendeForespørsel.getYtelseType());
@@ -470,7 +470,7 @@ public class ForespørselBehandlingTjeneste {
                                                                          LocalDate skjæringstidspunkt,
                                                                          Ytelsetype ytelsetype,
                                                                          ForespørselType forespørselType) {
-        LOG.info("Oppretter forespørsel for arbeidsgiverinitiert inntektsmelding, orgnr: {}, stp: {}, aktørId: {}, ytelse: {}", organisasjonsnummer.orgnr(), skjæringstidspunkt, aktørId.getAktørId(), ytelsetype);
+        LOG.info("Oppretter forespørsel for arbeidsgiverinitiert inntektsmelding, orgnr: {}, stp: {}, aktørId: {}, ytelse: {}", organisasjonsnummer, skjæringstidspunkt, aktørId.getAktørId(), ytelsetype);
 
         // opprettt forespørsel i databasen
         var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, ytelsetype, forespørselType);
