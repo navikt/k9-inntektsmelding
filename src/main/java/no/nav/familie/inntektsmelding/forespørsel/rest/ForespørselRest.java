@@ -83,7 +83,7 @@ public class ForespørselRest {
     public Response opprettForespørsel(@Valid @NotNull OpprettForespørselRequest request){
         // dette endepunktet brukes av saksbehandlere for å opprette innteksmelding forespørsel på en valgt dato for å få med varig lønnsendring.
         LOG.info("Mottok request om opprettelse av inntektsmelding forespørsel fra k9-sak på saksnummer {}", request.saksnummer().saksnr());
-        tilgang.sjekkAtSaksbehandlerHarTilgangTilSak(request.saksnummer().saksnr(), BeskyttetRessursActionAttributt.CREATE);
+        tilgang.sjekkAtAnsattHarTilgangTilSak(request.saksnummer().saksnr(), BeskyttetRessursActionAttributt.CREATE);
 
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(request.saksnummer(), null, null);
 
@@ -221,7 +221,7 @@ public class ForespørselRest {
     public Response sendNyBeskjedOgVarsel(@Valid @NotNull NyBeskjedRequest request) {
         LOG.info("Ny beskjed på aktiv forespørsel for saksnummer {} med orgnummer {}", request.saksnummer(), request.orgnr());
 
-        tilgang.sjekkAtSaksbehandlerHarTilgangTilSak(request.saksnummer().saksnr(), BeskyttetRessursActionAttributt.CREATE);
+        tilgang.sjekkAtAnsattHarTilgangTilSak(request.saksnummer().saksnr(), BeskyttetRessursActionAttributt.CREATE);
 
         var resultat = forespørselBehandlingTjeneste.opprettNyBeskjedMedEksternVarsling(request.saksnummer(), request.orgnr(), request.skjæringstidspunkt());
         return Response.ok(new SendNyBeskjedResponse(resultat)).build();
