@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.forvaltning;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTekster;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
+import no.nav.familie.inntektsmelding.forvaltning.rest.ForvaltningForespørselDto;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
@@ -100,6 +102,39 @@ public class OppgaverForvaltningRestTjeneste {
     }
 
     protected record GjenopprettLukketForesporselRequest(@NotNull @Valid UUID forespørselUuid) {
+    }
+
+    @POST
+    @Path("/foresporsler")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Henter forespørsler for et saksnummer", summary = "Henter forespørsler for et saksnummer.", tags = "oppgaver", responses = {
+        @ApiResponse(responseCode = "200", description = "Forespørsler hentet", content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @Tilgangskontrollert
+    public Response hentForespørslerForSak(
+        @Parameter(description = "Saksnummer det skal hentes forespørsler for") @Valid @NotNull HentForespørslerRequest request) {
+        sjekkAtKallerHarRollenDrift();
+        LOG.info("Henter forespørsler for saksnummer {}", request.saksnummer());
+        List<ForespørselEntitet> forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(request.saksnummer(), null, null);
+
+        List<ForvaltningForespørselDto> response = forespørsler.stream()
+            .map(f -> new ForvaltningForespørselDto(
+                f.getUuid(),
+                f.getSkjæringstidspunkt(),
+                f.getOrganisasjonsnummer(),
+                f.getAktørId().getAktørId(),
+                f.getYtelseType().toString(),
+                f.getStatus(),
+                f.getOpprettetTidspunkt(),
+                f.getDialogportenUuid().orElse(null),
+                f.getEtterspurtePerioder()))
+            .toList();
+
+        return Response.ok(response).build();
+    }
+
+    protected record HentForespørslerRequest(@Valid @NotNull SaksnummerDto saksnummer) {
     }
 
     private void sjekkAtKallerHarRollenDrift() {
