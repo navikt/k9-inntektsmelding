@@ -9,10 +9,14 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -104,19 +108,18 @@ public class OppgaverForvaltningRestTjeneste {
     protected record GjenopprettLukketForesporselRequest(@NotNull @Valid UUID forespørselUuid) {
     }
 
-    @POST
+    @GET
     @Path("/foresporsler")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter forespørsler for et saksnummer", summary = "Henter forespørsler for et saksnummer.", tags = "oppgaver", responses = {
         @ApiResponse(responseCode = "200", description = "Forespørsler hentet", content = @Content(mediaType = "application/json")),
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @Tilgangskontrollert
     public Response hentForespørslerForSak(
-        @Parameter(description = "Saksnummer det skal hentes forespørsler for") @Valid @NotNull HentForespørslerRequest request) {
+        @Parameter(description = "Saksnummer det skal hentes forespørsler for") @Valid @NotNull @Pattern(regexp = SaksnummerDto.REGEXP) @Size(max = 19) @QueryParam("saksnummer") String saksnummer) {
         sjekkAtKallerHarRollenDrift();
-        LOG.info("Henter forespørsler for saksnummer {}", request.saksnummer());
-        List<ForespørselEntitet> forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(request.saksnummer(), null, null);
+        LOG.info("Henter forespørsler for saksnummer {}", saksnummer);
+        List<ForespørselEntitet> forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(new SaksnummerDto(saksnummer), null, null);
 
         List<ForvaltningForespørselDto> response = forespørsler.stream()
             .map(f -> new ForvaltningForespørselDto(
@@ -134,8 +137,6 @@ public class OppgaverForvaltningRestTjeneste {
         return Response.ok(response).build();
     }
 
-    protected record HentForespørslerRequest(@Valid @NotNull SaksnummerDto saksnummer) {
-    }
 
     private void sjekkAtKallerHarRollenDrift() {
         tilgang.sjekkAtAnsattHarRollenDrift();
