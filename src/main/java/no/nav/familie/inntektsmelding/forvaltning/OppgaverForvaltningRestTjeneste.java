@@ -128,7 +128,7 @@ public class OppgaverForvaltningRestTjeneste {
     })
     @Tilgangskontrollert
     public Response hentForespørslerForSak(
-        @Parameter(description = "Saksnummer det skal hentes forespørsler for") @Valid @NotNull @Pattern(regexp = SaksnummerDto.REGEXP) @Size(max = 19) @QueryParam("saksnummer") String saksnummer) {
+        @Parameter(description = "Saksnummer det skal hentes forespørsler for") @Valid @NotNull @Pattern(regexp = "^[a-zA-Z0-9æøåÆØÅ]+$") @Size(max = 19) @QueryParam("saksnummer") String saksnummer) {
         LOG.info("Henter forespørsler for saksnummer {}", saksnummer);
 
         sjekkAtKallerHarRollenDriftOgTilgangTilSak(saksnummer);
