@@ -53,7 +53,7 @@ public interface Tilgang {
      *
      * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
      */
-    void sjekkAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon);
+    void sjekkAtAnsattHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon);
 
     /**
      * Sjekker at det er et systembruker som står bak kallet.

@@ -98,7 +98,7 @@ public class TilgangTjeneste implements Tilgang {
     }
 
     @Override
-    public void sjekkAtSaksbehandlerHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
+    public void sjekkAtAnsattHarTilgangTilSak(String saksnummer, BeskyttetRessursActionAttributt aksjon) {
         var tilgang = sifAbacPdpKlient.harAnsattTilgangTilSak(saksnummer, aksjon);
         if (tilgang.isPresent()) {
             if (tilgang.get().tilgangsbeslutning().harTilgang()) {
