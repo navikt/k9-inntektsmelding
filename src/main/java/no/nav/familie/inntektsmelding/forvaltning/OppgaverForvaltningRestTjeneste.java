@@ -123,6 +123,7 @@ public class OppgaverForvaltningRestTjeneste {
     @Path(HENT_FORESPØRSLER_FOR_SAK_PATH)
     @Operation(description = "Henter forespørsler for et saksnummer", summary = "Henter forespørsler for et saksnummer.", tags = "oppgaver", responses = {
         @ApiResponse(responseCode = "200", description = "Forespørsler hentet", content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "404", description = "Fant ingen forespørsler for saksnummer"),
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
     })
     @Tilgangskontrollert
@@ -132,6 +133,10 @@ public class OppgaverForvaltningRestTjeneste {
 
         sjekkAtKallerHarRollenDriftOgTilgangTilSak(saksnummer);
         List<ForespørselEntitet> forespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(new SaksnummerDto(saksnummer), null, null);
+
+        if (forespørsler.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
 
         sporingsloggTjeneste.logg(BASE_PATH + HENT_FORESPØRSLER_FOR_SAK_PATH,
             new AktørIdDto(hentAktørIdFraForespørsler(forespørsler).getAktørId()),
