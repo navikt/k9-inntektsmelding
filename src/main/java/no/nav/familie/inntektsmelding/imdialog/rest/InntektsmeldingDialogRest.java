@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.imdialog.rest;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -122,6 +123,10 @@ public class InntektsmeldingDialogRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
     public Response hentInntektsmeldingerForÅrPost(@NotNull @Valid HentInntektsmeldingerForÅrRequest request) {
+        if (request.år() > LocalDate.now().getYear() || request.år() < 2020) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Fremtidige år er ikke tillatt").build();
+        }
+
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(request.arbeidsgiverIdent().ident()));
 
         LOG.info("Henter inntektsmeldinger for år for organisasjon {}", request.arbeidsgiverIdent());

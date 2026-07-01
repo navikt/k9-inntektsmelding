@@ -8,6 +8,5 @@ import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 
 public record HentInntektsmeldingerForÅrRequest(@NotNull @Valid AktørIdDto aktørId,
                                                 @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
-                                                @NotNull int år) {
+                                                @NotNull Integer år) {
 }
-
