@@ -59,8 +59,10 @@ public class RefusjonOmsorgsdagerRest {
         @NotNull @Valid
         SlåOppArbeidstakerRequest request
     ) {
+        if (request.årstall() != null && (request.årstall() < 2020 || request.årstall() > LocalDate.now().getYear())) {
+            return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Årstall må være tidligst 2020 og senest dagens år").build();
+        }
         var response = refusjonOmsorgsdagerService.hentArbeidstaker(request.fødselsnummer(), request.årstall());
-
         return Response.ok(response).build();
     }
 
