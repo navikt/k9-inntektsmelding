@@ -59,7 +59,7 @@ class AaregRestKlientTest {
         when(restClient.sendReturnUnhandled(any(RestRequest.class)))
             .thenReturn(httpResponse);
 
-        var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now());
+        var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now(), LocalDate.now());
 
         assertThat(result).hasSize(1);
         assertThat(result.getFirst()).isEqualTo(arbeidsforhold);
@@ -80,7 +80,7 @@ class AaregRestKlientTest {
 
         // Act & Assert
         var exception = assertThrows(IllegalArgumentException.class,
-            () -> aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now()));
+            () -> aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now(), LocalDate.now()));
 
         assertThat(exception.getMessage())
             .isEqualTo("Utviklerfeil syntax-exception for finnArbeidsforholdForArbeidstaker");
@@ -99,7 +99,7 @@ class AaregRestKlientTest {
             .thenReturn(httpResponse);
 
         // Act
-        var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now());
+        var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now(), LocalDate.now());
 
         // Assert
         assertThat(result).isEmpty();
@@ -114,7 +114,7 @@ class AaregRestKlientTest {
             .thenThrow(new IntegrasjonException("K9-12345", "404 feil"));
 
         // Act
-        var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now());
+        var result = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now(), LocalDate.now());
 
         // Assert
         assertThat(result).isEmpty();
@@ -128,7 +128,7 @@ class AaregRestKlientTest {
         when(restClient.sendReturnUnhandled(any(RestRequest.class)))
             .thenThrow(new IntegrasjonException("K9-w00t", "Ukjent feil"));
 
-        assertThrows(IntegrasjonException.class, () -> aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now()));
+        assertThrows(IntegrasjonException.class, () -> aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident, LocalDate.now(), LocalDate.now()));
     }
 
     @Test

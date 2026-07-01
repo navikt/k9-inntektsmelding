@@ -22,6 +22,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.RefusjonOmsorgsdagerService;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,11 +41,11 @@ class RefusjonOmsorgsdagerRestTest {
     @Test
     void slå_opp_arbeidstaker_skal_returnere_ok_response_når_arbeidstaker_finnes() {
         var fnr = PersonIdent.fra("12345678910");
-        var request = new SlåOppArbeidstakerRequest(fnr, Ytelsetype.OMSORGSPENGER);
-        var arbeidsforhold = List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto("999999999", "Arbeidsgiver AS"));
+        var request = new SlåOppArbeidstakerRequest(fnr, Ytelsetype.OMSORGSPENGER, LocalDate.now().getYear());
+        var arbeidsforhold = List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto("999999999", "Arbeidsgiver AS", new PeriodeDto(LocalDate.now(), LocalDate.now())));
         var arbeidstakerInfo = new SlåOppArbeidstakerResponse(new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "23500180528", "12345"), arbeidsforhold);
 
-        when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr)).thenReturn(arbeidstakerInfo);
+        when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr, LocalDate.now().getYear())).thenReturn(arbeidstakerInfo);
 
         var response = rest.slåOppArbeidstaker(request);
 
@@ -55,9 +56,9 @@ class RefusjonOmsorgsdagerRestTest {
     @Test
     void slå_opp_arbeidstaker_kaster_PERSON_IKKE_FUNNET_når_arbeidstaker_ikke_finnes() {
         var fnr = PersonIdent.fra("12345678910");
-        var request = new SlåOppArbeidstakerRequest(fnr, Ytelsetype.OMSORGSPENGER);
+        var request = new SlåOppArbeidstakerRequest(fnr, Ytelsetype.OMSORGSPENGER, LocalDate.now().getYear());
 
-        when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr))
+        when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr, LocalDate.now().getYear()))
             .thenThrow(new FunksjonellException("PERSON_IKKE_FUNNET", "Fant ikke person i pdl", null));
 
         var ex = assertThrows(FunksjonellException.class, () -> rest.slåOppArbeidstaker(request));

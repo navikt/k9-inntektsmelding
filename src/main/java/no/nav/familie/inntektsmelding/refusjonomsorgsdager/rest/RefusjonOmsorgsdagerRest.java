@@ -59,7 +59,7 @@ public class RefusjonOmsorgsdagerRest {
         @NotNull @Valid
         SlåOppArbeidstakerRequest request
     ) {
-        var response = refusjonOmsorgsdagerService.hentArbeidstaker(request.fødselsnummer());
+        var response = refusjonOmsorgsdagerService.hentArbeidstaker(request.fødselsnummer(), request.årstall());
 
         return Response.ok(response).build();
     }

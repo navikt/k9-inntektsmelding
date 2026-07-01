@@ -21,6 +21,7 @@ import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDt
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInnloggetBrukerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponse;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
@@ -49,7 +50,7 @@ public class RefusjonOmsorgsdagerService {
         // CDI
     }
 
-    public SlåOppArbeidstakerResponse hentArbeidstaker(PersonIdent fødselsnummer) {
+    public SlåOppArbeidstakerResponse hentArbeidstaker(PersonIdent fødselsnummer, Integer årstall) {
         LOG.info("Slår opp arbeidstaker");
         var personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
 
@@ -57,12 +58,18 @@ public class RefusjonOmsorgsdagerService {
             throw new FunksjonellException("PERSON_IKKE_FUNNET", "Fant ikke person i pdl", null, null);
         }
 
-        var alleArbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now());
+        LocalDate fom = årstall != null ? LocalDate.of(årstall, 1, 1) : LocalDate.now();
+        LocalDate tom = årstall != null ? LocalDate.of(årstall, 12, 31) : LocalDate.now();
+        if (tom.isAfter(LocalDate.now())) {
+            tom = LocalDate.now();
+        }
+        var alleArbeidsforhold = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, fom, tom);
         var unikeArbeidsforhold = filtrerUnikeArbeidsforhold(alleArbeidsforhold);
         var arbeidsforholdMedOrgnavn = unikeArbeidsforhold.stream()
             .map(arbeidsforhold -> new SlåOppArbeidstakerResponse.ArbeidsforholdDto(
                 arbeidsforhold.organisasjonsnummer(),
-                organisasjonTjeneste.finnOrganisasjon(arbeidsforhold.organisasjonsnummer()).navn()
+                organisasjonTjeneste.finnOrganisasjon(arbeidsforhold.organisasjonsnummer()).navn(),
+                new PeriodeDto(arbeidsforhold.ansettelsesperiode().fom(), arbeidsforhold.ansettelsesperiode().tom())
             ))
             .toList();
 
