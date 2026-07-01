@@ -36,10 +36,10 @@ class ArbeidsforholdTjenesteTest {
     @Test
     void skalReturnereTomListeNårAaregReturnerNull() {
         var nå = LocalDate.now();
-        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå))
+        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå, nå))
             .thenReturn(null);
 
-        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå);
+        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå, nå);
 
         assertThat(resultat).isEmpty();
     }
@@ -47,10 +47,10 @@ class ArbeidsforholdTjenesteTest {
     @Test
     void skalReturnereTomListeNårAaregReturnerTomListe() {
         var nå = LocalDate.now();
-        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå))
+        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå, nå))
             .thenReturn(Collections.emptyList());
 
-        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå);
+        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå, nå);
 
         assertThat(resultat).isEmpty();
     }
@@ -74,10 +74,10 @@ class ArbeidsforholdTjenesteTest {
 
         var nå = LocalDate.now();
 
-        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå))
+        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå, nå))
             .thenReturn(List.of(arbeidsforhold));
 
-        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå);
+        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå, nå);
 
         assertThat(resultat)
             .hasSize(1)
@@ -121,10 +121,10 @@ class ArbeidsforholdTjenesteTest {
         var nå = LocalDate.now();
 
 
-        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå))
+        when(aaregRestKlient.finnArbeidsforholdForArbeidstaker(PERSON_IDENT.getIdent(), nå, nå))
             .thenReturn(List.of(arbeidsforhold1, arbeidsforhold2));
 
-        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå);
+        var resultat = arbeidsforholdTjeneste.hentArbeidsforhold(PERSON_IDENT, nå, nå);
 
         assertThat(resultat).hasSize(2);
 

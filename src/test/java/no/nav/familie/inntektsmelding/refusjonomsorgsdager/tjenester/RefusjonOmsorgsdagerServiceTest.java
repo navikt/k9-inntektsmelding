@@ -30,6 +30,7 @@ import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsoppl
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponse;
 import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
+import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -73,16 +74,16 @@ class RefusjonOmsorgsdagerServiceTest {
 
         var forventetArbeidstakerInfo = new SlåOppArbeidstakerResponse(
             new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()),
-            List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto(orgnummer, "Arbeidsgiver AS")));
+            List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto(orgnummer, "Arbeidsgiver AS", new PeriodeDto(ansettelsesperiode.fom(), ansettelsesperiode.tom()))));
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE));
-        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag)).thenReturn(arbeidsforhold);
+        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.of(førsteFraværsdag.getYear(), 1, 1), LocalDate.now())).thenReturn(arbeidsforhold);
         when(organisasjonTjenesteMock.finnOrganisasjon(orgnummer)).thenReturn(new Organisasjon( "Arbeidsgiver AS", orgnummer));
 
-        var response = service.hentArbeidstaker(fødselsnummer);
+        var response = service.hentArbeidstaker(fødselsnummer, førsteFraværsdag.getYear());
 
         assertEquals(forventetArbeidstakerInfo, response);
-        verify(arbeidstakerTjenesteMock).finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, førsteFraværsdag);
+        verify(arbeidstakerTjenesteMock).finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.of(førsteFraværsdag.getYear(), 1, 1), LocalDate.now());
     }
 
     @Test
@@ -91,7 +92,7 @@ class RefusjonOmsorgsdagerServiceTest {
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(null);
 
-        var ex = assertThrows(FunksjonellException.class, () -> service.hentArbeidstaker(fødselsnummer));
+        var ex = assertThrows(FunksjonellException.class, () -> service.hentArbeidstaker(fødselsnummer, LocalDate.now().getYear()));
 
         assertThat(ex.getMessage()).contains("PERSON_IKKE_FUNNET");
         verifyNoInteractions(arbeidstakerTjenesteMock);
@@ -104,10 +105,10 @@ class RefusjonOmsorgsdagerServiceTest {
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(
             new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE));
-        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.now()))
+        when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.of(LocalDate.now().getYear(), 1, 1), LocalDate.now()))
             .thenReturn(List.of());
 
-        var ex = assertThrows(FunksjonellException.class, () -> service.hentArbeidstaker(fødselsnummer));
+        var ex = assertThrows(FunksjonellException.class, () -> service.hentArbeidstaker(fødselsnummer, LocalDate.now().getYear()));
 
         assertThat(ex.getMessage()).contains("INGEN_ARBEIDSFORHOLD");
     }
