@@ -25,6 +25,7 @@ import no.nav.k9.inntektsmelding.felles.AvsenderSystemDto;
 import no.nav.k9.inntektsmelding.felles.FeilkodeDto;
 import no.nav.k9.inntektsmelding.felles.FødselsnummerDto;
 import no.nav.k9.inntektsmelding.felles.KontaktpersonDto;
+import no.nav.k9.inntektsmelding.felles.OmsorgspengerDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingerRequest;
@@ -32,6 +33,8 @@ import no.nav.k9.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingerResp
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.InntektsmeldingDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
+import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerRequest;
+import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerResponse;
 
 @ExtendWith(MockitoExtension.class)
 class InntektsmeldingApiRestTest {
@@ -122,6 +125,35 @@ class InntektsmeldingApiRestTest {
         verify(inntektsmeldingApiTjeneste).hentInntektsmeldinger(filterRequest);
     }
 
+    @Test
+    void skal_sende_refusjonskrav_omsorgspenger_ok() {
+        var inntektsmeldingUuid = UUID.randomUUID();
+        var aktørId = new AktørIdEntitet("1234567890123");
+        var request = lagRefusjonOmsorgspengerRequest();
+        var forventetSvar = new SendRefusjonOmsorgspengerResponse(true, inntektsmeldingUuid, null);
+
+        when(personTjeneste.finnAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(aktørId));
+        when(mottakTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(request, aktørId)).thenReturn(forventetSvar);
+
+        var svar = inntektsmeldingApiRest.sendRefusjonskravOmsorgspenger(request);
+
+        assertThat(svar.success()).isTrue();
+        assertThat(svar.inntektsmeldingUuid()).isEqualTo(inntektsmeldingUuid);
+        verify(mottakTjeneste).mottaInntektsmeldingForOmsorgspengerRefusjon(request, aktørId);
+    }
+
+    @Test
+    void skal_returnere_feil_ved_ingen_aktørId_for_refusjonskrav() {
+        var request = lagRefusjonOmsorgspengerRequest();
+
+        when(personTjeneste.finnAktørIdForPersonIdent(FNR)).thenReturn(Optional.empty());
+
+        var svar = inntektsmeldingApiRest.sendRefusjonskravOmsorgspenger(request);
+
+        assertThat(svar.success()).isFalse();
+        assertThat(svar.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.INGEN_AKTØR_ID);
+    }
+
     private InntektsmeldingDto lagInntektsmeldingDto(UUID inntektsmeldingUuid, UUID forespørselUuid) {
         return new InntektsmeldingDto(
             inntektsmeldingUuid,
@@ -157,6 +189,26 @@ class InntektsmeldingApiRestTest {
             List.of(),
             null,
             null
+        );
+    }
+
+    private SendRefusjonOmsorgspengerRequest lagRefusjonOmsorgspengerRequest() {
+        var omsorgspenger = new OmsorgspengerDto(
+            true,
+            List.of(new OmsorgspengerDto.FraværHeleDagerDto(LocalDate.now(), LocalDate.now().plusDays(2))),
+            List.of()
+        );
+        return new SendRefusjonOmsorgspengerRequest(
+            new FødselsnummerDto(FNR),
+            new OrganisasjonsnummerDto(ORGNUMMER),
+            LocalDate.now(),
+            new KontaktpersonDto("Kontakt Person", "99999999"),
+            new BigDecimal("50000"),
+            List.of(),
+            List.of(),
+            List.of(),
+            new AvsenderSystemDto("NAV_NO", "1.0"),
+            omsorgspenger
         );
     }
 }

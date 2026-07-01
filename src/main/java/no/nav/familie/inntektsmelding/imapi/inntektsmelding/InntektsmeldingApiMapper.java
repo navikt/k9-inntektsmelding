@@ -38,22 +38,44 @@ import no.nav.k9.inntektsmelding.felles.RefusjonDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.InntektsmeldingDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
+import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerRequest;
 import no.nav.vedtak.konfig.Tid;
 
 class InntektsmeldingApiMapper {
 
     private InntektsmeldingApiMapper() {}
 
-    static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingRequest request,
+    static InntektsmeldingEntitet mapTilEntitet(SendRefusjonOmsorgspengerRequest request,
                                                 AktørIdEntitet aktørId,
                                                 ForespørselEntitet forespørsel) {
         BigDecimal refusjonPrMnd = finnFørsteRefusjon(request.refusjon(), request.startdato()).orElse(null);
         LocalDate opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(request.refusjon(), request.startdato()).orElse(Tid.TIDENES_ENDE);
 
-        LpsSystemInfoEntitet lpsSystem = LpsSystemInfoEntitet.builder()
-            .medNavn(request.avsenderSystem().systemNavn())
-            .medVersjon(request.avsenderSystem().systemVersjon())
+        return InntektsmeldingEntitet.builder()
+            .medAktørId(aktørId)
+            .medArbeidsgiverIdent(request.organisasjonsnummer().orgnr())
+            .medMånedInntekt(request.inntekt())
+            .medKildesystem(Kildesystem.LØNN_OG_PERSONAL_SYSTEM)
+            .medInntektsmeldingType(utledInntektsmeldingType(forespørsel.getForespørselType()))
+            .medMånedRefusjon(refusjonPrMnd)
+            .medRefusjonOpphørsdato(opphørsdato)
+            .medStartDato(request.startdato())
+            .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medKontaktperson(new KontaktpersonEntitet(request.kontaktperson().navn(), request.kontaktperson().telefonnummer()))
+            .medEndringsårsaker(mapEndringsårsaker(request.endringAvInntektÅrsaker()))
+            .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(request.bortfaltNaturalytelsePerioder()))
+            .medRefusjonsendringer(mapRefusjonsendringer(request.startdato(), opphørsdato, request.refusjon()))
+            .medLpsSystemInfo(mapAvsenderSystem(request.avsenderSystem()))
+            .medOmsorgspenger(mapOmsorgspenger(request.omsorgspenger()))
+            .medForespørsel(forespørsel)
             .build();
+    }
+
+    static InntektsmeldingEntitet mapTilEntitet(SendInntektsmeldingRequest request,
+                                                AktørIdEntitet aktørId,
+                                                ForespørselEntitet forespørsel) {
+        BigDecimal refusjonPrMnd = finnFørsteRefusjon(request.refusjon(), request.startdato()).orElse(null);
+        LocalDate opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(request.refusjon(), request.startdato()).orElse(Tid.TIDENES_ENDE);
 
         InntektsmeldingEntitet.Builder builder = InntektsmeldingEntitet.builder()
             .medAktørId(aktørId)
@@ -69,7 +91,7 @@ class InntektsmeldingApiMapper {
             .medEndringsårsaker(mapEndringsårsaker(request.endringAvInntektÅrsaker()))
             .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(request.bortfaltNaturalytelsePerioder()))
             .medRefusjonsendringer(mapRefusjonsendringer(request.startdato(), opphørsdato, request.refusjon()))
-            .medLpsSystemInfo(lpsSystem)
+            .medLpsSystemInfo(mapAvsenderSystem(request.avsenderSystem()))
             .medForespørsel(forespørsel);
 
         if (request.omsorgspenger() != null) {
@@ -115,6 +137,13 @@ class InntektsmeldingApiMapper {
             case OMSORGSPENGER_REFUSJON -> InntektsmeldingType.OMSORGSPENGER_REFUSJON;
             case BESTILT_AV_FAGSYSTEM, BESTILT_AV_SAKSBEHANDLER -> InntektsmeldingType.ORDINÆR;
         };
+    }
+
+    private static LpsSystemInfoEntitet mapAvsenderSystem(AvsenderSystemDto avsenderSystem) {
+        return LpsSystemInfoEntitet.builder()
+            .medNavn(avsenderSystem.systemNavn())
+            .medVersjon(avsenderSystem.systemVersjon())
+            .build();
     }
 
     private static AvsenderSystemDto utledAvsenderSystem(InntektsmeldingEntitet entitet) {
