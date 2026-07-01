@@ -31,6 +31,8 @@ import no.nav.k9.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingerResp
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.InntektsmeldingDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
+import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerRequest;
+import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerResponse;
 
 @AutentisertMedAzure
 @ApplicationScoped
@@ -98,6 +100,22 @@ public class InntektsmeldingApiRest {
                     request.foresporselUuid().toString()));
         }
         return mottakTjeneste.mottaInntektsmelding(request, aktørId.get());
+    }
+
+    @POST
+    @Path("/send-refusjonskrav-omsorgspenger")
+    @Tilgangskontrollert
+    public SendRefusjonOmsorgspengerResponse sendRefusjonskravOmsorgspenger(@NotNull @Valid SendRefusjonOmsorgspengerRequest request) {
+        sjekkErSystemkall();
+        var aktørId = personTjeneste.finnAktørIdForPersonIdent(request.fødselsnummer().fnr());
+        if (aktørId.isEmpty()) {
+            LOG.error("Finner ikke aktørId for fødselsnummer.");
+            return new SendRefusjonOmsorgspengerResponse(false, null,
+                new SendRefusjonOmsorgspengerResponse.FeilInfo(FeilkodeDto.INGEN_AKTØR_ID,
+                    "Finner ikke informasjon for fødselsnummer. Sjekk at fødselsnummer er korrekt",
+                    null));
+        }
+        return mottakTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(request, aktørId.get());
     }
 
     private void sjekkErSystemkall() {

@@ -28,6 +28,8 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.k9.inntektsmelding.felles.FeilkodeDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
+import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerRequest;
+import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerResponse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -117,6 +119,25 @@ public class InntektsmeldingApiMottakTjeneste {
         MetrikkerTjeneste.loggInnsendtInntektsmelding(lagretEntitet);
 
         return new SendInntektsmeldingResponse(true, lagretEntitet.getUuid(), null);
+    }
+
+    public SendRefusjonOmsorgspengerResponse mottaInntektsmeldingForOmsorgspengerRefusjon(SendRefusjonOmsorgspengerRequest request,
+                                                                                          AktørIdEntitet aktørId) {
+        var orgnummer = new OrganisasjonsnummerDto(request.organisasjonsnummer().orgnr());
+        var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(aktørId, orgnummer, request.startdato());
+
+        var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
+            .orElseThrow(() -> new IllegalStateException("Finner ikke nyopprettet forespørsel: " + forespørselUuid));
+
+        var nyIm = InntektsmeldingApiMapper.mapTilEntitet(request, aktørId, forespørsel);
+        Long imId = lagreOgLagJournalførTask(nyIm, forespørsel);
+
+        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, orgnummer, LukkeÅrsak.ORDINÆR_INNSENDING, Optional.of(nyIm));
+
+        var lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
+        MetrikkerTjeneste.logginnsendtImOmsorgspengerRefusjon(lagretEntitet);
+
+        return new SendRefusjonOmsorgspengerResponse(true, lagretEntitet.getUuid(), null);
     }
 
     private SendInntektsmeldingResponse sjekkMånedInntektMotRapportertInntekt(SendInntektsmeldingRequest request,

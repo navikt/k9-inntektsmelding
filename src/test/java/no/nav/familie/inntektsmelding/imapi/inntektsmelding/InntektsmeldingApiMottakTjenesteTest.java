@@ -47,6 +47,7 @@ import no.nav.k9.inntektsmelding.felles.OmsorgspengerDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
+import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerRequest;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -206,6 +207,24 @@ class InntektsmeldingApiMottakTjenesteTest {
             eq(FORESPORSEL_UUID), any(), any(), any(), any());
     }
 
+    @Test
+    void omsorgspenger_refusjon_lagrer_og_ferdigstiller() {
+        var forespørselUuid = UUID.randomUUID();
+        var forespørsel = lagForespørselForOmsorgspenger();
+        when(forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(eq(AKTØR_ID), any(), any()))
+            .thenReturn(forespørselUuid);
+        when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(forespørsel));
+        var lagretEntitet = stubLagringMedOmsorgspenger(forespørsel);
+
+        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(lagRefusjonOmsorgspengerRequest(), AKTØR_ID);
+
+        assertThat(response.success()).isTrue();
+        assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
+        verify(inntektsmeldingRepository).lagreInntektsmelding(any());
+        verify(prosessTaskTjeneste).lagre(any(ProsessTaskData.class));
+        verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(eq(forespørselUuid), any(), any(), any(), any());
+    }
+
     // ---- Hjelpemetoder ----
 
     private SendInntektsmeldingRequest lagRequest() {
@@ -254,6 +273,26 @@ class InntektsmeldingApiMottakTjenesteTest {
             new OrganisasjonsnummerDto(ORGNR),
             STARTDATO,
             YtelseTypeDto.OMSORGSPENGER,
+            new KontaktpersonDto("Ola Nordmann", "12345678"),
+            INNTEKT,
+            List.of(),
+            List.of(),
+            List.of(),
+            new AvsenderSystemDto("TestSystem", "1.0"),
+            omsorgspenger
+        );
+    }
+
+    private SendRefusjonOmsorgspengerRequest lagRefusjonOmsorgspengerRequest() {
+        var omsorgspenger = new OmsorgspengerDto(
+            true,
+            List.of(new OmsorgspengerDto.FraværHeleDagerDto(STARTDATO, STARTDATO.plusDays(2))),
+            List.of()
+        );
+        return new SendRefusjonOmsorgspengerRequest(
+            new FødselsnummerDto(FNR),
+            new OrganisasjonsnummerDto(ORGNR),
+            STARTDATO,
             new KontaktpersonDto("Ola Nordmann", "12345678"),
             INNTEKT,
             List.of(),
