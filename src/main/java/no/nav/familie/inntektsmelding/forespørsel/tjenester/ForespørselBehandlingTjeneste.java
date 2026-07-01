@@ -120,6 +120,17 @@ public class ForespørselBehandlingTjeneste {
         minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(forespørsel.getArbeidsgiverNotifikasjonSakId(), tilleggsinformasjon);
         forespørselTjeneste.ferdigstillForespørsel(forespørsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
 
+        if (inntektsmeldingEntitet.isPresent()) {
+            var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
+            var beskjedTekst = ForespørselTekster.lagBeskjedOmOppdatertInntektsmelding();
+            var hentInntektsmeldingPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + inntektsmeldingEntitet.get().getUuid();
+            minSideArbeidsgiverTjeneste.sendNyBeskjedMedKvittering(forespørsel.getUuid().toString(),
+                merkelapp,
+                organisasjonsnummerDto.orgnr(),
+                beskjedTekst,
+                URI.create(hentInntektsmeldingPdfUrl));
+        }
+
         // Oppdaterer status i altinn dialogporten
         if (forespørsel.getDialogportenUuid().isPresent()) {
             if (dialogportenEnabled) {
@@ -443,7 +454,7 @@ public class ForespørselBehandlingTjeneste {
         // Oppdater status i arbeidsgiverportalen
         if (inntektsmeldingUuid.isPresent()) {
             var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
-            var beskjedTekst = ForespørselTekster.lagBeskjedOmOppdatertInntektsmelding();
+            var beskjedTekst = ForespørselTekster.lagBeskjedOmKvitteringFørsteInnsendingTekst();
             var hentInntektsmeldingPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + inntektsmeldingUuid.get();
             minSideArbeidsgiverTjeneste.sendNyBeskjedMedKvittering(forespørsel.getUuid().toString(),
                 merkelapp,
