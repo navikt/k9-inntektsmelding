@@ -58,6 +58,9 @@ public class RefusjonOmsorgsdagerService {
             throw new FunksjonellException("PERSON_IKKE_FUNNET", "Fant ikke person i pdl", null, null);
         }
 
+        if (årstall != null && årstall > LocalDate.now().getYear()) {
+            throw new IllegalArgumentException("Kan ikke bruke fremtidig årstall i søk");
+        }
         LocalDate fom = årstall != null ? LocalDate.of(årstall, 1, 1) : LocalDate.now();
         LocalDate tom = årstall != null ? LocalDate.of(årstall, 12, 31) : LocalDate.now();
         if (tom.isAfter(LocalDate.now())) {
