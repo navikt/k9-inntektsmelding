@@ -205,7 +205,7 @@ public class GrunnlagTjeneste {
     }
 
     public Optional<HentArbeidsforholdResponse> finnArbeidsforholdForFnr(PersonInfo personInfo, LocalDate førsteFraværsdag) {
-        var arbeidsforholdBrukerHarTilgangTil = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(personInfo.fødselsnummer(), førsteFraværsdag);
+        var arbeidsforholdBrukerHarTilgangTil = arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(personInfo.fødselsnummer(), førsteFraværsdag, førsteFraværsdag);
         if (arbeidsforholdBrukerHarTilgangTil.isEmpty()) {
             return Optional.empty();
         }
@@ -244,7 +244,7 @@ public class GrunnlagTjeneste {
     }
 
     public boolean finnesOrgnummerIAaregPåPerson(PersonIdent personIdent, String organisasjonsnummer, LocalDate førsteFraværsdag) {
-        return arbeidsforholdTjeneste.hentArbeidsforhold(personIdent, førsteFraværsdag).stream()
+        return arbeidsforholdTjeneste.hentArbeidsforhold(personIdent, førsteFraværsdag, førsteFraværsdag).stream()
             .filter(arbeidsforhold -> arbeidsforhold.organisasjonsnummer().equals(organisasjonsnummer))
             .anyMatch(arbeidsforhold -> inkludererDato(førsteFraværsdag,
                 arbeidsforhold.ansettelsesperiode().fom(),

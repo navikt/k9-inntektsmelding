@@ -31,8 +31,8 @@ public class ArbeidstakerTjeneste {
         this.altinnTilgangTjeneste = altinnTilgangTjeneste;
     }
 
-    public List<ArbeidsforholdDto> finnArbeidsforholdInnsenderHarTilgangTil(PersonIdent ident, LocalDate førsteFraværsdag) {
-        var alleArbeidsforhold = arbeidsforholdTjeneste.hentArbeidsforhold(ident, førsteFraværsdag);
+    public List<ArbeidsforholdDto> finnArbeidsforholdInnsenderHarTilgangTil(PersonIdent ident, LocalDate fom, LocalDate tom) {
+        var alleArbeidsforhold = arbeidsforholdTjeneste.hentArbeidsforhold(ident, fom, tom);
         LOG.info("Fant {} arbeidsforhold i Aa-registeret for {}", alleArbeidsforhold.size(), ident);
 
         if (alleArbeidsforhold.isEmpty()) {

@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.imdialog.rest;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -94,6 +95,10 @@ public class InntektsmeldingDialogRest {
         return Response.ok(dto).build();
     }
 
+    /**
+     * @deprecated Bruk {@link #hentInntektsmeldingerForÅrPost(HentInntektsmeldingerForÅrRequest)} i stedet.
+     */
+    @Deprecated(forRemoval = true)
     @GET
     @Path(HENT_INNTEKTSMELDINGER_FOR_ÅR)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -106,10 +111,30 @@ public class InntektsmeldingDialogRest {
 
         LOG.info("Henter inntektsmeldinger for år for organisasjon {}", arbeidsgiverIdent);
 
-        // denne metoden vil kun bli brukt for omsorgspenger da de har fagsak som strekker seg over ett år
         var dto = inntektsmeldingTjeneste.hentInntektsmeldingerForÅr(new AktørIdEntitet(aktorId),
             arbeidsgiverIdent,
             år,
+            Ytelsetype.OMSORGSPENGER);
+        return Response.ok(dto).build();
+    }
+
+    @POST
+    @Path(HENT_INNTEKTSMELDINGER_FOR_ÅR)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentInntektsmeldingerForÅrPost(@NotNull @Valid HentInntektsmeldingerForÅrRequest request) {
+        if (request.år() > LocalDate.now().getYear() || request.år() < 2020) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Fremtidige år er ikke tillatt").build();
+        }
+
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(request.arbeidsgiverIdent().ident()));
+
+        LOG.info("Henter inntektsmeldinger for år for organisasjon {}", request.arbeidsgiverIdent());
+
+        // denne metoden vil kun bli brukt for omsorgspenger da de har fagsak som strekker seg over ett år
+        var dto = inntektsmeldingTjeneste.hentInntektsmeldingerForÅr(new AktørIdEntitet(request.aktørId().id()),
+            request.arbeidsgiverIdent().ident(),
+            request.år(),
             Ytelsetype.OMSORGSPENGER);
         return Response.ok(dto).build();
     }

@@ -30,8 +30,8 @@ public class ArbeidsforholdTjeneste {
         this.aaregRestKlient = aaregRestKlient;
     }
 
-    public List<ArbeidsforholdDto> hentArbeidsforhold(PersonIdent ident, LocalDate førsteFraværsdag) {
-        var aaregInfo = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident.getIdent(), førsteFraværsdag);
+    public List<ArbeidsforholdDto> hentArbeidsforhold(PersonIdent ident, LocalDate fom, LocalDate tom) {
+        var aaregInfo = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident.getIdent(), fom, tom);
         if (aaregInfo == null) {
             LOG.info("Fant ingen arbeidsforhold for ident {}. Returnerer tom liste", ident.getIdent());
             return Collections.emptyList();
