@@ -34,10 +34,10 @@ public class ArbeidsforholdTjeneste {
     public List<ArbeidsforholdDto> hentArbeidsforhold(PersonIdent ident, LocalDate fom, LocalDate tom) {
         var aaregInfo = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident.getIdent(), fom, tom);
         if (aaregInfo == null) {
-            LOG.info("Fant ingen arbeidsforhold for ident {} i tidsrom [{}, {}]. Returnerer tom liste", ident.getIdent(), fom, tom);
+            LOG.info("Fant ingen arbeidsforhold for ident {} i tidsrommet [{}, {}]. Returnerer tom liste", ident, fom, tom);
             return Collections.emptyList();
         }
-        LOG.info("Fant {} arbeidsforhold for ident {} i tidsrom [{}, {}].", aaregInfo.size(), ident.getIdent(), fom, tom);
+        LOG.info("Fant {} arbeidsforhold for ident {} i tidsrommet [{}, {}].", aaregInfo.size(), ident, fom, tom);
         if (Environment.current().isDev()) {
             LOG.info("Respons fra aareg: {}", aaregInfo);
         }
