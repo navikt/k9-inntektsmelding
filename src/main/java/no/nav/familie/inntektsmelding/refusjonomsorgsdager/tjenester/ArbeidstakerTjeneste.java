@@ -21,7 +21,7 @@ public class ArbeidstakerTjeneste {
     private ArbeidsforholdTjeneste arbeidsforholdTjeneste;
     private AltinnTilgangTjeneste altinnTilgangTjeneste;
 
-    public ArbeidstakerTjeneste() {
+    ArbeidstakerTjeneste() {
         // CDI
     }
 
@@ -33,10 +33,8 @@ public class ArbeidstakerTjeneste {
 
     public List<ArbeidsforholdDto> finnArbeidsforholdInnsenderHarTilgangTil(PersonIdent ident, LocalDate fom, LocalDate tom) {
         var alleArbeidsforhold = arbeidsforholdTjeneste.hentArbeidsforhold(ident, fom, tom);
-        LOG.info("Fant {} arbeidsforhold i Aa-registeret for {} i tidsrommet [{}, {}].", alleArbeidsforhold.size(), ident, fom, tom);
 
         if (alleArbeidsforhold.isEmpty()) {
-            LOG.info("Fant ingen arbeidsforhold i Aa-registeret for {} i tidsrommet [{}, {}]", ident, fom, tom);
             return Collections.emptyList();
         }
 
@@ -49,7 +47,7 @@ public class ArbeidstakerTjeneste {
             LOG.info("Innsender har tilgang til {} av {} arbeidsforhold for {}", arbeidsforholdInnsenderHarTilgangTil.size(), alleArbeidsforhold.size(), ident);
         }
 
-        LOG.info("Returnerer informasjon om arbeidsforhold for {}", ident);
+        LOG.info("Returnerer informasjon om {} arbeidsforhold for {}", arbeidsforholdInnsenderHarTilgangTil.size(), ident);
         return arbeidsforholdInnsenderHarTilgangTil;
     }
 
