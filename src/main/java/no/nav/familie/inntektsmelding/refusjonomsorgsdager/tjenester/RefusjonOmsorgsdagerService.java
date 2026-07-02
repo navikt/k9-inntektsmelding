@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -21,8 +23,8 @@ import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDt
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInnloggetBrukerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponse;
-import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class RefusjonOmsorgsdagerService {
@@ -72,7 +74,8 @@ public class RefusjonOmsorgsdagerService {
             .map(arbeidsforhold -> new SlåOppArbeidstakerResponse.ArbeidsforholdDto(
                 arbeidsforhold.organisasjonsnummer(),
                 organisasjonTjeneste.finnOrganisasjon(arbeidsforhold.organisasjonsnummer()).navn(),
-                new PeriodeDto(arbeidsforhold.ansettelsesperiode().fom(), arbeidsforhold.ansettelsesperiode().tom())
+                new PeriodeDto(arbeidsforhold.ansettelsesperiode().fom(),
+                    Objects.equals(arbeidsforhold.ansettelsesperiode().tom(), Tid.TIDENES_ENDE) ? null : arbeidsforhold.ansettelsesperiode().tom()) // Returnerer tom = null for aktive arbeidsforhold
             ))
             .toList();
 
