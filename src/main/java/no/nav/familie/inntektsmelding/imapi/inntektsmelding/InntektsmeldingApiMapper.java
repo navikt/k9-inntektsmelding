@@ -172,7 +172,7 @@ class InntektsmeldingApiMapper {
     }
 
     private static Optional<BigDecimal> finnFørsteRefusjon(List<RefusjonDto> refusjon, LocalDate startdato) {
-        if (refusjon.isEmpty()) {
+        if (refusjon == null || refusjon.isEmpty()) {
             return Optional.empty();
         }
         var refusjonPåStartdato = refusjon.stream().filter(r -> r.fom().equals(startdato)).toList();
@@ -183,6 +183,9 @@ class InntektsmeldingApiMapper {
     }
 
     private static Optional<LocalDate> finnOpphørsdato(List<RefusjonDto> refusjon, LocalDate startdato) {
+        if (refusjon == null) {
+            return Optional.empty();
+        }
         // Hvis siste endring setter refusjon til 0 er det å regne som opphør av refusjon,
         // setter dagen før denne endringen som opphørsdato
         return refusjon.stream()
@@ -195,6 +198,9 @@ class InntektsmeldingApiMapper {
     private static List<RefusjonsendringEntitet> mapRefusjonsendringer(LocalDate startdato,
                                                                         LocalDate opphørsdato,
                                                                         List<RefusjonDto> refusjon) {
+        if (refusjon == null) {
+            return List.of();
+        }
         // Opphør og start ligger på egne felter, så disse skal ikke mappes som endringer.
         // Merk at opphørsdato er dagen før endring som opphører refusjon, derfor må vi legge til en dag.
         return refusjon.stream()
@@ -205,6 +211,9 @@ class InntektsmeldingApiMapper {
     }
 
     private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<BortfaltNaturalytelseDto> dto) {
+        if (dto == null) {
+            return List.of();
+        }
         return dto.stream()
             .map(d -> BortaltNaturalytelseEntitet.builder()
                 .medPeriode(d.fom(), d.tom() != null ? d.tom() : Tid.TIDENES_ENDE)
@@ -215,6 +224,9 @@ class InntektsmeldingApiMapper {
     }
 
     private static List<EndringsårsakEntitet> mapEndringsårsaker(List<EndringsårsakerDto> endringsårsaker) {
+        if (endringsårsaker == null) {
+            return List.of();
+        }
         return endringsårsaker.stream()
             .map(endringsårsak -> EndringsårsakEntitet.builder()
                 .medÅrsak(Endringsårsak.valueOf(endringsårsak.årsak().name()))
