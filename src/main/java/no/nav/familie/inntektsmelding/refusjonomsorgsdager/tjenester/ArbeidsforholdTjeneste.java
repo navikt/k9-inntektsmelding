@@ -39,7 +39,7 @@ public class ArbeidsforholdTjeneste {
         }
         LOG.info("Fant {} arbeidsforhold for ident {} i tidsrommet [{}, {}].", aaregInfo.size(), ident, fom, tom);
         if (Environment.current().isDev()) {
-            LOG.info("Respons fra aareg: {}", aaregInfo);
+            LOG.info("Respons fra aareg for ident {} i tidsrommet [{}, {}]: {}", ident, fom, tom, aaregInfo);
         }
         return aaregInfo.stream()
             .filter(arb -> OpplysningspliktigArbeidsgiverDto.Type.ORGANISASJON.equals(arb.arbeidsgiver().type())) // Vi skal aldri behandle private arbeidsforhold i ftinntektsmelding
