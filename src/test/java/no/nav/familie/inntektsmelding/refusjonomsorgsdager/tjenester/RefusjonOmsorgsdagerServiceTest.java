@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
@@ -74,7 +73,7 @@ class RefusjonOmsorgsdagerServiceTest {
 
         var forventetArbeidstakerInfo = new SlåOppArbeidstakerResponse(
             new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()),
-            List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto(orgnummer, "Arbeidsgiver AS", new PeriodeDto(ansettelsesperiode.fom(), ansettelsesperiode.tom()))));
+            List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto(orgnummer, "Arbeidsgiver AS", new SlåOppArbeidstakerResponse.Ansettelsesperiode(ansettelsesperiode.fom(), ansettelsesperiode.tom()))));
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.of(førsteFraværsdag.getYear(), 1, 1), LocalDate.now())).thenReturn(arbeidsforhold);

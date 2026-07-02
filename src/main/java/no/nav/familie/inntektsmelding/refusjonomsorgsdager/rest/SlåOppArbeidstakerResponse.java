@@ -1,8 +1,7 @@
 package no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest;
 
+import java.time.LocalDate;
 import java.util.List;
-
-import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.PeriodeDto;
 
 public record SlåOppArbeidstakerResponse(Personinformasjon personinformasjon, List<ArbeidsforholdDto> arbeidsforhold) {
     public record Personinformasjon(
@@ -12,6 +11,7 @@ public record SlåOppArbeidstakerResponse(Personinformasjon personinformasjon, L
         String fødselsnummer,
         String aktørId) {
     }
-    public record ArbeidsforholdDto(String organisasjonsnummer, String organisasjonsnavn, PeriodeDto ansettelsesperiode) {
+    public record ArbeidsforholdDto(String organisasjonsnummer, String organisasjonsnavn, Ansettelsesperiode ansettelsesperiode) {
     }
+    public record Ansettelsesperiode(LocalDate fom, LocalDate tom) {}
 }

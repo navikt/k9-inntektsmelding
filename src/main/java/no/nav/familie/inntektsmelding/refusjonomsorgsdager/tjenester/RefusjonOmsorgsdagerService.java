@@ -13,7 +13,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -48,7 +47,7 @@ public class RefusjonOmsorgsdagerService {
         this.organisasjonTjeneste = organisasjonTjeneste;
     }
 
-    public RefusjonOmsorgsdagerService() {
+    RefusjonOmsorgsdagerService() {
         // CDI
     }
 
@@ -74,7 +73,7 @@ public class RefusjonOmsorgsdagerService {
             .map(arbeidsforhold -> new SlåOppArbeidstakerResponse.ArbeidsforholdDto(
                 arbeidsforhold.organisasjonsnummer(),
                 organisasjonTjeneste.finnOrganisasjon(arbeidsforhold.organisasjonsnummer()).navn(),
-                new PeriodeDto(arbeidsforhold.ansettelsesperiode().fom(),
+                new SlåOppArbeidstakerResponse.Ansettelsesperiode(arbeidsforhold.ansettelsesperiode().fom(),
                     Objects.equals(arbeidsforhold.ansettelsesperiode().tom(), Tid.TIDENES_ENDE) ? null : arbeidsforhold.ansettelsesperiode().tom()) // Returnerer tom = null for aktive arbeidsforhold
             ))
             .toList();
