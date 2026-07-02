@@ -14,6 +14,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.aareg.AaregRestKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.OpplysningspliktigArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -33,10 +34,13 @@ public class ArbeidsforholdTjeneste {
     public List<ArbeidsforholdDto> hentArbeidsforhold(PersonIdent ident, LocalDate fom, LocalDate tom) {
         var aaregInfo = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident.getIdent(), fom, tom);
         if (aaregInfo == null) {
-            LOG.info("Fant ingen arbeidsforhold for ident {}. Returnerer tom liste", ident.getIdent());
+            LOG.info("Fant ingen arbeidsforhold for ident {} i tidsrommet [{}, {}]. Returnerer tom liste", ident, fom, tom);
             return Collections.emptyList();
         }
-        LOG.info("Fant {} arbeidsforhold for ident {}.", aaregInfo.size(), ident.getIdent());
+        LOG.info("Fant {} arbeidsforhold for ident {} i tidsrommet [{}, {}].", aaregInfo.size(), ident, fom, tom);
+        if (Environment.current().isDev()) {
+            LOG.info("Respons fra aareg for ident {} i tidsrommet [{}, {}]: {}", ident, fom, tom, aaregInfo);
+        }
         return aaregInfo.stream()
             .filter(arb -> OpplysningspliktigArbeidsgiverDto.Type.ORGANISASJON.equals(arb.arbeidsgiver().type())) // Vi skal aldri behandle private arbeidsforhold i ftinntektsmelding
             .map(arbeidsforhold -> new ArbeidsforholdDto(

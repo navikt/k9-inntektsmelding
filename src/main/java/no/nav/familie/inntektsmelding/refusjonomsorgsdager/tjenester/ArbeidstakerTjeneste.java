@@ -33,10 +33,10 @@ public class ArbeidstakerTjeneste {
 
     public List<ArbeidsforholdDto> finnArbeidsforholdInnsenderHarTilgangTil(PersonIdent ident, LocalDate fom, LocalDate tom) {
         var alleArbeidsforhold = arbeidsforholdTjeneste.hentArbeidsforhold(ident, fom, tom);
-        LOG.info("Fant {} arbeidsforhold i Aa-registeret for {}", alleArbeidsforhold.size(), ident);
+        LOG.info("Fant {} arbeidsforhold i Aa-registeret for {} i tidsrommet [{}, {}].", alleArbeidsforhold.size(), ident, fom, tom);
 
         if (alleArbeidsforhold.isEmpty()) {
-            LOG.warn("Fant ingen arbeidsforhold i Aa-registeret for {}", ident);
+            LOG.info("Fant ingen arbeidsforhold i Aa-registeret for {} i tidsrommet [{}, {}]", ident, fom, tom);
             return Collections.emptyList();
         }
 
