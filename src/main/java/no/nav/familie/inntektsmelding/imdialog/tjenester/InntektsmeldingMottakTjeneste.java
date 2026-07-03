@@ -57,13 +57,15 @@ public class InntektsmeldingMottakTjeneste {
             throw new IllegalStateException("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
         }
 
+        var antalleInntektsmeldinger = forespørselEntitet.getInntektsmeldinger().size();
+
         var aktorId = new AktørIdEntitet(sendInntektsmeldingRequest.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequest.arbeidsgiverIdent().ident());
         var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(sendInntektsmeldingRequest, forespørselEntitet);
         var imId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
 
         // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
-        if (forespørselEntitet.getInntektsmeldinger().size() == 1) {
+        if (antalleInntektsmeldinger == 0) {
             var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(
                 sendInntektsmeldingRequest.foresporselUuid(),
                 aktorId,
@@ -137,13 +139,15 @@ public class InntektsmeldingMottakTjeneste {
         var forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(this::manglerForespørselFeil);
 
+        var antallInntektsmeldinger = forespørselEntitet.getInntektsmeldinger().size();
+
         var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitetForArbeidsgiverinitiertNyansatt(request, forespørselEntitet);
         var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
 
         MetrikkerTjeneste.loggInnsendtAGIRefusjonNyansatt(inntektsmeldingEntitet);
 
         // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
-        if (forespørselEntitet.getInntektsmeldinger().size() == 1) {
+        if (antallInntektsmeldinger == 0) {
             forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
                 aktørId,
                 organisasjonsnummer,
@@ -178,13 +182,15 @@ public class InntektsmeldingMottakTjeneste {
         var forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(this::manglerForespørselFeil);
 
+        var antallInntektsmeldinger = forespørselEntitet.getInntektsmeldinger().size();
+
         var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(request, forespørselEntitet);
         var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
 
         MetrikkerTjeneste.loggInnsendtAGIUregistrert(inntektsmeldingEntitet);
 
         // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
-        if (forespørselEntitet.getInntektsmeldinger().size() == 1) {
+        if (antallInntektsmeldinger == 0) {
             forespørselBehandlingTjeneste.ferdigstillForespørsel(
                 forespørselUuid,
                 aktørId,
