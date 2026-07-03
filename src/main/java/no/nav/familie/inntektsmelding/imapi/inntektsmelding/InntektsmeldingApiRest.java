@@ -25,6 +25,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
+import no.nav.k9.inntektsmelding.felles.FeilInfo;
 import no.nav.k9.inntektsmelding.felles.FeilkodeDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingerRequest;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingerResponse;
@@ -95,7 +96,7 @@ public class InntektsmeldingApiRest {
         if (aktørId.isEmpty()) {
             LOG.error("Finner ikke aktørId for fødselsnummer.");
             return new SendInntektsmeldingResponse(false, null,
-                new SendInntektsmeldingResponse.FeilInfo(FeilkodeDto.INGEN_AKTØR_ID,
+                new FeilInfo(FeilkodeDto.INGEN_AKTØR_ID,
                     "Finner ikke informasjon for fødselsnummer. Sjekk at fødselsnummer er korrekt",
                     request.foresporselUuid().toString()));
         }
@@ -111,7 +112,7 @@ public class InntektsmeldingApiRest {
         if (aktørId.isEmpty()) {
             LOG.error("Finner ikke aktørId for fødselsnummer.");
             return new SendRefusjonOmsorgspengerResponse(false, null,
-                new SendRefusjonOmsorgspengerResponse.FeilInfo(FeilkodeDto.INGEN_AKTØR_ID,
+                new FeilInfo(FeilkodeDto.INGEN_AKTØR_ID,
                     "Finner ikke informasjon for fødselsnummer. Sjekk at fødselsnummer er korrekt",
                     null));
         }

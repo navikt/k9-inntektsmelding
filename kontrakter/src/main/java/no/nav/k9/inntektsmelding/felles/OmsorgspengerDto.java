@@ -12,29 +12,12 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public record OmsorgspengerDto(@NotNull Boolean harUtbetaltPliktigeDager,
-                               List<@Valid FraværHeleDagerDto> fraværHeleDager,
-                               List<@Valid FraværDelerAvDagenDto> fraværDelerAvDagen) {
+                               List<@Valid PeriodeDto> fraværHeleDager,
+                               List<@Valid FraværDelerAvDagenDto> fraværDelerAvDagen,
+                               List<@Valid PeriodeDto> trukketPerioder) {
 
     public record FraværDelerAvDagenDto(@NotNull LocalDate dato,
                                         @NotNull @Min(0) @Max(24) @Digits(integer = 2, fraction = 2) BigDecimal timer) {
-    }
-
-    public record FraværHeleDagerDto(@NotNull LocalDate fom,
-                                     @NotNull LocalDate tom) {
-
-        @AssertTrue(message = "fom er før eller lik tom")
-        private boolean isValidFomErFørTom() {
-            return fom.isBefore(tom) || fom.isEqual(tom);
-        }
-
-        private boolean overlapper(FraværHeleDagerDto annen) {
-            return (fom.isBefore(annen.tom) || fom.isEqual(annen.tom)) &&
-                (tom.isAfter(annen.fom) || tom.isEqual(annen.fom));
-        }
-
-        private boolean inneholder(LocalDate dato) {
-            return (fom.isBefore(dato) || fom.isEqual(dato)) && (tom.isAfter(dato) || tom.isEqual(dato));
-        }
     }
 
     @AssertTrue(message = "Ingen fraværHeleDager overlapper")
@@ -65,14 +48,36 @@ public record OmsorgspengerDto(@NotNull Boolean harUtbetaltPliktigeDager,
         }
         return fraværHeleDager.stream()
             .noneMatch(heldag -> fraværDelerAvDagen.stream()
-                .anyMatch(delvis -> heldag.inneholder(delvis.dato())));
+                .anyMatch(delvis -> heldag.inneholderDato(delvis.dato())));
     }
 
-    @AssertTrue(message = "Må ha enten fraværHeleDager eller fraværDelerAvDagen")
-    private boolean isValidHarFraværsperioder() {
-        if (fraværHeleDager == null || fraværHeleDager.isEmpty()) {
-            return !(fraværDelerAvDagen == null || fraværDelerAvDagen.isEmpty());
+    @AssertTrue(message = "Ingen dato i trukketPerioder kan finnes i fraværHeleDager eller fraværDelerAvDagen")
+    private boolean isValidIngenOverlappTrukketPerioder() {
+        if (trukketPerioder == null || trukketPerioder.isEmpty()) {
+            return true;
+        }
+        if (fraværHeleDager != null) {
+            for (PeriodeDto trukket : trukketPerioder) {
+                if (fraværHeleDager.stream().anyMatch(heldag -> heldag.overlapper(trukket))) {
+                    return false;
+                }
+            }
+        }
+        if (fraværDelerAvDagen != null) {
+            for (PeriodeDto trukket : trukketPerioder) {
+                if (fraværDelerAvDagen.stream().anyMatch(delvis -> trukket.inneholderDato(delvis.dato()))) {
+                    return false;
+                }
+            }
         }
         return true;
+    }
+
+    @AssertTrue(message = "Må ha enten fraværHeleDager, fraværDelerAvDagen eller trukketPerioder")
+    private boolean isValidHarFraværsperioder() {
+        boolean harFraværHeleDager = fraværHeleDager != null && !fraværHeleDager.isEmpty();
+        boolean harFraværDelerAvDagen = fraværDelerAvDagen != null && !fraværDelerAvDagen.isEmpty();
+        boolean harTrukketPerioder = trukketPerioder != null && !trukketPerioder.isEmpty();
+        return harFraværHeleDager || harFraværDelerAvDagen || harTrukketPerioder;
     }
 }

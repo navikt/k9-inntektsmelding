@@ -27,6 +27,7 @@ import no.nav.k9.inntektsmelding.felles.FødselsnummerDto;
 import no.nav.k9.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.k9.inntektsmelding.felles.OmsorgspengerDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
+import no.nav.k9.inntektsmelding.felles.PeriodeDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingerRequest;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingerResponse;
@@ -195,8 +196,9 @@ class InntektsmeldingApiRestTest {
     private SendRefusjonOmsorgspengerRequest lagRefusjonOmsorgspengerRequest() {
         var omsorgspenger = new OmsorgspengerDto(
             true,
-            List.of(new OmsorgspengerDto.FraværHeleDagerDto(LocalDate.now(), LocalDate.now().plusDays(2))),
-            List.of()
+            List.of(new PeriodeDto(LocalDate.now(), LocalDate.now().plusDays(2))),
+            List.of(),
+            null
         );
         return new SendRefusjonOmsorgspengerRequest(
             new FødselsnummerDto(FNR),
@@ -204,8 +206,6 @@ class InntektsmeldingApiRestTest {
             LocalDate.now(),
             new KontaktpersonDto("Kontakt Person", "99999999"),
             new BigDecimal("50000"),
-            List.of(),
-            List.of(),
             List.of(),
             new AvsenderSystemDto("NAV_NO", "1.0"),
             omsorgspenger

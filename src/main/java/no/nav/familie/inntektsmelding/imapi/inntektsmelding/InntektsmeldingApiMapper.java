@@ -34,6 +34,7 @@ import no.nav.k9.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.k9.inntektsmelding.felles.NaturalytelsetypeDto;
 import no.nav.k9.inntektsmelding.felles.OmsorgspengerDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
+import no.nav.k9.inntektsmelding.felles.PeriodeDto;
 import no.nav.k9.inntektsmelding.felles.RefusjonDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.InntektsmeldingDto;
@@ -45,26 +46,23 @@ class InntektsmeldingApiMapper {
 
     private InntektsmeldingApiMapper() {}
 
-    static InntektsmeldingEntitet mapTilEntitet(SendRefusjonOmsorgspengerRequest request,
-                                                AktørIdEntitet aktørId,
-                                                ForespørselEntitet forespørsel) {
-        BigDecimal refusjonPrMnd = finnFørsteRefusjon(request.refusjon(), request.startdato()).orElse(null);
-        LocalDate opphørsdato = refusjonPrMnd == null ? null : finnOpphørsdato(request.refusjon(), request.startdato()).orElse(Tid.TIDENES_ENDE);
-
+    static InntektsmeldingEntitet mapTilEntitetOmsorgspengerRefusjon(SendRefusjonOmsorgspengerRequest request,
+                                                                     AktørIdEntitet aktørId,
+                                                                     ForespørselEntitet forespørsel) {
         return InntektsmeldingEntitet.builder()
             .medAktørId(aktørId)
             .medArbeidsgiverIdent(request.organisasjonsnummer().orgnr())
             .medMånedInntekt(request.inntekt())
             .medKildesystem(Kildesystem.LØNN_OG_PERSONAL_SYSTEM)
             .medInntektsmeldingType(utledInntektsmeldingType(forespørsel.getForespørselType()))
-            .medMånedRefusjon(refusjonPrMnd)
-            .medRefusjonOpphørsdato(opphørsdato)
+            .medMånedRefusjon(request.inntekt())
+            .medRefusjonOpphørsdato(null)
             .medStartDato(request.startdato())
             .medYtelsetype(Ytelsetype.OMSORGSPENGER)
             .medKontaktperson(new KontaktpersonEntitet(request.kontaktperson().navn(), request.kontaktperson().telefonnummer()))
             .medEndringsårsaker(mapEndringsårsaker(request.endringAvInntektÅrsaker()))
-            .medBortfaltNaturalytelser(mapBortfalteNaturalytelser(request.bortfaltNaturalytelsePerioder()))
-            .medRefusjonsendringer(mapRefusjonsendringer(request.startdato(), opphørsdato, request.refusjon()))
+            .medBortfaltNaturalytelser(List.of())
+            .medRefusjonsendringer(List.of())
             .medLpsSystemInfo(mapAvsenderSystem(request.avsenderSystem()))
             .medOmsorgspenger(mapOmsorgspenger(request.omsorgspenger()))
             .medForespørsel(forespørsel)
@@ -104,9 +102,9 @@ class InntektsmeldingApiMapper {
     static InntektsmeldingDto mapFraEntitet(InntektsmeldingEntitet inntektsmelding, PersonIdent personIdent) {
         var forespørsel = inntektsmelding.getForespørsel();
         if (personIdent == null) {
-            throw new IllegalArgumentException("Finner ikke fødselsnummer for aktørId når personIdent er null." );
+            throw new IllegalArgumentException("Finner ikke fødselsnummer for aktørId når personIdent er null.");
         }
-            return new InntektsmeldingDto(
+        return new InntektsmeldingDto(
             inntektsmelding.getUuid(),
             forespørsel.getUuid(),
             new FødselsnummerDto(personIdent.getIdent()),
@@ -242,12 +240,41 @@ class InntektsmeldingApiMapper {
             return null;
         }
         var fraværHeleDager = omsorgspenger.getFraværsPerioder().stream()
-            .map(p -> new OmsorgspengerDto.FraværHeleDagerDto(p.getPeriode().getFom(), p.getPeriode().getTom()))
+            .map(p -> new PeriodeDto(p.getPeriode().getFom(), p.getPeriode().getTom()))
             .toList();
+
         var fraværDelerAvDagen = omsorgspenger.getDelvisFraværsPerioder().stream()
+            .filter(d -> d.getTimer().compareTo(BigDecimal.ZERO) > 0)
             .map(d -> new OmsorgspengerDto.FraværDelerAvDagenDto(d.getDato(), d.getTimer()))
             .toList();
-        return new OmsorgspengerDto(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværHeleDager, fraværDelerAvDagen);
+
+        var trukketDager = omsorgspenger.getDelvisFraværsPerioder().stream()
+            .filter(d -> d.getTimer().compareTo(BigDecimal.ZERO) == 0)
+            .map(DelvisFraværsPeriodeEntitet::getDato)
+            .sorted()
+            .toList();
+        var trukketPerioder = rekonstruérDatoPerioder(trukketDager);
+
+        return new OmsorgspengerDto(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværHeleDager, fraværDelerAvDagen, trukketPerioder);
+    }
+
+    private static List<PeriodeDto> rekonstruérDatoPerioder(List<LocalDate> sortedDates) {
+        if (sortedDates.isEmpty()) {
+            return List.of();
+        }
+        List<PeriodeDto> perioder = new ArrayList<>();
+        LocalDate fom = sortedDates.get(0);
+        LocalDate prev = sortedDates.get(0);
+        for (int i = 1; i < sortedDates.size(); i++) {
+            LocalDate current = sortedDates.get(i);
+            if (!current.equals(prev.plusDays(1))) {
+                perioder.add(new PeriodeDto(fom, prev));
+                fom = current;
+            }
+            prev = current;
+        }
+        perioder.add(new PeriodeDto(fom, prev));
+        return perioder;
     }
 
     private static OmsorgspengerEntitet mapOmsorgspenger(OmsorgspengerDto omsorgspengerDto) {
@@ -261,12 +288,23 @@ class InntektsmeldingApiMapper {
             ? omsorgspengerDto.fraværDelerAvDagen().stream()
                 .map(d -> new DelvisFraværsPeriodeEntitet(d.dato(), d.timer()))
                 .toList()
-            : null;
+            : List.of();
+
+        // Trukket perioder: ekspander hver dag i perioden til DelvisFraværsPeriodeEntitet med 0 timer
+        List<DelvisFraværsPeriodeEntitet> trukkedeDager = omsorgspengerDto.trukketPerioder() != null
+            ? omsorgspengerDto.trukketPerioder().stream()
+                .flatMap(p -> p.fom().datesUntil(p.tom().plusDays(1)))
+                .map(dato -> new DelvisFraværsPeriodeEntitet(dato, BigDecimal.ZERO))
+                .toList()
+            : List.of();
+
+        List<DelvisFraværsPeriodeEntitet> alleDelvis = new ArrayList<>(delvisFraværsPerioder);
+        alleDelvis.addAll(trukkedeDager);
 
         return OmsorgspengerEntitet.builder()
             .medHarUtbetaltPliktigeDager(omsorgspengerDto.harUtbetaltPliktigeDager())
             .medFraværsPerioder(fraværsPerioder)
-            .medDelvisFraværsPerioder(delvisFraværsPerioder)
+            .medDelvisFraværsPerioder(alleDelvis)
             .build();
     }
 
