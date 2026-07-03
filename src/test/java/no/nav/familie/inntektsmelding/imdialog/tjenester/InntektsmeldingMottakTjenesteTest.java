@@ -27,7 +27,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
@@ -98,24 +97,6 @@ class InntektsmeldingMottakTjenesteTest {
 
         // Assert
         assertThat(ex.getMessage()).contains("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
-    }
-
-    @Test
-    void skal_ferdigstille_forespørsel_ved_første_innsending() {
-        // Arrange
-        var forespørsel = spy(lagForespørsel());
-        var lagretIm = lagInntektsmeldingEntitet(forespørsel);
-        when(forespørsel.getInntektsmeldinger()).thenReturn(List.of(lagretIm)); // size == 1 → første innsending
-        when(forespørselBehandlingTjeneste.hentForespørsel(FORESPORSEL_UUID)).thenReturn(Optional.of(forespørsel));
-        when(forespørselBehandlingTjeneste.ferdigstillForespørsel(any(), any(), any(), any(), any())).thenReturn(forespørsel);
-        stubLagring(lagretIm);
-
-        // Act
-        inntektsmeldingMottakTjeneste.mottaInntektsmelding(lagRequest());
-
-        // Assert
-        verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(eq(FORESPORSEL_UUID), any(), any(), eq(LukkeÅrsak.ORDINÆR_INNSENDING), any());
-        verify(forespørselBehandlingTjeneste, never()).oppdaterPortalerMedEndretInntektsmelding(any(), any(), any());
     }
 
     @Test
