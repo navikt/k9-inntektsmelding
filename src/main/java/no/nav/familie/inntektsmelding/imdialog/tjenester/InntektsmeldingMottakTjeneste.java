@@ -57,7 +57,7 @@ public class InntektsmeldingMottakTjeneste {
             throw new IllegalStateException("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
         }
 
-        int antalleInntektsmeldinger = forespørselEntitet.getInntektsmeldinger().size();
+        int antallInntektsmeldinger = forespørselEntitet.getInntektsmeldinger().size();
 
         var aktorId = new AktørIdEntitet(sendInntektsmeldingRequest.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequest.arbeidsgiverIdent().ident());
@@ -65,7 +65,7 @@ public class InntektsmeldingMottakTjeneste {
         var imId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
 
         // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
-        if (antalleInntektsmeldinger == 0) {
+        if (antallInntektsmeldinger == 0) {
             var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(
                 sendInntektsmeldingRequest.foresporselUuid(),
                 aktorId,
