@@ -57,7 +57,7 @@ public class InntektsmeldingMottakTjeneste {
             throw new IllegalStateException("Kan ikke motta nye inntektsmeldinger på utgåtte forespørsler");
         }
 
-        var antalleInntektsmeldinger = forespørselEntitet.getInntektsmeldinger().size();
+        int antalleInntektsmeldinger = forespørselEntitet.getInntektsmeldinger().size();
 
         var aktorId = new AktørIdEntitet(sendInntektsmeldingRequest.aktorId().id());
         var orgnummer = new OrganisasjonsnummerDto(sendInntektsmeldingRequest.arbeidsgiverIdent().ident());
@@ -139,7 +139,7 @@ public class InntektsmeldingMottakTjeneste {
         var forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(this::manglerForespørselFeil);
 
-        var antallInntektsmeldinger = forespørselEntitet.getInntektsmeldinger().size();
+        int antallInntektsmeldinger = forespørselEntitet.getInntektsmeldinger().size();
 
         var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitetForArbeidsgiverinitiertNyansatt(request, forespørselEntitet);
         var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
@@ -182,7 +182,7 @@ public class InntektsmeldingMottakTjeneste {
         var forespørselEntitet = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(this::manglerForespørselFeil);
 
-        var antallInntektsmeldinger = forespørselEntitet.getInntektsmeldinger().size();
+        int antallInntektsmeldinger = forespørselEntitet.getInntektsmeldinger().size();
 
         var inntektsmeldingEntitet = InntektsmeldingMapper.mapTilEntitet(request, forespørselEntitet);
         var inntektsmeldingId = lagreOgLagJournalførTask(inntektsmeldingEntitet, forespørselEntitet);
