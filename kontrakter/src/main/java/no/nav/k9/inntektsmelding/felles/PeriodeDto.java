@@ -10,10 +10,15 @@ public record PeriodeDto(@NotNull LocalDate fom,
 
     @AssertTrue(message = "fom dato må være før eller lik tom dato")
     private boolean isValid() {
-        return fom.isBefore(tom) || fom.isEqual(tom);
+        return fom != null && tom != null && (fom.isBefore(tom) || fom.isEqual(tom));
     }
 
     public boolean inneholderDato(LocalDate dato) {
         return (dato.isEqual(fom) || dato.isAfter(fom)) && (dato.isEqual(tom) || dato.isBefore(tom));
+    }
+
+    boolean overlapper(PeriodeDto annen) {
+        return (fom.isBefore(annen.tom) || fom.isEqual(annen.tom)) &&
+            (tom.isAfter(annen.fom) || tom.isEqual(annen.fom));
     }
 }
