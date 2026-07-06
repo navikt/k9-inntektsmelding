@@ -22,7 +22,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.RefusjonOmsorgsdagerService;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
-import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,7 +41,7 @@ class RefusjonOmsorgsdagerRestTest {
     void slå_opp_arbeidstaker_skal_returnere_ok_response_når_arbeidstaker_finnes() {
         var fnr = PersonIdent.fra("12345678910");
         var request = new SlåOppArbeidstakerRequest(fnr, Ytelsetype.OMSORGSPENGER, LocalDate.now().getYear());
-        var arbeidsforhold = List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto("999999999", "Arbeidsgiver AS", new PeriodeDto(LocalDate.now(), LocalDate.now())));
+        var arbeidsforhold = List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto("999999999", "Arbeidsgiver AS", new SlåOppArbeidstakerResponse.Ansettelsesperiode(LocalDate.now(), LocalDate.now())));
         var arbeidstakerInfo = new SlåOppArbeidstakerResponse(new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "23500180528", "12345"), arbeidsforhold);
 
         when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr, LocalDate.now().getYear())).thenReturn(arbeidstakerInfo);

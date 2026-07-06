@@ -19,6 +19,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntit
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
+import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 
@@ -36,6 +37,7 @@ public class ForespørselTekster {
     private static final String TILLEGGSINFORMASJON_FOR_FRAVÆRSDAG = "For fraværsdag %s";
     private static final String TILLEGGSINFORMASJON_FOR_FRAVÆRSPERIODE = "For fraværsperiode %s–%s";
 
+    private static final String BESKJED_OM_INNSENDT_INNTEKTSMELDING = "Innsendt inntektsmelding";
     private static final String BESKJED_OM_OPPDATERT_INNTEKTSMELDING = "Oppdatert inntektsmelding";
 
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselTekster.class);
@@ -164,12 +166,14 @@ public class ForespørselTekster {
         return Arrays.stream(input.toLowerCase().split("\\s+")).map(StringUtils::capitalize).collect(Collectors.joining(" "));
     }
 
-    public static Merkelapp finnMerkelapp(Ytelsetype ytelsetype) {
+    public static Merkelapp finnMerkelapp(Ytelsetype ytelsetype, ForespørselType forespørselType) {
         return switch (ytelsetype) {
             case PLEIEPENGER_SYKT_BARN -> Merkelapp.INNTEKTSMELDING_PSB;
-            case OMSORGSPENGER -> Merkelapp.INNTEKTSMELDING_OMP;
             case PLEIEPENGER_NÆRSTÅENDE -> Merkelapp.INNTEKTSMELDING_PILS;
             case OPPLÆRINGSPENGER -> Merkelapp.INNTEKTSMELDING_OPP;
+            case OMSORGSPENGER -> forespørselType == ForespørselType.OMSORGSPENGER_REFUSJON
+                                  ? Merkelapp.REFUSJONSKRAV_OMP
+                                  : Merkelapp.INNTEKTSMELDING_OMP;
         };
     }
 
@@ -180,6 +184,10 @@ public class ForespørselTekster {
             case PLEIEPENGER_NÆRSTÅENDE -> "pleiepenger i livets sluttfase";
             case OPPLÆRINGSPENGER -> "opplæringspenger";
         };
+    }
+
+    public static String lagBeskjedOmKvitteringFørsteInnsendingTekst() {
+        return BESKJED_OM_INNSENDT_INNTEKTSMELDING;
     }
 
     public static String lagBeskjedOmOppdatertInntektsmelding() {

@@ -21,7 +21,7 @@ public class ArbeidsforholdTjeneste {
     private AaregRestKlient aaregRestKlient;
     private static final Logger LOG = LoggerFactory.getLogger(ArbeidsforholdTjeneste.class);
 
-    public ArbeidsforholdTjeneste() {
+    ArbeidsforholdTjeneste() {
         // CDI
     }
 
@@ -33,12 +33,12 @@ public class ArbeidsforholdTjeneste {
     public List<ArbeidsforholdDto> hentArbeidsforhold(PersonIdent ident, LocalDate fom, LocalDate tom) {
         var aaregInfo = aaregRestKlient.finnArbeidsforholdForArbeidstaker(ident.getIdent(), fom, tom);
         if (aaregInfo == null) {
-            LOG.info("Fant ingen arbeidsforhold for ident {}. Returnerer tom liste", ident.getIdent());
+            LOG.info("Fant ingen arbeidsforhold for ident {} i tidsrommet [{}, {}]. Returnerer tom liste", ident, fom, tom);
             return Collections.emptyList();
         }
-        LOG.info("Fant {} arbeidsforhold for ident {}.", aaregInfo.size(), ident.getIdent());
+        LOG.info("Fant {} arbeidsforhold for ident {} i tidsrommet [{}, {}].", aaregInfo.size(), ident, fom, tom);
         return aaregInfo.stream()
-            .filter(arb -> OpplysningspliktigArbeidsgiverDto.Type.ORGANISASJON.equals(arb.arbeidsgiver().type())) // Vi skal aldri behandle private arbeidsforhold i ftinntektsmelding
+            .filter(arb -> OpplysningspliktigArbeidsgiverDto.Type.ORGANISASJON.equals(arb.arbeidsgiver().type())) // Vi skal aldri behandle private arbeidsforhold i k9-inntektsmelding
             .map(arbeidsforhold -> new ArbeidsforholdDto(
                 arbeidsforhold.arbeidsgiver().organisasjonsnummer(),
                 mapAnsettelsesperiode(arbeidsforhold)
