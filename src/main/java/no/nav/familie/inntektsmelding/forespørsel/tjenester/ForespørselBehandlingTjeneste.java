@@ -121,7 +121,7 @@ public class ForespørselBehandlingTjeneste {
         forespørselTjeneste.ferdigstillForespørsel(forespørsel.getArbeidsgiverNotifikasjonSakId()); // Oppdaterer status i forespørsel
 
         if (inntektsmeldingEntitet.isPresent()) {
-            var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
+            var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType(), forespørsel.getForespørselType());
             var beskjedTekst = ForespørselTekster.lagBeskjedOmKvitteringFørsteInnsendingTekst();
             var hentInntektsmeldingPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + inntektsmeldingEntitet.get().getUuid();
             minSideArbeidsgiverTjeneste.sendNyBeskjedMedKvittering(forespørsel.getUuid().toString(),
@@ -380,7 +380,7 @@ public class ForespørselBehandlingTjeneste {
             etterspurtePerioder,
             forespørselType);
 
-        opprettForespørselMinSideArbeidsgiver(ytelsetype, aktørId, organisasjonsnummer, skjæringstidspunkt, etterspurtePerioder, forespørselUuid);
+        opprettForespørselMinSideArbeidsgiver(ytelsetype, aktørId, organisasjonsnummer, skjæringstidspunkt, etterspurtePerioder, forespørselUuid, forespørselType);
 
         if (dialogportenEnabled) {
             try {
@@ -397,10 +397,11 @@ public class ForespørselBehandlingTjeneste {
                                                        OrganisasjonsnummerDto organisasjonsnummer,
                                                        LocalDate skjæringstidspunkt,
                                                        List<PeriodeDto> etterspurtePerioder,
-                                                       UUID forespørselUuid) {
+                                                       UUID forespørselUuid,
+                                                       ForespørselType forespørselType) {
         var organisasjon = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer.orgnr());
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
-        var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
+        var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype, forespørselType);
         var skjemaUri = URI.create(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid);
         var arbeidsgiverNotifikasjonSakId = minSideArbeidsgiverTjeneste.opprettSak(forespørselUuid.toString(),
             merkelapp,
@@ -453,7 +454,7 @@ public class ForespørselBehandlingTjeneste {
                                                          Optional<UUID> inntektsmeldingUuid) {
         // Oppdater status i arbeidsgiverportalen
         if (inntektsmeldingUuid.isPresent()) {
-            var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
+            var merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType(), forespørsel.getForespørselType());
             var beskjedTekst = ForespørselTekster.lagBeskjedOmOppdatertInntektsmelding();
             var hentInntektsmeldingPdfUrl = arbeidsgiverportalSkjemaLenke + "/server/api" + PdfDokumentRest.INNTEKTSMELDING_FULL_PATH + "/" + inntektsmeldingUuid.get();
             minSideArbeidsgiverTjeneste.sendNyBeskjedMedKvittering(forespørsel.getUuid().toString(),
@@ -488,7 +489,7 @@ public class ForespørselBehandlingTjeneste {
 
         // opprett sak på min side arbeidsgiver
         var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
-        var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype);
+        var merkelapp = ForespørselTekster.finnMerkelapp(ytelsetype, forespørselType);
         var inntektsmeldingOppsummeringsUri = lagUriForInntektsmeldingOppsummering(forespørselUuid);
         var sakstittel = ForespørselTekster.lagSaksTittelInntektsmelding(person.mapFulltNavn(), person.fødselsdato());
         var arbeidsgiverNotifikasjonSakId = minSideArbeidsgiverTjeneste.opprettSak(forespørselUuid.toString(), merkelapp, organisasjonsnummer.orgnr(), sakstittel, inntektsmeldingOppsummeringsUri);
@@ -642,7 +643,7 @@ public class ForespørselBehandlingTjeneste {
     }
 
     public void opprettNyBeskjedMedEksternVarsling(ForespørselEntitet forespørsel) {
-        Merkelapp merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType());
+        Merkelapp merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType(), forespørsel.getForespørselType());
         UUID forespørselUuid = forespørsel.getUuid();
         URI hentInntektsmeldingPdfUri = URI.create(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid);
         Organisasjon organisasjon = organisasjonTjeneste.finnOrganisasjon(forespørsel.getOrganisasjonsnummer());
