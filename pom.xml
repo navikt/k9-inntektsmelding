@@ -19,8 +19,8 @@
         <prosesstask.version>5.2.7</prosesstask.version>
         <fp-kontrakter.version>9.4.37</fp-kontrakter.version>
         <k9-felles.version>11.2.8</k9-felles.version>
-        <k9-sak.version>7.2.0</k9-sak.version>
-        <sif-abac-kontrakt.version>1.13.0</sif-abac-kontrakt.version>
+        <k9-sak.version>7.3.1</k9-sak.version>
+        <sif-abac-kontrakt.version>1.14.0</sif-abac-kontrakt.version>
         <fp-graphql.version>1.0.1</fp-graphql.version>
     </properties>
 
