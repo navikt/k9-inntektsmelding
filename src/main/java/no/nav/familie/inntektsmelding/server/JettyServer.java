@@ -52,7 +52,7 @@ public class JettyServer {
         konfigurerSikkerhet();
         System.setProperty("task.manager.runner.threads", "4");
         konfigurerLogging();
-        HikariDataSource ds =  DatasourceUtil.postgresDataSource(ENV.getRequiredProperty("DB_JDBC_URL"), null, null, 16);
+        HikariDataSource ds =  DatasourceUtil.postgresDataSource(ENV.getRequiredProperty("DB_JDBC_URL"), ENV.getRequiredProperty("DB_USERNAME"), ENV.getRequiredProperty("DB_PASSWORD"), 16);
         DataSourceHolder.initialize(ds);
         FlywayUtil.migrate(ds, "classpath:/db/postgres/" + NamingStandard.DEFAULT_DATA_SOURCE);
         start();
