@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.imapi.inntektsmelding;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -144,6 +145,25 @@ public class InntektsmeldingApiMottakTjeneste {
 
         var nyIm = InntektsmeldingApiMapper.mapTilEntitetOmsorgspengerRefusjon(request, aktørId, forespørsel);
 
+        List<InntektsmeldingEntitet> tidligereInntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldingerFraFilter(
+            request.organisasjonsnummer().orgnr(),
+            aktørId,
+            Ytelsetype.OMSORGSPENGER,
+            request.startdato(),
+            null);
+
+        InntektsmeldingEntitet sisteIm = tidligereInntektsmeldinger.stream()
+            .max(java.util.Comparator.comparing(InntektsmeldingEntitet::getOpprettetTidspunkt))
+            .orElse(null);
+
+        if (sisteIm != null && inntektsmeldingerErLike(nyIm, sisteIm)) {
+            LOG.info("Refusjonskrav avvises. Ingen endring sammenlignet med sist innsendt.");
+            return new SendRefusjonOmsorgspengerResponse(false, null,
+                new FeilInfo(FeilkodeDto.DUPLIKAT,
+                    "Refusjonskrav avvises. Ingen endring sammenlignet med sist innsendt inntektsmelding med uuid: " + sisteIm.getUuid(),
+                    sisteIm.getUuid().toString()));
+        }
+
         Long imId = lagreOgLagJournalførTask(nyIm, forespørsel);
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, orgnummer, LukkeÅrsak.ORDINÆR_INNSENDING, Optional.of(nyIm));
 
@@ -154,12 +174,12 @@ public class InntektsmeldingApiMottakTjeneste {
     }
 
     private Optional<FeilInfo> sjekkInntektMotRapportertInntekt(AktørIdEntitet aktørId,
-                                                                 String orgnr,
-                                                                 LocalDate skjæringstidspunkt,
-                                                                 Ytelsetype ytelseType,
-                                                                 BigDecimal månedInntekt,
-                                                                 boolean harEndringsårsaker,
-                                                                 String referanseId) {
+                                                                String orgnr,
+                                                                LocalDate skjæringstidspunkt,
+                                                                Ytelsetype ytelseType,
+                                                                BigDecimal månedInntekt,
+                                                                boolean harEndringsårsaker,
+                                                                String referanseId) {
         Inntektsopplysninger inntektFraAInntekt = inntektTjeneste.hentInntekt(
             aktørId, skjæringstidspunkt, LocalDate.now(), orgnr, ytelseType);
 
