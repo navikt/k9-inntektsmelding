@@ -1,11 +1,6 @@
 package no.nav.familie.inntektsmelding.server;
 
 import java.io.File;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 
 import org.eclipse.jetty.ee11.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee11.cdi.CdiServletContainerInitializer;
@@ -14,23 +9,23 @@ import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.eclipse.jetty.ee11.servlet.security.ConstraintMapping;
 import org.eclipse.jetty.ee11.servlet.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.eclipse.jetty.security.Constraint;
 import org.eclipse.jetty.server.Server;
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import no.nav.familie.inntektsmelding.server.app.api.ApiConfig;
 import no.nav.familie.inntektsmelding.server.app.forvaltning.ForvaltningApiConfig;
 import no.nav.familie.inntektsmelding.server.app.internal.InternalApiConfig;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.felles.jpa.NamingStandard;
+import no.nav.vedtak.felles.jpa.flyway.FlywayUtil;
+import no.nav.vedtak.felles.jpa.jdbc.DataSourceHolder;
+import no.nav.vedtak.felles.jpa.jdbc.DatasourceUtil;
 
 public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
@@ -53,11 +48,15 @@ public class JettyServer {
         return new JettyServer(ENV.getProperty("server.port", Integer.class, 8080));
     }
 
-    void bootStrap() throws Exception {
+    void bootStrap() {
         konfigurerSikkerhet();
         System.setProperty("task.manager.runner.threads", "4");
         konfigurerLogging();
-        migrer(setupDataSource());
+        var config = DatasourceUtil.postgresDataSourceConfig(ENV.getRequiredProperty("DB_JDBC_URL"), ENV.getRequiredProperty("DB_USERNAME"), ENV.getRequiredProperty("DB_PASSWORD"), 16);
+        config.setInitializationFailTimeout(30000);
+        var ds = new HikariDataSource(config);
+        DataSourceHolder.initialize(ds);
+        FlywayUtil.migrate(ds, "classpath:/db/postgres/" + NamingStandard.DEFAULT_DATA_SOURCE);
         start();
     }
 
@@ -91,43 +90,6 @@ public class JettyServer {
     private static void konfigurerLogging() {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
-    }
-
-    private static void migrer(DataSource dataSource) {
-        var flyway = flywayConfig(dataSource);
-        flyway.load().migrate();
-    }
-
-    private static FluentConfiguration flywayConfig(DataSource dataSource) {
-        return Flyway.configure().dataSource(dataSource).locations("classpath:/db/postgres/defaultDS").baselineOnMigrate(true);
-    }
-
-    private static DataSource setupDataSource() throws NamingException {
-        var dataSource = dataSource();
-        new EnvEntry("jdbc/defaultDS", dataSource);
-        return dataSource;
-    }
-
-    private static DataSource dataSource() {
-        var config = new HikariConfig();
-        config.setJdbcUrl(ENV.getRequiredProperty("DB_JDBC_URL"));
-        config.setUsername(ENV.getRequiredProperty("DB_USERNAME"));
-        config.setPassword(ENV.getRequiredProperty("DB_PASSWORD"));
-        config.setConnectionTimeout(TimeUnit.SECONDS.toMillis(1));
-        config.setMinimumIdle(1);
-        config.setMaximumPoolSize(6);
-        config.setInitializationFailTimeout(30000);
-        config.setConnectionTestQuery("select 1");
-        config.setDriverClassName("org.postgresql.Driver");
-        config.setAutoCommit(false);
-
-        // optimaliserer inserts for postgres
-        var dsProperties = new Properties();
-        dsProperties.setProperty("reWriteBatchedInserts", "true");
-        dsProperties.setProperty("logServerErrorDetail", "false"); // skrur av batch exceptions som lekker statements i åpen logg
-        config.setDataSourceProperties(dsProperties);
-
-        return new HikariDataSource(config);
     }
 
     private void start() {

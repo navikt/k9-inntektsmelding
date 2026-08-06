@@ -18,7 +18,7 @@
         <felles.version>7.8.6</felles.version>
         <prosesstask.version>5.2.7</prosesstask.version>
         <fp-kontrakter.version>9.4.37</fp-kontrakter.version>
-        <k9-felles.version>11.2.11</k9-felles.version>
+        <k9-felles.version>11.2.12</k9-felles.version>
         <k9-sak.version>7.3.1</k9-sak.version>
         <sif-abac-kontrakt.version>1.14.0</sif-abac-kontrakt.version>
         <fp-graphql.version>1.0.1</fp-graphql.version>
@@ -106,8 +106,8 @@
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>1.21.4</version>
+                <artifactId>testcontainers-postgresql</artifactId>
+                <version>2.0.5</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -331,7 +331,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
+            <artifactId>testcontainers-postgresql</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- /Testcontainer og sec update -->
