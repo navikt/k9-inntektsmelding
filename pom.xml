@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>5.3.5</version>
+        <version>5.3.6</version>
     </parent>
 
     <groupId>no.nav.familie.inntektsmelding</groupId>
@@ -15,10 +15,10 @@
 
     <properties>
         <k9-inntektsmelding-kontrakt.version>0.1.4</k9-inntektsmelding-kontrakt.version>
-        <felles.version>7.8.3</felles.version>
+        <felles.version>7.8.6</felles.version>
         <prosesstask.version>5.2.7</prosesstask.version>
         <fp-kontrakter.version>9.4.37</fp-kontrakter.version>
-        <k9-felles.version>11.2.8</k9-felles.version>
+        <k9-felles.version>11.2.12</k9-felles.version>
         <k9-sak.version>7.3.1</k9-sak.version>
         <sif-abac-kontrakt.version>1.14.0</sif-abac-kontrakt.version>
         <fp-graphql.version>1.0.1</fp-graphql.version>
@@ -29,7 +29,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>5.3.5</version>
+                <version>5.3.6</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -106,8 +106,8 @@
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>1.21.4</version>
+                <artifactId>testcontainers-postgresql</artifactId>
+                <version>2.0.5</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -266,7 +266,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.5.38</version>
+            <version>1.6.1</version>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
@@ -331,7 +331,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
+            <artifactId>testcontainers-postgresql</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- /Testcontainer og sec update -->
