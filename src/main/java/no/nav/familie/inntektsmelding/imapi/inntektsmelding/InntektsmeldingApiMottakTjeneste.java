@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -99,7 +100,7 @@ public class InntektsmeldingApiMottakTjeneste {
             forespørsel.getYtelseType(),
             nyIm.getMånedInntekt(),
             nyIm.getEndringsårsaker() != null && !nyIm.getEndringsårsaker().isEmpty(),
-            request.foresporselUuid().toString());
+            request.foresporselUuid());
         if (inntektFeil.isPresent()) {
             return new SendInntektsmeldingResponse(false, null, inntektFeil.get());
         }
@@ -179,7 +180,7 @@ public class InntektsmeldingApiMottakTjeneste {
                                                                 Ytelsetype ytelseType,
                                                                 BigDecimal månedInntekt,
                                                                 boolean harEndringsårsaker,
-                                                                String forespørselId) {
+                                                                UUID forespørselId) {
         Inntektsopplysninger inntektFraAInntekt = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(), orgnr, ytelseType);
 
         boolean nedetidAInntekt = inntektFraAInntekt.måneder() != null && inntektFraAInntekt.måneder().stream()
@@ -189,7 +190,7 @@ public class InntektsmeldingApiMottakTjeneste {
             LOG.warn("Inntektskomponenten har nedetid. ForespørselId: {}", forespørselId);
             return Optional.of(new FeilInfo(FeilkodeDto.NEDETID_AINNTEKT,
                 "Inntektskomponenten har nedetid, og vi kan ikke verifisere inntekt. Prøv igjen om litt.",
-                forespørselId));
+                String.valueOf(forespørselId)));
         }
 
         boolean inntektErUlikOgIngenÅrsakOppgitt = inntektFraAInntekt.gjennomsnitt() != null
@@ -202,7 +203,7 @@ public class InntektsmeldingApiMottakTjeneste {
                 inntektFraAInntekt.gjennomsnitt(), månedInntekt);
             LOG.info("Ulik inntekt uten endringsårsak. orgnr: {}, startdato: {}, forespørselId: {}",
                 new OrganisasjonsnummerDto(orgnr), skjæringstidspunkt, forespørselId);
-            return Optional.of(new FeilInfo(FeilkodeDto.ULIK_INNTEKT, feilmelding, forespørselId));
+            return Optional.of(new FeilInfo(FeilkodeDto.ULIK_INNTEKT, feilmelding, String.valueOf(forespørselId)));
         }
 
         return Optional.empty();
