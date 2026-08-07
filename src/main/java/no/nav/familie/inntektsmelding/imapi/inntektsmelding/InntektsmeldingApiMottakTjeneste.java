@@ -180,17 +180,17 @@ public class InntektsmeldingApiMottakTjeneste {
                                                                 Ytelsetype ytelseType,
                                                                 BigDecimal månedInntekt,
                                                                 boolean harEndringsårsaker,
-                                                                UUID forespørselId) {
+                                                                UUID forespørselUuid) {
         Inntektsopplysninger inntektFraAInntekt = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(), orgnr, ytelseType);
 
         boolean nedetidAInntekt = inntektFraAInntekt.måneder() != null && inntektFraAInntekt.måneder().stream()
             .anyMatch(m -> MånedslønnStatus.NEDETID_AINNTEKT.equals(m.status()));
 
         if (nedetidAInntekt) {
-            LOG.warn("Inntektskomponenten har nedetid. ForespørselId: {}", forespørselId);
+            LOG.warn("Inntektskomponenten har nedetid. ForespørselUuid: {}", forespørselUuid);
             return Optional.of(new FeilInfo(FeilkodeDto.NEDETID_AINNTEKT,
                 "Inntektskomponenten har nedetid, og vi kan ikke verifisere inntekt. Prøv igjen om litt.",
-                String.valueOf(forespørselId)));
+                String.valueOf(forespørselUuid)));
         }
 
         boolean inntektErUlikOgIngenÅrsakOppgitt = inntektFraAInntekt.gjennomsnitt() != null
@@ -201,9 +201,9 @@ public class InntektsmeldingApiMottakTjeneste {
             String feilmelding = String.format(
                 "Inntekt i inntektsmelding er ulik inntekt fra A-inntekt, og ingen endringsårsak er oppgitt. Gjennomsnittlig inntekt fra A-inntekt: %s, oppgitt inntekt: %s",
                 inntektFraAInntekt.gjennomsnitt(), månedInntekt);
-            LOG.info("Ulik inntekt uten endringsårsak. orgnr: {}, startdato: {}, forespørselId: {}",
-                new OrganisasjonsnummerDto(orgnr), skjæringstidspunkt, forespørselId);
-            return Optional.of(new FeilInfo(FeilkodeDto.ULIK_INNTEKT, feilmelding, String.valueOf(forespørselId)));
+            LOG.info("Ulik inntekt uten endringsårsak. orgnr: {}, startdato: {}, forespørselUuid: {}",
+                new OrganisasjonsnummerDto(orgnr), skjæringstidspunkt, forespørselUuid);
+            return Optional.of(new FeilInfo(FeilkodeDto.ULIK_INNTEKT, feilmelding, String.valueOf(forespørselUuid)));
         }
 
         return Optional.empty();
