@@ -25,12 +25,15 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
+import no.nav.k9.inntektsmelding.felles.FeilInfo;
 import no.nav.k9.inntektsmelding.felles.FeilkodeDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingerRequest;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingerResponse;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.InntektsmeldingDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
+import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerRequest;
+import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerResponse;
 
 @AutentisertMedAzure
 @ApplicationScoped
@@ -93,11 +96,27 @@ public class InntektsmeldingApiRest {
         if (aktørId.isEmpty()) {
             LOG.error("Finner ikke aktørId for fødselsnummer.");
             return new SendInntektsmeldingResponse(false, null,
-                new SendInntektsmeldingResponse.FeilInfo(FeilkodeDto.INGEN_AKTØR_ID,
+                new FeilInfo(FeilkodeDto.INGEN_AKTØR_ID,
                     "Finner ikke informasjon for fødselsnummer. Sjekk at fødselsnummer er korrekt",
                     request.foresporselUuid().toString()));
         }
         return mottakTjeneste.mottaInntektsmelding(request, aktørId.get());
+    }
+
+    @POST
+    @Path("/send-refusjonskrav-omsorgspenger")
+    @Tilgangskontrollert
+    public SendRefusjonOmsorgspengerResponse sendRefusjonskravOmsorgspenger(@NotNull @Valid SendRefusjonOmsorgspengerRequest request) {
+        sjekkErSystemkall();
+        var aktørId = personTjeneste.finnAktørIdForPersonIdent(request.fødselsnummer().fnr());
+        if (aktørId.isEmpty()) {
+            LOG.error("Finner ikke aktørId for fødselsnummer.");
+            return new SendRefusjonOmsorgspengerResponse(false, null,
+                new FeilInfo(FeilkodeDto.INGEN_AKTØR_ID,
+                    "Finner ikke informasjon for fødselsnummer. Sjekk at fødselsnummer er korrekt",
+                    null));
+        }
+        return mottakTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(request, aktørId.get());
     }
 
     private void sjekkErSystemkall() {

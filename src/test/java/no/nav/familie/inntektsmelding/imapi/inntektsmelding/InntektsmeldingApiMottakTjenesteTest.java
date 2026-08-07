@@ -23,11 +23,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
+import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.LpsSystemInfoEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -45,8 +48,10 @@ import no.nav.k9.inntektsmelding.felles.FødselsnummerDto;
 import no.nav.k9.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.k9.inntektsmelding.felles.OmsorgspengerDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
+import no.nav.k9.inntektsmelding.felles.PeriodeDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
+import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerRequest;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -190,7 +195,7 @@ class InntektsmeldingApiMottakTjenesteTest {
 
     @Test
     void ok_flyt_med_omsorgspenger_bruker_ferdigstill_med_fraværsperioder() {
-        var forespørsel = lagForespørselForOmsorgspenger();
+        var forespørsel = lagForespørselForOmsorgspenger(ForespørselType.BESTILT_AV_FAGSYSTEM);
         when(forespørselBehandlingTjeneste.hentForespørsel(FORESPORSEL_UUID)).thenReturn(Optional.of(forespørsel));
         when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(new Inntektsopplysninger(INNTEKT, ORGNR, List.of()));
@@ -202,8 +207,70 @@ class InntektsmeldingApiMottakTjenesteTest {
         assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
         verify(inntektsmeldingRepository).lagreInntektsmelding(any());
         verify(prosessTaskTjeneste).lagre(any(ProsessTaskData.class));
-        verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(
-            eq(FORESPORSEL_UUID), any(), any(), any(), any());
+        verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(eq(FORESPORSEL_UUID), any(), any(), any(), any());
+    }
+
+    @Test
+    void omsorgspenger_refusjon_lagrer_og_ferdigstiller() {
+        var forespørselUuid = UUID.randomUUID();
+        var forespørsel = lagForespørselForOmsorgspenger(ForespørselType.OMSORGSPENGER_REFUSJON);
+        when(forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(eq(AKTØR_ID), any(), any()))
+            .thenReturn(forespørselUuid);
+        when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(forespørsel));
+        when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
+            .thenReturn(new Inntektsopplysninger(INNTEKT, ORGNR, List.of()));
+        var lagretEntitet = stubLagringMedOmsorgspenger(forespørsel);
+
+        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(lagRefusjonOmsorgspengerRequest(), AKTØR_ID);
+
+        assertThat(response.success()).isTrue();
+        assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
+        verify(inntektsmeldingRepository).lagreInntektsmelding(any());
+        verify(prosessTaskTjeneste).lagre(any(ProsessTaskData.class));
+        verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(eq(forespørselUuid), any(), any(), any(), any());
+    }
+
+    @Test
+    void nedetid_ainntekt_stopper_omsorgspenger_refusjon() {
+        when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
+            .thenReturn(lagInntektsopplysningerMedNedetid());
+
+        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(lagRefusjonOmsorgspengerRequest(), AKTØR_ID);
+
+        assertThat(response.success()).isFalse();
+        assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.NEDETID_AINNTEKT);
+        verifyNoInteractions(forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste);
+    }
+
+    @Test
+    void ulik_inntekt_uten_årsak_stopper_omsorgspenger_refusjon() {
+        when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
+            .thenReturn(new Inntektsopplysninger(new BigDecimal("60100"), ORGNR, List.of()));
+
+        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(lagRefusjonOmsorgspengerRequest(), AKTØR_ID);
+
+        assertThat(response.success()).isFalse();
+        assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.ULIK_INNTEKT);
+        verifyNoInteractions(forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste);
+    }
+
+    @Test
+    void duplikat_omsorgspenger_refusjonskrav_avvises() {
+        var forespørselUuid = UUID.randomUUID();
+        var forespørsel = lagForespørselForOmsorgspenger(ForespørselType.OMSORGSPENGER_REFUSJON);
+        var request = lagRefusjonOmsorgspengerRequest();
+        var eksisterendeIm = lagMatchendeInntektsmeldingEntitet(request);
+
+        when(inntektsmeldingRepository.hentInntektsmeldingerFraFilter(any(), any(), any(), any(), any())).thenReturn(List.of(eksisterendeIm));
+        when(forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(eq(AKTØR_ID), any(), any()))
+            .thenReturn(forespørselUuid);
+        when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(forespørsel));
+        when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
+            .thenReturn(new Inntektsopplysninger(INNTEKT, ORGNR, List.of()));
+        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(request, AKTØR_ID);
+
+        assertThat(response.success()).isFalse();
+        assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.DUPLIKAT);
     }
 
     // ---- Hjelpemetoder ----
@@ -245,8 +312,9 @@ class InntektsmeldingApiMottakTjenesteTest {
     private SendInntektsmeldingRequest lagRequestMedOmsorgspenger() {
         var omsorgspenger = new OmsorgspengerDto(
             true,
-            List.of(new OmsorgspengerDto.FraværHeleDagerDto(STARTDATO, STARTDATO.plusDays(2))),
-            List.of()
+            List.of(new PeriodeDto(STARTDATO, STARTDATO.plusDays(2))),
+            List.of(),
+            null
         );
         return new SendInntektsmeldingRequest(
             FORESPORSEL_UUID,
@@ -264,6 +332,25 @@ class InntektsmeldingApiMottakTjenesteTest {
         );
     }
 
+    private SendRefusjonOmsorgspengerRequest lagRefusjonOmsorgspengerRequest() {
+        var omsorgspenger = new OmsorgspengerDto(
+            true,
+            List.of(new PeriodeDto(STARTDATO, STARTDATO.plusDays(2))),
+            List.of(),
+            null
+        );
+        return new SendRefusjonOmsorgspengerRequest(
+            new FødselsnummerDto(FNR),
+            new OrganisasjonsnummerDto(ORGNR),
+            STARTDATO,
+            new KontaktpersonDto("Ola Nordmann", "12345678"),
+            INNTEKT,
+            List.of(),
+            new AvsenderSystemDto("TestSystem", "1.0"),
+            omsorgspenger
+        );
+    }
+
     private ForespørselEntitet lagForespørsel() {
         return ForespørselEntitet.builder()
             .medOrganisasjonsnummer(ORGNR)
@@ -274,13 +361,13 @@ class InntektsmeldingApiMottakTjenesteTest {
             .build();
     }
 
-    private ForespørselEntitet lagForespørselForOmsorgspenger() {
+    private ForespørselEntitet lagForespørselForOmsorgspenger(ForespørselType forespørselType) {
         return ForespørselEntitet.builder()
             .medOrganisasjonsnummer(ORGNR)
             .medSkjæringstidspunkt(STARTDATO)
             .medAktørId(AKTØR_ID)
             .medYtelseType(Ytelsetype.OMSORGSPENGER)
-            .medForespørselType(ForespørselType.BESTILT_AV_FAGSYSTEM)
+            .medForespørselType(forespørselType)
             .build();
     }
 
@@ -310,6 +397,32 @@ class InntektsmeldingApiMottakTjenesteTest {
             .build();
     }
 
+    private InntektsmeldingEntitet lagMatchendeInntektsmeldingEntitet(SendRefusjonOmsorgspengerRequest request) {
+        return InntektsmeldingEntitet.builder()
+            .medAktørId(AKTØR_ID)
+            .medArbeidsgiverIdent(ORGNR)
+            .medMånedInntekt(INNTEKT)
+            .medMånedRefusjon(INNTEKT)
+            .medKildesystem(Kildesystem.LØNN_OG_PERSONAL_SYSTEM)
+            .medInntektsmeldingType(InntektsmeldingType.OMSORGSPENGER_REFUSJON)
+            .medStartDato(STARTDATO)
+            .medYtelsetype(Ytelsetype.OMSORGSPENGER)
+            .medKontaktperson(new KontaktpersonEntitet("Ola Nordmann", "12345678"))
+            .medEndringsårsaker(List.of())
+            .medBortfaltNaturalytelser(List.of())
+            .medRefusjonsendringer(List.of())
+            .medLpsSystemInfo(LpsSystemInfoEntitet.builder()
+                .medNavn("TestSystem")
+                .medVersjon("1.0")
+                .build())
+            .medOmsorgspenger(OmsorgspengerEntitet.builder()
+                .medDelvisFraværsPerioder(request.omsorgspenger().fraværDelerAvDagen().stream().map(periode -> new DelvisFraværsPeriodeEntitet(periode.dato(), periode.timer())).toList())
+                .medFraværsPerioder(request.omsorgspenger().fraværHeleDager().stream().map(periode -> new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(periode.fom(), periode.tom()))).toList())
+                .medHarUtbetaltPliktigeDager(request.omsorgspenger().harUtbetaltPliktigeDager())
+                .build())
+            .build();
+    }
+
     private Inntektsopplysninger lagInntektsopplysningerMedNedetid() {
         return new Inntektsopplysninger(null, ORGNR,
             List.of(new Inntektsopplysninger.InntektMåned(null, YearMonth.now().minusMonths(1), MånedslønnStatus.NEDETID_AINNTEKT)));
@@ -333,7 +446,7 @@ class InntektsmeldingApiMottakTjenesteTest {
             .medArbeidsgiverIdent(ORGNR)
             .medMånedInntekt(INNTEKT)
             .medKildesystem(Kildesystem.LØNN_OG_PERSONAL_SYSTEM)
-            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
+            .medInntektsmeldingType(InntektsmeldingType.OMSORGSPENGER_REFUSJON)
             .medStartDato(STARTDATO)
             .medYtelsetype(Ytelsetype.OMSORGSPENGER)
             .medKontaktperson(new KontaktpersonEntitet("Ola Nordmann", "12345678"))
@@ -349,6 +462,3 @@ class InntektsmeldingApiMottakTjenesteTest {
         return entitet;
     }
 }
-
-
-
