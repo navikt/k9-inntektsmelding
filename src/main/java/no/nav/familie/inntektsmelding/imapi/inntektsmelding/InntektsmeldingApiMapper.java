@@ -26,6 +26,8 @@ import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.k9.inntektsmelding.felles.AvsenderSystemDto;
 import no.nav.k9.inntektsmelding.felles.BortfaltNaturalytelseDto;
 import no.nav.k9.inntektsmelding.felles.EndringsårsakerDto;
@@ -253,29 +255,18 @@ class InntektsmeldingApiMapper {
             .map(DelvisFraværsPeriodeEntitet::getDato)
             .sorted()
             .toList();
-        var trukketPerioder = rekonstruérDatoPerioder(trukketDager);
+
+        var trukketPerioder = new LocalDateTimeline<>(
+            trukketDager.stream()
+                .map(dag -> new LocalDateSegment<>(dag, dag, Boolean.TRUE))
+                .toList()
+        ).compress().segmenter().stream()
+            .map(s -> new PeriodeDto(s.getFom(), s.getTom()))
+            .toList();
 
         return new OmsorgspengerDto(omsorgspenger.isHarUtbetaltPliktigeDager(), fraværHeleDager, fraværDelerAvDagen, trukketPerioder);
     }
 
-    private static List<PeriodeDto> rekonstruérDatoPerioder(List<LocalDate> sortedDates) {
-        if (sortedDates.isEmpty()) {
-            return List.of();
-        }
-        List<PeriodeDto> perioder = new ArrayList<>();
-        LocalDate fom = sortedDates.get(0);
-        LocalDate prev = sortedDates.get(0);
-        for (int i = 1; i < sortedDates.size(); i++) {
-            LocalDate current = sortedDates.get(i);
-            if (!current.equals(prev.plusDays(1))) {
-                perioder.add(new PeriodeDto(fom, prev));
-                fom = current;
-            }
-            prev = current;
-        }
-        perioder.add(new PeriodeDto(fom, prev));
-        return perioder;
-    }
 
     private static OmsorgspengerEntitet mapOmsorgspenger(OmsorgspengerDto omsorgspengerDto) {
         List<FraværsPeriodeEntitet> fraværsPerioder = omsorgspengerDto.fraværHeleDager() != null
