@@ -287,8 +287,7 @@ class InntektsmeldingApiMottakTjenesteTest {
             List.of(),
             List.of(),
             List.of(),
-            new AvsenderSystemDto("TestSystem", "1.0"),
-            null
+            new AvsenderSystemDto("TestSystem", "1.0")
         );
     }
 
@@ -304,18 +303,11 @@ class InntektsmeldingApiMottakTjenesteTest {
             List.of(),
             List.of(),
             List.of(new EndringsårsakerDto(EndringsårsakDto.TARIFFENDRING, null, null, null)),
-            new AvsenderSystemDto("TestSystem", "1.0"),
-            null
+            new AvsenderSystemDto("TestSystem", "1.0")
         );
     }
 
     private SendInntektsmeldingRequest lagRequestMedOmsorgspenger() {
-        var omsorgspenger = new OmsorgspengerDto(
-            true,
-            List.of(new PeriodeDto(STARTDATO, STARTDATO.plusDays(2))),
-            List.of(),
-            null
-        );
         return new SendInntektsmeldingRequest(
             FORESPORSEL_UUID,
             new FødselsnummerDto(FNR),
@@ -327,8 +319,7 @@ class InntektsmeldingApiMottakTjenesteTest {
             List.of(),
             List.of(),
             List.of(),
-            new AvsenderSystemDto("TestSystem", "1.0"),
-            omsorgspenger
+            new AvsenderSystemDto("TestSystem", "1.0")
         );
     }
 

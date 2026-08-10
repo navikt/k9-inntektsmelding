@@ -42,6 +42,38 @@ class InntektsmeldingApiMapperTest {
     private static final BigDecimal INNTEKT = new BigDecimal("50000");
 
     @Test
+    void mapTilEntitet_omsorgspenger_fraværsperioder_hentes_fra_forespørsel_og_ikke_fra_request() {
+        var periode1 = new no.nav.familie.inntektsmelding.typer.dto.PeriodeDto(
+            LocalDate.of(2024, 3, 1), LocalDate.of(2024, 3, 5));
+        var periode2 = new no.nav.familie.inntektsmelding.typer.dto.PeriodeDto(
+            LocalDate.of(2024, 3, 10), LocalDate.of(2024, 3, 12));
+
+        var forespørsel = ForespørselEntitet.builder()
+            .medOrganisasjonsnummer("999999999")
+            .medSkjæringstidspunkt(STARTDATO)
+            .medAktørId(AKTØR_ID)
+            .medYtelseType(Ytelsetype.OMSORGSPENGER)
+            .medForespørselType(ForespørselType.OMSORGSPENGER_REFUSJON)
+            .medEtterspurtePerioder(List.of(periode1, periode2))
+            .build();
+
+        // request inneholder ingen omsorgspenger-data — entiteten skal likevel få fraværsperiodene fra forespørselen
+        var request = lagRequestInntektsmelding(null, null, null);
+        var entitet = InntektsmeldingApiMapper.mapTilEntitet(request, AKTØR_ID, forespørsel);
+
+        var omsorgspenger = entitet.getOmsorgspenger();
+        assertThat(omsorgspenger).isNotNull();
+        assertThat(omsorgspenger.isHarUtbetaltPliktigeDager()).isTrue();
+
+        var fraværsPerioder = omsorgspenger.getFraværsPerioder();
+        assertThat(fraværsPerioder).hasSize(2);
+        assertThat(fraværsPerioder.stream().map(fp -> fp.getPeriode().getFom()).toList())
+            .containsExactlyInAnyOrder(LocalDate.of(2024, 3, 1), LocalDate.of(2024, 3, 10));
+        assertThat(fraværsPerioder.stream().map(fp -> fp.getPeriode().getTom()).toList())
+            .containsExactlyInAnyOrder(LocalDate.of(2024, 3, 5), LocalDate.of(2024, 3, 12));
+    }
+
+    @Test
     void mapTilEntitet_med_null_refusjon_gir_ingen_npe_og_tom_liste() {
         var request = lagRequestInntektsmelding(null, null, null);
         var forespørsel = lagForespørsel();
@@ -135,12 +167,6 @@ class InntektsmeldingApiMapperTest {
         List<no.nav.k9.inntektsmelding.felles.BortfaltNaturalytelseDto> bortfalte,
         List<no.nav.k9.inntektsmelding.felles.EndringsårsakerDto> endringsårsaker) {
 
-        var omsorgspenger = new OmsorgspengerDto(
-            true,
-            List.of(new PeriodeDto(STARTDATO, STARTDATO.plusDays(2))),
-            List.of(),
-            List.of()
-        );
         return new SendInntektsmeldingRequest(
             UUID.randomUUID(),
             new FødselsnummerDto("12345678901"),
@@ -152,8 +178,7 @@ class InntektsmeldingApiMapperTest {
             refusjon,
             bortfalte,
             endringsårsaker,
-            new AvsenderSystemDto("TestSystem", "1.0"),
-            omsorgspenger
+            new AvsenderSystemDto("TestSystem", "1.0")
         );
     }
 

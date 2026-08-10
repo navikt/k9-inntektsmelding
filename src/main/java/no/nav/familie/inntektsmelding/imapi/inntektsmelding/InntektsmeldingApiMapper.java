@@ -94,8 +94,8 @@ class InntektsmeldingApiMapper {
             .medLpsSystemInfo(mapAvsenderSystem(request.avsenderSystem()))
             .medForespørsel(forespørsel);
 
-        if (request.omsorgspenger() != null) {
-            builder.medOmsorgspenger(mapOmsorgspenger(request.omsorgspenger()));
+        if(request.ytelseType() == YtelseTypeDto.OMSORGSPENGER) {
+            builder.medOmsorgspenger(mapOmsorgspengerFraForespørsel(forespørsel.getEtterspurtePerioder()));
         }
 
         return builder.build();
@@ -234,6 +234,19 @@ class InntektsmeldingApiMapper {
                 .medTom(endringsårsak.tom())
                 .medBleKjentFra(endringsårsak.bleKjentFom())
                 .build())
+            .toList();
+    }
+
+    private static OmsorgspengerEntitet mapOmsorgspengerFraForespørsel(List<no.nav.familie.inntektsmelding.typer.dto.PeriodeDto> etterspurtePerioder) {
+        return OmsorgspengerEntitet.builder()
+            .medHarUtbetaltPliktigeDager(true) // Forespørsel fra omsorgspenger har alltid betalt pliktige dager
+            .medFraværsPerioder(mapPerioder(etterspurtePerioder))
+            .build();
+    }
+
+    private static List<FraværsPeriodeEntitet> mapPerioder(List<no.nav.familie.inntektsmelding.typer.dto.PeriodeDto> etterspurtePerioder) {
+        return etterspurtePerioder.stream()
+            .map(fraværsPeriode -> new FraværsPeriodeEntitet(PeriodeEntitet.fraOgMedTilOgMed(fraværsPeriode.fom(), fraværsPeriode.tom())))
             .toList();
     }
 
