@@ -32,15 +32,5 @@ public record SendInntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
                                          List<@Valid RefusjonDto> refusjon,
                                          List<@Valid BortfaltNaturalytelseDto> bortfaltNaturalytelsePerioder,
                                          List<@Valid EndringsårsakerDto> endringAvInntektÅrsaker,
-                                         @NotNull @Valid AvsenderSystemDto avsenderSystem,
-                                         @Valid OmsorgspengerDto omsorgspenger) {
-
-    @AssertTrue(message = "ytelseType omsorgspenger må ha omsorgspengerDto")
-    private boolean isValidOmsorgspengerInfo() {
-        if (YtelseTypeDto.OMSORGSPENGER.equals(ytelseType)) {
-            return omsorgspenger != null;
-        } else {
-            return omsorgspenger == null;
-        }
-    }
+                                         @NotNull @Valid AvsenderSystemDto avsenderSystem) {
 }
