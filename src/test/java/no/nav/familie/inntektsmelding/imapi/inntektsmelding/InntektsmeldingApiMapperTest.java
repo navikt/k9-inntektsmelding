@@ -135,12 +135,6 @@ class InntektsmeldingApiMapperTest {
         List<no.nav.k9.inntektsmelding.felles.BortfaltNaturalytelseDto> bortfalte,
         List<no.nav.k9.inntektsmelding.felles.EndringsårsakerDto> endringsårsaker) {
 
-        var omsorgspenger = new OmsorgspengerDto(
-            true,
-            List.of(new PeriodeDto(STARTDATO, STARTDATO.plusDays(2))),
-            List.of(),
-            List.of()
-        );
         return new SendInntektsmeldingRequest(
             UUID.randomUUID(),
             new FødselsnummerDto("12345678901"),
@@ -152,8 +146,7 @@ class InntektsmeldingApiMapperTest {
             refusjon,
             bortfalte,
             endringsårsaker,
-            new AvsenderSystemDto("TestSystem", "1.0"),
-            omsorgspenger
+            new AvsenderSystemDto("TestSystem", "1.0")
         );
     }
 

@@ -188,7 +188,6 @@ class InntektsmeldingApiRestTest {
             List.of(),
             List.of(),
             List.of(),
-            null,
             null
         );
     }
