@@ -54,7 +54,7 @@ spec:
       memory: "{{requests.mem}}"
   gcp:
     sqlInstances:
-      - type: POSTGRES_15
+      - type: "{{dbVersion}}"
         databases:
           - name: k9-inntektsmelding
             envVarPrefix: DB
