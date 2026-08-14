@@ -12,7 +12,7 @@
   "ingresses": [
     "https://k9-inntektsmelding.intern.nav.no"
   ],
-  "dbVersion": "POSTGRES_17",
+  "dbVersion": "POSTGRES_18",
   "dbTier": "db-custom-1-3840",
   "enableDBAudit": true,
   "dbDiskAutoresize": "true",
