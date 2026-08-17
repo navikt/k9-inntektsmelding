@@ -23,6 +23,7 @@ import no.nav.k9.inntektsmelding.felles.RefusjonDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
 
 public record InntektsmeldingDto(
+    Long loepenr,
     @NotNull UUID inntektsmeldingUuid,
     @NotNull UUID forespørselUuid,
     @NotNull @Valid FødselsnummerDto fnr,
