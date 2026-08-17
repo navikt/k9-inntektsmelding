@@ -157,6 +157,7 @@ class InntektsmeldingApiRestTest {
 
     private InntektsmeldingDto lagInntektsmeldingDto(UUID inntektsmeldingUuid, UUID forespørselUuid) {
         return new InntektsmeldingDto(
+            1L,
             inntektsmeldingUuid,
             forespørselUuid,
             new FødselsnummerDto(FNR),

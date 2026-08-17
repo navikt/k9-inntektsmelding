@@ -80,7 +80,8 @@ class ForespørselApiRestTest {
     }
 
     private ForespørselDto lagForespørselDto(UUID uuid) {
-        return new ForespørselDto(uuid,
+        return new ForespørselDto(1L,
+            uuid,
             new OrganisasjonsnummerDto(ORGNUMMER),
             new FødselsnummerDto("11111111111"),
             LocalDate.now(),

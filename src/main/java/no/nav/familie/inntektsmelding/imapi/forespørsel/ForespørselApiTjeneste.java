@@ -82,7 +82,8 @@ public class ForespørselApiTjeneste {
             .map(p -> new PeriodeDto(p.fom(), p.tom()))
             .toList();
 
-        return new ForespørselDto(forespørsel.getUuid(),
+        return new ForespørselDto(forespørsel.getLoepenr(),
+            forespørsel.getUuid(),
             new OrganisasjonsnummerDto(forespørsel.getOrganisasjonsnummer()),
             new FødselsnummerDto(personIdent.getIdent()),
             forespørsel.getSkjæringstidspunkt(),
