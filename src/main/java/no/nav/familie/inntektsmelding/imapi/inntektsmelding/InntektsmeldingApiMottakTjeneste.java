@@ -152,7 +152,7 @@ public class InntektsmeldingApiMottakTjeneste {
             Ytelsetype.OMSORGSPENGER,
             request.startdato(),
             null,
-            null ); // TODO: oppdater kontrakten
+            null );
 
         InntektsmeldingEntitet sisteIm = tidligereInntektsmeldinger.stream()
             .max(java.util.Comparator.comparing(InntektsmeldingEntitet::getOpprettetTidspunkt))
