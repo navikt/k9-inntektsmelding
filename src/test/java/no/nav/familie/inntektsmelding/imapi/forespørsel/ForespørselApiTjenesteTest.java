@@ -75,12 +75,12 @@ class ForespørselApiTjenesteTest {
             .medYtelseType(Ytelsetype.PLEIEPENGER_SYKT_BARN)
             .medForespørselType(ForespørselType.BESTILT_AV_FAGSYSTEM)
             .build();
-        when(forespørselBehandlingTjeneste.hentForespørsler(arbeidsgiverDto, null, null, null, null, null))
+        when(forespørselBehandlingTjeneste.hentForespørsler(arbeidsgiverDto, null, null, null, null, null, null))
             .thenReturn(List.of(forespørsel));
         when(personTjeneste.finnPersonIdentForAktørIdBolk(Set.of(aktørId)))
             .thenReturn(Map.of(aktørId, fnr));
 
-        var dtoer = forespørselApiTjeneste.hentForespørslerDto(arbeidsgiverDto, null, null, null, null, null);
+        var dtoer = forespørselApiTjeneste.hentForespørslerFraFilter(arbeidsgiverDto, null, null, null, null, null, null);
 
         assertThat(dtoer).hasSize(1);
         assertThat(dtoer.getFirst().fødselsnummer().fnr()).isEqualTo(fnr.getIdent());

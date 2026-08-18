@@ -200,11 +200,12 @@ public class ForespørselRepository {
     }
 
     public List<ForespørselEntitet> hentForespørslerFraFilter(String orgnr,
-                                                               AktørIdEntitet aktørId,
-                                                               ForespørselStatus status,
-                                                               Ytelsetype ytelseType,
-                                                               LocalDate fom,
-                                                               LocalDate tom) {
+                                                              AktørIdEntitet aktørId,
+                                                              ForespørselStatus status,
+                                                              Ytelsetype ytelseType,
+                                                              LocalDate fom,
+                                                              LocalDate tom,
+                                                              Long fraLoepenr) {
         var cb = entityManager.getCriteriaBuilder();
         var cq = cb.createQuery(ForespørselEntitet.class);
         var root = cq.from(ForespørselEntitet.class);
@@ -225,6 +226,9 @@ public class ForespørselRepository {
         }
         if (tom != null) {
             predicates.add(cb.lessThan(root.get("opprettetTidspunkt"), tom.plusDays(1).atStartOfDay()));
+        }
+        if (fraLoepenr != null) {
+            predicates.add(cb.greaterThan(root.get("loepenr"), fraLoepenr));
         }
         cq.where(predicates.toArray(new Predicate[0]));
         cq.orderBy(cb.asc(root.get("opprettetTidspunkt")));

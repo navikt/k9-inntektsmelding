@@ -160,8 +160,9 @@ public class ForespørselBehandlingTjeneste {
                                                      ForespørselStatus status,
                                                      Ytelsetype ytelseType,
                                                      LocalDate fom,
-                                                     LocalDate tom) {
-        return forespørselTjeneste.hentForespørslerFraFilter(arbeidsgiver.ident(), aktørId, status, ytelseType, fom, tom);
+                                                     LocalDate tom,
+                                                     Long fraLoepenr) {
+        return forespørselTjeneste.hentForespørslerFraFilter(arbeidsgiver.ident(), aktørId, status, ytelseType, fom, tom, fraLoepenr);
     }
 
     public List<ForespørselEntitet> finnAlleForespørsler(AktørIdEntitet aktørId, Ytelsetype ytelsetype, String orgnr) {
