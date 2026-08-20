@@ -115,7 +115,7 @@ class InntektsmeldingApiRestTest {
     void skal_hente_inntektsmeldinger_med_filter() {
         var forespørselUuid = UUID.randomUUID();
         var inntektsmeldingUuid = UUID.randomUUID();
-        var filterRequest = new HentInntektsmeldingerRequest(new OrganisasjonsnummerDto(ORGNUMMER), null, null, null, null, null);
+        var filterRequest = new HentInntektsmeldingerRequest(new OrganisasjonsnummerDto(ORGNUMMER), null, null, null, null, null, null);
         var forventetDto = lagInntektsmeldingDto(inntektsmeldingUuid, forespørselUuid);
         when(inntektsmeldingApiTjeneste.hentInntektsmeldinger(filterRequest)).thenReturn(List.of(forventetDto));
 
