@@ -8,11 +8,11 @@ ALTER TABLE INNTEKTSMELDING ADD COLUMN LOEPENR BIGINT;
 
 -- Populer eksisterende rader sekvensielt etter opprettet tidspunkt
 UPDATE FORESPOERSEL SET LOEPENR = kronologisk_rekkefoelge.loepenummer
-FROM (SELECT ID, ROW_NUMBER() OVER (ORDER BY OPPRETTET_TID) AS loepenummer FROM FORESPOERSEL) kronologisk_rekkefoelge
+FROM (SELECT ID, ROW_NUMBER() OVER (ORDER BY OPPRETTET_TID, ID) AS loepenummer FROM FORESPOERSEL) kronologisk_rekkefoelge
 WHERE FORESPOERSEL.ID = kronologisk_rekkefoelge.ID;
 
 UPDATE INNTEKTSMELDING SET LOEPENR = kronologisk_rekkefoelge.loepenummer
-FROM (SELECT ID, ROW_NUMBER() OVER (ORDER BY OPPRETTET_TID) AS loepenummer FROM INNTEKTSMELDING) kronologisk_rekkefoelge
+FROM (SELECT ID, ROW_NUMBER() OVER (ORDER BY OPPRETTET_TID, ID) AS loepenummer FROM INNTEKTSMELDING) kronologisk_rekkefoelge
 WHERE INNTEKTSMELDING.ID = kronologisk_rekkefoelge.ID;
 
 -- Sett NOT NULL og UNIQUE etter populering
