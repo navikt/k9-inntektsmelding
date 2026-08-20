@@ -11,7 +11,8 @@ import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
 import no.nav.k9.inntektsmelding.felles.PeriodeDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
 
-public record ForespørselDto(UUID forespørselUuid,
+public record ForespørselDto(Long loepenr,
+                             UUID forespørselUuid,
                              OrganisasjonsnummerDto orgnummer,
                              FødselsnummerDto fødselsnummer,
                              LocalDate skjæringstidspunkt,

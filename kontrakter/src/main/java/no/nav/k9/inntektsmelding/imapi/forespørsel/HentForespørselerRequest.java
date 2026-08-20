@@ -15,6 +15,7 @@ public record HentForespørselerRequest(@NotNull @Valid OrganisasjonsnummerDto o
                                        @Valid ForespørselStatusDto status,
                                        @Valid YtelseTypeDto ytelseType,
                                        LocalDate fom,
-                                       LocalDate tom) {
+                                       LocalDate tom,
+                                       Long loepenr) {
 }
 

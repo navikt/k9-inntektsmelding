@@ -15,5 +15,6 @@ public record HentInntektsmeldingerRequest(@NotNull @Valid OrganisasjonsnummerDt
                                            @Valid YtelseTypeDto ytelseType,
                                            @Valid UUID forespørselUuid,
                                            LocalDate fom,
-                                           LocalDate tom) {
+                                           LocalDate tom,
+                                           Long loepenr) {
 }
