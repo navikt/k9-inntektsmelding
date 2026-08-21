@@ -86,7 +86,7 @@ public class InntektsmeldingApiTjeneste {
 
         Ytelsetype ytelsetype = request.ytelseType() != null ? mapYtelsetype(request.ytelseType()) : null;
         List<InntektsmeldingEntitet> inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldingerFraFilter(
-            request.orgnr().orgnr(), aktørId, ytelsetype, request.fom(), request.tom());
+            request.orgnr().orgnr(), aktørId, ytelsetype, request.fom(), request.tom(), request.loepenr());
 
         Set<AktørIdEntitet> aktørIder = inntektsmeldinger.stream().map(im -> im.getAktørId()).collect(Collectors.toSet());
         Map<AktørIdEntitet, PersonIdent> aktørIdPersonIdentMap = personTjeneste.finnPersonIdentForAktørIdBolk(aktørIder);

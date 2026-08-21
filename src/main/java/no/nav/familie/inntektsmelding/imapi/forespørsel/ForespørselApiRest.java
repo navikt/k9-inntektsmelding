@@ -71,13 +71,14 @@ public class ForespørselApiRest {
     @Tilgangskontrollert
     public Response hentForespørsler(@Valid @NotNull HentForespørselerRequest filterRequest) {
         sjekkErSystemkall();
-        var dtoer = forespørselApiTjeneste.hentForespørslerDto(
+        var dtoer = forespørselApiTjeneste.hentForespørslerFraFilter(
             new ArbeidsgiverDto(filterRequest.orgnr().orgnr()),
             filterRequest.fnr(),
             filterRequest.status(),
             filterRequest.ytelseType(),
             filterRequest.fom(),
-            filterRequest.tom());
+            filterRequest.tom(),
+            filterRequest.loepenr());
         return Response.ok(new HentForespørslerResponse(dtoer)).build();
     }
 

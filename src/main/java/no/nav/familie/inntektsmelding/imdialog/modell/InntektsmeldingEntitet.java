@@ -25,6 +25,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.Generated;
+
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
@@ -39,6 +41,10 @@ public class InntektsmeldingEntitet {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
     private Long id;
+
+    @Generated
+    @Column(name = "loepenr", nullable = false, unique = true, updatable = false, insertable = false)
+    private Long loepenr;
 
     @Column(name = "uuid", nullable = false, updatable = false)
     private UUID uuid;
@@ -108,6 +114,10 @@ public class InntektsmeldingEntitet {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getLoepenr() {
+        return loepenr;
     }
 
     public UUID getUuid() {
