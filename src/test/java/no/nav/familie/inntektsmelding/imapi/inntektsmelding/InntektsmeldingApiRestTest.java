@@ -24,6 +24,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.k9.inntektsmelding.felles.AvsenderSystemDto;
 import no.nav.k9.inntektsmelding.felles.FeilkodeDto;
 import no.nav.k9.inntektsmelding.felles.FødselsnummerDto;
+import no.nav.k9.inntektsmelding.felles.InntektsmeldingStatusDto;
 import no.nav.k9.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.k9.inntektsmelding.felles.OmsorgspengerDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
@@ -115,7 +116,7 @@ class InntektsmeldingApiRestTest {
     void skal_hente_inntektsmeldinger_med_filter() {
         var forespørselUuid = UUID.randomUUID();
         var inntektsmeldingUuid = UUID.randomUUID();
-        var filterRequest = new HentInntektsmeldingerRequest(new OrganisasjonsnummerDto(ORGNUMMER), null, null, null, null, null, null);
+        var filterRequest = new HentInntektsmeldingerRequest(new OrganisasjonsnummerDto(ORGNUMMER), null, null, null, null, null,  null, null);
         var forventetDto = lagInntektsmeldingDto(inntektsmeldingUuid, forespørselUuid);
         when(inntektsmeldingApiTjeneste.hentInntektsmeldinger(filterRequest)).thenReturn(List.of(forventetDto));
 
@@ -173,6 +174,7 @@ class InntektsmeldingApiRestTest {
             List.of(),
             List.of(),
             List.of(),
+            InntektsmeldingStatusDto.GODKJENT,
             null
         );
     }
