@@ -103,7 +103,8 @@ public class ForespørselTjeneste {
                                                               ForespørselStatus status,
                                                               Ytelsetype ytelseType,
                                                               LocalDate fom,
-                                                              LocalDate tom) {
-        return forespørselRepository.hentForespørslerFraFilter(orgnr, aktørId, status, ytelseType, fom, tom);
+                                                              LocalDate tom,
+                                                              Long fraLoepenr) {
+        return forespørselRepository.hentForespørslerFraFilter(orgnr, aktørId, status, ytelseType, fom, tom, fraLoepenr);
     }
 }

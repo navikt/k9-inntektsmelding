@@ -50,7 +50,8 @@ public class InntektsmeldingRepository {
                                                                        AktørIdEntitet aktørId,
                                                                        Ytelsetype ytelsetype,
                                                                        LocalDate fom,
-                                                                       LocalDate tom) {
+                                                                       LocalDate tom,
+                                                                       Long fraLoepenr) {
         var jpql = new StringBuilder("FROM InntektsmeldingEntitet where arbeidsgiverIdent = :orgnr");
         if (aktørId != null) {
             jpql.append(" and aktørId = :aktørId");
@@ -63,6 +64,9 @@ public class InntektsmeldingRepository {
         }
         if (tom != null) {
             jpql.append(" and startDato <= :tom");
+        }
+        if (fraLoepenr != null) {
+            jpql.append(" and loepenr > :fraLoepenr");
         }
         jpql.append(" order by opprettetTidspunkt desc");
 
@@ -79,6 +83,9 @@ public class InntektsmeldingRepository {
         }
         if (tom != null) {
             query.setParameter("tom", tom);
+        }
+        if (fraLoepenr != null) {
+            query.setParameter("fraLoepenr", fraLoepenr);
         }
         return query.getResultList();
     }

@@ -69,8 +69,8 @@ class ForespørselApiRestTest {
     void skal_hente_forespørsler() {
         var forespørselUuid = UUID.randomUUID();
         var forespørselDto = lagForespørselDto(forespørselUuid);
-        var filterRequest = new HentForespørselerRequest(new OrganisasjonsnummerDto(ORGNUMMER), null, null, null, null, null);
-        when(forespørselApiTjeneste.hentForespørslerDto(new ArbeidsgiverDto(ORGNUMMER), null, null, null, null, null))
+        var filterRequest = new HentForespørselerRequest(new OrganisasjonsnummerDto(ORGNUMMER), null, null, null, null, null, null);
+        when(forespørselApiTjeneste.hentForespørslerFraFilter(new ArbeidsgiverDto(ORGNUMMER), null, null, null, null, null, null))
             .thenReturn(List.of(forespørselDto));
 
         var response = forespørselApiRest.hentForespørsler(filterRequest);
@@ -80,7 +80,8 @@ class ForespørselApiRestTest {
     }
 
     private ForespørselDto lagForespørselDto(UUID uuid) {
-        return new ForespørselDto(uuid,
+        return new ForespørselDto(1L,
+            uuid,
             new OrganisasjonsnummerDto(ORGNUMMER),
             new FødselsnummerDto("11111111111"),
             LocalDate.now(),

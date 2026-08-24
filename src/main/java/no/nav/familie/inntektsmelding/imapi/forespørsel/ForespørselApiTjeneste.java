@@ -51,19 +51,20 @@ public class ForespørselApiTjeneste {
             });
     }
 
-    public List<ForespørselDto> hentForespørslerDto(ArbeidsgiverDto arbeidsgiverDto,
-                                                    FødselsnummerDto fnrDto,
-                                                    ForespørselStatusDto statusDto,
-                                                    YtelseTypeDto ytelseTypeDto,
-                                                    LocalDate fom,
-                                                    LocalDate tom) {
+    public List<ForespørselDto> hentForespørslerFraFilter(ArbeidsgiverDto arbeidsgiverDto,
+                                                          FødselsnummerDto fnrDto,
+                                                          ForespørselStatusDto statusDto,
+                                                          YtelseTypeDto ytelseTypeDto,
+                                                          LocalDate fom,
+                                                          LocalDate tom,
+                                                          Long fraLoepenr) {
         AktørIdEntitet aktørId = fnrDto != null
                       ? personTjeneste.finnAktørIdForPersonIdent(fnrDto.fnr()).orElse(null)
                       : null;
         ForespørselStatus status = statusDto != null ? mapForespørselStatus(statusDto) : null;
         Ytelsetype ytelsetype = ytelseTypeDto != null ? mapYtelsetype(ytelseTypeDto) : null;
 
-        List<ForespørselEntitet> forespørsler = forespørselBehandlingTjeneste.hentForespørsler(arbeidsgiverDto, aktørId, status, ytelsetype, fom, tom);
+        List<ForespørselEntitet> forespørsler = forespørselBehandlingTjeneste.hentForespørsler(arbeidsgiverDto, aktørId, status, ytelsetype, fom, tom, fraLoepenr);
 
         Set<AktørIdEntitet> aktørIder = forespørsler.stream().map(ForespørselEntitet::getAktørId).collect(Collectors.toSet());
         Map<AktørIdEntitet, PersonIdent> aktørIdPersonIdentMap = personTjeneste.finnPersonIdentForAktørIdBolk(aktørIder);
@@ -82,7 +83,8 @@ public class ForespørselApiTjeneste {
             .map(p -> new PeriodeDto(p.fom(), p.tom()))
             .toList();
 
-        return new ForespørselDto(forespørsel.getUuid(),
+        return new ForespørselDto(forespørsel.getLoepenr(),
+            forespørsel.getUuid(),
             new OrganisasjonsnummerDto(forespørsel.getOrganisasjonsnummer()),
             new FødselsnummerDto(personIdent.getIdent()),
             forespørsel.getSkjæringstidspunkt(),

@@ -261,7 +261,7 @@ class InntektsmeldingApiMottakTjenesteTest {
         var request = lagRefusjonOmsorgspengerRequest();
         var eksisterendeIm = lagMatchendeInntektsmeldingEntitet(request);
 
-        when(inntektsmeldingRepository.hentInntektsmeldingerFraFilter(any(), any(), any(), any(), any())).thenReturn(List.of(eksisterendeIm));
+        when(inntektsmeldingRepository.hentInntektsmeldingerFraFilter(any(), any(), any(), any(), any(), any())).thenReturn(List.of(eksisterendeIm));
         when(forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(eq(AKTØR_ID), any(), any()))
             .thenReturn(forespørselUuid);
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(forespørsel));

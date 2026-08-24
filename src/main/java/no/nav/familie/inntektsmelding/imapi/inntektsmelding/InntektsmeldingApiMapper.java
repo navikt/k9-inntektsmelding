@@ -107,6 +107,7 @@ class InntektsmeldingApiMapper {
             throw new IllegalArgumentException("Finner ikke fødselsnummer for aktørId når personIdent er null.");
         }
         return new InntektsmeldingDto(
+            inntektsmelding.getLoepenr(),
             inntektsmelding.getUuid(),
             forespørsel.getUuid(),
             new FødselsnummerDto(personIdent.getIdent()),
