@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import no.nav.k9.inntektsmelding.felles.FødselsnummerDto;
+import no.nav.k9.inntektsmelding.felles.InntektsmeldingStatusDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
 import no.nav.k9.inntektsmelding.felles.YtelseTypeDto;
 
@@ -16,5 +17,6 @@ public record HentInntektsmeldingerRequest(@NotNull @Valid OrganisasjonsnummerDt
                                            @Valid UUID forespørselUuid,
                                            LocalDate fom,
                                            LocalDate tom,
-                                           Long loepenr) {
+                                           Long loepenr,
+                                           InntektsmeldingStatusDto status) {
 }

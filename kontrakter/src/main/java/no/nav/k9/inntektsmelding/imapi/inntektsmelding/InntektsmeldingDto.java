@@ -16,6 +16,7 @@ import no.nav.k9.inntektsmelding.felles.AvsenderSystemDto;
 import no.nav.k9.inntektsmelding.felles.BortfaltNaturalytelseDto;
 import no.nav.k9.inntektsmelding.felles.EndringsårsakerDto;
 import no.nav.k9.inntektsmelding.felles.FødselsnummerDto;
+import no.nav.k9.inntektsmelding.felles.InntektsmeldingStatusDto;
 import no.nav.k9.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.k9.inntektsmelding.felles.OmsorgspengerDto;
 import no.nav.k9.inntektsmelding.felles.OrganisasjonsnummerDto;
@@ -39,6 +40,7 @@ public record InntektsmeldingDto(
     List<@Valid RefusjonDto> refusjonsendringer,
     List<@Valid BortfaltNaturalytelseDto> bortfaltNaturalytelsePerioder,
     List<@Valid EndringsårsakerDto> endringAvInntektÅrsaker,
+    @NotNull InntektsmeldingStatusDto status,
     @Valid OmsorgspengerDto omsorgspenger
 ) {
 
