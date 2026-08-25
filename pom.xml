@@ -15,13 +15,13 @@
 
     <properties>
         <k9-inntektsmelding-kontrakt.version>0.1.7</k9-inntektsmelding-kontrakt.version>
-        <felles.version>7.9.0</felles.version>
+        <felles.version>7.8.6</felles.version>
         <prosesstask.version>5.2.7</prosesstask.version>
         <fp-kontrakter.version>9.4.37</fp-kontrakter.version>
         <k9-felles.version>12.0.0</k9-felles.version>
         <k9-sak.version>7.3.1</k9-sak.version>
         <sif-abac-kontrakt.version>1.14.0</sif-abac-kontrakt.version>
-        <fp-graphql.version>1.1.0</fp-graphql.version>
+        <fp-graphql.version>1.0.1</fp-graphql.version>
     </properties>
 
     <dependencyManagement>
