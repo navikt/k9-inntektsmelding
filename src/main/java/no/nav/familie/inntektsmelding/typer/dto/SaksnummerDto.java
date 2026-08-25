@@ -5,10 +5,8 @@ import java.util.Objects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 public record SaksnummerDto(
-    @JsonValue @NotNull @Pattern(regexp = REGEXP, message = "Saksnummer [${validatedValue}] matcher ikke tillatt pattern [{regexp}]") String saksnr) {
+    @NotNull @Pattern(regexp = REGEXP, message = "Saksnummer [${validatedValue}] matcher ikke tillatt pattern [{regexp}]") String saksnr) {
 
     public static final String REGEXP = "^[\\p{Alnum}]+$";
 
