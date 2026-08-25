@@ -58,16 +58,39 @@ public class InntektsmeldingApiTjeneste {
 
     public List<InntektsmeldingDto> hentInntektsmeldinger(HentInntektsmeldingerRequest request) {
         if (request.forespørselUuid() != null) {
-            return hentInntektsmeldingerForForespørsel(request.forespørselUuid());
+            return hentInntektsmeldingerForForespørsel(request);
         }
         return hentInntektsmeldingerFraFilter(request);
     }
 
-    private List<InntektsmeldingDto> hentInntektsmeldingerForForespørsel(UUID forespørselUuid) {
-        return forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
+    private List<InntektsmeldingDto> hentInntektsmeldingerForForespørsel(HentInntektsmeldingerRequest request) {
+        // Per nå er alle eksisterende inntektsmeldinger godkjent, men denne må oppdateres når vi håndterer andre tilstander
+        if (request.status() != null && request.status() != InntektsmeldingStatusDto.GODKJENT) {
+            return List.of();
+        }
+
+        AktørIdEntitet aktørId = null;
+        if (request.fnr() != null) {
+            aktørId = personTjeneste.finnAktørIdForPersonIdent(request.fnr().fnr()).orElse(null);
+            if (aktørId == null) {
+                LOG.warn("Finner ikke aktørId ved henting av inntektsmelding for forespørsel, returnerer tom liste");
+                return List.of();
+            }
+        }
+
+        Ytelsetype ytelsetype = request.ytelseType() != null ? mapYtelsetype(request.ytelseType()) : null;
+        final AktørIdEntitet aktørIdFinal = aktørId;
+
+        return forespørselBehandlingTjeneste.hentForespørsel(request.forespørselUuid())
             .map(ForespørselEntitet::getInntektsmeldinger)
             .orElse(List.of())
             .stream()
+            .filter(im -> im.getArbeidsgiverIdent().equals(request.orgnr().orgnr()))
+            .filter(im -> aktørIdFinal == null || im.getAktørId().equals(aktørIdFinal))
+            .filter(im -> ytelsetype == null || im.getYtelsetype() == ytelsetype)
+            .filter(im -> request.fom() == null || !im.getStartDato().isBefore(request.fom()))
+            .filter(im -> request.tom() == null || !im.getStartDato().isAfter(request.tom()))
+            .filter(im -> request.loepenr() == null || im.getLoepenr() > request.loepenr())
             .map(inntektsmelding -> {
                 var personIdent = personTjeneste.finnPersonIdentForAktørId(inntektsmelding.getAktørId());
                 return InntektsmeldingApiMapper.mapFraEntitet(inntektsmelding, personIdent);
