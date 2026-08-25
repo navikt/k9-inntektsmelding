@@ -23,6 +23,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.k9.inntektsmelding.felles.InntektsmeldingStatusDto;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingerRequest;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.InntektsmeldingDto;
 
@@ -82,6 +83,11 @@ public class InntektsmeldingApiTjeneste {
                 LOG.warn("Finner ikke aktørId ved henting av inntektsmelding fra filter, returnerer tom liste");
                 return List.of();
             }
+        }
+
+        // Per nå er alle eksisterende inntektsmeldinger godkjent, men denne må oppdateres når vi håndterer andre tilstander
+        if (request.status() != null && request.status() != InntektsmeldingStatusDto.GODKJENT) {
+            return List.of();
         }
 
         Ytelsetype ytelsetype = request.ytelseType() != null ? mapYtelsetype(request.ytelseType()) : null;
