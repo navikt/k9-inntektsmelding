@@ -32,6 +32,7 @@ import no.nav.k9.inntektsmelding.felles.AvsenderSystemDto;
 import no.nav.k9.inntektsmelding.felles.BortfaltNaturalytelseDto;
 import no.nav.k9.inntektsmelding.felles.EndringsårsakerDto;
 import no.nav.k9.inntektsmelding.felles.FødselsnummerDto;
+import no.nav.k9.inntektsmelding.felles.InntektsmeldingStatusDto;
 import no.nav.k9.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.k9.inntektsmelding.felles.NaturalytelsetypeDto;
 import no.nav.k9.inntektsmelding.felles.OmsorgspengerDto;
@@ -123,6 +124,7 @@ class InntektsmeldingApiMapper {
             mapRefusjonsendringerTilKontrakt(inntektsmelding),
             mapBortfalteNaturalytelserTilKontrakt(inntektsmelding.getBorfalteNaturalYtelser()),
             mapEndringsårsakerTilKontrakt(inntektsmelding.getEndringsårsaker()),
+            InntektsmeldingStatusDto.GODKJENT,
             mapOmsorgspengerTilKontrakt(inntektsmelding.getOmsorgspenger())
         );
     }
