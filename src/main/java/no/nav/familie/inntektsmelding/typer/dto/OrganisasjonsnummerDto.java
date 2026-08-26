@@ -5,8 +5,10 @@ import java.util.Objects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public record OrganisasjonsnummerDto(
-    @NotNull @Pattern(regexp = VALID_REGEXP, message = "orgnr ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String orgnr) {
+    @JsonValue @NotNull @Pattern(regexp = VALID_REGEXP, message = "orgnr ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String orgnr) {
     private static final String VALID_REGEXP = "^\\d{9}$";
 
     @Override
