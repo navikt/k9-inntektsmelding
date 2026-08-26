@@ -39,9 +39,9 @@ class ForespørselResponseSerialiseringTest {
         var json = """
             {
               "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-              "organisasjonsnummer": {"orgnr": "974760673"},
+              "organisasjonsnummer": "974760673",
               "skjæringstidspunkt": "2024-01-15",
-              "brukerAktørId": {"id": "1234567890123"},
+              "brukerAktørId": "1234567890123",
               "ytelseType": "PLEIEPENGER_SYKT_BARN",
               "status": "UNDER_BEHANDLING",
               "etterspurtePerioder": []
@@ -64,9 +64,9 @@ class ForespørselResponseSerialiseringTest {
         var json = """
             {
               "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-              "organisasjonsnummer": {"orgnr": "974760673"},
+              "organisasjonsnummer": "974760673",
               "skjæringstidspunkt": "2024-01-01",
-              "brukerAktørId": {"id": "1234567890123"},
+              "brukerAktørId": "1234567890123",
               "ytelseType": "OMSORGSPENGER",
               "status": "FERDIG",
               "etterspurtePerioder": [
@@ -91,9 +91,9 @@ class ForespørselResponseSerialiseringTest {
             var json = """
                 {
                   "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                  "organisasjonsnummer": {"orgnr": "974760673"},
+                  "organisasjonsnummer": "974760673",
                   "skjæringstidspunkt": "2024-01-01",
-                  "brukerAktørId": {"id": "1234567890123"},
+                  "brukerAktørId": "1234567890123",
                   "ytelseType": "PLEIEPENGER_SYKT_BARN",
                   "status": "%s",
                   "etterspurtePerioder": []
@@ -106,6 +106,16 @@ class ForespørselResponseSerialiseringTest {
     }
 
     // --- Serialiseringstester: fra objekt til kjent JSON-form ---
+
+    @Test
+    void organisasjonsnummer_og_aktørId_skal_serialiseres_som_plain_string() throws Exception {
+        var node = serialiser(lagResponse(List.of()));
+
+        assertThat(node.get("organisasjonsnummer").isTextual()).isTrue();
+        assertThat(node.get("organisasjonsnummer").asText()).isEqualTo(ORGNR);
+        assertThat(node.get("brukerAktørId").isTextual()).isTrue();
+        assertThat(node.get("brukerAktørId").asText()).isEqualTo(AKTØR_ID);
+    }
 
     @Test
     void tom_etterspurtePerioder_liste_skal_inkluderes_som_tom_array_i_json() throws Exception {

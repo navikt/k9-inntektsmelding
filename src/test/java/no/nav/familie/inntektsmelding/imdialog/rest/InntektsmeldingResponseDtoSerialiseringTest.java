@@ -46,9 +46,9 @@ class InntektsmeldingResponseDtoSerialiseringTest {
             {
               "id": 42,
               "foresporselUuid": "b2c3d4e5-f6a7-8901-bcde-f23456789012",
-              "aktorId": {"id": "1234567890123"},
+              "aktorId": "1234567890123",
               "ytelse": "PLEIEPENGER_SYKT_BARN",
-              "arbeidsgiverIdent": {"ident": "974760673"},
+              "arbeidsgiverIdent": "974760673",
               "kontaktperson": {"navn": "Kari Nordmann", "telefonnummer": "99887766"},
               "startdato": "2024-03-01",
               "inntekt": 60000,
@@ -82,9 +82,9 @@ class InntektsmeldingResponseDtoSerialiseringTest {
             {
               "id": 1,
               "foresporselUuid": "b2c3d4e5-f6a7-8901-bcde-f23456789012",
-              "aktorId": {"id": "1234567890123"},
+              "aktorId": "1234567890123",
               "ytelse": "OMSORGSPENGER",
-              "arbeidsgiverIdent": {"ident": "974760673"},
+              "arbeidsgiverIdent": "974760673",
               "kontaktperson": {"navn": "Ola", "telefonnummer": "11223344"},
               "startdato": "2024-01-01",
               "inntekt": 45000,
@@ -118,9 +118,9 @@ class InntektsmeldingResponseDtoSerialiseringTest {
             {
               "id": 1,
               "foresporselUuid": "b2c3d4e5-f6a7-8901-bcde-f23456789012",
-              "aktorId": {"id": "1234567890123"},
+              "aktorId": "1234567890123",
               "ytelse": "PLEIEPENGER_SYKT_BARN",
-              "arbeidsgiverIdent": {"ident": "974760673"},
+              "arbeidsgiverIdent": "974760673",
               "kontaktperson": {"navn": "Kari", "telefonnummer": "99887766"},
               "startdato": "2024-03-01",
               "inntekt": 60000,
@@ -137,6 +137,16 @@ class InntektsmeldingResponseDtoSerialiseringTest {
     }
 
     // --- Serialiseringstester: fra objekt til kjent JSON-form ---
+
+    @Test
+    void aktorId_og_arbeidsgiverIdent_skal_serialiseres_som_plain_string() throws Exception {
+        var node = serialiser(lagResponseMedTommeLister());
+
+        assertThat(node.get("aktorId").isTextual()).isTrue();
+        assertThat(node.get("aktorId").asText()).isEqualTo(AKTØR_ID);
+        assertThat(node.get("arbeidsgiverIdent").isTextual()).isTrue();
+        assertThat(node.get("arbeidsgiverIdent").asText()).isEqualTo(ORGNR);
+    }
 
     @Test
     void tomme_lister_skal_inkluderes_som_tom_array_i_json() throws Exception {

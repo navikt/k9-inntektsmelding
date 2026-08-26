@@ -39,16 +39,16 @@ class OppdaterForespørslerRequestSerialiseringTest {
     void skal_deserialisere_request_med_pleiepenger() throws Exception {
         var json = """
             {
-              "aktørId": {"id": "1234567890123"},
+              "aktørId": "1234567890123",
               "forespørsler": [
                 {
                   "skjæringstidspunkt": "2024-01-01",
-                  "orgnr": {"orgnr": "974760673"},
+                  "orgnr": "974760673",
                   "aksjon": "OPPRETT"
                 }
               ],
               "ytelsetype": "PLEIEPENGER_SYKT_BARN",
-              "saksnummer": {"saksnr": "SAK123"}
+              "saksnummer": "SAK123"
             }
             """;
 
@@ -68,11 +68,11 @@ class OppdaterForespørslerRequestSerialiseringTest {
     void skal_deserialisere_request_med_omsorgspenger_og_etterspurte_perioder() throws Exception {
         var json = """
             {
-              "aktørId": {"id": "1234567890123"},
+              "aktørId": "1234567890123",
               "forespørsler": [
                 {
                   "skjæringstidspunkt": "2024-01-01",
-                  "orgnr": {"orgnr": "974760673"},
+                  "orgnr": "974760673",
                   "aksjon": "OPPRETT",
                   "etterspurtePerioder": [
                     {"fom": "2024-01-01", "tom": "2024-01-31"},
@@ -81,7 +81,7 @@ class OppdaterForespørslerRequestSerialiseringTest {
                 }
               ],
               "ytelsetype": "OMSORGSPENGER",
-              "saksnummer": {"saksnr": "SAK123"}
+              "saksnummer": "SAK123"
             }
             """;
 
@@ -99,14 +99,14 @@ class OppdaterForespørslerRequestSerialiseringTest {
     void skal_deserialisere_request_med_flere_forespørsler_og_ulike_aksjoner() throws Exception {
         var json = """
             {
-              "aktørId": {"id": "1234567890123"},
+              "aktørId": "1234567890123",
               "forespørsler": [
-                {"skjæringstidspunkt": "2024-01-01", "orgnr": {"orgnr": "974760673"}, "aksjon": "OPPRETT"},
-                {"skjæringstidspunkt": "2023-06-01", "orgnr": {"orgnr": "974760673"}, "aksjon": "UTGÅTT"},
-                {"skjæringstidspunkt": "2023-01-01", "orgnr": {"orgnr": "974760673"}, "aksjon": "BEHOLD"}
+                {"skjæringstidspunkt": "2024-01-01", "orgnr": "974760673", "aksjon": "OPPRETT"},
+                {"skjæringstidspunkt": "2023-06-01", "orgnr": "974760673", "aksjon": "UTGÅTT"},
+                {"skjæringstidspunkt": "2023-01-01", "orgnr": "974760673", "aksjon": "BEHOLD"}
               ],
               "ytelsetype": "PLEIEPENGER_SYKT_BARN",
-              "saksnummer": {"saksnr": "SAK123"}
+              "saksnummer": "SAK123"
             }
             """;
 
@@ -118,6 +118,30 @@ class OppdaterForespørslerRequestSerialiseringTest {
     }
 
     // --- Serialiseringstester: fra objekt til kjent JSON-form ---
+
+    @Test
+    void aktørId_og_orgnr_og_saksnummer_skal_serialiseres_som_plain_string() throws Exception {
+        var forespørsel = new OppdaterForespørselDto(
+            LocalDate.of(2024, 1, 1),
+            new OrganisasjonsnummerDto(ORGNR),
+            ForespørselAksjon.OPPRETT
+        );
+        var request = new OppdaterForespørslerRequest(
+            new AktørIdDto(AKTØR_ID),
+            List.of(forespørsel),
+            YtelseTypeDto.PLEIEPENGER_SYKT_BARN,
+            new SaksnummerDto(SAKSNR)
+        );
+
+        var node = serialiser(request);
+
+        assertThat(node.get("aktørId").isTextual()).isTrue();
+        assertThat(node.get("aktørId").asText()).isEqualTo(AKTØR_ID);
+        assertThat(node.get("saksnummer").isTextual()).isTrue();
+        assertThat(node.get("saksnummer").asText()).isEqualTo(SAKSNR);
+        assertThat(node.get("forespørsler").get(0).get("orgnr").isTextual()).isTrue();
+        assertThat(node.get("forespørsler").get(0).get("orgnr").asText()).isEqualTo(ORGNR);
+    }
 
     @Test
     void tom_forespørsler_liste_skal_inkluderes_som_tom_array_i_json() throws Exception {
