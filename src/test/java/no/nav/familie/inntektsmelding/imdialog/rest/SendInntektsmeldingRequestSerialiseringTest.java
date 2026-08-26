@@ -216,9 +216,9 @@ class SendInntektsmeldingRequestSerialiseringTest {
             null
         );
 
-        var naturaytelseNode = serialiser(request).get("bortfaltNaturalytelsePerioder").get(0);
+        var naturalytelseNode = serialiser(request).get("bortfaltNaturalytelsePerioder").get(0);
 
-        assertThat(naturaytelseNode.has("tom")).isFalse();
+        assertThat(naturalytelseNode.has("tom")).isFalse();
     }
 
     // --- Hjelpemetoder ---
