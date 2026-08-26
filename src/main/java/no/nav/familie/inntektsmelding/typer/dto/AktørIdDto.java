@@ -3,16 +3,9 @@ package no.nav.familie.inntektsmelding.typer.dto;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public record AktørIdDto(@JsonValue @NotNull @Digits(integer = 19, fraction = 0) String id) {
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public AktørIdDto(String id) {
-        this.id = id;
-    }
-
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + maskerAktørId() + ">";

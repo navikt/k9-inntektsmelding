@@ -4,16 +4,10 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public record ArbeidsgiverDto(@JsonValue @NotNull @Digits(integer = 13, fraction = 0) @Pattern(regexp = REGEXP) String ident) {
     private static final String REGEXP = "^([0-9]{9}|[0-9]{13})$";
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public ArbeidsgiverDto(String ident) {
-        this.ident = ident;
-    }
 
     @Override
     public String toString() {
