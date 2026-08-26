@@ -1,12 +1,14 @@
 package no.nav.k9.inntektsmelding.felles;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import java.util.Objects;
 
 public record SaksnummerDto(
-    @NotNull @Pattern(regexp = REGEXP, message = "Saksnummer [${validatedValue}] matcher ikke tillatt pattern [{regexp}]") String saksnr) {
+    @JsonValue @NotNull @Pattern(regexp = REGEXP, message = "Saksnummer [${validatedValue}] matcher ikke tillatt pattern [{regexp}]") String saksnr) {
 
     public static final String REGEXP = "^[\\p{Alnum}]+$";
 

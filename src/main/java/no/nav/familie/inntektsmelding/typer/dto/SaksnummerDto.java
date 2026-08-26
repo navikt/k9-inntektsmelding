@@ -5,18 +5,12 @@ import java.util.Objects;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public record SaksnummerDto(
     @JsonValue @NotNull @Pattern(regexp = REGEXP, message = "Saksnummer [${validatedValue}] matcher ikke tillatt pattern [{regexp}]") String saksnr) {
 
     public static final String REGEXP = "^[\\p{Alnum}]+$";
-
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public SaksnummerDto(String saksnr) {
-        this.saksnr = saksnr;
-    }
 
     @Override
     public boolean equals(Object obj) {

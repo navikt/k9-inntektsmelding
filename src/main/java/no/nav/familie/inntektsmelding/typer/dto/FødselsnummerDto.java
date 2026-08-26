@@ -1,4 +1,4 @@
-package no.nav.k9.inntektsmelding.felles;
+package no.nav.familie.inntektsmelding.typer.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -11,3 +11,4 @@ public record FødselsnummerDto(@JsonValue @NotNull @Pattern(regexp = "^\\d{11}$
         return "";
     }
 }
+
