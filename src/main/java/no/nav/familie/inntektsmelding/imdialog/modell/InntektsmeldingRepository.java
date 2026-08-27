@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import java.util.UUID;
+
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingStatus;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -44,6 +47,14 @@ public class InntektsmeldingRepository {
                 InntektsmeldingEntitet.class)
             .setParameter("uuid", uuid);
         return query.getResultStream().findFirst();
+    }
+
+    public void oppdaterStatus(UUID inntektsmeldingUuid, InntektsmeldingStatus status) {
+        var entitet = hentInntektsmeldingForUuid(inntektsmeldingUuid)
+            .orElseThrow(() -> new IllegalStateException("Finner ikke inntektsmelding for uuid " + inntektsmeldingUuid));
+        entitet.setStatus(status);
+        entityManager.persist(entitet);
+        entityManager.flush();
     }
 
     public List<InntektsmeldingEntitet> hentInntektsmeldingerFraFilter(String orgnr,

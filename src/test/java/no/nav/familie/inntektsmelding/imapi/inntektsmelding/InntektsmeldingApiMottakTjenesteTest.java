@@ -121,17 +121,20 @@ class InntektsmeldingApiMottakTjenesteTest {
     }
 
     @Test
-    void nedetid_ainntekt_returnerer_feil() {
+    void nedetid_ainntekt_lagrer_med_venter_vurdering() {
         var forespørsel = lagForespørsel();
         when(forespørselBehandlingTjeneste.hentForespørsel(FORESPORSEL_UUID)).thenReturn(Optional.of(forespørsel));
         when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(lagInntektsopplysningerMedNedetid());
+        var lagretEntitet = stubLagring(forespørsel);
 
         var response = tjeneste.mottaInntektsmelding(lagRequest(), AKTØR_ID);
 
-        assertThat(response.success()).isFalse();
+        assertThat(response.success()).isTrue();
+        assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.NEDETID_AINNTEKT);
-        verifyNoInteractions(inntektsmeldingRepository, prosessTaskTjeneste);
+        verify(inntektsmeldingRepository).lagreInntektsmelding(any());
+        verify(prosessTaskTjeneste).lagre(any(ProsessTaskData.class));
     }
 
     @Test
@@ -231,19 +234,31 @@ class InntektsmeldingApiMottakTjenesteTest {
     }
 
     @Test
-    void nedetid_ainntekt_stopper_omsorgspenger_refusjon() {
+    void nedetid_ainntekt_lagrer_omsorgspenger_refusjon_med_venter_vurdering() {
+        var forespørselUuid = UUID.randomUUID();
+        var forespørsel = lagForespørselForOmsorgspenger(ForespørselType.OMSORGSPENGER_REFUSJON);
+        when(forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(eq(AKTØR_ID), any(), any()))
+            .thenReturn(forespørselUuid);
+        when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(forespørsel));
         when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(lagInntektsopplysningerMedNedetid());
+        stubLagringMedOmsorgspenger(forespørsel);
 
         var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(lagRefusjonOmsorgspengerRequest(), AKTØR_ID);
 
-        assertThat(response.success()).isFalse();
+        assertThat(response.success()).isTrue();
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.NEDETID_AINNTEKT);
-        verifyNoInteractions(forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste);
+        verify(inntektsmeldingRepository).lagreInntektsmelding(any());
+        verify(prosessTaskTjeneste).lagre(any(ProsessTaskData.class));
     }
 
     @Test
     void ulik_inntekt_uten_årsak_stopper_omsorgspenger_refusjon() {
+        var forespørselUuid = UUID.randomUUID();
+        var forespørsel = lagForespørselForOmsorgspenger(ForespørselType.OMSORGSPENGER_REFUSJON);
+        when(forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(eq(AKTØR_ID), any(), any()))
+            .thenReturn(forespørselUuid);
+        when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(forespørsel));
         when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(new Inntektsopplysninger(new BigDecimal("60100"), ORGNR, List.of()));
 
@@ -251,7 +266,6 @@ class InntektsmeldingApiMottakTjenesteTest {
 
         assertThat(response.success()).isFalse();
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.ULIK_INNTEKT);
-        verifyNoInteractions(forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste);
     }
 
     @Test
@@ -265,8 +279,6 @@ class InntektsmeldingApiMottakTjenesteTest {
         when(forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(eq(AKTØR_ID), any(), any()))
             .thenReturn(forespørselUuid);
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(forespørsel));
-        when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
-            .thenReturn(new Inntektsopplysninger(INNTEKT, ORGNR, List.of()));
         var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(request, AKTØR_ID);
 
         assertThat(response.success()).isFalse();

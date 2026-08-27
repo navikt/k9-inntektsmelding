@@ -11,22 +11,36 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTekster;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnRessurser;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 class MinSideArbeidsgiverTjenesteImpl implements MinSideArbeidsgiverTjeneste {
+    private static final no.nav.foreldrepenger.konfig.Environment ENV = Environment.current();
 
     static final String SAK_STATUS_TEKST = "";
     static final String SAK_STATUS_TEKST_ARBEIDSGIVERINITIERT = "Mottatt - Se kvittering eller korriger refusjonskrav";
     static final Sendevindu VARSEL_SENDEVINDU = Sendevindu.LOEPENDE;
     static final int PÅMINNELSE_ETTER_DAGER = Environment.current().getProperty("paaminnelse.etter.dager", int.class, 14);
+    private PersonTjeneste personTjeneste;
+    private String arbeidsgiverportalSkjemaLenke;
+
+
+
 
     private MinSideArbeidsgiverKlient klient;
 
     @Inject
-    public MinSideArbeidsgiverTjenesteImpl(MinSideArbeidsgiverKlient klient) {
+    public MinSideArbeidsgiverTjenesteImpl(MinSideArbeidsgiverKlient klient,
+                                           PersonTjeneste personTjeneste) {
         this.klient = klient;
+        this.personTjeneste = personTjeneste;
+        this.arbeidsgiverportalSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
+
     }
 
     @Override
@@ -97,6 +111,25 @@ class MinSideArbeidsgiverTjenesteImpl implements MinSideArbeidsgiverTjeneste {
             .onUgyldigPaaminnelseTidspunkt(new UgyldigPaaminnelseTidspunktResponseProjection().feilmelding());
 
         return klient.opprettOppgave(request, projection);
+    }
+
+    @Override
+    public void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String feilmelding) {
+        Merkelapp merkelapp = ForespørselTekster.finnMerkelapp(forespørsel.getYtelseType(), forespørsel.getForespørselType());
+        PersonInfo person = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId());
+        String beskjedTekst = String.format("Inntektsmeldingen for %s ble avvist: %s", person.mapFulltNavn(), feilmelding);
+        URI lenke = lagUriForInntektsmeldingOppsummering(forespørsel.getUuid());
+
+        sendNyBeskjedMedKvittering(
+            forespørsel.getUuid().toString(),
+            merkelapp,
+            forespørsel.getOrganisasjonsnummer(),
+            beskjedTekst,
+            lenke);
+    }
+
+    private URI lagUriForInntektsmeldingOppsummering(UUID forespørselUuid) {
+        return URI.create(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid);
     }
 
     @Override

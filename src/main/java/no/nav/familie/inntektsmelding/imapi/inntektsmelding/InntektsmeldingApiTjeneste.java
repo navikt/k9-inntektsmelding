@@ -21,6 +21,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.k9.inntektsmelding.felles.InntektsmeldingStatusDto;
@@ -64,11 +65,6 @@ public class InntektsmeldingApiTjeneste {
     }
 
     private List<InntektsmeldingDto> hentInntektsmeldingerForForespørsel(HentInntektsmeldingerRequest request) {
-        // Per nå er alle eksisterende inntektsmeldinger godkjent, men denne må oppdateres når vi håndterer andre tilstander
-        if (request.status() != null && request.status() != InntektsmeldingStatusDto.GODKJENT) {
-            return List.of();
-        }
-
         AktørIdEntitet aktørId = null;
         if (request.fnr() != null) {
             aktørId = personTjeneste.finnAktørIdForPersonIdent(request.fnr().fnr()).orElse(null);
@@ -91,6 +87,7 @@ public class InntektsmeldingApiTjeneste {
             .filter(im -> request.fom() == null || !im.getStartDato().isBefore(request.fom()))
             .filter(im -> request.tom() == null || !im.getStartDato().isAfter(request.tom()))
             .filter(im -> request.loepenr() == null || im.getLoepenr() > request.loepenr())
+            .filter(im -> matcherStatus(im.getStatus(), request.status()))
             .map(inntektsmelding -> {
                 var personIdent = personTjeneste.finnPersonIdentForAktørId(inntektsmelding.getAktørId());
                 return InntektsmeldingApiMapper.mapFraEntitet(inntektsmelding, personIdent);
@@ -108,11 +105,6 @@ public class InntektsmeldingApiTjeneste {
             }
         }
 
-        // Per nå er alle eksisterende inntektsmeldinger godkjent, men denne må oppdateres når vi håndterer andre tilstander
-        if (request.status() != null && request.status() != InntektsmeldingStatusDto.GODKJENT) {
-            return List.of();
-        }
-
         Ytelsetype ytelsetype = request.ytelseType() != null ? mapYtelsetype(request.ytelseType()) : null;
         List<InntektsmeldingEntitet> inntektsmeldinger = inntektsmeldingRepository.hentInntektsmeldingerFraFilter(
             request.orgnr().orgnr(), aktørId, ytelsetype, request.fom(), request.tom(), request.loepenr());
@@ -121,6 +113,7 @@ public class InntektsmeldingApiTjeneste {
         Map<AktørIdEntitet, PersonIdent> aktørIdPersonIdentMap = personTjeneste.finnPersonIdentForAktørIdBolk(aktørIder);
 
         return inntektsmeldinger.stream()
+            .filter(im -> matcherStatus(im.getStatus(), request.status()))
             .map(im -> {
                 var personIdent = aktørIdPersonIdentMap.get(im.getAktørId());
                 if (personIdent == null) {
@@ -129,5 +122,16 @@ public class InntektsmeldingApiTjeneste {
                 return InntektsmeldingApiMapper.mapFraEntitet(im, personIdent);
             })
             .toList();
+    }
+
+    private static boolean matcherStatus(InntektsmeldingStatus entityStatus, InntektsmeldingStatusDto requestedStatus) {
+        if (requestedStatus == null) {
+            return true;
+        }
+        return switch (requestedStatus) {
+            case GODKJENT -> entityStatus == InntektsmeldingStatus.GODKJENT;
+            case MOTTATT -> entityStatus == InntektsmeldingStatus.VENTER_VURDERING || entityStatus == InntektsmeldingStatus.UTDATERT;
+            case AVVIST -> entityStatus == InntektsmeldingStatus.AVVIST;
+        };
     }
 }
