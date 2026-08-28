@@ -29,9 +29,6 @@ class MinSideArbeidsgiverTjenesteImpl implements MinSideArbeidsgiverTjeneste {
     private PersonTjeneste personTjeneste;
     private String arbeidsgiverportalSkjemaLenke;
 
-
-
-
     private MinSideArbeidsgiverKlient klient;
 
     @Inject
