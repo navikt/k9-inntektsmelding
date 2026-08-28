@@ -4,5 +4,5 @@ public enum InntektsmeldingStatus {
     GODKJENT,
     VENTER_VURDERING,
     AVVIST,
-    UTDATERT,
+    UTDATERT
 }
