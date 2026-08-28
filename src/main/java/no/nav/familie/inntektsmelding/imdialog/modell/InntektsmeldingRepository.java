@@ -51,7 +51,6 @@ public class InntektsmeldingRepository {
         var entitet = hentInntektsmeldingForUuid(inntektsmeldingUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke inntektsmelding for uuid " + inntektsmeldingUuid));
         entitet.setStatus(status);
-        entityManager.persist(entitet);
         entityManager.flush();
     }
 
