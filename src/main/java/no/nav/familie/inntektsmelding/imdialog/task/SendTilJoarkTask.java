@@ -15,9 +15,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = "mottaInntektsmelding.oversendJoark")
+@ProsessTask(value = SendTilJoarkTask.TASK_TYPE)
 public class SendTilJoarkTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SendTilJoarkTask.class);
+    public static final String TASK_TYPE = "mottaInntektsmelding.oversendJoark";
     public static final String KEY_INNTEKTSMELDING_ID = "inntektsmeldingId";
     public static final String KEY_YTELSE_TYPE = "ytelseType";
 

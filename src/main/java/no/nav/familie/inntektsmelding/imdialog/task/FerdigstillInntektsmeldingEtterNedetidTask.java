@@ -9,8 +9,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = "ferdigstill.etter.nedetid")
+@ProsessTask(value = FerdigstillInntektsmeldingEtterNedetidTask.TASK_TYPE)
 public class FerdigstillInntektsmeldingEtterNedetidTask implements ProsessTaskHandler {
+    public static final String TASK_TYPE = "ferdigstill.etter.nedetid";
     public static final String KEY_INNTEKTSMELDING_ID = "inntektsmeldingId";
 
     private InntektsmeldingApiMottakTjeneste mottakTjeneste;

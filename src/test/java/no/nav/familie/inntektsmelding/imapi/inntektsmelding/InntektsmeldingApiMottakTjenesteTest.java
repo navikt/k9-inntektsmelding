@@ -18,6 +18,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -31,6 +32,8 @@ import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.LpsSystemInfoEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
+import no.nav.familie.inntektsmelding.imdialog.task.FerdigstillInntektsmeldingEtterNedetidTask;
+import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -134,7 +137,9 @@ class InntektsmeldingApiMottakTjenesteTest {
         assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.NEDETID_AINNTEKT);
         verify(inntektsmeldingRepository).lagreInntektsmelding(any());
-        verify(prosessTaskTjeneste).lagre(any(ProsessTaskData.class));
+        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
+        assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(FerdigstillInntektsmeldingEtterNedetidTask.TASK_TYPE);
     }
 
     @Test
@@ -192,7 +197,9 @@ class InntektsmeldingApiMottakTjenesteTest {
         assertThat(response.success()).isTrue();
         assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
         verify(inntektsmeldingRepository).lagreInntektsmelding(any());
-        verify(prosessTaskTjeneste).lagre(any(ProsessTaskData.class));
+        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
+        assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(SendTilJoarkTask.TASK_TYPE);
         verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(eq(FORESPORSEL_UUID), any(), any(), any(), any());
     }
 
@@ -209,7 +216,9 @@ class InntektsmeldingApiMottakTjenesteTest {
         assertThat(response.success()).isTrue();
         assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
         verify(inntektsmeldingRepository).lagreInntektsmelding(any());
-        verify(prosessTaskTjeneste).lagre(any(ProsessTaskData.class));
+        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
+        assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(SendTilJoarkTask.TASK_TYPE);
         verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(eq(FORESPORSEL_UUID), any(), any(), any(), any());
     }
 
@@ -229,7 +238,9 @@ class InntektsmeldingApiMottakTjenesteTest {
         assertThat(response.success()).isTrue();
         assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
         verify(inntektsmeldingRepository).lagreInntektsmelding(any());
-        verify(prosessTaskTjeneste).lagre(any(ProsessTaskData.class));
+        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
+        assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(SendTilJoarkTask.TASK_TYPE);
         verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(eq(forespørselUuid), any(), any(), any(), any());
     }
 
@@ -249,7 +260,9 @@ class InntektsmeldingApiMottakTjenesteTest {
         assertThat(response.success()).isTrue();
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.NEDETID_AINNTEKT);
         verify(inntektsmeldingRepository).lagreInntektsmelding(any());
-        verify(prosessTaskTjeneste).lagre(any(ProsessTaskData.class));
+        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
+        assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(FerdigstillInntektsmeldingEtterNedetidTask.TASK_TYPE);
     }
 
     @Test
