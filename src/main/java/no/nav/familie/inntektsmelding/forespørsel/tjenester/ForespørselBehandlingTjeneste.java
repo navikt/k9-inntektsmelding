@@ -680,6 +680,7 @@ public class ForespørselBehandlingTjeneste {
         // Send melding til fager
         minSideArbeidsgiverTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
 
-        // TODO: send melding til dialogporten
+        // Send melding til dialogporten
+        dialogportenKlient.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
     }
 }
