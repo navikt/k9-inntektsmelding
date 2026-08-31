@@ -255,6 +255,7 @@ public class InntektsmeldingApiMottakTjeneste {
 
         if (inntektFraAInntekt.harNedetid()) {
             inntektsmeldingRepository.oppdaterStatus(inntektsmelding.getUuid(), InntektsmeldingStatus.VENTER_VURDERING);
+            // Kaster feil som fører til at vi vil opprette en ny prosesstask som retryer
             throw new TekniskException("K9INNTEKTSMELDING_NEDETID_1", "Nedetid i a-inntekt, får ikke ferdigstilt inntektsmelding " + inntektsmeldingId);
         }
 
