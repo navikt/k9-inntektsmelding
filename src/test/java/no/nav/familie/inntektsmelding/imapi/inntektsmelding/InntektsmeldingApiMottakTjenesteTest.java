@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.imapi.inntektsmelding;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -279,6 +280,8 @@ class InntektsmeldingApiMottakTjenesteTest {
 
         assertThat(response.success()).isFalse();
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.ULIK_INNTEKT);
+        verify(inntektsmeldingRepository, never()).lagreInntektsmelding(any());
+        verifyNoInteractions(prosessTaskTjeneste);
     }
 
     @Test
