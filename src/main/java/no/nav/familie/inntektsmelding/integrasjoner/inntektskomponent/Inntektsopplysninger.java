@@ -13,7 +13,7 @@ public record Inntektsopplysninger(BigDecimal gjennomsnitt, String orgnummer, Li
     public boolean harNedetid() {
         return måneder() != null && måneder()
             .stream()
-            .anyMatch(status -> MånedslønnStatus.NEDETID_AINNTEKT.equals(status.status()));
+            .anyMatch(inntekt -> MånedslønnStatus.NEDETID_AINNTEKT.equals(inntekt.status()));
     }
 
 
