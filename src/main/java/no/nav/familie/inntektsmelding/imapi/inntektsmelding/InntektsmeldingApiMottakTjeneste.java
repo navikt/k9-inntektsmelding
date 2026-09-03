@@ -108,7 +108,7 @@ public class InntektsmeldingApiMottakTjeneste {
         if (inntektFeil.isPresent()) {
             if (FeilkodeDto.NEDETID_AINNTEKT.equals(inntektFeil.get().feilkode())) {
                 nyIm.setStatus(InntektsmeldingStatus.VENTER_VURDERING);
-                Long imId = lagreOgLagFerdigstillTask(nyIm, forespørsel);
+                Long imId = lagreImOgOpprettTaskForEtterkontroll(nyIm, forespørsel);
                 var lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
                 return new SendInntektsmeldingResponse(true, lagretEntitet.getUuid(), inntektFeil.get());
             }
@@ -177,7 +177,7 @@ public class InntektsmeldingApiMottakTjeneste {
         if (inntektFeil.isPresent()) {
             if (FeilkodeDto.NEDETID_AINNTEKT.equals(inntektFeil.get().feilkode())) {
                 nyIm.setStatus(InntektsmeldingStatus.VENTER_VURDERING);
-                Long imId = lagreOgLagFerdigstillTask(nyIm, forespørsel);
+                Long imId = lagreImOgOpprettTaskForEtterkontroll(nyIm, forespørsel);
                 var lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
                 return new SendRefusjonOmsorgspengerResponse(true, lagretEntitet.getUuid(), inntektFeil.get());
             }
@@ -295,7 +295,7 @@ public class InntektsmeldingApiMottakTjeneste {
             });
     }
 
-    private Long lagreOgLagFerdigstillTask(InntektsmeldingEntitet inntektsmelding, ForespørselEntitet forespørsel) {
+    private Long lagreImOgOpprettTaskForEtterkontroll(InntektsmeldingEntitet inntektsmelding, ForespørselEntitet forespørsel) {
         LOG.info("Lagrer inntektsmelding med status VENTER_VURDERING for ytelse {} og saksnummer {}", inntektsmelding.getYtelsetype(), forespørsel.getSaksnummer().orElse(null));
         Long imId = inntektsmeldingRepository.lagreInntektsmelding(inntektsmelding);
         ProsessTaskData task = ProsessTaskData.forProsessTask(FerdigstillInntektsmeldingEtterNedetidTask.class);
