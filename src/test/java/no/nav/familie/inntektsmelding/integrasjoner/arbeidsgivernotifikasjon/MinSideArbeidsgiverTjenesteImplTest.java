@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnRessurser;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class MinSideArbeidsgiverTjenesteImplTest {
@@ -23,11 +24,14 @@ class MinSideArbeidsgiverTjenesteImplTest {
     @Mock
     MinSideArbeidsgiverKlient klient;
 
+    @Mock
+    PersonTjeneste personTjeneste;
+
     private MinSideArbeidsgiverTjeneste tjeneste;
 
     @BeforeEach
     void setUp() {
-        tjeneste = new MinSideArbeidsgiverTjenesteImpl(klient);
+        tjeneste = new MinSideArbeidsgiverTjenesteImpl(klient, personTjeneste);
     }
 
     @Test

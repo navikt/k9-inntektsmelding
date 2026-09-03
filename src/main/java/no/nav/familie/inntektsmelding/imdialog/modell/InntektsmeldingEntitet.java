@@ -28,6 +28,7 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.Generated;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingStatus;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -88,6 +89,10 @@ public class InntektsmeldingEntitet {
     @Enumerated(EnumType.STRING)
     @Column(name = "inntektsmelding_type", nullable = false)
     private InntektsmeldingType inntektsmeldingType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private InntektsmeldingStatus status = InntektsmeldingStatus.GODKJENT;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private List<RefusjonsendringEntitet> refusjonsendringer = new ArrayList<>();
@@ -194,6 +199,14 @@ public class InntektsmeldingEntitet {
 
     public LpsSystemInfoEntitet getLpsSystem() {
         return lpsSystem;
+    }
+
+    public InntektsmeldingStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(InntektsmeldingStatus status) {
+        this.status = status;
     }
 
     private void leggTilRefusjonsendring(RefusjonsendringEntitet refusjonsendringEntitet) {
@@ -364,6 +377,11 @@ public class InntektsmeldingEntitet {
         public Builder medLpsSystemInfo(LpsSystemInfoEntitet lpsSystem) {
             lpsSystem.setInntektsmelding(kladd);
             kladd.lpsSystem = lpsSystem;
+            return this;
+        }
+
+        public Builder medStatus(InntektsmeldingStatus status) {
+            kladd.status = status;
             return this;
         }
 

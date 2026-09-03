@@ -675,4 +675,12 @@ public class ForespørselBehandlingTjeneste {
     private URI lagUriForInntektsmeldingOppsummering(UUID forespørselUuid) {
         return URI.create(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid);
     }
+
+    public void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String feilmelding) {
+        // Send melding til fager
+        minSideArbeidsgiverTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
+
+        // Send melding til dialogporten
+        dialogportenKlient.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
+    }
 }

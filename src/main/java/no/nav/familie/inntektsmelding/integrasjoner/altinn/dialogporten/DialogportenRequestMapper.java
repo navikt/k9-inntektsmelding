@@ -54,7 +54,7 @@ public class DialogportenRequestMapper {
                 DialogportenRequest.NB)),
             List.of(guiUrl, apiUrl, forespørselApiUrl));
         var transmission = new DialogportenRequest.Transmission(DialogportenRequest.TransmissionType.Request,
-            DialogportenRequest.ExtendedType.INNTEKTSMELDING,
+            DialogportenRequest.TransmissionExtendedType.INNTEKTSMELDING,
             new DialogportenRequest.Sender("ServiceOwner", null),
             contentTransmission,
             List.of(attachementTransmission));
@@ -149,12 +149,32 @@ public class DialogportenRequestMapper {
         var actorId = String.format("urn:altinn:organization:identifier-no:%s", arbeidsgiver.ident());
 
         var transmission = new DialogportenRequest.Transmission(DialogportenRequest.TransmissionType.Acceptance,
-            DialogportenRequest.ExtendedType.INNTEKTSMELDING,
+            DialogportenRequest.TransmissionExtendedType.INNTEKTSMELDING,
             new DialogportenRequest.Sender("PartyRepresentative", actorId),
             transmissionContent,
             apiActions);
 
         //patch
+        return new DialogportenPatchRequest(DialogportenPatchRequest.OP_ADD,
+            DialogportenPatchRequest.PATH_TRANSMISSIONS,
+            List.of(transmission));
+    }
+
+    public static DialogportenPatchRequest inntektsmeldingAvvistTransmission(ArbeidsgiverDto arbeidsgiver,
+                                                                             String avvistTekst) {
+        var contentTransmission = lagContentValue(avvistTekst);
+
+        var transmissionContent = new DialogportenRequest.Content(contentTransmission, null, null);
+
+        var actorId = String.format("urn:altinn:organization:identifier-no:%s", arbeidsgiver.ident());
+
+        var transmission = new DialogportenRequest.Transmission(DialogportenRequest.TransmissionType.Rejection,
+            DialogportenRequest.TransmissionExtendedType.INNTEKTSMELDING_AVVIST,
+            new DialogportenRequest.Sender("PartyRepresentative", actorId),
+            transmissionContent,
+            List.of());
+
+        // patch
         return new DialogportenPatchRequest(DialogportenPatchRequest.OP_ADD,
             DialogportenPatchRequest.PATH_TRANSMISSIONS,
             List.of(transmission));
@@ -183,7 +203,7 @@ public class DialogportenRequestMapper {
         //Ny transmission som sier at inntektsmelding ikke lenger er påkrevd
         var transmissionContent = new DialogportenRequest.Content(lagContentValue("Inntektsmeldingen er ikke lenger påkrevd"), null, null);
         var transmission = new DialogportenRequest.Transmission(DialogportenRequest.TransmissionType.Correction,
-            DialogportenRequest.ExtendedType.INNTEKTSMELDING,
+            DialogportenRequest.TransmissionExtendedType.INNTEKTSMELDING,
             new DialogportenRequest.Sender("ServiceOwner", null),
             transmissionContent,
             List.of());
