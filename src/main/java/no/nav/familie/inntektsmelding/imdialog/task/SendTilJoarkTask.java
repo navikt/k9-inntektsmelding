@@ -55,8 +55,8 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
         String xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
         byte[] pdf = k9DokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);
 
-        inntektsmeldingTjeneste.oppdaterInntektsmeldingStatus(inntektsmelding.getUuid(), InntektsmeldingStatus.GODKJENT);
         joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf, saksnummer);
+        inntektsmeldingTjeneste.oppdaterInntektsmeldingStatus(inntektsmelding.getUuid(), InntektsmeldingStatus.GODKJENT);
         LOG.info("Sluttfører task oversendJoark");
     }
 }
