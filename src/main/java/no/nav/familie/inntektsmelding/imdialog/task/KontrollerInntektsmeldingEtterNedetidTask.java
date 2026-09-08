@@ -11,7 +11,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @ApplicationScoped
 @ProsessTask(value = KontrollerInntektsmeldingEtterNedetidTask.TASK_TYPE)
 public class KontrollerInntektsmeldingEtterNedetidTask implements ProsessTaskHandler {
-    public static final String TASK_TYPE = "inntektsmelding.kotroller.etter.nedetid";
+    public static final String TASK_TYPE = "inntektsmelding.kontroller.etter.nedetid";
     public static final String KEY_INNTEKTSMELDING_ID = "inntektsmeldingId";
 
     private InntektsmeldingApiMottakTjeneste mottakTjeneste;
