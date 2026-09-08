@@ -285,7 +285,6 @@ public class InntektsmeldingApiMottakTjeneste {
     }
 
     private void settForrigeUtdatertHvisVenterVurdering(ForespørselEntitet forespørsel) {
-        // burde lage en felles kode for å hente siste inntektsmelding
         forespørsel.getInntektsmeldinger().stream()
             .max(java.util.Comparator.comparing(InntektsmeldingEntitet::getOpprettetTidspunkt))
             .filter(im -> InntektsmeldingStatus.VENTER_VURDERING.equals(im.getStatus()))
