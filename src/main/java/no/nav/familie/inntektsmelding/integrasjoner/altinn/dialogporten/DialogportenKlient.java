@@ -105,7 +105,7 @@ public class DialogportenKlient {
 
     public void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String avvistTekst) {
         if (forespørsel.getDialogportenUuid().isEmpty()) {
-            return;
+            throw new IllegalStateException("Forespørsel med uuid " + forespørsel.getUuid() + " har ikke dialogportenUuid, kan ikke sende melding om avvist inntektsmelding");
         }
 
         var patchAvvistInntektsmelding = DialogportenRequestMapper.inntektsmeldingAvvistTransmission(new ArbeidsgiverDto(forespørsel.getOrganisasjonsnummer()), avvistTekst);
