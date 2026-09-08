@@ -19,7 +19,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
-import no.nav.familie.inntektsmelding.imdialog.task.FerdigstillInntektsmeldingEtterNedetidTask;
+import no.nav.familie.inntektsmelding.imdialog.task.KontrollerInntektsmeldingEtterNedetidTask;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
@@ -298,9 +298,9 @@ public class InntektsmeldingApiMottakTjeneste {
     private Long lagreImOgOpprettTaskForEtterkontroll(InntektsmeldingEntitet inntektsmelding, ForespørselEntitet forespørsel) {
         LOG.info("Oppretter task for etterkontroll for inntektsmeling {}", inntektsmelding.getUuid());
         Long imId = inntektsmeldingRepository.lagreInntektsmelding(inntektsmelding);
-        ProsessTaskData task = ProsessTaskData.forProsessTask(FerdigstillInntektsmeldingEtterNedetidTask.class);
+        ProsessTaskData task = ProsessTaskData.forProsessTask(KontrollerInntektsmeldingEtterNedetidTask.class);
         forespørsel.getSaksnummer().ifPresent(task::setSaksnummer);
-        task.setProperty(FerdigstillInntektsmeldingEtterNedetidTask.KEY_INNTEKTSMELDING_ID, imId.toString());
+        task.setProperty(KontrollerInntektsmeldingEtterNedetidTask.KEY_INNTEKTSMELDING_ID, imId.toString());
         prosessTaskTjeneste.lagre(task);
         return imId;
     }

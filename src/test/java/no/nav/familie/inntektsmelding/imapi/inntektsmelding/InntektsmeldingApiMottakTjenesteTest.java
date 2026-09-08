@@ -34,7 +34,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.LpsSystemInfoEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
-import no.nav.familie.inntektsmelding.imdialog.task.FerdigstillInntektsmeldingEtterNedetidTask;
+import no.nav.familie.inntektsmelding.imdialog.task.KontrollerInntektsmeldingEtterNedetidTask;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
@@ -144,7 +144,7 @@ class InntektsmeldingApiMottakTjenesteTest {
         verify(inntektsmeldingRepository).lagreInntektsmelding(any());
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
-        assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(FerdigstillInntektsmeldingEtterNedetidTask.TASK_TYPE);
+        assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(KontrollerInntektsmeldingEtterNedetidTask.TASK_TYPE);
     }
 
     @Test
@@ -271,7 +271,7 @@ class InntektsmeldingApiMottakTjenesteTest {
         verify(inntektsmeldingRepository).lagreInntektsmelding(any());
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
-        assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(FerdigstillInntektsmeldingEtterNedetidTask.TASK_TYPE);
+        assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(KontrollerInntektsmeldingEtterNedetidTask.TASK_TYPE);
     }
 
     @Test

@@ -9,19 +9,19 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = FerdigstillInntektsmeldingEtterNedetidTask.TASK_TYPE)
-public class FerdigstillInntektsmeldingEtterNedetidTask implements ProsessTaskHandler {
-    public static final String TASK_TYPE = "ferdigstill.etter.nedetid";
+@ProsessTask(value = KontrollerInntektsmeldingEtterNedetidTask.TASK_TYPE)
+public class KontrollerInntektsmeldingEtterNedetidTask implements ProsessTaskHandler {
+    public static final String TASK_TYPE = "inntektsmelding.kotroller.etter.nedetid";
     public static final String KEY_INNTEKTSMELDING_ID = "inntektsmeldingId";
 
     private InntektsmeldingApiMottakTjeneste mottakTjeneste;
 
-    FerdigstillInntektsmeldingEtterNedetidTask() {
+    KontrollerInntektsmeldingEtterNedetidTask() {
         // CDI
     }
 
     @Inject
-    public FerdigstillInntektsmeldingEtterNedetidTask(InntektsmeldingApiMottakTjeneste mottakTjeneste) {
+    public KontrollerInntektsmeldingEtterNedetidTask(InntektsmeldingApiMottakTjeneste mottakTjeneste) {
         this.mottakTjeneste = mottakTjeneste;
     }
 
