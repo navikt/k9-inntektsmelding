@@ -296,7 +296,7 @@ public class InntektsmeldingApiMottakTjeneste {
     }
 
     private Long lagreImOgOpprettTaskForEtterkontroll(InntektsmeldingEntitet inntektsmelding, ForespørselEntitet forespørsel) {
-        LOG.info("Lagrer inntektsmelding med status VENTER_VURDERING for ytelse {} og saksnummer {}", inntektsmelding.getYtelsetype(), forespørsel.getSaksnummer().orElse(null));
+        LOG.info("Oppretter task for etterkontroll for inntektsmeling {}", inntektsmelding.getUuid());
         Long imId = inntektsmeldingRepository.lagreInntektsmelding(inntektsmelding);
         ProsessTaskData task = ProsessTaskData.forProsessTask(FerdigstillInntektsmeldingEtterNedetidTask.class);
         forespørsel.getSaksnummer().ifPresent(task::setSaksnummer);
