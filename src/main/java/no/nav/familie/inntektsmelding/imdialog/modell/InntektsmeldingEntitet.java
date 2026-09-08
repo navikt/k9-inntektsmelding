@@ -91,8 +91,8 @@ public class InntektsmeldingEntitet {
     private InntektsmeldingType inntektsmeldingType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private InntektsmeldingStatus status = InntektsmeldingStatus.GODKJENT;
+    @Column(name = "status")
+    private InntektsmeldingStatus status;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
     private List<RefusjonsendringEntitet> refusjonsendringer = new ArrayList<>();
@@ -115,6 +115,7 @@ public class InntektsmeldingEntitet {
 
     InntektsmeldingEntitet() {
         this.uuid = UUID.randomUUID();
+        this.status = InntektsmeldingStatus.VENTER_VURDERING;
     }
 
     public Long getId() {
@@ -205,7 +206,10 @@ public class InntektsmeldingEntitet {
         return status;
     }
 
-    public void setStatus(InntektsmeldingStatus status) {
+    public void oppdaterStatus(InntektsmeldingStatus status) {
+        if (this.status != null && this.status != InntektsmeldingStatus.VENTER_VURDERING) {
+            throw new IllegalArgumentException("Kan ikke endre status fra " + this.status + " til " + status);
+        }
         this.status = status;
     }
 
@@ -377,11 +381,6 @@ public class InntektsmeldingEntitet {
         public Builder medLpsSystemInfo(LpsSystemInfoEntitet lpsSystem) {
             lpsSystem.setInntektsmelding(kladd);
             kladd.lpsSystem = lpsSystem;
-            return this;
-        }
-
-        public Builder medStatus(InntektsmeldingStatus status) {
-            kladd.status = status;
             return this;
         }
 

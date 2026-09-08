@@ -36,6 +36,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.OmsorgspengerEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.PeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.task.FerdigstillInntektsmeldingEtterNedetidTask;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
+import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -78,13 +79,15 @@ class InntektsmeldingApiMottakTjenesteTest {
     private ProsessTaskTjeneste prosessTaskTjeneste;
     @Mock
     private InntektTjeneste inntektTjeneste;
+    @Mock
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     private InntektsmeldingApiMottakTjeneste tjeneste;
 
     @BeforeEach
     void setUp() {
         tjeneste = new InntektsmeldingApiMottakTjeneste(
-            forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste, inntektTjeneste);
+            forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste, inntektTjeneste, inntektsmeldingTjeneste);
     }
 
     @Test

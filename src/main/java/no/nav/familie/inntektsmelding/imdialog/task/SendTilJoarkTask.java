@@ -10,6 +10,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.joark.JoarkTjeneste;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -54,6 +55,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
         String xml = inntektsmeldingXMLTjeneste.lagXMLAvInntektsmelding(inntektsmelding);
         byte[] pdf = k9DokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);
 
+        inntektsmeldingTjeneste.oppdaterInntektsmeldingStatus(inntektsmelding.getUuid(), InntektsmeldingStatus.GODKJENT);
         joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf, saksnummer);
         LOG.info("Sluttfører task oversendJoark");
     }

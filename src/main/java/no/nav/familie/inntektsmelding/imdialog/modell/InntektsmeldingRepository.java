@@ -50,7 +50,7 @@ public class InntektsmeldingRepository {
     public void oppdaterStatus(UUID inntektsmeldingUuid, InntektsmeldingStatus status) {
         var entitet = hentInntektsmeldingForUuid(inntektsmeldingUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke inntektsmelding for uuid " + inntektsmeldingUuid));
-        entitet.setStatus(status);
+        entitet.oppdaterStatus(status);
         entityManager.flush();
     }
 

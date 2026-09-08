@@ -28,6 +28,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.modell.KontaktpersonEntitet;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
+import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
@@ -60,6 +61,8 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
     private ProsessTaskTjeneste prosessTaskTjeneste;
     @Mock
     private InntektTjeneste inntektTjeneste;
+    @Mock
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     private InntektsmeldingApiMottakTjeneste tjeneste;
     private ForespørselEntitet forespørsel;
@@ -68,7 +71,7 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
     @BeforeEach
     void setUp() {
         tjeneste = new InntektsmeldingApiMottakTjeneste(
-            forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste, inntektTjeneste);
+            forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste, inntektTjeneste, inntektsmeldingTjeneste);
         forespørsel = ForespørselEntitet.builder()
             .medOrganisasjonsnummer(ORGNR)
             .medSkjæringstidspunkt(STARTDATO)
@@ -82,7 +85,7 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
 
     @Test
     void utdatert_im_hoppes_over() {
-        imEntitet.setStatus(InntektsmeldingStatus.UTDATERT);
+        imEntitet.oppdaterStatus(InntektsmeldingStatus.UTDATERT);
 
         tjeneste.kontrollerInntektsmeldingEtterNedetid(ETTERKONTROLL_IM_ID);
 
@@ -189,7 +192,6 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
             .medEndringsårsaker(endringsårsaker)
             .medBortfaltNaturalytelser(List.of())
             .medRefusjonsendringer(List.of())
-            .medStatus(InntektsmeldingStatus.VENTER_VURDERING)
             .medForespørsel(forespørsel)
             .build();
     }

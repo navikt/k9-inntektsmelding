@@ -21,6 +21,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.task.FerdigstillInntektsmeldingEtterNedetidTask;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
+import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -48,6 +49,7 @@ public class InntektsmeldingApiMottakTjeneste {
     private InntektsmeldingRepository inntektsmeldingRepository;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private InntektTjeneste inntektTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     InntektsmeldingApiMottakTjeneste() {
         // CDI
@@ -57,11 +59,13 @@ public class InntektsmeldingApiMottakTjeneste {
     public InntektsmeldingApiMottakTjeneste(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
                                             InntektsmeldingRepository inntektsmeldingRepository,
                                             ProsessTaskTjeneste prosessTaskTjeneste,
-                                            InntektTjeneste inntektTjeneste) {
+                                            InntektTjeneste inntektTjeneste,
+                                            InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.inntektsmeldingRepository = inntektsmeldingRepository;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.inntektTjeneste = inntektTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     public SendInntektsmeldingResponse mottaInntektsmelding(SendInntektsmeldingRequest request, AktørIdEntitet aktørId) {
@@ -107,7 +111,6 @@ public class InntektsmeldingApiMottakTjeneste {
             request.foresporselUuid());
         if (inntektFeil.isPresent()) {
             if (FeilkodeDto.NEDETID_AINNTEKT.equals(inntektFeil.get().feilkode())) {
-                nyIm.setStatus(InntektsmeldingStatus.VENTER_VURDERING);
                 Long imId = lagreImOgOpprettTaskForEtterkontroll(nyIm, forespørsel);
                 var lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
                 return new SendInntektsmeldingResponse(true, lagretEntitet.getUuid(), inntektFeil.get());
@@ -176,7 +179,6 @@ public class InntektsmeldingApiMottakTjeneste {
             forespørselUuid);
         if (inntektFeil.isPresent()) {
             if (FeilkodeDto.NEDETID_AINNTEKT.equals(inntektFeil.get().feilkode())) {
-                nyIm.setStatus(InntektsmeldingStatus.VENTER_VURDERING);
                 Long imId = lagreImOgOpprettTaskForEtterkontroll(nyIm, forespørsel);
                 var lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
                 return new SendRefusjonOmsorgspengerResponse(true, lagretEntitet.getUuid(), inntektFeil.get());
@@ -254,7 +256,6 @@ public class InntektsmeldingApiMottakTjeneste {
             forespørsel.getYtelseType());
 
         if (inntektFraAInntekt.harNedetid()) {
-            inntektsmeldingRepository.oppdaterStatus(inntektsmelding.getUuid(), InntektsmeldingStatus.VENTER_VURDERING);
             // Kaster feil som fører til at vi vil opprette en ny prosesstask som retryer
             throw new TekniskException("K9INNTEKTSMELDING_NEDETID_1", "Nedetid i a-inntekt, får ikke ferdigstilt inntektsmelding " + inntektsmeldingId);
         }
@@ -264,13 +265,12 @@ public class InntektsmeldingApiMottakTjeneste {
             && (inntektsmelding.getEndringsårsaker() == null || inntektsmelding.getEndringsårsaker().isEmpty());
 
         if (inntektErUgyldig) {
-            inntektsmeldingRepository.oppdaterStatus(inntektsmelding.getUuid(), InntektsmeldingStatus.AVVIST);
+            inntektsmeldingTjeneste.oppdaterInntektsmeldingStatus(inntektsmelding.getUuid(), InntektsmeldingStatus.AVVIST);
             var feilmelding = String.format(
                 "Inntekt i inntektsmelding er ulik inntekt fra A-inntekt, og ingen endringsårsak er oppgitt. Gjennomsnittlig inntekt fra A-inntekt: %s, oppgitt inntekt: %s",
                 inntektFraAInntekt.gjennomsnitt(), inntektsmelding.getMånedInntekt());
             forespørselBehandlingTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
         } else {
-            inntektsmeldingRepository.oppdaterStatus(inntektsmelding.getUuid(), InntektsmeldingStatus.GODKJENT);
             opprettTaskForSendTilJoark(inntektsmelding, forespørsel, inntektsmeldingId);
             OrganisasjonsnummerDto orgnummer = new OrganisasjonsnummerDto(inntektsmelding.getArbeidsgiverIdent());
             if (ForespørselStatus.FERDIG.equals(forespørsel.getStatus())) {
@@ -291,7 +291,7 @@ public class InntektsmeldingApiMottakTjeneste {
             .filter(im -> InntektsmeldingStatus.VENTER_VURDERING.equals(im.getStatus()))
             .ifPresent(im -> {
                 LOG.info("Forrige inntektsmelding {} venter på vurdering. Setter status utdatert.", im.getUuid());
-                inntektsmeldingRepository.oppdaterStatus(im.getUuid(), InntektsmeldingStatus.UTDATERT);
+                inntektsmeldingTjeneste.oppdaterInntektsmeldingStatus(im.getUuid(), InntektsmeldingStatus.UTDATERT);
             });
     }
 
