@@ -16,9 +16,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask("dialogporten.sendMeldingOmAvvistInntektsmelding")
+@ProsessTask(value = SendMeldingOmAvvistInntektsmeldingTask.TASK_TYPE)
 public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SendMeldingOmAvvistInntektsmeldingTask.class);
+    public static final String TASK_TYPE = "dialogporten.send.avvist.melding";
 
     public static final String FORESPØRSEL_UUID = "forespoerselUuid";
 
