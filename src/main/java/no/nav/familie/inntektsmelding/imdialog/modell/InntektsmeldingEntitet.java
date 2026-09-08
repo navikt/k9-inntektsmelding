@@ -207,6 +207,9 @@ public class InntektsmeldingEntitet {
     }
 
     public void oppdaterStatus(InntektsmeldingStatus status) {
+        if (this.status == status) {
+            return;
+        }
         if (this.status != null && this.status != InntektsmeldingStatus.VENTER_VURDERING) {
             throw new IllegalArgumentException("Kan ikke endre status fra " + this.status + " til " + status);
         }
