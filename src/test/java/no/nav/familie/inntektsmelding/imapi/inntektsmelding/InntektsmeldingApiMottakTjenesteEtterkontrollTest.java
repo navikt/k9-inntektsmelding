@@ -89,22 +89,20 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
 
         tjeneste.kontrollerInntektsmeldingEtterNedetid(ETTERKONTROLL_IM_ID);
 
-        verifyNoInteractions(inntektTjeneste, prosessTaskTjeneste, forespørselBehandlingTjeneste);
-        verify(inntektsmeldingRepository, never()).oppdaterStatus(any(), any());
+        verifyNoInteractions(inntektTjeneste, prosessTaskTjeneste, forespørselBehandlingTjeneste, inntektsmeldingTjeneste);
     }
 
     @Test
-    void nedetid_setter_venter_vurdering_og_kaster_exception() {
+    void nedetid_kaster_exception_og_status_forblir_venter_vurdering() {
         when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(lagInntektsopplysningerMedNedetid());
-        var statusCaptor = ArgumentCaptor.forClass(InntektsmeldingStatus.class);
 
         assertThrows(TekniskException.class,
             () -> tjeneste.kontrollerInntektsmeldingEtterNedetid(ETTERKONTROLL_IM_ID));
 
-        verify(inntektsmeldingRepository).oppdaterStatus(any(), statusCaptor.capture());
-        assertThat(statusCaptor.getValue()).isEqualTo(InntektsmeldingStatus.VENTER_VURDERING);
-        verifyNoInteractions(prosessTaskTjeneste, forespørselBehandlingTjeneste);
+        // Ingen eksplisitt statusoppdatering skjer ved nedetid - status er allerede VENTER_VURDERING fra opprettelse
+        verifyNoInteractions(inntektsmeldingTjeneste, prosessTaskTjeneste, forespørselBehandlingTjeneste);
+        assertThat(imEntitet.getStatus()).isEqualTo(InntektsmeldingStatus.VENTER_VURDERING);
     }
 
     @Test
@@ -112,30 +110,27 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
         // diff = |60100 - 50000| = 10100 > 50 (AKSEPTERT_AVVIK), ingen endringsårsaker
         when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(new Inntektsopplysninger(new BigDecimal("60100"), ORGNR, List.of()));
-        var statusCaptor = ArgumentCaptor.forClass(InntektsmeldingStatus.class);
 
         tjeneste.kontrollerInntektsmeldingEtterNedetid(ETTERKONTROLL_IM_ID);
 
-        verify(inntektsmeldingRepository).oppdaterStatus(any(), statusCaptor.capture());
-        assertThat(statusCaptor.getValue()).isEqualTo(InntektsmeldingStatus.AVVIST);
+        verify(inntektsmeldingTjeneste).oppdaterInntektsmeldingStatus(imEntitet.getUuid(), InntektsmeldingStatus.AVVIST);
         verify(forespørselBehandlingTjeneste).sendMeldingOmAvvistInntektsmelding(eq(forespørsel), any());
         verifyNoInteractions(prosessTaskTjeneste);
     }
 
     @Test
-    void ugyldig_inntekt_med_årsak_godkjennes() {
-        // diff = 10100 > 50, men endringsårsak er oppgitt → skal godkjennes
+    void ugyldig_inntekt_med_årsak_oppretter_joark_task_uten_synkron_statusendring() {
+        // diff = 10100 > 50, men endringsårsak er oppgitt → skal ikke avvises
         var årsak = EndringsårsakEntitet.builder().medÅrsak(Endringsårsak.BONUS).build();
         when(inntektsmeldingRepository.hentInntektsmelding(ETTERKONTROLL_IM_ID))
             .thenReturn(lagImEntitet(List.of(årsak)));
         when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(new Inntektsopplysninger(new BigDecimal("60100"), ORGNR, List.of()));
-        var statusCaptor = ArgumentCaptor.forClass(InntektsmeldingStatus.class);
 
         tjeneste.kontrollerInntektsmeldingEtterNedetid(ETTERKONTROLL_IM_ID);
 
-        verify(inntektsmeldingRepository).oppdaterStatus(any(), statusCaptor.capture());
-        assertThat(statusCaptor.getValue()).isEqualTo(InntektsmeldingStatus.GODKJENT);
+        // Status settes ikke synkront - det gjøres først når SendTilJoarkTask kjører
+        verify(inntektsmeldingTjeneste, never()).oppdaterInntektsmeldingStatus(any(), any());
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(SendTilJoarkTask.TASK_TYPE);
@@ -143,15 +138,13 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
     }
 
     @Test
-    void gyldig_inntekt_ferdigstiller_åpen_forespørsel() {
+    void gyldig_inntekt_oppretter_joark_task_og_ferdigstiller_åpen_forespørsel() {
         when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(new Inntektsopplysninger(INNTEKT, ORGNR, List.of()));
-        var statusCaptor = ArgumentCaptor.forClass(InntektsmeldingStatus.class);
 
         tjeneste.kontrollerInntektsmeldingEtterNedetid(ETTERKONTROLL_IM_ID);
 
-        verify(inntektsmeldingRepository).oppdaterStatus(any(), statusCaptor.capture());
-        assertThat(statusCaptor.getValue()).isEqualTo(InntektsmeldingStatus.GODKJENT);
+        verify(inntektsmeldingTjeneste, never()).oppdaterInntektsmeldingStatus(any(), any());
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(SendTilJoarkTask.TASK_TYPE);
@@ -160,16 +153,14 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
     }
 
     @Test
-    void gyldig_inntekt_oppdaterer_portaler_ved_ferdig_forespørsel() {
+    void gyldig_inntekt_oppretter_joark_task_og_oppdaterer_portaler_ved_ferdig_forespørsel() {
         forespørsel.setStatus(ForespørselStatus.FERDIG);
         when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(new Inntektsopplysninger(INNTEKT, ORGNR, List.of()));
-        var statusCaptor = ArgumentCaptor.forClass(InntektsmeldingStatus.class);
 
         tjeneste.kontrollerInntektsmeldingEtterNedetid(ETTERKONTROLL_IM_ID);
 
-        verify(inntektsmeldingRepository).oppdaterStatus(any(), statusCaptor.capture());
-        assertThat(statusCaptor.getValue()).isEqualTo(InntektsmeldingStatus.GODKJENT);
+        verify(inntektsmeldingTjeneste, never()).oppdaterInntektsmeldingStatus(any(), any());
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(SendTilJoarkTask.TASK_TYPE);
