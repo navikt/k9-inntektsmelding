@@ -19,6 +19,8 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.OrganisasjonDto;
+import no.nav.familie.inntektsmelding.integrasjoner.aareg.ArbeidsforholdTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.aareg.ArbeidstakerTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
@@ -29,8 +31,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidsforholdTjeneste;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.ArbeidstakerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.InnsenderDto;
 import no.nav.familie.inntektsmelding.typer.dto.InntektsopplysningerDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;

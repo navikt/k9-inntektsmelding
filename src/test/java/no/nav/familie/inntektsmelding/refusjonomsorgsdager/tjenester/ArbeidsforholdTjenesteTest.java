@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.AaregRestKlient;
+import no.nav.familie.inntektsmelding.integrasjoner.aareg.ArbeidsforholdTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.OpplysningspliktigArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;

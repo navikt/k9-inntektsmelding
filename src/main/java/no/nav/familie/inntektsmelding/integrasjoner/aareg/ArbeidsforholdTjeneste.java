@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester;
+package no.nav.familie.inntektsmelding.integrasjoner.aareg;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -10,10 +10,8 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.familie.inntektsmelding.integrasjoner.aareg.AaregRestKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.dto.OpplysningspliktigArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped

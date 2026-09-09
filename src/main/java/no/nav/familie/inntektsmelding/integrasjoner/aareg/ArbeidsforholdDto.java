@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest;
+package no.nav.familie.inntektsmelding.integrasjoner.aareg;
 
 import java.time.LocalDate;
 

@@ -1,4 +1,4 @@
-package no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester;
+package no.nav.familie.inntektsmelding.integrasjoner.aareg;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnTilgangTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
-import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.ArbeidsforholdDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 
 @ApplicationScoped
