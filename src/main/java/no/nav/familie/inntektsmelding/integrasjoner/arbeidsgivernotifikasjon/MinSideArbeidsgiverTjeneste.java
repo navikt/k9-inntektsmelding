@@ -3,6 +3,8 @@ package no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon;
 import java.net.URI;
 import java.time.OffsetDateTime;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+
 public interface MinSideArbeidsgiverTjeneste {
 
     String opprettSak(String grupperingsid, Merkelapp merkelapp, String virksomhetsnummer, String saksTittel, URI lenke);
@@ -38,4 +40,6 @@ public interface MinSideArbeidsgiverTjeneste {
                                       String virksomhetsnummer,
                                       String beskjedTekst,
                                       URI kvitteringLenke);
+
+    void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String feilmelding);
 }

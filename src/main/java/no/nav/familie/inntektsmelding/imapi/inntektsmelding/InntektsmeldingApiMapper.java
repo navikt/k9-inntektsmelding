@@ -21,6 +21,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingStatus;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
@@ -124,9 +125,17 @@ class InntektsmeldingApiMapper {
             mapRefusjonsendringerTilKontrakt(inntektsmelding),
             mapBortfalteNaturalytelserTilKontrakt(inntektsmelding.getBorfalteNaturalYtelser()),
             mapEndringsårsakerTilKontrakt(inntektsmelding.getEndringsårsaker()),
-            InntektsmeldingStatusDto.GODKJENT,
+            mapStatusTilKontrakt(inntektsmelding.getStatus()),
             mapOmsorgspengerTilKontrakt(inntektsmelding.getOmsorgspenger())
         );
+    }
+
+    private static InntektsmeldingStatusDto mapStatusTilKontrakt(InntektsmeldingStatus status) {
+        return switch (status) {
+            case GODKJENT -> InntektsmeldingStatusDto.GODKJENT;
+            case VENTER_VURDERING, UTDATERT -> InntektsmeldingStatusDto.MOTTATT;
+            case AVVIST -> InntektsmeldingStatusDto.AVVIST;
+        };
     }
 
     private static KontaktpersonDto mapKontaktperson(InntektsmeldingEntitet inntektsmelding) {

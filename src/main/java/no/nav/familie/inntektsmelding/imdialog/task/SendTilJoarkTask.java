@@ -10,14 +10,16 @@ import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.joark.JoarkTjeneste;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = "mottaInntektsmelding.oversendJoark")
+@ProsessTask(value = SendTilJoarkTask.TASK_TYPE)
 public class SendTilJoarkTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SendTilJoarkTask.class);
+    public static final String TASK_TYPE = "mottaInntektsmelding.oversendJoark";
     public static final String KEY_INNTEKTSMELDING_ID = "inntektsmeldingId";
     public static final String KEY_YTELSE_TYPE = "ytelseType";
 
@@ -54,6 +56,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
         byte[] pdf = k9DokgenTjeneste.mapDataOgGenererPdf(inntektsmelding);
 
         joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf, saksnummer);
+        inntektsmeldingTjeneste.oppdaterInntektsmeldingStatus(inntektsmelding.getUuid(), InntektsmeldingStatus.GODKJENT);
         LOG.info("Sluttfører task oversendJoark");
     }
 }

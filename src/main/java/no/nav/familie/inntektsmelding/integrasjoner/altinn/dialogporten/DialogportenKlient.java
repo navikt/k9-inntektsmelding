@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnExchangeTokenKlient;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -100,6 +101,15 @@ public class DialogportenKlient {
             arbeidsgiverportalSkjemaLenke,
             hentInntektsmeldingApiLenke);
         sendPatchRequest(dialogUuid, patchRequestInnsendt);
+    }
+
+    public void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String avvistTekst) {
+        if (forespørsel.getDialogportenUuid().isEmpty()) {
+            throw new IllegalStateException("Forespørsel med uuid " + forespørsel.getUuid() + " har ikke dialogportenUuid, kan ikke sende melding om avvist inntektsmelding");
+        }
+
+        var patchAvvistInntektsmelding = DialogportenRequestMapper.inntektsmeldingAvvistTransmission(new ArbeidsgiverDto(forespørsel.getOrganisasjonsnummer()), avvistTekst);
+        sendPatchRequest(forespørsel.getDialogportenUuid().get(), List.of(patchAvvistInntektsmelding));
     }
 
     public void settDialogTilUtgått(UUID dialogUuid, String sakstittel) {

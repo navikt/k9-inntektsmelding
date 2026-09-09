@@ -19,13 +19,15 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
+import no.nav.familie.inntektsmelding.imdialog.task.KontrollerInntektsmeldingEtterNedetidTask;
 import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
+import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
-import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.k9.inntektsmelding.felles.FeilInfo;
@@ -34,6 +36,7 @@ import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingReques
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerRequest;
 import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspengerResponse;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
@@ -46,6 +49,7 @@ public class InntektsmeldingApiMottakTjeneste {
     private InntektsmeldingRepository inntektsmeldingRepository;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private InntektTjeneste inntektTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     InntektsmeldingApiMottakTjeneste() {
         // CDI
@@ -55,11 +59,13 @@ public class InntektsmeldingApiMottakTjeneste {
     public InntektsmeldingApiMottakTjeneste(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
                                             InntektsmeldingRepository inntektsmeldingRepository,
                                             ProsessTaskTjeneste prosessTaskTjeneste,
-                                            InntektTjeneste inntektTjeneste) {
+                                            InntektTjeneste inntektTjeneste,
+                                            InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.inntektsmeldingRepository = inntektsmeldingRepository;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.inntektTjeneste = inntektTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     public SendInntektsmeldingResponse mottaInntektsmelding(SendInntektsmeldingRequest request, AktørIdEntitet aktørId) {
@@ -93,6 +99,8 @@ public class InntektsmeldingApiMottakTjeneste {
                     sisteIm.getUuid().toString()));
         }
 
+        settForrigeUtdatertHvisVenterVurdering(forespørsel);
+
         Optional<FeilInfo> inntektFeil = sjekkInntektMotRapportertInntekt(
             aktørId,
             request.organisasjonsnummer().orgnr(),
@@ -102,6 +110,11 @@ public class InntektsmeldingApiMottakTjeneste {
             nyIm.getEndringsårsaker() != null && !nyIm.getEndringsårsaker().isEmpty(),
             request.foresporselUuid());
         if (inntektFeil.isPresent()) {
+            if (FeilkodeDto.NEDETID_AINNTEKT.equals(inntektFeil.get().feilkode())) {
+                Long imId = lagreImOgOpprettTaskForEtterkontroll(nyIm, forespørsel);
+                var lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
+                return new SendInntektsmeldingResponse(true, lagretEntitet.getUuid(), inntektFeil.get());
+            }
             return new SendInntektsmeldingResponse(false, null, inntektFeil.get());
         }
 
@@ -126,18 +139,6 @@ public class InntektsmeldingApiMottakTjeneste {
     public SendRefusjonOmsorgspengerResponse mottaInntektsmeldingForOmsorgspengerRefusjon(SendRefusjonOmsorgspengerRequest request,
                                                                                           AktørIdEntitet aktørId) {
         var orgnummer = new OrganisasjonsnummerDto(request.organisasjonsnummer().orgnr());
-
-        Optional<FeilInfo> inntektFeil = sjekkInntektMotRapportertInntekt(
-            aktørId,
-            request.organisasjonsnummer().orgnr(),
-            request.startdato(),
-            Ytelsetype.OMSORGSPENGER,
-            request.inntekt(),
-            request.endringAvInntektÅrsaker() != null && !request.endringAvInntektÅrsaker().isEmpty(),
-            null);
-        if (inntektFeil.isPresent()) {
-            return new SendRefusjonOmsorgspengerResponse(false, null, inntektFeil.get());
-        }
 
         var forespørselUuid = forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(aktørId, orgnummer, request.startdato());
 
@@ -166,6 +167,25 @@ public class InntektsmeldingApiMottakTjeneste {
                     sisteIm.getUuid().toString()));
         }
 
+        settForrigeUtdatertHvisVenterVurdering(forespørsel);
+
+        Optional<FeilInfo> inntektFeil = sjekkInntektMotRapportertInntekt(
+            aktørId,
+            request.organisasjonsnummer().orgnr(),
+            request.startdato(),
+            Ytelsetype.OMSORGSPENGER,
+            request.inntekt(),
+            request.endringAvInntektÅrsaker() != null && !request.endringAvInntektÅrsaker().isEmpty(),
+            forespørselUuid);
+        if (inntektFeil.isPresent()) {
+            if (FeilkodeDto.NEDETID_AINNTEKT.equals(inntektFeil.get().feilkode())) {
+                Long imId = lagreImOgOpprettTaskForEtterkontroll(nyIm, forespørsel);
+                var lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
+                return new SendRefusjonOmsorgspengerResponse(true, lagretEntitet.getUuid(), inntektFeil.get());
+            }
+            return new SendRefusjonOmsorgspengerResponse(false, null, inntektFeil.get());
+        }
+
         Long imId = lagreOgLagJournalførTask(nyIm, forespørsel);
         forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, aktørId, orgnummer, LukkeÅrsak.ORDINÆR_INNSENDING, Optional.of(nyIm));
 
@@ -184,10 +204,7 @@ public class InntektsmeldingApiMottakTjeneste {
                                                                 UUID forespørselUuid) {
         Inntektsopplysninger inntektFraAInntekt = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(), orgnr, ytelseType);
 
-        boolean nedetidAInntekt = inntektFraAInntekt.måneder() != null && inntektFraAInntekt.måneder().stream()
-            .anyMatch(m -> MånedslønnStatus.NEDETID_AINNTEKT.equals(m.status()));
-
-        if (nedetidAInntekt) {
+        if (inntektFraAInntekt.harNedetid()) {
             LOG.warn("Inntektskomponenten har nedetid. ForespørselUuid: {}", forespørselUuid);
             return Optional.of(new FeilInfo(FeilkodeDto.NEDETID_AINNTEKT,
                 "Inntektskomponenten har nedetid, og vi kan ikke verifisere inntekt. Prøv igjen om litt.",
@@ -219,6 +236,70 @@ public class InntektsmeldingApiMottakTjeneste {
             && new HashSet<>(ny.getRefusjonsendringer()).equals(new HashSet<>(gammel.getRefusjonsendringer()))
             && new HashSet<>(ny.getEndringsårsaker()).equals(new HashSet<>(gammel.getEndringsårsaker()))
             && Objects.equals(ny.getOmsorgspenger(), gammel.getOmsorgspenger());
+    }
+
+    public void kontrollerInntektsmeldingEtterNedetid(Long inntektsmeldingId) {
+        var inntektsmelding = inntektsmeldingRepository.hentInntektsmelding(inntektsmeldingId);
+        if (InntektsmeldingStatus.UTDATERT.equals(inntektsmelding.getStatus())) {
+            LOG.info("Inntektsmelding {} er utdatert, hopper over etterkontroll etter nedetid", inntektsmelding.getUuid());
+            return;
+        }
+
+        var forespørsel = inntektsmelding.getForespørsel();
+        Inntektsopplysninger inntektFraAInntekt = inntektTjeneste.hentInntekt(
+            inntektsmelding.getAktørId(),
+            forespørsel.getSkjæringstidspunkt(),
+            LocalDate.now(),
+            inntektsmelding.getArbeidsgiverIdent(),
+            forespørsel.getYtelseType());
+
+        if (inntektFraAInntekt.harNedetid()) {
+            // Kaster feil som fører til at vi vil opprette en ny prosesstask som retryer
+            throw new TekniskException("K9INNTEKTSMELDING_NEDETID_1", "Nedetid i a-inntekt, får ikke ferdigstilt inntektsmelding " + inntektsmeldingId);
+        }
+
+        boolean inntektErUgyldig = inntektFraAInntekt.gjennomsnitt() != null
+            && inntektFraAInntekt.gjennomsnitt().subtract(inntektsmelding.getMånedInntekt()).abs().compareTo(AKSEPTERT_AVVIK) > 0
+            && (inntektsmelding.getEndringsårsaker() == null || inntektsmelding.getEndringsårsaker().isEmpty());
+
+        if (inntektErUgyldig) {
+            inntektsmeldingTjeneste.oppdaterInntektsmeldingStatus(inntektsmelding.getUuid(), InntektsmeldingStatus.AVVIST);
+            var feilmelding = String.format(
+                "Inntekt i inntektsmelding er ulik inntekt fra A-inntekt, og ingen endringsårsak er oppgitt. Gjennomsnittlig inntekt fra A-inntekt: %s, oppgitt inntekt: %s",
+                inntektFraAInntekt.gjennomsnitt(), inntektsmelding.getMånedInntekt());
+            forespørselBehandlingTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
+        } else {
+            opprettTaskForSendTilJoark(inntektsmelding, forespørsel, inntektsmeldingId);
+            OrganisasjonsnummerDto orgnummer = new OrganisasjonsnummerDto(inntektsmelding.getArbeidsgiverIdent());
+            if (ForespørselStatus.FERDIG.equals(forespørsel.getStatus())) {
+                forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(
+                    forespørsel, orgnummer, Optional.ofNullable(inntektsmelding.getUuid()));
+            } else {
+                forespørselBehandlingTjeneste.ferdigstillForespørsel(
+                    forespørsel.getUuid(), inntektsmelding.getAktørId(), orgnummer, LukkeÅrsak.ORDINÆR_INNSENDING, Optional.of(inntektsmelding));
+            }
+            MetrikkerTjeneste.loggInnsendtInntektsmelding(inntektsmelding);
+        }
+    }
+
+    private void settForrigeUtdatertHvisVenterVurdering(ForespørselEntitet forespørsel) {
+        forespørsel.getInntektsmeldinger().stream()
+            .max(java.util.Comparator.comparing(InntektsmeldingEntitet::getOpprettetTidspunkt))
+            .filter(im -> InntektsmeldingStatus.VENTER_VURDERING.equals(im.getStatus()))
+            .ifPresent(im -> {
+                LOG.info("Forrige inntektsmelding {} venter på vurdering. Setter status utdatert.", im.getUuid());
+                inntektsmeldingTjeneste.oppdaterInntektsmeldingStatus(im.getUuid(), InntektsmeldingStatus.UTDATERT);
+            });
+    }
+
+    private Long lagreImOgOpprettTaskForEtterkontroll(InntektsmeldingEntitet inntektsmelding, ForespørselEntitet forespørsel) {
+        LOG.info("Oppretter task for etterkontroll for inntektsmelding {}", inntektsmelding.getUuid());
+        Long imId = inntektsmeldingRepository.lagreInntektsmelding(inntektsmelding);
+        ProsessTaskData task = ProsessTaskData.forProsessTask(KontrollerInntektsmeldingEtterNedetidTask.class);
+        forespørsel.getSaksnummer().ifPresent(task::setSaksnummer);
+        task.setProperty(KontrollerInntektsmeldingEtterNedetidTask.KEY_INNTEKTSMELDING_ID, imId.toString());
+        prosessTaskTjeneste.lagre(task);
+        return imId;
     }
 
     private Long lagreOgLagJournalførTask(InntektsmeldingEntitet inntektsmelding, ForespørselEntitet forespørsel) {

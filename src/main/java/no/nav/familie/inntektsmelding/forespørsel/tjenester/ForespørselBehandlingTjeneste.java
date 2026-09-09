@@ -28,6 +28,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.kvittering.PdfDokumentRest;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SendMeldingOmAvvistInntektsmeldingTask;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
@@ -674,5 +675,15 @@ public class ForespørselBehandlingTjeneste {
 
     private URI lagUriForInntektsmeldingOppsummering(UUID forespørselUuid) {
         return URI.create(arbeidsgiverportalSkjemaLenke + "/" + forespørselUuid);
+    }
+
+    public void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String feilmelding) {
+        // Send melding til fager
+        minSideArbeidsgiverTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
+
+        // Send melding til dialogporten
+        if (dialogportenEnabled) {
+            prosessTaskTjeneste.lagre(SendMeldingOmAvvistInntektsmeldingTask.lagTaskData(forespørsel.getUuid(), feilmelding));
+        }
     }
 }

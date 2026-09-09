@@ -46,7 +46,7 @@ public record DialogportenRequest(@NotNull String serviceResource,
         PATCH,
     }
 
-    protected record Transmission(@NotNull TransmissionType type, ExtendedType extendedType, Sender sender, Content content, List<Attachment> attachments) {
+    protected record Transmission(@NotNull TransmissionType type, TransmissionExtendedType extendedType, Sender sender, Content content, List<Attachment> attachments) {
     }
 
     enum TransmissionType {
@@ -68,10 +68,10 @@ public record DialogportenRequest(@NotNull String serviceResource,
         Correction
     }
 
-    enum ExtendedType {
-        SYKMELDING,
-        SYKEPENGESOEKNAD,
-        INNTEKTSMELDING,
+    enum TransmissionExtendedType {
+        INNTEKTSMELDING_AVVIST,
+        INNTEKTSMELDING_GODKJENT,
+        INNTEKTSMELDING
     }
 
     // actorType er enten "ServiceOwner" eller "PartyRepresentative". Hvis "PartyRepresentative" må actorId være satt

@@ -15,6 +15,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingResponseDto;
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingStatus;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -81,6 +82,10 @@ public class InntektsmeldingTjeneste {
         return inntektsmeldinger.stream()
             .map(im -> InntektsmeldingMapper.mapFraEntitet(im, førsteForespørsel.get().getUuid()))
             .toList();
+    }
+
+    public void oppdaterInntektsmeldingStatus(UUID inntektsmeldingUuid, InntektsmeldingStatus status) {
+        inntektsmeldingRepository.oppdaterStatus(inntektsmeldingUuid, status);
     }
 
     public byte[] hentPDF(long id) {
