@@ -232,8 +232,6 @@ public class InntektsmeldingApiMottakTjeneste {
             && Objects.equals(ny.getMånedInntekt(), gammel.getMånedInntekt())
             && Objects.equals(ny.getMånedRefusjon(), gammel.getMånedRefusjon())
             && Objects.equals(ny.getOpphørsdatoRefusjon(), gammel.getOpphørsdatoRefusjon())
-            && Objects.equals(ny.getKontaktperson().getNavn(), gammel.getKontaktperson().getNavn())
-            && Objects.equals(ny.getKontaktperson().getTelefonnummer(), gammel.getKontaktperson().getTelefonnummer())
             && new HashSet<>(ny.getBorfalteNaturalYtelser()).equals(new HashSet<>(gammel.getBorfalteNaturalYtelser()))
             && new HashSet<>(ny.getRefusjonsendringer()).equals(new HashSet<>(gammel.getRefusjonsendringer()))
             && new HashSet<>(ny.getEndringsårsaker()).equals(new HashSet<>(gammel.getEndringsårsaker()))
