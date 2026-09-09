@@ -91,7 +91,7 @@ public class InntektsmeldingEntitet {
     private InntektsmeldingType inntektsmeldingType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private InntektsmeldingStatus status;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "inntektsmelding")
@@ -210,7 +210,7 @@ public class InntektsmeldingEntitet {
         if (this.status == status) {
             return;
         }
-        if (this.status != null && this.status != InntektsmeldingStatus.VENTER_VURDERING) {
+        if (this.status != InntektsmeldingStatus.VENTER_VURDERING) {
             throw new IllegalArgumentException("Kan ikke endre status fra " + this.status + " til " + status);
         }
         this.status = status;
