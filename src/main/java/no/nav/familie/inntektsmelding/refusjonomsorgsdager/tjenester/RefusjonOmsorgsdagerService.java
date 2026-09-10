@@ -123,7 +123,7 @@ public class RefusjonOmsorgsdagerService {
             throw new FunksjonellException("PERSON_IKKE_FUNNET", "Fant ikke person i pdl", null, null);
         }
 
-        var inntekt = inntektTjeneste.hentInntekt(personInfo.aktørId(), skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, Ytelsetype.OMSORGSPENGER);
+        var inntekt = inntektTjeneste.hentInntekt(personInfo, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, Ytelsetype.OMSORGSPENGER);
         var inntekterPerMåned = inntekt.måneder()
             .stream()
             .map(i -> new HentInntektsopplysningerResponse.MånedsinntektDto(i.månedÅr().atDay(1),

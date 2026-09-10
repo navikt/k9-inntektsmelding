@@ -18,8 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
+import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.k9.inntektsmelding.felles.AvsenderSystemDto;
 import no.nav.k9.inntektsmelding.felles.FeilkodeDto;
@@ -42,6 +45,9 @@ import no.nav.k9.inntektsmelding.imapi.inntektsmelding.SendRefusjonOmsorgspenger
 class InntektsmeldingApiRestTest {
     private static final String ORGNUMMER = "974760673";
     private static final String FNR = "11111111111";
+    private static final AktørIdEntitet AKTØR_ID = new AktørIdEntitet("1234567890123");
+    private static final PersonIdent PERSON_IDENT = new PersonIdent(FNR);
+    private static final PersonInfo PERSON_INFO = new PersonInfo("Ola", "Kari","Nordmann", new PersonIdent("12345678901"), new AktørIdEntitet(AKTØR_ID.getAktørId()), LocalDate.of(1990, 1, 1), "99887766", Kjønn.MANN);
 
     private InntektsmeldingApiRest inntektsmeldingApiRest;
     @Mock
@@ -85,18 +91,17 @@ class InntektsmeldingApiRestTest {
     void skal_sende_inntektsmelding_ok() {
         var forespørselUuid = UUID.randomUUID();
         var inntektsmeldingUuid = UUID.randomUUID();
-        var aktørId = new AktørIdEntitet("1234567890123");
         var request = lagSendInntektsmeldingRequest(forespørselUuid);
         var forventetSvar = new SendInntektsmeldingResponse(true, inntektsmeldingUuid, null);
 
-        when(personTjeneste.finnAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(aktørId));
-        when(mottakTjeneste.mottaInntektsmelding(request, aktørId)).thenReturn(forventetSvar);
+        when(personTjeneste.hentPersonFraIdent(PERSON_IDENT)).thenReturn(PERSON_INFO);
+        when(mottakTjeneste.mottaInntektsmelding(request, PERSON_INFO)).thenReturn(forventetSvar);
 
         var svar = inntektsmeldingApiRest.sendInntektsmelding(request);
 
         assertThat(svar.success()).isTrue();
         assertThat(svar.inntektsmeldingUuid()).isEqualTo(inntektsmeldingUuid);
-        verify(mottakTjeneste).mottaInntektsmelding(request, aktørId);
+        verify(mottakTjeneste).mottaInntektsmelding(request, PERSON_INFO);
     }
 
     @Test
@@ -104,7 +109,7 @@ class InntektsmeldingApiRestTest {
         var forespørselUuid = UUID.randomUUID();
         var request = lagSendInntektsmeldingRequest(forespørselUuid);
 
-        when(personTjeneste.finnAktørIdForPersonIdent(FNR)).thenReturn(Optional.empty());
+        when(personTjeneste.hentPersonFraIdent(PERSON_IDENT)).thenReturn(null);
 
         var svar = inntektsmeldingApiRest.sendInntektsmelding(request);
 
@@ -130,25 +135,24 @@ class InntektsmeldingApiRestTest {
     @Test
     void skal_sende_refusjonskrav_omsorgspenger_ok() {
         var inntektsmeldingUuid = UUID.randomUUID();
-        var aktørId = new AktørIdEntitet("1234567890123");
         var request = lagRefusjonOmsorgspengerRequest();
         var forventetSvar = new SendRefusjonOmsorgspengerResponse(true, inntektsmeldingUuid, null);
 
-        when(personTjeneste.finnAktørIdForPersonIdent(FNR)).thenReturn(Optional.of(aktørId));
-        when(mottakTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(request, aktørId)).thenReturn(forventetSvar);
+        when(personTjeneste.hentPersonFraIdent(PERSON_IDENT)).thenReturn(PERSON_INFO);
+        when(mottakTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(request, PERSON_INFO)).thenReturn(forventetSvar);
 
         var svar = inntektsmeldingApiRest.sendRefusjonskravOmsorgspenger(request);
 
         assertThat(svar.success()).isTrue();
         assertThat(svar.inntektsmeldingUuid()).isEqualTo(inntektsmeldingUuid);
-        verify(mottakTjeneste).mottaInntektsmeldingForOmsorgspengerRefusjon(request, aktørId);
+        verify(mottakTjeneste).mottaInntektsmeldingForOmsorgspengerRefusjon(request, PERSON_INFO);
     }
 
     @Test
     void skal_returnere_feil_ved_ingen_aktørId_for_refusjonskrav() {
         var request = lagRefusjonOmsorgspengerRequest();
 
-        when(personTjeneste.finnAktørIdForPersonIdent(FNR)).thenReturn(Optional.empty());
+        when(personTjeneste.hentPersonFraIdent(PERSON_IDENT)).thenReturn(null);
 
         var svar = inntektsmeldingApiRest.sendRefusjonskravOmsorgspenger(request);
 

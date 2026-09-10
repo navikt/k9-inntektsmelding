@@ -38,7 +38,6 @@ import no.nav.familie.inntektsmelding.typer.dto.MånedsinntektDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonInfoDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PersonInfoDto;
-import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.k9.sak.typer.AktørId;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
@@ -82,12 +81,12 @@ public class GrunnlagTjeneste {
     }
 
     private HentOpplysningerResponse hentOpplysningerFraForespørsel(ForespørselEntitet forespørsel) {
-        var personInfo = finnPerson(forespørsel.getAktørId());
+        var personInfo = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId());
         var organisasjonInfo = finnOrganisasjonInfo(forespørsel.getOrganisasjonsnummer());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(), forespørsel.getAktørId(), forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer(), forespørsel.getYtelseType());
+        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(), personInfo, forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer(), forespørsel.getYtelseType());
 
-        return new HentOpplysningerResponse(personInfo,
+        return new HentOpplysningerResponse(lagPersonInfoDto(personInfo),
             organisasjonInfo,
             innsender,
             inntektsopplysninger,
@@ -126,7 +125,7 @@ public class GrunnlagTjeneste {
 
         var organisasjonInfo = finnOrganisasjonInfo(organisasjonsnummer.orgnr());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(null, personInfo.aktørId(), førsteFraværsdag, organisasjonsnummer.orgnr(), ytelsetype);
+        var inntektsopplysninger = finnInntektsopplysninger(null, personInfo, førsteFraværsdag, organisasjonsnummer.orgnr(), ytelsetype);
 
         return new HentOpplysningerResponse(lagPersonInfoDto(personInfo),
             organisasjonInfo,
@@ -167,14 +166,14 @@ public class GrunnlagTjeneste {
     }
 
     private InntektsopplysningerDto finnInntektsopplysninger(UUID uuid,
-                                                             AktørIdEntitet aktørId,
+                                                             PersonInfo personInfo,
                                                              LocalDate skjæringstidspunkt,
                                                              String organisasjonsnummer,
                                                              Ytelsetype ytelsetype) {
-        var inntektsopplysninger = inntektTjeneste.hentInntekt(aktørId, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, ytelsetype);
+        var inntektsopplysninger = inntektTjeneste.hentInntekt(personInfo, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, ytelsetype);
 
         if (uuid == null) {
-            LOG.info("Inntektsopplysninger for aktørId {} var {}", aktørId, inntektsopplysninger);
+            LOG.info("Inntektsopplysninger for aktørId {} var {}", personInfo.aktørId(), inntektsopplysninger);
         } else {
             LOG.info("Inntektsopplysninger for forespørsel {} var {}", uuid, inntektsopplysninger);
         }
@@ -193,11 +192,6 @@ public class GrunnlagTjeneste {
     private OrganisasjonInfoDto finnOrganisasjonInfo(String organisasjonsnummer) {
         var orgdata = organisasjonTjeneste.finnOrganisasjon(organisasjonsnummer);
         return new OrganisasjonInfoDto(orgdata.navn(), orgdata.orgnr());
-    }
-
-    private PersonInfoDto finnPerson(AktørIdEntitet aktørId) {
-        var personInfo = personTjeneste.hentPersonInfoFraAktørId(aktørId);
-        return lagPersonInfoDto(personInfo);
     }
 
     private static PersonInfoDto lagPersonInfoDto(PersonInfo personInfo) {

@@ -21,6 +21,8 @@ import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
@@ -91,16 +93,16 @@ public class InntektsmeldingApiRest {
     @Tilgangskontrollert
     public SendInntektsmeldingResponse sendInntektsmelding(@NotNull @Valid SendInntektsmeldingRequest request) {
         sjekkErSystemkall();
-        var aktørId = personTjeneste.finnAktørIdForPersonIdent(request.fødselsnummer().fnr());
+        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(new PersonIdent(request.fødselsnummer().fnr()));
 
-        if (aktørId.isEmpty()) {
+        if (personInfo == null || personInfo.aktørId() == null) {
             LOG.error("Finner ikke aktørId for fødselsnummer.");
             return new SendInntektsmeldingResponse(false, null,
                 new FeilInfo(FeilkodeDto.INGEN_AKTØR_ID,
                     "Finner ikke informasjon for fødselsnummer. Sjekk at fødselsnummer er korrekt",
                     request.foresporselUuid().toString()));
         }
-        return mottakTjeneste.mottaInntektsmelding(request, aktørId.get());
+        return mottakTjeneste.mottaInntektsmelding(request, personInfo);
     }
 
     @POST
@@ -108,15 +110,16 @@ public class InntektsmeldingApiRest {
     @Tilgangskontrollert
     public SendRefusjonOmsorgspengerResponse sendRefusjonskravOmsorgspenger(@NotNull @Valid SendRefusjonOmsorgspengerRequest request) {
         sjekkErSystemkall();
-        var aktørId = personTjeneste.finnAktørIdForPersonIdent(request.fødselsnummer().fnr());
-        if (aktørId.isEmpty()) {
+        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(new PersonIdent(request.fødselsnummer().fnr()));
+
+        if (personInfo == null || personInfo.aktørId() == null) {
             LOG.error("Finner ikke aktørId for fødselsnummer.");
             return new SendRefusjonOmsorgspengerResponse(false, null,
                 new FeilInfo(FeilkodeDto.INGEN_AKTØR_ID,
                     "Finner ikke informasjon for fødselsnummer. Sjekk at fødselsnummer er korrekt",
                     null));
         }
-        return mottakTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(request, aktørId.get());
+        return mottakTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(request, personInfo);
     }
 
     private void sjekkErSystemkall() {
