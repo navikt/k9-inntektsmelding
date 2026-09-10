@@ -18,6 +18,8 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.integrasjoner.aareg.ArbeidsforholdTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -31,22 +33,30 @@ public class InntektTjeneste {
     private static final String LØNNSINNTEKT_TYPE = "Loennsinntekt";
 
     private InntektskomponentKlient inntektskomponentKlient;
+    private ArbeidsforholdTjeneste arbeidsforholdTjeneste;
 
     InntektTjeneste() {
         // CDI
     }
 
     @Inject
-    public InntektTjeneste(InntektskomponentKlient inntektskomponentKlient) {
+    public InntektTjeneste(InntektskomponentKlient inntektskomponentKlient,
+                           ArbeidsforholdTjeneste arbeidsforholdTjeneste) {
         this.inntektskomponentKlient = inntektskomponentKlient;
+        this.arbeidsforholdTjeneste = arbeidsforholdTjeneste;
     }
 
     // Tar inn dagens dato som parameter for å gjøre det enklere å skrive tester
-    public Inntektsopplysninger hentInntekt(AktørIdEntitet aktørId, LocalDate skjæringstidspunkt, LocalDate dagensDato, String organisasjonsnummer, Ytelsetype ytelsetype) {
-        var antallMånederViBerOm = finnAntallMånederViMåBeOm(skjæringstidspunkt, dagensDato);
-        var fomDato = skjæringstidspunkt.minusMonths(antallMånederViBerOm);
-        var tomDato = skjæringstidspunkt.minusMonths(1);
-        var request = lagRequest(aktørId, fomDato, tomDato);
+    public Inntektsopplysninger hentInntekt(PersonInfo personinfo,
+                                            LocalDate skjæringstidspunkt,
+                                            LocalDate dagensDato,
+                                            String organisasjonsnummer,
+                                            Ytelsetype ytelsetype) {
+        boolean harJobbetHeleBeregningsperioden = arbeidsforholdTjeneste.harJobbetHeleBeregningsperioden(personinfo, skjæringstidspunkt, organisasjonsnummer);
+        int antallMånederViBerOm = finnAntallMånederViMåBeOm(skjæringstidspunkt, dagensDato, harJobbetHeleBeregningsperioden);
+        LocalDate fomDato = skjæringstidspunkt.minusMonths(antallMånederViBerOm);
+        LocalDate tomDato = skjæringstidspunkt.minusMonths(1);
+        var request = lagRequest(personinfo.aktørId(), fomDato, tomDato);
         try {
             var respons = inntektskomponentKlient.finnInntekt(request, ytelsetype);
             var inntekter = oversettRespons(respons, organisasjonsnummer);
@@ -54,7 +64,7 @@ public class InntektTjeneste {
                               ? inntekter
                               : fyllInnManglendeMåneder(fomDato, antallMånederViBerOm, inntekter);
             var kuttetNedTilTreMndInntekt = fjernOverflødigeMånederOmNødvendig(alleMåneder);
-            return beregnSnittOgLeggPåStatus(kuttetNedTilTreMndInntekt, dagensDato, organisasjonsnummer);
+            return beregnSnittOgLeggPåStatus(kuttetNedTilTreMndInntekt, dagensDato, organisasjonsnummer, harJobbetHeleBeregningsperioden);
         } catch (IntegrasjonException e) {
             LOG.warn("Nedetid i inntektskomponenten, returnerer tomme måneder uten snittlønn til frontend. Fikk feil {}", e.getMessage(), e);
             return lagTomRespons(skjæringstidspunkt, organisasjonsnummer);
@@ -68,8 +78,11 @@ public class InntektTjeneste {
         return new Inntektsopplysninger(null, organisasjonsnummer, tommeMåneder);
     }
 
-    private Inntektsopplysninger beregnSnittOgLeggPåStatus(List<Månedsinntekt> inntekter, LocalDate dagensDato, String organisasjonsnummer) {
-        var månedsinntekter = inntekter.stream().map(i -> mapInntektMedStatus(i, dagensDato)).toList();
+    private Inntektsopplysninger beregnSnittOgLeggPåStatus(List<Månedsinntekt> inntekter,
+                                                           LocalDate dagensDato,
+                                                           String organisasjonsnummer,
+                                                           boolean harJobbetHeleBeregningsperioden) {
+        var månedsinntekter = inntekter.stream().map(i -> mapInntektMedStatus(i, dagensDato, harJobbetHeleBeregningsperioden)).toList();
         var antallMndMedRapportertInntekt = månedsinntekter.stream().filter(m -> m.beløp() != null).count();
         if (antallMndMedRapportertInntekt > 3) {
             throw new TekniskException("K9INNTEKTSMELDING_INNTEKTKSKOMPONENT_1",
@@ -81,22 +94,39 @@ public class InntektTjeneste {
             .reduce(BigDecimal::add)
             .orElse(BigDecimal.ZERO)
             .max(BigDecimal.ZERO); // hvis inntekt blir < 0 setter vi den til 0 for å unngå negative tall i inntektsmeldingen
-        var snittlønn = totalLønn.divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_EVEN);
+
+        // Hvis søker ikke har jobbet hele beregningsperioden regner vi kun snitt utifra de månedene med inntekt vi faktisk finner
+        var antallMndViSkalRegneSnittFra = harJobbetHeleBeregningsperioden ? 3 : månedsinntekter.stream().filter(b -> b.beløp() != null).count();
+
+        var snittlønn = antallMndViSkalRegneSnittFra == 0
+                        ? BigDecimal.ZERO // Nyansatt uten noe rapportert lønn
+                        : totalLønn.divide(BigDecimal.valueOf(antallMndViSkalRegneSnittFra), 2, RoundingMode.HALF_EVEN);
         return new Inntektsopplysninger(snittlønn, organisasjonsnummer, månedsinntekter);
     }
 
-    private Inntektsopplysninger.InntektMåned mapInntektMedStatus(Månedsinntekt i, LocalDate dagensDato) {
-        var skalInntektVæreRapportert = rapporteringsfristErPassert(i.måned.atDay(1), dagensDato);
+    private Inntektsopplysninger.InntektMåned mapInntektMedStatus(Månedsinntekt i,
+                                                                  LocalDate dagensDato,
+                                                                  boolean harJobbetHeleBeregningsperioden) {
         var erInntektRapportert = i.beløp != null;
         if (erInntektRapportert) {
             return new Inntektsopplysninger.InntektMåned(i.beløp, i.måned, MånedslønnStatus.BRUKT_I_GJENNOMSNITT);
         }
+        if (!harJobbetHeleBeregningsperioden) {
+            return new Inntektsopplysninger.InntektMåned(i.beløp, i.måned, MånedslønnStatus.IKKE_RAPPORTERT_NYANSATT);
+        }
+
+        var skalInntektVæreRapportert = rapporteringsfristErPassert(i.måned.atDay(1), dagensDato);
         return skalInntektVæreRapportert
                ? new Inntektsopplysninger.InntektMåned(i.beløp, i.måned, MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT)
                : new Inntektsopplysninger.InntektMåned(i.beløp, i.måned, MånedslønnStatus.IKKE_RAPPORTERT_RAPPORTERINGSFRIST_IKKE_PASSERT);
     }
 
-    private int finnAntallMånederViMåBeOm(LocalDate skjæringstidspunkt, LocalDate dagensDato) {
+    private int finnAntallMånederViMåBeOm(LocalDate skjæringstidspunkt, LocalDate dagensDato, boolean harJobbetHeleBeregningsperioden) {
+        // Hvis søker ikke har jobbet hele beregningsperioden, bryr vi oss ikke med å justere innhenting etter rapporteringsfrist
+        if (!harJobbetHeleBeregningsperioden) {
+            return 3;
+        }
+
         var beregningsperiodeAntallMnd = 3;
         if (!rapporteringsfristErPassert(skjæringstidspunkt.minusMonths(1), dagensDato)) {
             beregningsperiodeAntallMnd++;
