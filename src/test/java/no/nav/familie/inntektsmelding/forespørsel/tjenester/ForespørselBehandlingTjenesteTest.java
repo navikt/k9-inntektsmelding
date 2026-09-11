@@ -34,7 +34,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørs
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OpprettForespørselDialogporten;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OpprettForespørselDialogportenTask;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -130,8 +130,8 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         var taskdata = taskCaptor.getValue();
-        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OpprettForespørselDialogporten.class));
-        assertThat(taskdata.getPropertyValue(OpprettForespørselDialogporten.FORESPØRSEL_UUID)).isEqualTo(uuid.toString());
+        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OpprettForespørselDialogportenTask.class));
+        assertThat(taskdata.getPropertyValue(OpprettForespørselDialogportenTask.FORESPØRSEL_UUID)).isEqualTo(uuid.toString());
     }
 
     @Test

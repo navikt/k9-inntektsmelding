@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -48,6 +49,12 @@ public class DialogportenTjeneste {
         String vasketDialogUuid = dialogPortenUuid.replace("\"", "");
         LOG.info("Mottok UUID {} fra dialogporten", vasketDialogUuid);
         forespørselTjeneste.setDialogportenUuid(forespørselUuid, UUID.fromString(vasketDialogUuid));
+    }
+
+    public void oppdaterDialogMedEndretInntektsmelding(UUID dialogportenUuid,
+                                                  ArbeidsgiverDto arbeidsgiver,
+                                                  Optional<UUID> inntektsmeldingUuid) {
+        dialogportenKlient.oppdaterDialogMedEndretInntektsmelding(dialogportenUuid, arbeidsgiver, inntektsmeldingUuid);
     }
 
     private String lagSaksTittelForDialogporten(AktørIdEntitet aktørId) {

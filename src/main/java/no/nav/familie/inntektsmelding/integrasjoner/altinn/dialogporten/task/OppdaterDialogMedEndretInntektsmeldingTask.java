@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,22 +18,23 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = OpprettForespørselDialogporten.TASK_TYPE)
-public class OpprettForespørselDialogporten implements ProsessTaskHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(OpprettForespørselDialogporten.class);
-    public static final String TASK_TYPE = "dialogporten.opprett.forespørsel";
+@ProsessTask(value = OppdaterDialogMedEndretInntektsmeldingTask.TASK_TYPE)
+public class OppdaterDialogMedEndretInntektsmeldingTask implements ProsessTaskHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(OppdaterDialogMedEndretInntektsmeldingTask.class);
+    public static final String TASK_TYPE = "dialogporten.oppdater.ny.inntektsmelding";
 
     public static final String FORESPØRSEL_UUID = "forespoerselUuid";
+    public static final String INNTEKTSMELDING_UUID = "inntektsmeldingUuid";
 
     private DialogportenTjeneste dialogportenTjeneste;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
-    OpprettForespørselDialogporten() {
+    OppdaterDialogMedEndretInntektsmeldingTask() {
         // CDI
     }
 
     @Inject
-    public OpprettForespørselDialogporten(DialogportenTjeneste dialogportenTjeneste, ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
+    public OppdaterDialogMedEndretInntektsmeldingTask(DialogportenTjeneste dialogportenTjeneste, ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
         this.dialogportenTjeneste = dialogportenTjeneste;
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
     }
@@ -44,19 +46,25 @@ public class OpprettForespørselDialogporten implements ProsessTaskHandler {
         ForespørselEntitet forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
 
+        if (forespørsel.getDialogportenUuid().isEmpty()) {
+            throw new IllegalStateException("Forespørsel med uuid " + forespørselUuid + " har ikke dialogportenUuid satt");
+        }
+
+        Optional<UUID> inntektsmeldingUuid = Optional.ofNullable(prosessTaskData.getPropertyValue(INNTEKTSMELDING_UUID))
+            .map(UUID::fromString);
+
         LOG.info("Oppretter forespørsel i dialogporten for forespørsel uuid: {}", forespørselUuid);
-        dialogportenTjeneste.opprettForespørselDialogporten(
-            forespørsel.getUuid(),
+        dialogportenTjeneste.oppdaterDialogMedEndretInntektsmelding(
+            forespørsel.getDialogportenUuid().get(),
             new ArbeidsgiverDto(forespørsel.getOrganisasjonsnummer()),
-            forespørsel.getAktørId(),
-            forespørsel.getYtelseType(),
-            forespørsel.getSkjæringstidspunkt()
+            inntektsmeldingUuid
         );
     }
 
-    public static ProsessTaskData lagTaskData(UUID forespørselUuid) {
-        ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(OpprettForespørselDialogporten.class);
+    public static ProsessTaskData lagTaskData(UUID forespørselUuid, Optional<UUID> inntektsmeldingUuid) {
+        ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(OppdaterDialogMedEndretInntektsmeldingTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
+        inntektsmeldingUuid.ifPresent(uuid -> prosessTaskData.setProperty(INNTEKTSMELDING_UUID, uuid.toString()));
         return prosessTaskData;
     }
 }
