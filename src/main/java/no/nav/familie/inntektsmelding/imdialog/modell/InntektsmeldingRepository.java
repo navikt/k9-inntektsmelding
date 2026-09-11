@@ -1,6 +1,7 @@
 package no.nav.familie.inntektsmelding.imdialog.modell;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -8,6 +9,9 @@ import java.util.UUID;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingStatus;
@@ -19,6 +23,7 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 public class InntektsmeldingRepository {
 
     private EntityManager entityManager;
+    private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingRepository.class);
 
     public InntektsmeldingRepository() {
         // CDI
@@ -95,7 +100,16 @@ public class InntektsmeldingRepository {
         if (fraLoepenr != null) {
             query.setParameter("fraLoepenr", fraLoepenr);
         }
-        return query.getResultList();
+
+        query.setMaxResults(1001);
+        var result = query.getResultList();
+        if (result.size() == 1001) {
+            LOG.warn("Hentet 1000 inntektsmeldinger for orgnr {}, men det finnes flere som ikke er hentet ut", orgnr);
+            var redusertListe = new ArrayList<>(result);
+            redusertListe.removeLast();
+            return redusertListe;
+        }
+        return result;
     }
 
     public List<InntektsmeldingEntitet> hentInntektsmeldingerForÅr(AktørIdEntitet aktørId, String arbeidsgiverIdent, int år, Ytelsetype ytelsetype) {
