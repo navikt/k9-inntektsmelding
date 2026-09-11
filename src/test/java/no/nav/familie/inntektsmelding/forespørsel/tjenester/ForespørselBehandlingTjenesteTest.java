@@ -34,6 +34,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørs
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OpprettForespørselDialogporten;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -50,6 +51,7 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -94,7 +96,6 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             personTjeneste,
             prosessTaskTjeneste,
             organisasjonTjeneste);
-        lenient().when(dialogportenKlient.opprettDialog(any(), any(), any(), any(), any())).thenReturn(UUID.randomUUID().toString());
     }
 
     @AfterEach
@@ -124,7 +125,13 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(lagret.getOrganisasjonsnummer()).isEqualTo(BRREG_ORGNUMMER);
         assertThat(lagret.getFørsteUttaksdato().orElse(null)).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(lagret.getForespørselType()).isEqualTo(ForespørselType.OMSORGSPENGER_REFUSJON);
-        verify(dialogportenKlient).opprettDialog(any(), any(), any(), any(), any());
+
+        // Verifiser at det ble opprettet en task for å opprette dialog i dialogporten
+        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
+        var taskdata = taskCaptor.getValue();
+        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OpprettForespørselDialogporten.class));
+        assertThat(taskdata.getPropertyValue(OpprettForespørselDialogporten.FORESPØRSEL_UUID)).isEqualTo(uuid.toString());
     }
 
     @Test
