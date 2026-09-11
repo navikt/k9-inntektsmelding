@@ -39,11 +39,15 @@ import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.k9.inntektsmelding.felles.AvsenderSystemDto;
@@ -70,6 +74,7 @@ class InntektsmeldingApiMottakTjenesteTest {
     private static final LocalDate STARTDATO = LocalDate.of(2024, 1, 1);
     private static final BigDecimal INNTEKT = new BigDecimal("50000");
     private static final AktørIdEntitet AKTØR_ID = new AktørIdEntitet("1234567890123");
+    private static final PersonInfo PERSON_INFO = new PersonInfo("Ola", "Kari","Nordmann", new PersonIdent("12345678901"), new AktørIdEntitet(AKTØR_ID.getAktørId()), LocalDate.of(1990, 1, 1), "99887766", Kjønn.MANN);
 
     @Mock
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
@@ -81,20 +86,22 @@ class InntektsmeldingApiMottakTjenesteTest {
     private InntektTjeneste inntektTjeneste;
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    @Mock
+    private PersonTjeneste personTjeneste;
 
     private InntektsmeldingApiMottakTjeneste tjeneste;
 
     @BeforeEach
     void setUp() {
         tjeneste = new InntektsmeldingApiMottakTjeneste(
-            forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste, inntektTjeneste, inntektsmeldingTjeneste);
+            forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste, inntektTjeneste, inntektsmeldingTjeneste, personTjeneste);
     }
 
     @Test
     void forespørsel_ikke_funnet_returnerer_feil() {
         when(forespørselBehandlingTjeneste.hentForespørsel(FORESPORSEL_UUID)).thenReturn(Optional.empty());
 
-        var response = tjeneste.mottaInntektsmelding(lagRequest(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmelding(lagRequest(), PERSON_INFO);
 
         assertThat(response.success()).isFalse();
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.TOM_FORESPOERSEL);
@@ -107,7 +114,7 @@ class InntektsmeldingApiMottakTjenesteTest {
         forespørsel.setStatus(ForespørselStatus.UTGÅTT);
         when(forespørselBehandlingTjeneste.hentForespørsel(FORESPORSEL_UUID)).thenReturn(Optional.of(forespørsel));
 
-        var response = tjeneste.mottaInntektsmelding(lagRequest(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmelding(lagRequest(), PERSON_INFO);
 
         assertThat(response.success()).isFalse();
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.UGYLDIG_FORESPOERSEL);
@@ -121,7 +128,7 @@ class InntektsmeldingApiMottakTjenesteTest {
         when(forespørsel.getInntektsmeldinger()).thenReturn(List.of(eksisterendeIm));
         when(forespørselBehandlingTjeneste.hentForespørsel(FORESPORSEL_UUID)).thenReturn(Optional.of(forespørsel));
 
-        var response = tjeneste.mottaInntektsmelding(lagRequest(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmelding(lagRequest(), PERSON_INFO);
 
         assertThat(response.success()).isFalse();
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.DUPLIKAT);
@@ -136,7 +143,7 @@ class InntektsmeldingApiMottakTjenesteTest {
             .thenReturn(lagInntektsopplysningerMedNedetid());
         var lagretEntitet = stubLagring(forespørsel);
 
-        var response = tjeneste.mottaInntektsmelding(lagRequest(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmelding(lagRequest(), PERSON_INFO);
 
         assertThat(response.success()).isTrue();
         assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
@@ -155,7 +162,7 @@ class InntektsmeldingApiMottakTjenesteTest {
         when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(new Inntektsopplysninger(new BigDecimal("60100"), ORGNR, List.of()));
 
-        var response = tjeneste.mottaInntektsmelding(lagRequest(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmelding(lagRequest(), PERSON_INFO);
 
         assertThat(response.success()).isFalse();
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.ULIK_INNTEKT);
@@ -170,7 +177,7 @@ class InntektsmeldingApiMottakTjenesteTest {
             .thenReturn(new Inntektsopplysninger(new BigDecimal("60100"), ORGNR, List.of()));
         stubLagring(forespørsel);
 
-        var response = tjeneste.mottaInntektsmelding(lagRequestMedEndringsårsak(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmelding(lagRequestMedEndringsårsak(), PERSON_INFO);
 
         assertThat(response.success()).isTrue();
     }
@@ -184,7 +191,7 @@ class InntektsmeldingApiMottakTjenesteTest {
             .thenReturn(new Inntektsopplysninger(new BigDecimal("50030"), ORGNR, List.of()));
         stubLagring(forespørsel);
 
-        var response = tjeneste.mottaInntektsmelding(lagRequest(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmelding(lagRequest(), PERSON_INFO);
 
         assertThat(response.success()).isTrue();
     }
@@ -197,7 +204,7 @@ class InntektsmeldingApiMottakTjenesteTest {
             .thenReturn(new Inntektsopplysninger(INNTEKT, ORGNR, List.of()));
         var lagretEntitet = stubLagring(forespørsel);
 
-        var response = tjeneste.mottaInntektsmelding(lagRequest(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmelding(lagRequest(), PERSON_INFO);
 
         assertThat(response.success()).isTrue();
         assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
@@ -216,7 +223,7 @@ class InntektsmeldingApiMottakTjenesteTest {
             .thenReturn(new Inntektsopplysninger(INNTEKT, ORGNR, List.of()));
         var lagretEntitet = stubLagringMedOmsorgspenger(forespørsel);
 
-        var response = tjeneste.mottaInntektsmelding(lagRequestMedOmsorgspenger(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmelding(lagRequestMedOmsorgspenger(), PERSON_INFO);
 
         assertThat(response.success()).isTrue();
         assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
@@ -240,7 +247,7 @@ class InntektsmeldingApiMottakTjenesteTest {
             .thenReturn(new Inntektsopplysninger(INNTEKT, ORGNR, List.of()));
         var lagretEntitet = stubLagringMedOmsorgspenger(forespørsel);
 
-        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(lagRefusjonOmsorgspengerRequest(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(lagRefusjonOmsorgspengerRequest(), PERSON_INFO);
 
         assertThat(response.success()).isTrue();
         assertThat(response.inntektsmeldingUuid()).isEqualTo(lagretEntitet.getUuid());
@@ -264,7 +271,7 @@ class InntektsmeldingApiMottakTjenesteTest {
             .thenReturn(lagInntektsopplysningerMedNedetid());
         stubLagringMedOmsorgspenger(forespørsel);
 
-        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(lagRefusjonOmsorgspengerRequest(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(lagRefusjonOmsorgspengerRequest(), PERSON_INFO);
 
         assertThat(response.success()).isTrue();
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.NEDETID_AINNTEKT);
@@ -286,7 +293,7 @@ class InntektsmeldingApiMottakTjenesteTest {
         when(inntektTjeneste.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(new Inntektsopplysninger(new BigDecimal("60100"), ORGNR, List.of()));
 
-        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(lagRefusjonOmsorgspengerRequest(), AKTØR_ID);
+        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(lagRefusjonOmsorgspengerRequest(), PERSON_INFO);
 
         assertThat(response.success()).isFalse();
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.ULIK_INNTEKT);
@@ -306,7 +313,7 @@ class InntektsmeldingApiMottakTjenesteTest {
         when(forespørselBehandlingTjeneste.opprettForespørselForOmsorgspengerRefusjonIm(eq(AKTØR_ID), any(), any()))
             .thenReturn(forespørselUuid);
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(forespørsel));
-        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(request, AKTØR_ID);
+        var response = tjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(request, PERSON_INFO);
 
         assertThat(response.success()).isFalse();
         assertThat(response.feilinformasjon().feilkode()).isEqualTo(FeilkodeDto.DUPLIKAT);

@@ -31,6 +31,7 @@ import no.nav.familie.inntektsmelding.imdialog.task.SendTilJoarkTask;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
@@ -63,6 +64,8 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
     private InntektTjeneste inntektTjeneste;
     @Mock
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    @Mock
+    private PersonTjeneste personTjeneste;
 
     private InntektsmeldingApiMottakTjeneste tjeneste;
     private ForespørselEntitet forespørsel;
@@ -71,7 +74,7 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
     @BeforeEach
     void setUp() {
         tjeneste = new InntektsmeldingApiMottakTjeneste(
-            forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste, inntektTjeneste, inntektsmeldingTjeneste);
+            forespørselBehandlingTjeneste, inntektsmeldingRepository, prosessTaskTjeneste, inntektTjeneste, inntektsmeldingTjeneste, personTjeneste);
         forespørsel = ForespørselEntitet.builder()
             .medOrganisasjonsnummer(ORGNR)
             .medSkjæringstidspunkt(STARTDATO)
