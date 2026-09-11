@@ -28,6 +28,7 @@ import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.kvittering.PdfDokumentRest;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OpprettForespørselDialogporten;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SendMeldingOmAvvistInntektsmeldingTask;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
@@ -386,7 +387,7 @@ public class ForespørselBehandlingTjeneste {
 
         if (dialogportenEnabled) {
             try {
-                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), aktørId, ytelsetype, skjæringstidspunkt);
+                prosessTaskTjeneste.lagre(OpprettForespørselDialogporten.lagTaskData(forespørselUuid));
             } catch (Exception e) {
                 // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
                 LOG.warn("Feil ved kall til dialogporten: ", e);
@@ -436,19 +437,6 @@ public class ForespørselBehandlingTjeneste {
         }
 
         forespørselTjeneste.setOppgaveId(forespørselUuid, oppgaveId);
-    }
-
-    private void opprettForespørselDialogporten(UUID forespørselUuid,
-                                                ArbeidsgiverDto arbeidsgiver,
-                                                AktørIdEntitet aktørId,
-                                                Ytelsetype ytelsetype,
-                                                LocalDate førsteUttaksdato) {
-        String saksTittelDialog = lagSaksTittelForDialogporten(aktørId);
-        String dialogPortenUuid = dialogportenKlient.opprettDialog(forespørselUuid, arbeidsgiver, saksTittelDialog, førsteUttaksdato, ytelsetype);
-
-        String vasketDialogUuid = dialogPortenUuid.replace("\"", "");
-        LOG.info("Mottok UUID {} fra dialogporten", vasketDialogUuid);
-        forespørselTjeneste.setDialogportenUuid(forespørselUuid, UUID.fromString(vasketDialogUuid));
     }
 
     public void oppdaterPortalerMedEndretInntektsmelding(ForespørselEntitet forespørsel,
@@ -501,7 +489,7 @@ public class ForespørselBehandlingTjeneste {
 
         if (dialogportenEnabled) {
             try {
-                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), aktørId, ytelsetype, skjæringstidspunkt);
+                prosessTaskTjeneste.lagre(OpprettForespørselDialogporten.lagTaskData(forespørselUuid));
             } catch (Exception e) {
                 // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
                 LOG.warn("Feil ved kall til dialogporten: ", e);
@@ -528,7 +516,7 @@ public class ForespørselBehandlingTjeneste {
 
         if (dialogportenEnabled) {
             try {
-                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), aktørId, Ytelsetype.OMSORGSPENGER, skjæringstidspunkt);
+                prosessTaskTjeneste.lagre(OpprettForespørselDialogporten.lagTaskData(forespørselUuid));
             } catch (Exception e) {
                 // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
                 LOG.warn("Feil ved kall til dialogporten: ", e);
