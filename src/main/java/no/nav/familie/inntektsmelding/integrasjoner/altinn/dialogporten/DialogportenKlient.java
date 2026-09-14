@@ -112,7 +112,7 @@ public class DialogportenKlient {
         sendPatchRequest(forespørsel.getDialogportenUuid().get(), List.of(patchAvvistInntektsmelding));
     }
 
-    public void settDialogTilUtgått(UUID dialogUuid, String sakstittel) {
+    void settDialogTilUtgått(UUID dialogUuid, String sakstittel) {
         var patchRequestUtgått = DialogportenRequestMapper.opprettUtgåttPatchRequest(sakstittel);
         sendPatchRequest(dialogUuid, patchRequestUtgått);
     }

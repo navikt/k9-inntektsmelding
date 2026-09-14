@@ -58,6 +58,11 @@ public class DialogportenTjeneste {
         dialogportenKlient.oppdaterDialogMedEndretInntektsmelding(dialogportenUuid, arbeidsgiver, inntektsmeldingUuid);
     }
 
+    public void settDialogTilUtgått(UUID dialogportenUuid, AktørIdEntitet aktørId) {
+        String saksTittel = lagSaksTittelForDialogporten(aktørId);
+        dialogportenKlient.settDialogTilUtgått(dialogportenUuid, saksTittel);
+    }
+
     public void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String avvistTekst) {
         dialogportenKlient.sendMeldingOmAvvistInntektsmelding(forespørsel, avvistTekst);
     }

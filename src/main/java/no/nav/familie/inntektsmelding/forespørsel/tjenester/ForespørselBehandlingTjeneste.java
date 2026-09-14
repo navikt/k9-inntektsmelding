@@ -31,6 +31,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.Dialogpo
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OppdaterDialogMedEndretInntektsmeldingTask;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OpprettForespørselDialogportenTask;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SendMeldingOmAvvistInntektsmeldingTask;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SettDialogTilUtgåttTask;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
@@ -335,8 +336,7 @@ public class ForespørselBehandlingTjeneste {
         forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
         //oppdaterer status til not applicable i altinn dialogporten
         if (dialogportenEnabled) {
-            eksisterendeForespørsel.getDialogportenUuid().ifPresent(dialogUuid ->
-                dialogportenKlient.settDialogTilUtgått(dialogUuid, lagSaksTittelForDialogporten(eksisterendeForespørsel.getAktørId())));
+            prosessTaskTjeneste.lagre(SettDialogTilUtgåttTask.lagTaskData(eksisterendeForespørsel.getUuid()));
         }
 
         LOG.info("Setter forespørsel til utgått, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
