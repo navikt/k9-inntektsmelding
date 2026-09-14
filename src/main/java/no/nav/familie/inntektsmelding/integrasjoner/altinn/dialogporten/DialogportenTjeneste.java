@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTekster;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
@@ -55,6 +56,10 @@ public class DialogportenTjeneste {
                                                   ArbeidsgiverDto arbeidsgiver,
                                                   Optional<UUID> inntektsmeldingUuid) {
         dialogportenKlient.oppdaterDialogMedEndretInntektsmelding(dialogportenUuid, arbeidsgiver, inntektsmeldingUuid);
+    }
+
+    public void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String avvistTekst) {
+        dialogportenKlient.sendMeldingOmAvvistInntektsmelding(forespørsel, avvistTekst);
     }
 
     private String lagSaksTittelForDialogporten(AktørIdEntitet aktørId) {

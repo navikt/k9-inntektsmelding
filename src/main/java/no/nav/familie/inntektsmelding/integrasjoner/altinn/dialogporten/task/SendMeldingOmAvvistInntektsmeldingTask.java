@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -24,7 +24,7 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
     public static final String FORESPØRSEL_UUID = "forespoerselUuid";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private DialogportenKlient dialogportenKlient;
+    private DialogportenTjeneste dialogportenTjeneste;
 
     SendMeldingOmAvvistInntektsmeldingTask() {
         // CDI
@@ -32,9 +32,9 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
 
     @Inject
     public SendMeldingOmAvvistInntektsmeldingTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
-                                                  DialogportenKlient dialogportenKlient) {
+                                                  DialogportenTjeneste dialogportenTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
-        this.dialogportenKlient = dialogportenKlient;
+        this.dialogportenTjeneste = dialogportenTjeneste;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
 
         LOG.info("Sender melding om avvist inntektsmelding til dialogporten for forespørsel: {}", forespørselUuid);
-        dialogportenKlient.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
+        dialogportenTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
     }
 
     public static ProsessTaskData lagTaskData(UUID forespørselUuid, String feilmelding) {
