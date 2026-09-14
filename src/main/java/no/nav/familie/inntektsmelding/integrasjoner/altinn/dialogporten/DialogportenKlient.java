@@ -10,6 +10,9 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnExchangeTokenKlient;
@@ -27,6 +30,9 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "altinn.tre.base.url", scopesProperty = "maskinporten.dialogporten.scope")
 public class DialogportenKlient {
+    private static final Logger LOG = LoggerFactory.getLogger(DialogportenKlient.class);
+    private static final String UKJENT_AKTØR_FEILTEKST = "Unable to look up name for actor id";
+
     private static final Environment ENV = Environment.current();
     private final RestClient restClient;
     private final RestConfig restConfig;
@@ -36,6 +42,7 @@ public class DialogportenKlient {
     private final String sendInntektsmeldingApiLenke;
     private final String forespørselApiLenke;
     private final String dokumentasjonsLenke;
+    private final boolean ignorerUkjentAktørFeil;
 
     DialogportenKlient() {
         this(RestClient.client());
@@ -50,6 +57,7 @@ public class DialogportenKlient {
         this.sendInntektsmeldingApiLenke = ENV.getProperty("inntektsmelding.api.lenke");
         this.forespørselApiLenke = ENV.getProperty("foresporsel.api.lenke");
         this.dokumentasjonsLenke = ENV.getProperty("inntektsmelding.dokumentasjon.lenke");
+        this.ignorerUkjentAktørFeil = ENV.getProperty("dialogporten.ignorer.ukjent.aktoer", boolean.class, false);
     }
 
     String opprettDialog(UUID forespørselUuid,
@@ -127,17 +135,31 @@ public class DialogportenKlient {
 
         var response = restClient.sendReturnUnhandled(restRequest);
 
-        handleResponse(response);
+        handleResponse(response, ignorerUkjentAktørFeil);
     }
 
     private String handleResponse(HttpResponse<String> response) {
+        return handleResponse(response, false);
+    }
+
+    private String handleResponse(HttpResponse<String> response, boolean ignorerUkjentAktørFeil) {
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             return response.body();
-        } else {
-            String msg = String.format("Kall til Altinn dialogporten feilet med statuskode %s. Full feilmelding var: %s",
+        }
+        if (ignorerUkjentAktørFeil && erUkjentAktørFeil(response)) {
+            LOG.warn(
+                "Ignorerer feil fra Dialogporten pga. ukjent aktør (kun aktivert i dev, se 'dialogporten.ignorer.ukjent.aktoer'). Statuskode {}, full feilmelding: {}",
                 response.statusCode(),
                 response.body());
-            throw new IntegrasjonException("K9INNTEKTSMELDING-542684", msg);
+            return null;
         }
+        String msg = String.format("Kall til Altinn dialogporten feilet med statuskode %s. Full feilmelding var: %s",
+            response.statusCode(),
+            response.body());
+        throw new IntegrasjonException("K9INNTEKTSMELDING-542684", msg);
+    }
+
+    static boolean erUkjentAktørFeil(HttpResponse<String> response) {
+        return response.statusCode() == 422 && response.body() != null && response.body().contains(UKJENT_AKTØR_FEILTEKST);
     }
 }
