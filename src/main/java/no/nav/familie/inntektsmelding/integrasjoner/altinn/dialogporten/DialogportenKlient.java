@@ -52,7 +52,7 @@ public class DialogportenKlient {
         this.dokumentasjonsLenke = ENV.getProperty("inntektsmelding.dokumentasjon.lenke");
     }
 
-    public String opprettDialog(UUID forespørselUuid,
+    String opprettDialog(UUID forespørselUuid,
                                 ArbeidsgiverDto arbeidsgiver,
                                 String sakstittel,
                                 LocalDate førsteUttaksdato,
@@ -92,7 +92,7 @@ public class DialogportenKlient {
         sendPatchRequest(dialogUuid, patchRequestFerdig);
     }
 
-    public void oppdaterDialogMedEndretInntektsmelding(UUID dialogUuid,
+    void oppdaterDialogMedEndretInntektsmelding(UUID dialogUuid,
                                                        ArbeidsgiverDto arbeidsgiver,
                                                        Optional<UUID> inntektsmeldingUuid) {
         var patchRequestInnsendt = DialogportenRequestMapper.opprettInnsendtInntektsmeldingPatchRequest(
@@ -103,7 +103,7 @@ public class DialogportenKlient {
         sendPatchRequest(dialogUuid, patchRequestInnsendt);
     }
 
-    public void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String avvistTekst) {
+    void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String avvistTekst) {
         if (forespørsel.getDialogportenUuid().isEmpty()) {
             throw new IllegalStateException("Forespørsel med uuid " + forespørsel.getUuid() + " har ikke dialogportenUuid, kan ikke sende melding om avvist inntektsmelding");
         }
