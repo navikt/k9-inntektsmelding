@@ -20,13 +20,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
-import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.util.InputValideringRegex;
 
@@ -40,15 +42,20 @@ public class DialogportenForvaltningRestTjeneste {
     private static final boolean IS_PROD = Environment.current().isProd();
     private Tilgang tilgang;
     private DialogportenKlient dialogportenKlient;
+    private DialogportenTjeneste dialogportenTjeneste;
+    private ForespørselRepository forespørselRepository;
 
     DialogportenForvaltningRestTjeneste() {
         // REST CDI
     }
 
     @Inject
-    public DialogportenForvaltningRestTjeneste(Tilgang tilgang, DialogportenKlient dialogportenKlient) {
+    public DialogportenForvaltningRestTjeneste(Tilgang tilgang, DialogportenKlient dialogportenKlient, DialogportenTjeneste dialogportenTjeneste,
+                                               ForespørselRepository forespørselRepository) {
         this.tilgang = tilgang;
         this.dialogportenKlient = dialogportenKlient;
+        this.dialogportenTjeneste = dialogportenTjeneste;
+        this.forespørselRepository = forespørselRepository;
     }
 
     @POST
@@ -61,14 +68,19 @@ public class DialogportenForvaltningRestTjeneste {
             throw new IllegalStateException("Kan ikke opprette dialog i produksjon. Bruk testmiljø for dette.");
         }
         sjekkAtKallerHarRollenDrift();
+        ForespørselEntitet forespørsel = forespørselRepository.hentForespørsel(opprettNyDialogDto.forespørselUuid())
+            .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + opprettNyDialogDto.forespørselUuid()));
+
         LOG.info("Oppretter en dialog for forespørselUuid {} og organisasjonsnummer {}",
             opprettNyDialogDto.forespørselUuid(),
-            opprettNyDialogDto.organisasjonsnummer().orgnr());
-        return Response.accepted(dialogportenKlient.opprettDialog(opprettNyDialogDto.forespørselUuid(),
-            new ArbeidsgiverDto(opprettNyDialogDto.organisasjonsnummer().orgnr()),
-            "Forespørsel om inntektsmelding",
-            LocalDate.now(),
-            Ytelsetype.PLEIEPENGER_SYKT_BARN)).build();
+            forespørsel.getOrganisasjonsnummer());
+        dialogportenTjeneste.opprettForespørselDialogporten(
+            opprettNyDialogDto.forespørselUuid(),
+            new ArbeidsgiverDto(forespørsel.getOrganisasjonsnummer()),
+            forespørsel.getAktørId(),
+            forespørsel.getYtelseType(),
+            forespørsel.getSkjæringstidspunkt());
+        return Response.accepted().build();
     }
 
     @POST
@@ -106,6 +118,6 @@ public class DialogportenForvaltningRestTjeneste {
         tilgang.sjekkAtAnsattHarRollenDrift();
     }
 
-    public record OpprettNyDialogDto(@NotNull @Valid UUID forespørselUuid, @NotNull @Valid OrganisasjonsnummerDto organisasjonsnummer) {
+    public record OpprettNyDialogDto(@NotNull @Valid UUID forespørselUuid) {
     }
 }
