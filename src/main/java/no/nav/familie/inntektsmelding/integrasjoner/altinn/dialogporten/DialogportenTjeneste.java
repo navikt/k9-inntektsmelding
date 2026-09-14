@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTekster;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselTjeneste;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
@@ -52,9 +53,27 @@ public class DialogportenTjeneste {
         forespørselTjeneste.setDialogportenUuid(forespørselUuid, UUID.fromString(vasketDialogUuid));
     }
 
+    public void ferdigstillDialog(ForespørselEntitet forespørsel,
+                                  Optional<UUID> inntektsmeldingUuid,
+                                  LukkeÅrsak lukkeÅrsak) {
+        if (forespørsel.getDialogportenUuid().isEmpty()) {
+            throw new IllegalStateException("Forespørsel med uuid " + forespørsel.getUuid() + " har ikke dialogportenUuid satt");
+        }
+
+        String sakstittel = lagSaksTittelForDialogporten(forespørsel.getAktørId());
+        dialogportenKlient.ferdigstillDialog(
+            forespørsel.getDialogportenUuid().get(),
+            new ArbeidsgiverDto(forespørsel.getOrganisasjonsnummer()),
+            sakstittel,
+            forespørsel.getYtelseType(),
+            forespørsel.getSkjæringstidspunkt(),
+            inntektsmeldingUuid,
+            lukkeÅrsak);
+    }
+
     public void oppdaterDialogMedEndretInntektsmelding(UUID dialogportenUuid,
-                                                  ArbeidsgiverDto arbeidsgiver,
-                                                  Optional<UUID> inntektsmeldingUuid) {
+                                                       ArbeidsgiverDto arbeidsgiver,
+                                                       Optional<UUID> inntektsmeldingUuid) {
         dialogportenKlient.oppdaterDialogMedEndretInntektsmelding(dialogportenUuid, arbeidsgiver, inntektsmeldingUuid);
     }
 
