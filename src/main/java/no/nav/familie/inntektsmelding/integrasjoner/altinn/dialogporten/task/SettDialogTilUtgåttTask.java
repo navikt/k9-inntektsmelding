@@ -43,16 +43,14 @@ public class SettDialogTilUtgåttTask implements ProsessTaskHandler {
         ForespørselEntitet forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
 
-        LOG.info("Oppretter forespørsel i dialogporten for forespørsel uuid: {}", forespørselUuid);
-
-        if (forespørsel.getDialogportenUuid().isEmpty()) {
-            throw new IllegalStateException("Forespørsel med uuid " + forespørselUuid + " har ikke dialogportenUuid satt");
+        if (dialogportenTjeneste.erOpprettetFørProdsetting(forespørsel) && forespørsel.getDialogportenUuid().isEmpty()) {
+            LOG.info("Forespørsel med uuid {} er opprettet før Dialogporten ble satt i produksjon. Det finnes derfor ingen forespørsel i Dialogporten. Hopper over ferdigstilling", forespørselUuid);
+            return;
         }
 
-        dialogportenTjeneste.settDialogTilUtgått(
-            forespørsel.getDialogportenUuid().get(),
-            forespørsel.getAktørId()
-        );
+        LOG.info("Oppretter forespørsel i dialogporten for forespørsel uuid: {}", forespørselUuid);
+
+        dialogportenTjeneste.settDialogTilUtgått(forespørsel);
     }
 
     public static ProsessTaskData lagTaskData(UUID forespørselUuid) {

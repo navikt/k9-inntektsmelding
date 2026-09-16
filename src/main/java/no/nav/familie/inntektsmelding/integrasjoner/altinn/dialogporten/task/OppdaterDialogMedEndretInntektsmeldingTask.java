@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenTjeneste;
-import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -46,19 +45,16 @@ public class OppdaterDialogMedEndretInntektsmeldingTask implements ProsessTaskHa
         ForespørselEntitet forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
 
-        if (forespørsel.getDialogportenUuid().isEmpty()) {
-            throw new IllegalStateException("Forespørsel med uuid " + forespørselUuid + " har ikke dialogportenUuid satt");
+        if (dialogportenTjeneste.erOpprettetFørProdsetting(forespørsel) && forespørsel.getDialogportenUuid().isEmpty()) {
+            LOG.info("Forespørsel med uuid {} er opprettet før Dialogporten ble satt i produksjon. Det finnes derfor ingen forespørsel i Dialogporten. Hopper over ferdigstilling", forespørselUuid);
+            return;
         }
 
         Optional<UUID> inntektsmeldingUuid = Optional.ofNullable(prosessTaskData.getPropertyValue(INNTEKTSMELDING_UUID))
             .map(UUID::fromString);
 
         LOG.info("Oppretter forespørsel i dialogporten for forespørsel uuid: {}", forespørselUuid);
-        dialogportenTjeneste.oppdaterDialogMedEndretInntektsmelding(
-            forespørsel.getDialogportenUuid().get(),
-            new ArbeidsgiverDto(forespørsel.getOrganisasjonsnummer()),
-            inntektsmeldingUuid
-        );
+        dialogportenTjeneste.oppdaterDialogMedEndretInntektsmelding(forespørsel, inntektsmeldingUuid);
     }
 
     public static ProsessTaskData lagTaskData(UUID forespørselUuid, Optional<UUID> inntektsmeldingUuid) {

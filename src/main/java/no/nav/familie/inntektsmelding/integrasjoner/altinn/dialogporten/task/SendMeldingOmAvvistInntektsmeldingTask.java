@@ -45,6 +45,11 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
         ForespørselEntitet forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
 
+        if (dialogportenTjeneste.erOpprettetFørProdsetting(forespørsel) && forespørsel.getDialogportenUuid().isEmpty()) {
+            LOG.info("Forespørsel med uuid {} er opprettet før Dialogporten ble satt i produksjon. Det finnes derfor ingen forespørsel i Dialogporten. Hopper over ferdigstilling", forespørselUuid);
+            return;
+        }
+
         LOG.info("Sender melding om avvist inntektsmelding til dialogporten for forespørsel: {}", forespørselUuid);
         dialogportenTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
     }
