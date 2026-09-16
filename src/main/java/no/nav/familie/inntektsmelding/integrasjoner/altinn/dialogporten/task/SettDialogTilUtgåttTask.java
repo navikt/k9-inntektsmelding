@@ -48,7 +48,7 @@ public class SettDialogTilUtgåttTask implements ProsessTaskHandler {
             return;
         }
 
-        LOG.info("Oppretter forespørsel i dialogporten for forespørsel uuid: {}", forespørselUuid);
+        LOG.info("Setter forespørsel til utgått i dialogporten for forespørsel uuid: {}", forespørselUuid);
 
         dialogportenTjeneste.settDialogTilUtgått(forespørsel);
     }

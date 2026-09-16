@@ -53,7 +53,7 @@ public class OppdaterDialogMedEndretInntektsmeldingTask implements ProsessTaskHa
         Optional<UUID> inntektsmeldingUuid = Optional.ofNullable(prosessTaskData.getPropertyValue(INNTEKTSMELDING_UUID))
             .map(UUID::fromString);
 
-        LOG.info("Oppretter forespørsel i dialogporten for forespørsel uuid: {}", forespørselUuid);
+        LOG.info("Oppdaterer forespørsel med inntektsmelding i dialogporten for forespørsel uuid: {}", forespørselUuid);
         dialogportenTjeneste.oppdaterDialogMedEndretInntektsmelding(forespørsel, inntektsmeldingUuid);
     }
 

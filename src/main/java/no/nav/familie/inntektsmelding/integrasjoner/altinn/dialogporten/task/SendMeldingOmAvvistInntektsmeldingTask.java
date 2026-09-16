@@ -50,7 +50,7 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
             return;
         }
 
-        LOG.info("Sender melding om avvist inntektsmelding til dialogporten for forespørsel: {}", forespørselUuid);
+        LOG.info("Sender melding om avvist inntektsmelding i dialogporten for forespørsel: {}", forespørselUuid);
         dialogportenTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
     }
 
