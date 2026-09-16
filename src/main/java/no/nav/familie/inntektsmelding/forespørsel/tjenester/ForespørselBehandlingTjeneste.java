@@ -424,10 +424,7 @@ public class ForespørselBehandlingTjeneste {
                 URI.create(hentInntektsmeldingPdfUrl));
         }
 
-        // Oppdater status i altinn dialogporten
-        if (forespørsel.getDialogportenUuid().isPresent()) {
-            prosessTaskTjeneste.lagre(OppdaterDialogMedEndretInntektsmeldingTask.lagTaskData(forespørsel.getUuid(), inntektsmeldingUuid));
-        }
+        prosessTaskTjeneste.lagre(OppdaterDialogMedEndretInntektsmeldingTask.lagTaskData(forespørsel.getUuid(), inntektsmeldingUuid));
     }
 
     public UUID opprettForespørselForArbeidsgiverInitiertInntektsmelding(AktørIdEntitet aktørId,
