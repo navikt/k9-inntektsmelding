@@ -67,7 +67,6 @@ public class ForespørselBehandlingTjeneste {
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private String arbeidsgiverportalSkjemaLenke;
-    private boolean dialogportenEnabled;
 
     ForespørselBehandlingTjeneste() {
         // CDI
@@ -85,7 +84,6 @@ public class ForespørselBehandlingTjeneste {
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.arbeidsgiverportalSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
-        this.dialogportenEnabled = ENV.getProperty("dialogporten.enabled", Boolean.class, false);
     }
 
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
@@ -133,14 +131,7 @@ public class ForespørselBehandlingTjeneste {
         }
 
         // Oppdaterer status i altinn dialogporten
-            if (dialogportenEnabled) {
-                try {
-                    prosessTaskTjeneste.lagre(FerdigstillForespørselDialogTask.lagTaskData(foresporselUuid, inntektsmeldingEntitet.map(InntektsmeldingEntitet::getUuid), årsak));
-                } catch (Exception e) {
-                    // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
-                    LOG.warn("Feil ved kall til dialogporten: ", e);
-                }
-            }
+        prosessTaskTjeneste.lagre(FerdigstillForespørselDialogTask.lagTaskData(foresporselUuid, inntektsmeldingEntitet.map(InntektsmeldingEntitet::getUuid), årsak));
         return forespørsel;
     }
 
@@ -323,10 +314,7 @@ public class ForespørselBehandlingTjeneste {
         minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
             ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT, eksisterendeForespørsel.getSkjæringstidspunkt()));
         forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
-        //oppdaterer status til not applicable i altinn dialogporten
-        if (dialogportenEnabled) {
-            prosessTaskTjeneste.lagre(SettDialogTilUtgåttTask.lagTaskData(eksisterendeForespørsel.getUuid()));
-        }
+        prosessTaskTjeneste.lagre(SettDialogTilUtgåttTask.lagTaskData(eksisterendeForespørsel.getUuid()));
 
         LOG.info("Setter forespørsel til utgått, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             new OrganisasjonsnummerDto(eksisterendeForespørsel.getOrganisasjonsnummer()),
@@ -374,15 +362,7 @@ public class ForespørselBehandlingTjeneste {
             forespørselType);
 
         opprettForespørselMinSideArbeidsgiver(ytelsetype, aktørId, organisasjonsnummer, skjæringstidspunkt, etterspurtePerioder, forespørselUuid, forespørselType);
-
-        if (dialogportenEnabled) {
-            try {
-                prosessTaskTjeneste.lagre(OpprettForespørselDialogportenTask.lagTaskData(forespørselUuid));
-            } catch (Exception e) {
-                // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
-                LOG.warn("Feil ved kall til dialogporten: ", e);
-            }
-        }
+        prosessTaskTjeneste.lagre(OpprettForespørselDialogportenTask.lagTaskData(forespørselUuid));
     }
 
     private void opprettForespørselMinSideArbeidsgiver(Ytelsetype ytelsetype,
@@ -470,14 +450,7 @@ public class ForespørselBehandlingTjeneste {
         // oppdater forespørsel med sakId fra min side arbeidsgiver
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(forespørselUuid, arbeidsgiverNotifikasjonSakId);
 
-        if (dialogportenEnabled) {
-            try {
-                prosessTaskTjeneste.lagre(OpprettForespørselDialogportenTask.lagTaskData(forespørselUuid));
-            } catch (Exception e) {
-                // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
-                LOG.warn("Feil ved kall til dialogporten: ", e);
-            }
-        }
+        prosessTaskTjeneste.lagre(OpprettForespørselDialogportenTask.lagTaskData(forespørselUuid));
 
         return forespørselUuid;
     }
@@ -497,14 +470,7 @@ public class ForespørselBehandlingTjeneste {
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(forespørselUuid, arbeidsgiverNotifikasjonSakId);
 
-        if (dialogportenEnabled) {
-            try {
-                prosessTaskTjeneste.lagre(OpprettForespørselDialogportenTask.lagTaskData(forespørselUuid));
-            } catch (Exception e) {
-                // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
-                LOG.warn("Feil ved kall til dialogporten: ", e);
-            }
-        }
+        prosessTaskTjeneste.lagre(OpprettForespørselDialogportenTask.lagTaskData(forespørselUuid));
 
         return forespørselUuid;
     }
@@ -653,8 +619,6 @@ public class ForespørselBehandlingTjeneste {
         minSideArbeidsgiverTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
 
         // Send melding til dialogporten
-        if (dialogportenEnabled) {
-            prosessTaskTjeneste.lagre(SendMeldingOmAvvistInntektsmeldingTask.lagTaskData(forespørsel.getUuid(), feilmelding));
-        }
+        prosessTaskTjeneste.lagre(SendMeldingOmAvvistInntektsmeldingTask.lagTaskData(forespørsel.getUuid(), feilmelding));
     }
 }
