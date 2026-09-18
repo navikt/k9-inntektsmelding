@@ -10,6 +10,9 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnExchangeTokenKlient;
@@ -27,6 +30,9 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "altinn.tre.base.url", scopesProperty = "maskinporten.dialogporten.scope")
 public class DialogportenKlient {
+    private static final Logger LOG = LoggerFactory.getLogger(DialogportenKlient.class);
+    private static final String UKJENT_AKTØR_FEILTEKST = "Unable to look up name for actor id";
+
     private static final Environment ENV = Environment.current();
     private final RestClient restClient;
     private final RestConfig restConfig;
@@ -36,6 +42,7 @@ public class DialogportenKlient {
     private final String sendInntektsmeldingApiLenke;
     private final String forespørselApiLenke;
     private final String dokumentasjonsLenke;
+    private final boolean ignorerUkjentAktørFeil;
 
     DialogportenKlient() {
         this(RestClient.client());
@@ -50,13 +57,14 @@ public class DialogportenKlient {
         this.sendInntektsmeldingApiLenke = ENV.getProperty("inntektsmelding.api.lenke");
         this.forespørselApiLenke = ENV.getProperty("foresporsel.api.lenke");
         this.dokumentasjonsLenke = ENV.getProperty("inntektsmelding.dokumentasjon.lenke");
+        this.ignorerUkjentAktørFeil = ENV.getProperty("dialogporten.ignorer.ukjent.aktoer", boolean.class, false);
     }
 
-    public String opprettDialog(UUID forespørselUuid,
-                                ArbeidsgiverDto arbeidsgiver,
-                                String sakstittel,
-                                LocalDate førsteUttaksdato,
-                                Ytelsetype ytelsetype) {
+    String opprettDialog(UUID forespørselUuid,
+                         ArbeidsgiverDto arbeidsgiver,
+                         String sakstittel,
+                         LocalDate førsteUttaksdato,
+                         Ytelsetype ytelsetype) {
         var uri = URI.create(restConfig.endpoint().toString() + "/dialogporten/api/v1/serviceowner/dialogs");
         var opprettRequest = DialogportenRequestMapper.opprettDialogRequest(arbeidsgiver,
             forespørselUuid,
@@ -74,13 +82,13 @@ public class DialogportenKlient {
         return handleResponse(response);
     }
 
-    public void ferdigstillDialog(UUID dialogUuid,
-                                  ArbeidsgiverDto arbeidsgiver,
-                                  String sakstittel,
-                                  Ytelsetype ytelsetype,
-                                  LocalDate førsteUttaksdato,
-                                  Optional<UUID> inntektsmeldingUuid,
-                                  LukkeÅrsak lukkeÅrsak) {
+    void ferdigstillDialog(UUID dialogUuid,
+                           ArbeidsgiverDto arbeidsgiver,
+                           String sakstittel,
+                           Ytelsetype ytelsetype,
+                           LocalDate førsteUttaksdato,
+                           Optional<UUID> inntektsmeldingUuid,
+                           LukkeÅrsak lukkeÅrsak) {
         var patchRequestFerdig = DialogportenRequestMapper.opprettFerdigstillPatchRequest(sakstittel,
             arbeidsgiver,
             ytelsetype,
@@ -92,9 +100,9 @@ public class DialogportenKlient {
         sendPatchRequest(dialogUuid, patchRequestFerdig);
     }
 
-    public void oppdaterDialogMedEndretInntektsmelding(UUID dialogUuid,
-                                                       ArbeidsgiverDto arbeidsgiver,
-                                                       Optional<UUID> inntektsmeldingUuid) {
+    void oppdaterDialogMedEndretInntektsmelding(UUID dialogUuid,
+                                                ArbeidsgiverDto arbeidsgiver,
+                                                Optional<UUID> inntektsmeldingUuid) {
         var patchRequestInnsendt = DialogportenRequestMapper.opprettInnsendtInntektsmeldingPatchRequest(
             arbeidsgiver,
             inntektsmeldingUuid,
@@ -103,7 +111,7 @@ public class DialogportenKlient {
         sendPatchRequest(dialogUuid, patchRequestInnsendt);
     }
 
-    public void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String avvistTekst) {
+    void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel, String avvistTekst) {
         if (forespørsel.getDialogportenUuid().isEmpty()) {
             throw new IllegalStateException("Forespørsel med uuid " + forespørsel.getUuid() + " har ikke dialogportenUuid, kan ikke sende melding om avvist inntektsmelding");
         }
@@ -112,7 +120,7 @@ public class DialogportenKlient {
         sendPatchRequest(forespørsel.getDialogportenUuid().get(), List.of(patchAvvistInntektsmelding));
     }
 
-    public void settDialogTilUtgått(UUID dialogUuid, String sakstittel) {
+    void settDialogTilUtgått(UUID dialogUuid, String sakstittel) {
         var patchRequestUtgått = DialogportenRequestMapper.opprettUtgåttPatchRequest(sakstittel);
         sendPatchRequest(dialogUuid, patchRequestUtgått);
     }
@@ -127,17 +135,31 @@ public class DialogportenKlient {
 
         var response = restClient.sendReturnUnhandled(restRequest);
 
-        handleResponse(response);
+        handleResponse(response, ignorerUkjentAktørFeil);
     }
 
     private String handleResponse(HttpResponse<String> response) {
+        return handleResponse(response, false);
+    }
+
+    private String handleResponse(HttpResponse<String> response, boolean ignorerUkjentAktørFeil) {
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             return response.body();
-        } else {
-            String msg = String.format("Kall til Altinn dialogporten feilet med statuskode %s. Full feilmelding var: %s",
+        }
+        if (ignorerUkjentAktørFeil && erUkjentAktørFeil(response)) {
+            LOG.warn(
+                "Ignorerer feil fra Dialogporten pga. ukjent aktør (kun aktivert i dev, se 'dialogporten.ignorer.ukjent.aktoer'). Statuskode {}, full feilmelding: {}",
                 response.statusCode(),
                 response.body());
-            throw new IntegrasjonException("K9INNTEKTSMELDING-542684", msg);
+            return null;
         }
+        String msg = String.format("Kall til Altinn dialogporten feilet med statuskode %s. Full feilmelding var: %s",
+            response.statusCode(),
+            response.body());
+        throw new IntegrasjonException("K9INNTEKTSMELDING-542684", msg);
+    }
+
+    static boolean erUkjentAktørFeil(HttpResponse<String> response) {
+        return response.statusCode() == 422 && response.body() != null && response.body().contains(UKJENT_AKTØR_FEILTEKST);
     }
 }

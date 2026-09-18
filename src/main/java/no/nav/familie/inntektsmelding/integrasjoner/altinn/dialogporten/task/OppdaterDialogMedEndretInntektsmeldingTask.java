@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,31 +17,30 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = SendMeldingOmAvvistInntektsmeldingTask.TASK_TYPE)
-public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(SendMeldingOmAvvistInntektsmeldingTask.class);
-    public static final String TASK_TYPE = "dialogporten.send.avvist.melding";
+@ProsessTask(value = OppdaterDialogMedEndretInntektsmeldingTask.TASK_TYPE)
+public class OppdaterDialogMedEndretInntektsmeldingTask implements ProsessTaskHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(OppdaterDialogMedEndretInntektsmeldingTask.class);
+    public static final String TASK_TYPE = "dialogporten.oppdater.ny.inntektsmelding";
 
     public static final String FORESPØRSEL_UUID = "forespoerselUuid";
+    public static final String INNTEKTSMELDING_UUID = "inntektsmeldingUuid";
 
-    private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private DialogportenTjeneste dialogportenTjeneste;
+    private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
-    SendMeldingOmAvvistInntektsmeldingTask() {
+    OppdaterDialogMedEndretInntektsmeldingTask() {
         // CDI
     }
 
     @Inject
-    public SendMeldingOmAvvistInntektsmeldingTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
-                                                  DialogportenTjeneste dialogportenTjeneste) {
-        this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
+    public OppdaterDialogMedEndretInntektsmeldingTask(DialogportenTjeneste dialogportenTjeneste, ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
         this.dialogportenTjeneste = dialogportenTjeneste;
+        this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
     }
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         UUID forespørselUuid = UUID.fromString(prosessTaskData.getPropertyValue(FORESPØRSEL_UUID));
-        String feilmelding = prosessTaskData.getPayloadAsString();
 
         ForespørselEntitet forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
@@ -50,15 +50,17 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
             return;
         }
 
-        LOG.info("Sender melding om avvist inntektsmelding i dialogporten for forespørsel: {}", forespørselUuid);
-        dialogportenTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
+        Optional<UUID> inntektsmeldingUuid = Optional.ofNullable(prosessTaskData.getPropertyValue(INNTEKTSMELDING_UUID))
+            .map(UUID::fromString);
+
+        LOG.info("Oppdaterer forespørsel med inntektsmelding i dialogporten for forespørsel uuid: {}", forespørselUuid);
+        dialogportenTjeneste.oppdaterDialogMedEndretInntektsmelding(forespørsel, inntektsmeldingUuid);
     }
 
-    public static ProsessTaskData lagTaskData(UUID forespørselUuid, String feilmelding) {
-        ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(SendMeldingOmAvvistInntektsmeldingTask.class);
+    public static ProsessTaskData lagTaskData(UUID forespørselUuid, Optional<UUID> inntektsmeldingUuid) {
+        ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(OppdaterDialogMedEndretInntektsmeldingTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
-        prosessTaskData.setPayload(feilmelding);
+        inntektsmeldingUuid.ifPresent(uuid -> prosessTaskData.setProperty(INNTEKTSMELDING_UUID, uuid.toString()));
         return prosessTaskData;
     }
 }
-

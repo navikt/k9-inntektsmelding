@@ -16,31 +16,29 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(value = SendMeldingOmAvvistInntektsmeldingTask.TASK_TYPE)
-public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(SendMeldingOmAvvistInntektsmeldingTask.class);
-    public static final String TASK_TYPE = "dialogporten.send.avvist.melding";
+@ProsessTask(value = SettDialogTilUtgåttTask.TASK_TYPE)
+public class SettDialogTilUtgåttTask implements ProsessTaskHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(SettDialogTilUtgåttTask.class);
+    public static final String TASK_TYPE = "dialogporten.utgått.forespørsel";
 
     public static final String FORESPØRSEL_UUID = "forespoerselUuid";
 
-    private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private DialogportenTjeneste dialogportenTjeneste;
+    private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
-    SendMeldingOmAvvistInntektsmeldingTask() {
+    SettDialogTilUtgåttTask() {
         // CDI
     }
 
     @Inject
-    public SendMeldingOmAvvistInntektsmeldingTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
-                                                  DialogportenTjeneste dialogportenTjeneste) {
-        this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
+    public SettDialogTilUtgåttTask(DialogportenTjeneste dialogportenTjeneste, ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
         this.dialogportenTjeneste = dialogportenTjeneste;
+        this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
     }
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         UUID forespørselUuid = UUID.fromString(prosessTaskData.getPropertyValue(FORESPØRSEL_UUID));
-        String feilmelding = prosessTaskData.getPayloadAsString();
 
         ForespørselEntitet forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
@@ -50,15 +48,14 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
             return;
         }
 
-        LOG.info("Sender melding om avvist inntektsmelding i dialogporten for forespørsel: {}", forespørselUuid);
-        dialogportenTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
+        LOG.info("Setter forespørsel til utgått i dialogporten for forespørsel uuid: {}", forespørselUuid);
+
+        dialogportenTjeneste.settDialogTilUtgått(forespørsel);
     }
 
-    public static ProsessTaskData lagTaskData(UUID forespørselUuid, String feilmelding) {
-        ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(SendMeldingOmAvvistInntektsmeldingTask.class);
+    public static ProsessTaskData lagTaskData(UUID forespørselUuid) {
+        ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(SettDialogTilUtgåttTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
-        prosessTaskData.setPayload(feilmelding);
         return prosessTaskData;
     }
 }
-
