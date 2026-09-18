@@ -85,7 +85,7 @@ public class ForespørselBehandlingTjeneste {
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.arbeidsgiverportalSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
-        this.dialogportenEnabled = ENV.getProperty("dialogporten.enabled", Boolean.class, false);
+        this.dialogportenEnabled = ENV.getProperty("dialogporten.enabled", Boolean.class, true);
     }
 
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
