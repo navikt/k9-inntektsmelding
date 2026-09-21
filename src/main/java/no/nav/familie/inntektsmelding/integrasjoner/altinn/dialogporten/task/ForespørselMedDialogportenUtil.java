@@ -12,7 +12,7 @@ import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandl
 @ApplicationScoped
 public class ForespørselMedDialogportenUtil {
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselMedDialogportenUtil.class);
-    private static final long VENTETID_MILLIS = 2000;
+    private static final long VENTETID_MILLIS = 5000;
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
