@@ -50,9 +50,14 @@ public class DialogportenTjeneste {
                                                Ytelsetype ytelsetype,
                                                LocalDate førsteUttaksdato) {
         String saksTittelDialog = lagSaksTittelForDialogporten(aktørId);
-        String dialogPortenUuid = dialogportenKlient.opprettDialog(forespørselUuid, arbeidsgiver, saksTittelDialog, førsteUttaksdato, ytelsetype);
+        Optional<String> dialogPortenUuid = dialogportenKlient.opprettDialog(forespørselUuid, arbeidsgiver, saksTittelDialog, førsteUttaksdato, ytelsetype);
 
-        String vasketDialogUuid = dialogPortenUuid.replace("\"", "");
+        if (dialogPortenUuid.isEmpty()) {
+            // Kun håndterte feil vil gi en tom optional
+            return;
+        }
+
+        String vasketDialogUuid = dialogPortenUuid.get().replace("\"", "");
         LOG.info("Mottok UUID {} fra dialogporten", vasketDialogUuid);
         forespørselTjeneste.setDialogportenUuid(forespørselUuid, UUID.fromString(vasketDialogUuid));
     }

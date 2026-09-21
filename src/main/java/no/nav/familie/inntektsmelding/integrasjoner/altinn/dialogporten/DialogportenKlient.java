@@ -60,7 +60,7 @@ public class DialogportenKlient {
         this.ignorerUkjentAktørFeil = ENV.getProperty("dialogporten.ignorer.ukjent.aktoer", boolean.class, false);
     }
 
-    String opprettDialog(UUID forespørselUuid,
+    Optional<String> opprettDialog(UUID forespørselUuid,
                          ArbeidsgiverDto arbeidsgiver,
                          String sakstittel,
                          LocalDate førsteUttaksdato,
@@ -79,7 +79,7 @@ public class DialogportenKlient {
             .otherAuthorizationSupplier(() -> tokenKlient.hentAltinnToken(this.restConfig.scopes()));
 
         var response = restClient.sendReturnUnhandled(request);
-        return handleResponse(response);
+        return Optional.ofNullable(handleResponse(response));
     }
 
     void ferdigstillDialog(UUID dialogUuid,
@@ -135,14 +135,10 @@ public class DialogportenKlient {
 
         var response = restClient.sendReturnUnhandled(restRequest);
 
-        handleResponse(response, ignorerUkjentAktørFeil);
+        handleResponse(response);
     }
 
     private String handleResponse(HttpResponse<String> response) {
-        return handleResponse(response, false);
-    }
-
-    private String handleResponse(HttpResponse<String> response, boolean ignorerUkjentAktørFeil) {
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             return response.body();
         }
