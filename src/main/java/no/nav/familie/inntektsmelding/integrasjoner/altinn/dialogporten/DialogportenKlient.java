@@ -79,7 +79,7 @@ public class DialogportenKlient {
             .otherAuthorizationSupplier(() -> tokenKlient.hentAltinnToken(this.restConfig.scopes()));
 
         var response = restClient.sendReturnUnhandled(request);
-        return Optional.ofNullable(handleResponse(response));
+        return Optional.ofNullable(handleResponse(response, ignorerUkjentAktørFeil));
     }
 
     void ferdigstillDialog(UUID dialogUuid,
@@ -135,10 +135,10 @@ public class DialogportenKlient {
 
         var response = restClient.sendReturnUnhandled(restRequest);
 
-        handleResponse(response);
+        handleResponse(response, ignorerUkjentAktørFeil);
     }
 
-    private String handleResponse(HttpResponse<String> response) {
+    private String handleResponse(HttpResponse<String> response, boolean ignorerUkjentAktørFeil) {
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             return response.body();
         }
