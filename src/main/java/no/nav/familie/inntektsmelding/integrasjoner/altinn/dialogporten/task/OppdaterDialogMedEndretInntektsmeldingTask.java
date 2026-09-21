@@ -55,7 +55,7 @@ public class OppdaterDialogMedEndretInntektsmeldingTask implements ProsessTaskHa
         }
 
         if (forespørsel.getDialogportenUuid().isEmpty()) {
-            forespørsel = forespørselMedDialogportenUtil.ventOgHentForespørselMedDialogporten(forespørselUuid);
+            forespørsel = forespørselMedDialogportenUtil.ventOgHentForespørselMedDialogporten(forespørsel);
         }
 
         Optional<UUID> inntektsmeldingUuid = Optional.ofNullable(prosessTaskData.getPropertyValue(INNTEKTSMELDING_UUID))

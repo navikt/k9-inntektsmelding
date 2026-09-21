@@ -139,6 +139,10 @@ public class ForespørselBehandlingTjeneste {
         return forespørselTjeneste.hentForespørsel(forespørselUUID);
     }
 
+    public void refresh(ForespørselEntitet forespørsel) {
+        forespørselTjeneste.refresh(forespørsel);
+    }
+
     public List<ForespørselEntitet> hentForespørsler(ArbeidsgiverDto arbeidsgiver,
                                                      AktørIdEntitet aktørId,
                                                      ForespørselStatus status,

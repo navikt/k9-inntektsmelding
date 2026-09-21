@@ -1,7 +1,5 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task;
 
-import java.util.UUID;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -27,20 +25,20 @@ public class ForespørselMedDialogportenUtil {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
     }
 
-    ForespørselEntitet ventOgHentForespørselMedDialogporten(UUID forespørselUuid) {
-        LOG.info("Forespørsel med uuid {} mangler dialogportenUuid. Venter {} sekunder før vi henter forespørsel på nytt, det kan være dialogen nettopp er opprettet i Dialogporten", forespørselUuid, VENTETID_MILLIS / 1000);
+    ForespørselEntitet ventOgHentForespørselMedDialogporten(ForespørselEntitet forespørsel) {
+        LOG.info("Forespørsel med uuid {} mangler dialogportenUuid. Venter {} sekunder før vi henter forespørsel på nytt, det kan være dialogen nettopp er opprettet i Dialogporten",
+            forespørsel.getUuid(), VENTETID_MILLIS / 1000);
         try {
             Thread.sleep(VENTETID_MILLIS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Ble avbrutt under venting på dialogportenUuid for forespørsel " + forespørselUuid, e);
+            throw new IllegalStateException("Ble avbrutt under venting på dialogportenUuid for forespørsel " + forespørsel, e);
         }
 
-        ForespørselEntitet forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
-            .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
+        forespørselBehandlingTjeneste.refresh(forespørsel);
 
         if (forespørsel.getDialogportenUuid().isEmpty()) {
-            throw new IllegalStateException("Forespørsel med uuid " + forespørselUuid + " mangler fortsatt dialogportenUuid etter ventetid.");
+            throw new IllegalStateException("Forespørsel med uuid " + forespørsel + " mangler fortsatt dialogportenUuid etter ventetid.");
         }
 
         return forespørsel;
