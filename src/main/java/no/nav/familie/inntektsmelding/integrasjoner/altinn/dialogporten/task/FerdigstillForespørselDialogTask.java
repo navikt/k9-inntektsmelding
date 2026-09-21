@@ -52,6 +52,23 @@ public class FerdigstillForespørselDialogTask implements ProsessTaskHandler {
             return;
         }
 
+        if (forespørsel.getDialogportenUuid().isEmpty()) {
+            LOG.info("Forespørsel med uuid {} mangler dialogportenUuid. Venter 2 sekunder før vi henter forespørsel på nytt, det kan være dialogen nettopp er opprettet i Dialogporten", forespørselUuid);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Ble avbrutt under venting på dialogportenUuid for forespørsel " + forespørselUuid, e);
+            }
+
+            forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
+                .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
+
+            if (forespørsel.getDialogportenUuid().isEmpty()) {
+                throw new IllegalStateException("Forespørsel med uuid " + forespørselUuid + " mangler fortsatt dialogportenUuid etter ventetid.");
+            }
+        }
+
         LukkeÅrsak lukkeÅrsak = LukkeÅrsak.valueOf(prosessTaskData.getPropertyValue(LUKKE_ÅRSAK));
 
         Optional<UUID> inntektsmeldingUuid = Optional.ofNullable(prosessTaskData.getPropertyValue(INNTEKTSMELDING_UUID))

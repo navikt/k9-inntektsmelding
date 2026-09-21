@@ -50,6 +50,23 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
             return;
         }
 
+        if (forespørsel.getDialogportenUuid().isEmpty()) {
+            LOG.info("Forespørsel med uuid {} mangler dialogportenUuid. Venter 2 sekunder før vi henter forespørsel på nytt, det kan være dialogen nettopp er opprettet i Dialogporten", forespørselUuid);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Ble avbrutt under venting på dialogportenUuid for forespørsel " + forespørselUuid, e);
+            }
+
+            forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
+                .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
+
+            if (forespørsel.getDialogportenUuid().isEmpty()) {
+                throw new IllegalStateException("Forespørsel med uuid " + forespørselUuid + " mangler fortsatt dialogportenUuid etter ventetid.");
+            }
+        }
+
         LOG.info("Sender melding om avvist inntektsmelding i dialogporten for forespørsel: {}", forespørselUuid);
         dialogportenTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
     }
