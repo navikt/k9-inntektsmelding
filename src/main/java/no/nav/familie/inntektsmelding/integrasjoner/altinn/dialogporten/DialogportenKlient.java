@@ -143,7 +143,7 @@ public class DialogportenKlient {
             return response.body();
         }
         if (ignorerUkjentAktørFeil && erUkjentAktørFeil(response)) {
-            LOG.warn(
+            LOG.info(
                 "Ignorerer feil fra Dialogporten pga. ukjent aktør (kun aktivert i dev, se 'dialogporten.ignorer.ukjent.aktoer'). Statuskode {}, full feilmelding: {}",
                 response.statusCode(),
                 response.body());
