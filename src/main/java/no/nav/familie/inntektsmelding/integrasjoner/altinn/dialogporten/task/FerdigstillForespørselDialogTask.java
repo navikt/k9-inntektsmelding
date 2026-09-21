@@ -29,15 +29,19 @@ public class FerdigstillForespørselDialogTask implements ProsessTaskHandler {
 
     private DialogportenTjeneste dialogportenTjeneste;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
+    private ForespørselMedDialogportenUtil forespørselMedDialogportenUtil;
 
     FerdigstillForespørselDialogTask() {
         // CDI
     }
 
     @Inject
-    public FerdigstillForespørselDialogTask(DialogportenTjeneste dialogportenTjeneste, ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
+    public FerdigstillForespørselDialogTask(DialogportenTjeneste dialogportenTjeneste,
+                                            ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
+                                            ForespørselMedDialogportenUtil forespørselMedDialogportenUtil) {
         this.dialogportenTjeneste = dialogportenTjeneste;
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
+        this.forespørselMedDialogportenUtil = forespørselMedDialogportenUtil;
     }
 
     @Override
@@ -53,20 +57,7 @@ public class FerdigstillForespørselDialogTask implements ProsessTaskHandler {
         }
 
         if (forespørsel.getDialogportenUuid().isEmpty()) {
-            LOG.info("Forespørsel med uuid {} mangler dialogportenUuid. Venter 2 sekunder før vi henter forespørsel på nytt, det kan være dialogen nettopp er opprettet i Dialogporten", forespørselUuid);
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new IllegalStateException("Ble avbrutt under venting på dialogportenUuid for forespørsel " + forespørselUuid, e);
-            }
-
-            forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
-                .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
-
-            if (forespørsel.getDialogportenUuid().isEmpty()) {
-                throw new IllegalStateException("Forespørsel med uuid " + forespørselUuid + " mangler fortsatt dialogportenUuid etter ventetid.");
-            }
+            forespørsel = forespørselMedDialogportenUtil.ventOgHentForespørselMedDialogporten(forespørselUuid);
         }
 
         LukkeÅrsak lukkeÅrsak = LukkeÅrsak.valueOf(prosessTaskData.getPropertyValue(LUKKE_ÅRSAK));
