@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task;
 
+import static no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.HåndterRekkefølgeAvDialogportenTasks.FORESPØRSEL_UUID;
+
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,11 +23,8 @@ public class SettDialogTilUtgåttTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SettDialogTilUtgåttTask.class);
     public static final String TASK_TYPE = "dialogporten.utgått.forespørsel";
 
-    public static final String FORESPØRSEL_UUID = "forespoerselUuid";
-
     private DialogportenTjeneste dialogportenTjeneste;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private ForespørselMedDialogportenUtil forespørselMedDialogportenUtil;
 
     SettDialogTilUtgåttTask() {
         // CDI
@@ -33,11 +32,9 @@ public class SettDialogTilUtgåttTask implements ProsessTaskHandler {
 
     @Inject
     public SettDialogTilUtgåttTask(DialogportenTjeneste dialogportenTjeneste,
-                                   ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
-                                   ForespørselMedDialogportenUtil forespørselMedDialogportenUtil) {
+                                   ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
         this.dialogportenTjeneste = dialogportenTjeneste;
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
-        this.forespørselMedDialogportenUtil = forespørselMedDialogportenUtil;
     }
 
     @Override
@@ -50,10 +47,6 @@ public class SettDialogTilUtgåttTask implements ProsessTaskHandler {
         if (dialogportenTjeneste.erOpprettetFørProdsetting(forespørsel) && forespørsel.getDialogportenUuid().isEmpty()) {
             LOG.info("Forespørsel med uuid {} er opprettet før Dialogporten ble satt i produksjon. Det finnes derfor ingen forespørsel i Dialogporten. Hopper over oppdatering", forespørselUuid);
             return;
-        }
-
-        if (forespørsel.getDialogportenUuid().isEmpty()) {
-            forespørsel = forespørselMedDialogportenUtil.ventOgHentForespørselMedDialogporten(forespørsel);
         }
 
         LOG.info("Setter forespørsel til utgått i dialogporten for forespørsel uuid: {}", forespørselUuid);

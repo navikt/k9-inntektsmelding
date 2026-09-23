@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
+import static no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.HåndterRekkefølgeAvDialogportenTasks.FORESPØRSEL_UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -121,7 +122,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         var taskdata = taskCaptor.getValue();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OpprettForespørselDialogportenTask.class));
-        assertThat(taskdata.getPropertyValue(OpprettForespørselDialogportenTask.FORESPØRSEL_UUID)).isEqualTo(uuid.toString());
+        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(uuid.toString());
     }
 
     @Test
@@ -153,7 +154,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         var taskdata = taskCaptor.getValue();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselDialogTask.class));
-        assertThat(taskdata.getPropertyValue(FerdigstillForespørselDialogTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
         assertThat(taskdata.getPropertyValue(FerdigstillForespørselDialogTask.INNTEKTSMELDING_UUID)).isEqualTo(inntektsmelding.getUuid().toString());
         assertThat(taskdata.getPropertyValue(FerdigstillForespørselDialogTask.LUKKE_ÅRSAK)).isEqualTo(LukkeÅrsak.ORDINÆR_INNSENDING.name());
     }
@@ -186,7 +187,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         var taskdata = taskCaptor.getValue();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselDialogTask.class));
-        assertThat(taskdata.getPropertyValue(FerdigstillForespørselDialogTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
         assertThat(taskdata.getPropertyValue(FerdigstillForespørselDialogTask.INNTEKTSMELDING_UUID)).isEqualTo(inntektsmelding.getUuid().toString());
         assertThat(taskdata.getPropertyValue(FerdigstillForespørselDialogTask.LUKKE_ÅRSAK)).isEqualTo(LukkeÅrsak.ORDINÆR_INNSENDING.name());
     }
@@ -214,7 +215,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         verify(prosessTaskTjeneste, Mockito.times(2)).lagre(taskCaptor.capture());
         var taskdataListe = taskCaptor.getAllValues();
         assertThat(taskdataListe).allSatisfy(taskdata -> assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselDialogTask.class)));
-        assertThat(taskdataListe.stream().map(td -> td.getPropertyValue(FerdigstillForespørselDialogTask.FORESPØRSEL_UUID)))
+        assertThat(taskdataListe.stream().map(td -> td.getPropertyValue(FORESPØRSEL_UUID)))
             .containsExactlyInAnyOrder(forespørselUuid.toString(), forespørselUuid2.toString());
     }
 
@@ -263,7 +264,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         var taskdata = taskCaptor.getValue();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselDialogTask.class));
-        assertThat(taskdata.getPropertyValue(FerdigstillForespørselDialogTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
     }
 
     @Test

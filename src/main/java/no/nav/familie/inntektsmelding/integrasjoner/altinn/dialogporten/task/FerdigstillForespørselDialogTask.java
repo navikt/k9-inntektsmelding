@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task;
 
+import static no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.HåndterRekkefølgeAvDialogportenTasks.FORESPØRSEL_UUID;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,13 +25,11 @@ public class FerdigstillForespørselDialogTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(FerdigstillForespørselDialogTask.class);
     public static final String TASK_TYPE = "dialogporten.ferdigstill.forespørsel";
 
-    public static final String FORESPØRSEL_UUID = "forespoerselUuid";
     public static final String INNTEKTSMELDING_UUID = "inntektsmeldingUuid";
     public static final String LUKKE_ÅRSAK = "lukkeAarsak";
 
     private DialogportenTjeneste dialogportenTjeneste;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private ForespørselMedDialogportenUtil forespørselMedDialogportenUtil;
 
     FerdigstillForespørselDialogTask() {
         // CDI
@@ -37,11 +37,9 @@ public class FerdigstillForespørselDialogTask implements ProsessTaskHandler {
 
     @Inject
     public FerdigstillForespørselDialogTask(DialogportenTjeneste dialogportenTjeneste,
-                                            ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
-                                            ForespørselMedDialogportenUtil forespørselMedDialogportenUtil) {
+                                            ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
         this.dialogportenTjeneste = dialogportenTjeneste;
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
-        this.forespørselMedDialogportenUtil = forespørselMedDialogportenUtil;
     }
 
     @Override
@@ -54,10 +52,6 @@ public class FerdigstillForespørselDialogTask implements ProsessTaskHandler {
         if (dialogportenTjeneste.erOpprettetFørProdsetting(forespørsel) && forespørsel.getDialogportenUuid().isEmpty()) {
             LOG.info("Forespørsel med uuid {} er opprettet før Dialogporten ble satt i produksjon. Det finnes derfor ingen forespørsel i Dialogporten. Hopper over ferdigstilling", forespørselUuid);
             return;
-        }
-
-        if (forespørsel.getDialogportenUuid().isEmpty()) {
-            forespørsel = forespørselMedDialogportenUtil.ventOgHentForespørselMedDialogporten(forespørsel);
         }
 
         LukkeÅrsak lukkeÅrsak = LukkeÅrsak.valueOf(prosessTaskData.getPropertyValue(LUKKE_ÅRSAK));

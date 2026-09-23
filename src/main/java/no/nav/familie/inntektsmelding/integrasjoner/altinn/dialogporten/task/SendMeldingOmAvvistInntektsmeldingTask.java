@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task;
 
+import static no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.HåndterRekkefølgeAvDialogportenTasks.FORESPØRSEL_UUID;
+
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,11 +23,8 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
     private static final Logger LOG = LoggerFactory.getLogger(SendMeldingOmAvvistInntektsmeldingTask.class);
     public static final String TASK_TYPE = "dialogporten.send.avvist.melding";
 
-    public static final String FORESPØRSEL_UUID = "forespoerselUuid";
-
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private DialogportenTjeneste dialogportenTjeneste;
-    private ForespørselMedDialogportenUtil forespørselMedDialogportenUtil;
 
     SendMeldingOmAvvistInntektsmeldingTask() {
         // CDI
@@ -33,11 +32,9 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
 
     @Inject
     public SendMeldingOmAvvistInntektsmeldingTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
-                                                  DialogportenTjeneste dialogportenTjeneste,
-                                                  ForespørselMedDialogportenUtil forespørselMedDialogportenUtil) {
+                                                  DialogportenTjeneste dialogportenTjeneste) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
         this.dialogportenTjeneste = dialogportenTjeneste;
-        this.forespørselMedDialogportenUtil = forespørselMedDialogportenUtil;
     }
 
     @Override
@@ -51,10 +48,6 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
         if (dialogportenTjeneste.erOpprettetFørProdsetting(forespørsel) && forespørsel.getDialogportenUuid().isEmpty()) {
             LOG.info("Forespørsel med uuid {} er opprettet før Dialogporten ble satt i produksjon. Det finnes derfor ingen forespørsel i Dialogporten. Hopper over oppdatering", forespørselUuid);
             return;
-        }
-
-        if (forespørsel.getDialogportenUuid().isEmpty()) {
-            forespørsel = forespørselMedDialogportenUtil.ventOgHentForespørselMedDialogporten(forespørsel);
         }
 
         LOG.info("Sender melding om avvist inntektsmelding i dialogporten for forespørsel: {}", forespørselUuid);

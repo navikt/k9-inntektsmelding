@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task;
 
+import static no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.HåndterRekkefølgeAvDialogportenTasks.FORESPØRSEL_UUID;
+
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,8 +23,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class OpprettForespørselDialogportenTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OpprettForespørselDialogportenTask.class);
     public static final String TASK_TYPE = "dialogporten.opprett.forespørsel";
-
-    public static final String FORESPØRSEL_UUID = "forespoerselUuid";
 
     private DialogportenTjeneste dialogportenTjeneste;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;

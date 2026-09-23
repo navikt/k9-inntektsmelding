@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task;
 
+import static no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.HåndterRekkefølgeAvDialogportenTasks.FORESPØRSEL_UUID;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,12 +24,10 @@ public class OppdaterDialogMedEndretInntektsmeldingTask implements ProsessTaskHa
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterDialogMedEndretInntektsmeldingTask.class);
     public static final String TASK_TYPE = "dialogporten.oppdater.ny.inntektsmelding";
 
-    public static final String FORESPØRSEL_UUID = "forespoerselUuid";
     public static final String INNTEKTSMELDING_UUID = "inntektsmeldingUuid";
 
     private DialogportenTjeneste dialogportenTjeneste;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private ForespørselMedDialogportenUtil forespørselMedDialogportenUtil;
 
     OppdaterDialogMedEndretInntektsmeldingTask() {
         // CDI
@@ -35,11 +35,9 @@ public class OppdaterDialogMedEndretInntektsmeldingTask implements ProsessTaskHa
 
     @Inject
     public OppdaterDialogMedEndretInntektsmeldingTask(DialogportenTjeneste dialogportenTjeneste,
-                                                      ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
-                                                      ForespørselMedDialogportenUtil forespørselMedDialogportenUtil) {
+                                                      ForespørselBehandlingTjeneste forespørselBehandlingTjeneste) {
         this.dialogportenTjeneste = dialogportenTjeneste;
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
-        this.forespørselMedDialogportenUtil = forespørselMedDialogportenUtil;
     }
 
     @Override
@@ -52,10 +50,6 @@ public class OppdaterDialogMedEndretInntektsmeldingTask implements ProsessTaskHa
         if (dialogportenTjeneste.erOpprettetFørProdsetting(forespørsel) && forespørsel.getDialogportenUuid().isEmpty()) {
             LOG.info("Forespørsel med uuid {} er opprettet før Dialogporten ble satt i produksjon. Det finnes derfor ingen forespørsel i Dialogporten. Hopper over oppdatering", forespørselUuid);
             return;
-        }
-
-        if (forespørsel.getDialogportenUuid().isEmpty()) {
-            forespørsel = forespørselMedDialogportenUtil.ventOgHentForespørselMedDialogporten(forespørsel);
         }
 
         Optional<UUID> inntektsmeldingUuid = Optional.ofNullable(prosessTaskData.getPropertyValue(INNTEKTSMELDING_UUID))
