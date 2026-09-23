@@ -40,12 +40,12 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         UUID forespørselUuid = UUID.fromString(prosessTaskData.getPropertyValue(FORESPØRSEL_UUID));
-        String feilmelding = prosessTaskData.getPayloadAsString();
+        String avvistTekst = prosessTaskData.getPayloadAsString();
 
         ForespørselEntitet forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
 
-        forespørselBehandlingTjeneste.refresh(forespørsel);
+        LOG.info("Forsøker å sende melding om avvist inntektsmelding for forespørsel i dialogporten for forespørsel med uuid: {} og med dialogportenUuid: {}", forespørselUuid, forespørsel.getDialogportenUuid());
 
         if (dialogportenTjeneste.erOpprettetFørProdsetting(forespørsel) && forespørsel.getDialogportenUuid().isEmpty()) {
             LOG.info("Forespørsel med uuid {} er opprettet før Dialogporten ble satt i produksjon. Det finnes derfor ingen forespørsel i Dialogporten. Hopper over oppdatering", forespørselUuid);
@@ -53,13 +53,13 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
         }
 
         LOG.info("Sender melding om avvist inntektsmelding i dialogporten for forespørsel: {}", forespørselUuid);
-        dialogportenTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
+        dialogportenTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, avvistTekst);
     }
 
-    public static ProsessTaskData lagTaskData(UUID forespørselUuid, String feilmelding) {
+    public static ProsessTaskData lagTaskData(UUID forespørselUuid, String avvistTekst) {
         ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(SendMeldingOmAvvistInntektsmeldingTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
-        prosessTaskData.setPayload(feilmelding);
+        prosessTaskData.setPayload(avvistTekst);
         return prosessTaskData;
     }
 }

@@ -47,7 +47,7 @@ public class OppdaterDialogMedEndretInntektsmeldingTask implements ProsessTaskHa
         ForespørselEntitet forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
 
-        forespørselBehandlingTjeneste.refresh(forespørsel);
+        LOG.info("Forsøker å oppdatere forespørsel i dialogporten for forespørsel med uuid: {} og med dialogportenUuid: {}", forespørselUuid, forespørsel.getDialogportenUuid());
 
         if (dialogportenTjeneste.erOpprettetFørProdsetting(forespørsel) && forespørsel.getDialogportenUuid().isEmpty()) {
             LOG.info("Forespørsel med uuid {} er opprettet før Dialogporten ble satt i produksjon. Det finnes derfor ingen forespørsel i Dialogporten. Hopper over oppdatering", forespørselUuid);
