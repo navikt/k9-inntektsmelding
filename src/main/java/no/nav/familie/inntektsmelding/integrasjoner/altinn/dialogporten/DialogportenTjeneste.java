@@ -53,6 +53,7 @@ public class DialogportenTjeneste {
         Optional<String> dialogPortenUuid = dialogportenKlient.opprettDialog(forespørselUuid, arbeidsgiver, saksTittelDialog, førsteUttaksdato, ytelsetype);
 
         if (dialogPortenUuid.isEmpty()) {
+            LOG.warn("Kun håndterte feil vil gi en tom optional for forespørsel med uuid: {}, dialogportenUuid: {}", forespørselUuid, dialogPortenUuid);
             // Kun håndterte feil vil gi en tom optional
             return;
         }
