@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
+import static no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks.FORESPØRSEL_UUID;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,7 +27,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class GjenåpneForespørselTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(GjenåpneForespørselTask.class);
 
-    public static final String FORESPØRSEL_UUID = "forespoerselUuid";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
@@ -70,6 +71,7 @@ public class GjenåpneForespørselTask implements ProsessTaskHandler {
         ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
         prosessTaskData.setSaksnummer(saksnummerDto.saksnr());
+        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
         return prosessTaskData;
     }
 }

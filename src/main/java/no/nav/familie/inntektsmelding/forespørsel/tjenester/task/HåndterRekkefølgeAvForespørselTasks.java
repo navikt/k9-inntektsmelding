@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -12,6 +13,11 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.FerdigstillForespørselDialogTask;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OppdaterDialogMedEndretInntektsmeldingTask;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OpprettForespørselDialogportenTask;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SendMeldingOmAvvistInntektsmeldingTask;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SettDialogTilUtgåttTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskLifecycleObserver;
@@ -24,6 +30,7 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepository;
 public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecycleObserver {
 
     private static final Logger LOG = LoggerFactory.getLogger(HåndterRekkefølgeAvForespørselTasks.class);
+    public static final String FORESPØRSEL_UUID = "forespoerselUuid";
 
     private static final TaskType OPPRETT = TaskType.forProsessTask(OpprettForespørselTask.class);
 
@@ -31,6 +38,24 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
         OPPRETT,
         TaskType.forProsessTask(SettForespørselTilUtgåttTask.class),
         TaskType.forProsessTask(GjenåpneForespørselTask.class));
+
+    private static final Set<TaskType> TASKER_SOM_OPPDATERER_FORESPØRSEL = Set.of(
+        TaskType.forProsessTask(GjenåpneForespørselTask.class),
+        TaskType.forProsessTask(OppdaterForespørselTask.class),
+        TaskType.forProsessTask(SettForespørselTilUtgåttTask.class)
+    );
+
+    private static final Set<TaskType> TASKER_SOM_SETTER_EKSTERN_REFERANSE_PÅ_FORESPØRSEL = Set.of(
+        TaskType.forProsessTask(OpprettForespørselDialogportenTask.class)
+    );
+
+    private static final Set<TaskType> TASKER_SOM_OPPDATERER_DIALOGPORTEN_ELLER_NAV_NO_MED_EKSTERN_REFERANSE = Set.of(
+        TaskType.forProsessTask(FerdigstillForespørselDialogTask.class),
+        TaskType.forProsessTask(OppdaterDialogMedEndretInntektsmeldingTask.class),
+        TaskType.forProsessTask(SendMeldingOmAvvistInntektsmeldingTask.class),
+        TaskType.forProsessTask(SendNyBeskjedOgVarselTask.class),
+        TaskType.forProsessTask(SettDialogTilUtgåttTask.class)
+    );
 
     private ProsessTaskRepository prosessTaskRepository;
 
@@ -77,5 +102,17 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
     @Override
     public void opprettetProsessTaskGruppe(ProsessTaskGruppe sammensattTask) {
 
+    }
+
+    public static void setGruppeOgSekvens(ProsessTaskData task, UUID forespørselUuid) {
+        task.setGruppe(forespørselUuid.toString());
+
+        if (TASKER_SOM_OPPDATERER_FORESPØRSEL.contains(task.taskType())) {
+            task.setSekvens("0");
+        } else if (TASKER_SOM_SETTER_EKSTERN_REFERANSE_PÅ_FORESPØRSEL.contains(task.taskType())) {
+            task.setSekvens("1");
+        } else if (TASKER_SOM_OPPDATERER_DIALOGPORTEN_ELLER_NAV_NO_MED_EKSTERN_REFERANSE.contains(task.taskType())) {
+            task.setSekvens("2");
+        }
     }
 }

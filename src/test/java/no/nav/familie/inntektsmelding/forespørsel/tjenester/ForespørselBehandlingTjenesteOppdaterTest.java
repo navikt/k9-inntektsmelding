@@ -15,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
@@ -48,8 +47,6 @@ class ForespørselBehandlingTjenesteOppdaterTest extends EntityManagerAwareTest 
     private ProsessTaskTjeneste prosessTaskTjeneste;
     @Mock
     private OrganisasjonTjeneste organisasjonTjeneste;
-    @Mock
-    private DialogportenKlient dialogportenKlient;
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
@@ -58,7 +55,6 @@ class ForespørselBehandlingTjenesteOppdaterTest extends EntityManagerAwareTest 
         this.forespørselBehandlingTjeneste = new ForespørselBehandlingTjeneste(
             forespørselTjeneste,
             minSideArbeidsgiverTjeneste,
-            dialogportenKlient,
             personTjeneste,
             prosessTaskTjeneste,
             organisasjonTjeneste
