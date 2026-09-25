@@ -84,16 +84,6 @@ public class ForespørselRepository {
         }
     }
 
-    /**
-     * Tvinger Hibernate til å laste ferske kolonneverdier fra databasen inn i den managed entiteten.
-     * Uten dette vil et nytt {@link #hentForespørsel(UUID)}-kall innenfor samme transaksjon/persistence
-     * context returnere den samme (potensielt utdaterte) objektreferansen fra first-level cachen,
-     * selv om raden er endret av en annen transaksjon i mellomtiden.
-     */
-    public void refresh(ForespørselEntitet forespørsel) {
-        entityManager.refresh(forespørsel);
-    }
-
     public Optional<ForespørselEntitet> hentForespørsel(UUID uuid) {
         var query = entityManager.createQuery("FROM ForespørselEntitet where uuid = :foresporselUUID", ForespørselEntitet.class)
             .setParameter("foresporselUUID", uuid);

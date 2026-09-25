@@ -82,10 +82,6 @@ public class ForespørselTjeneste {
         return forespørselRepository.hentForespørsel(forespørselUuid);
     }
 
-    public void refresh(ForespørselEntitet forespørsel) {
-        forespørselRepository.refresh(forespørsel);
-    }
-
     public List<ForespørselEntitet> finnForespørslerForAktørid(AktørIdEntitet aktørId, Ytelsetype ytelsetype) {
         return forespørselRepository.finnForespørslerForAktørId(aktørId, ytelsetype);
     }
