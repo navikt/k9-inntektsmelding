@@ -37,8 +37,7 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
     private static final Set<TaskType> BLOKKERENDE = Set.of(
         OPPRETT,
         TaskType.forProsessTask(SettForespørselTilUtgåttTask.class),
-        TaskType.forProsessTask(GjenåpneForespørselTask.class)
-    );
+        TaskType.forProsessTask(GjenåpneForespørselTask.class));
 
     private static final Set<TaskType> TASKER_SOM_OPPDATERER_FORESPØRSEL = Set.of(
         TaskType.forProsessTask(GjenåpneForespørselTask.class),
@@ -50,15 +49,12 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
         TaskType.forProsessTask(OpprettForespørselDialogportenTask.class)
     );
 
-    private static final Set<TaskType> TASKER_SOM_OPPDATERER_DIALOGPORTEN_MED_EKSTERN_REFERANSE = Set.of(
+    private static final Set<TaskType> TASKER_SOM_OPPDATERER_DIALOGPORTEN_ELLER_NAV_NO_MED_EKSTERN_REFERANSE = Set.of(
         TaskType.forProsessTask(FerdigstillForespørselDialogTask.class),
         TaskType.forProsessTask(OppdaterDialogMedEndretInntektsmeldingTask.class),
         TaskType.forProsessTask(SendMeldingOmAvvistInntektsmeldingTask.class),
+        TaskType.forProsessTask(SendNyBeskjedOgVarselTask.class),
         TaskType.forProsessTask(SettDialogTilUtgåttTask.class)
-    );
-
-    private static final Set<TaskType> TASKER_SOM_OPPDATERER_ARBEIDSGIVERPORTALEN_MED_EKSTERN_REFERANSE = Set.of(
-        TaskType.forProsessTask(SendNyBeskjedOgVarselTask.class)
     );
 
     private ProsessTaskRepository prosessTaskRepository;
@@ -115,8 +111,7 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
             task.setSekvens("0");
         } else if (TASKER_SOM_SETTER_EKSTERN_REFERANSE_PÅ_FORESPØRSEL.contains(task.taskType())) {
             task.setSekvens("1");
-        } else if (TASKER_SOM_OPPDATERER_DIALOGPORTEN_MED_EKSTERN_REFERANSE.contains(task.taskType())
-                || TASKER_SOM_OPPDATERER_ARBEIDSGIVERPORTALEN_MED_EKSTERN_REFERANSE.contains(task.taskType())) {
+        } else if (TASKER_SOM_OPPDATERER_DIALOGPORTEN_ELLER_NAV_NO_MED_EKSTERN_REFERANSE.contains(task.taskType())) {
             task.setSekvens("2");
         }
     }
