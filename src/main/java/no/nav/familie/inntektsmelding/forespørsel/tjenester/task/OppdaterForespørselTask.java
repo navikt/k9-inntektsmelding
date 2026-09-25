@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
+import static no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks.FORESPØRSEL_UUID;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -8,7 +10,6 @@ import jakarta.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -23,7 +24,7 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 public class OppdaterForespørselTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterForespørselTask.class);
 
-    public static final String FORESPØRSEL_UUID = "forespoersel_uuid";
+    public static final String FORESPØRSEL_UUID_GAMMEL_TYPE = "forespoersel_uuid"; // slett denne etter prodsetting
     public static final String YTELSETYPE = "ytelsetype";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
@@ -45,7 +46,12 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
             throw new IllegalStateException("Støtter kun oppdatering av forespørsel for OMSORGSPENGER, fikk: " + ytelseType);
         }
 
-        UUID forespørselUuid = UUID.fromString(prosessTaskData.getPropertyValue(FORESPØRSEL_UUID));
+        String forespørselUuidVerdi = prosessTaskData.getPropertyValue(FORESPØRSEL_UUID);
+        if (forespørselUuidVerdi == null) {
+            forespørselUuidVerdi = prosessTaskData.getPropertyValue(FORESPØRSEL_UUID_GAMMEL_TYPE);
+        }
+        UUID forespørselUuid = UUID.fromString(forespørselUuidVerdi);
+
         List<PeriodeDto> etterspurtePerioder = hentEtterspurtePerioder(prosessTaskData);
         forespørselBehandlingTjeneste.oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUuid, etterspurtePerioder);
     }
@@ -64,17 +70,19 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
     public static ProsessTaskData lagOppdaterTaskData(UUID forespørselUuid,
                                                       Ytelsetype ytelseType,
                                                       List<PeriodeDto> etterspurtePerioder) {
-        ProsessTaskData taskData = ProsessTaskData.forProsessTask(OppdaterForespørselTask.class);
-        taskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
-        taskData.setProperty(YTELSETYPE, ytelseType.name());
+        ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(OppdaterForespørselTask.class);
+        prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
+        prosessTaskData.setProperty(YTELSETYPE, ytelseType.name());
 
         if (etterspurtePerioder != null) {
             try {
-                taskData.setPayload(DefaultJsonMapper.toJson(etterspurtePerioder));
+                prosessTaskData.setPayload(DefaultJsonMapper.toJson(etterspurtePerioder));
             } catch (Exception e) {
                 throw new RuntimeException("Kunne ikke serialisere etterspurtePerioder for ytelse: " + ytelseType, e);
             }
         }
-        return taskData;
+
+        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
+        return prosessTaskData;
     }
 }

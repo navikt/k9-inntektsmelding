@@ -557,9 +557,7 @@ public class ForespørselBehandlingTjeneste {
         List<ForespørselEntitet> åpneForespørsler = forespørselTjeneste.finnÅpneForespørslerForFagsak(saksnummer);
         List<ProsessTaskData> tasker = new ArrayList<>();
         for (var forespørsel : åpneForespørsler) {
-            var task = ProsessTaskData.forProsessTask(SendNyBeskjedOgVarselTask.class);
-            task.setProperty(SendNyBeskjedOgVarselTask.FORESPØRSEL_UUID, forespørsel.getUuid().toString());
-            tasker.add(task);
+            tasker.add(SendNyBeskjedOgVarselTask.lagSendNyBeskjedOgVarselTask(forespørsel.getUuid()));
         }
         var taskGruppe = new ProsessTaskGruppe();
         taskGruppe.addNesteParallell(tasker);

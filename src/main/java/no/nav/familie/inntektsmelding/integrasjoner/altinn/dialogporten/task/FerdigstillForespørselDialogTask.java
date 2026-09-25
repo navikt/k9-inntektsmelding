@@ -1,6 +1,6 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task;
 
-import static no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.HåndterRekkefølgeAvDialogportenTasks.FORESPØRSEL_UUID;
+import static no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks.FORESPØRSEL_UUID;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.LukkeÅrsak;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -74,6 +75,7 @@ public class FerdigstillForespørselDialogTask implements ProsessTaskHandler {
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
         prosessTaskData.setProperty(LUKKE_ÅRSAK, lukkeÅrsak.name());
         inntektsmeldingUuid.ifPresent(uuid -> prosessTaskData.setProperty(INNTEKTSMELDING_UUID, uuid.toString()));
+        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
         return prosessTaskData;
     }
 }

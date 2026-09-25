@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
+import static no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks.FORESPØRSEL_UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -32,7 +33,7 @@ class SettForespørselTilUtgåttTaskTest {
     void skal_sette_forespørsel_til_utgått() {
         var task = new SettForespørselTilUtgåttTask(forespørselBehandlingTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
-        taskdata.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørselUuid.toString());
+        taskdata.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
 
         entitet.setStatus(ForespørselStatus.UNDER_BEHANDLING);
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid))
@@ -47,7 +48,7 @@ class SettForespørselTilUtgåttTaskTest {
     void skal_ikke_sette_ferdig_forespørsel_til_utgått() {
         var task = new SettForespørselTilUtgåttTask(forespørselBehandlingTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
-        taskdata.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørselUuid.toString());
+        taskdata.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
 
         entitet.setStatus(ForespørselStatus.FERDIG);
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid))

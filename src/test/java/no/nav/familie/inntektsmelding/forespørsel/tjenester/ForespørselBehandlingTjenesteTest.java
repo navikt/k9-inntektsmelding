@@ -1,6 +1,6 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
-import static no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.HåndterRekkefølgeAvDialogportenTasks.FORESPØRSEL_UUID;
+import static no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks.FORESPØRSEL_UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -298,7 +298,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         var taskdata = taskGruppe.getTasks().getFirst().task();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OppdaterForespørselTask.class));
         assertThat(taskdata.getPropertyValue(OppdaterForespørselTask.YTELSETYPE)).isEqualTo(Ytelsetype.OMSORGSPENGER.toString());
-        assertThat(taskdata.getPropertyValue(OppdaterForespørselTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
 
         // Verifiser at payload inneholder riktige perioder
         List<PeriodeDto> deserialisertePerioder = DefaultJsonMapper.listFromJson(taskdata.getPayloadAsString(), PeriodeDto.class);
@@ -371,7 +371,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(taskdata1.taskType()).isEqualTo(TaskType.forProsessTask(OpprettForespørselTask.class));
         var taskdata2 = taskGruppe.getTasks().get(1).task();
         assertThat(taskdata2.taskType()).isEqualTo(TaskType.forProsessTask(SettForespørselTilUtgåttTask.class));
-        assertThat(taskdata2.getPropertyValue(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+        assertThat(taskdata2.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
     }
 
     @Test
@@ -392,7 +392,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(taskGruppe.getTasks()).hasSize(1);
         var taskdata = taskGruppe.getTasks().getFirst().task();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(SettForespørselTilUtgåttTask.class));
-        assertThat(taskdata.getPropertyValue(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
     }
 
     @Test
@@ -413,7 +413,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(taskGruppe.getTasks()).hasSize(1);
         var taskdata = taskGruppe.getTasks().getFirst().task();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(GjenåpneForespørselTask.class));
-        assertThat(taskdata.getPropertyValue(GjenåpneForespørselTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
     }
 
     @Test
