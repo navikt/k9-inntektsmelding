@@ -39,6 +39,24 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
         TaskType.forProsessTask(SettForespørselTilUtgåttTask.class),
         TaskType.forProsessTask(GjenåpneForespørselTask.class));
 
+    private static final Set<TaskType> TASKER_SOM_OPPDATERER_FORESPØRSEL = Set.of(
+        TaskType.forProsessTask(GjenåpneForespørselTask.class),
+        TaskType.forProsessTask(OppdaterForespørselTask.class),
+        TaskType.forProsessTask(SettForespørselTilUtgåttTask.class)
+    );
+
+    private static final Set<TaskType> TASKER_SOM_SETTER_EKSTERN_REFERANSE_PÅ_FORESPØRSEL = Set.of(
+        TaskType.forProsessTask(OpprettForespørselDialogportenTask.class)
+    );
+
+    private static final Set<TaskType> TASKER_SOM_OPPDATERER_DIALOGPORTEN_ELLER_NAV_NO_MED_EKSTERN_REFERANSE = Set.of(
+        TaskType.forProsessTask(FerdigstillForespørselDialogTask.class),
+        TaskType.forProsessTask(OppdaterDialogMedEndretInntektsmeldingTask.class),
+        TaskType.forProsessTask(SendMeldingOmAvvistInntektsmeldingTask.class),
+        TaskType.forProsessTask(SendNyBeskjedOgVarselTask.class),
+        TaskType.forProsessTask(SettDialogTilUtgåttTask.class)
+    );
+
     private ProsessTaskRepository prosessTaskRepository;
 
     HåndterRekkefølgeAvForespørselTasks() {
@@ -89,22 +107,12 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
     public static void setGruppeOgSekvens(ProsessTaskData task, UUID forespørselUuid) {
         task.setGruppe(forespørselUuid.toString());
 
-        if (TaskType.forProsessTask(GjenåpneForespørselTask.class).equals(task.taskType()) ||
-            TaskType.forProsessTask(OppdaterForespørselTask.class).equals(task.taskType()) ||
-            TaskType.forProsessTask(SettForespørselTilUtgåttTask.class).equals(task.taskType())
-        ) {
+        if (TASKER_SOM_OPPDATERER_FORESPØRSEL.contains(task.taskType())) {
             task.setSekvens("0");
-        } else if (TaskType.forProsessTask(OpprettForespørselDialogportenTask.class).equals(task.taskType())) {
+        } else if (TASKER_SOM_SETTER_EKSTERN_REFERANSE_PÅ_FORESPØRSEL.contains(task.taskType())) {
             task.setSekvens("1");
-        } else if (TaskType.forProsessTask(FerdigstillForespørselDialogTask.class).equals(task.taskType()) ||
-            TaskType.forProsessTask(OppdaterDialogMedEndretInntektsmeldingTask.class).equals(task.taskType()) ||
-            TaskType.forProsessTask(SendMeldingOmAvvistInntektsmeldingTask.class).equals(task.taskType()) ||
-            TaskType.forProsessTask(SendNyBeskjedOgVarselTask.class).equals(task.taskType()) ||
-            TaskType.forProsessTask(SettDialogTilUtgåttTask.class).equals(task.taskType())
-        ) {
+        } else if (TASKER_SOM_OPPDATERER_DIALOGPORTEN_ELLER_NAV_NO_MED_EKSTERN_REFERANSE.contains(task.taskType())) {
             task.setSekvens("2");
         }
-
-        //task.setNesteKjøringEtter(LocalDateTime.now().plus(Duration.ofMillis(5))); // Vi må sette en delay for å unngå race condition med andre tasker som opprettes nesten samtidig
     }
 }
