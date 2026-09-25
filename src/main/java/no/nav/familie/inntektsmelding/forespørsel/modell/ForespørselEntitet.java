@@ -24,6 +24,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import org.hibernate.annotations.Generated;
 
@@ -98,6 +99,10 @@ public class ForespørselEntitet {
 
     @OneToMany(mappedBy = "forespørsel", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EtterspurtPeriodeEntitet> etterspurtePerioder = new ArrayList<>();
+
+    @Version
+    @Column(name = "versjon", nullable = false)
+    private long versjon;
 
     ForespørselEntitet() {
         this.uuid = UUID.randomUUID();
