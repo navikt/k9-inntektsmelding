@@ -7,8 +7,6 @@ import java.util.Set;
 
 import jakarta.ws.rs.ApplicationPath;
 
-import no.nav.familie.inntektsmelding.imdialog.rest.ArbeidsgiverinitiertDialogRest;
-
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
@@ -16,7 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.rest.ForespørselRest;
 import no.nav.familie.inntektsmelding.imapi.forespørsel.ForespørselApiRest;
+import no.nav.familie.inntektsmelding.imapi.inntekt.InntektApiRest;
 import no.nav.familie.inntektsmelding.imapi.inntektsmelding.InntektsmeldingApiRest;
+import no.nav.familie.inntektsmelding.imdialog.rest.ArbeidsgiverinitiertDialogRest;
 import no.nav.familie.inntektsmelding.imdialog.rest.InntektsmeldingDialogRest;
 import no.nav.familie.inntektsmelding.imdialog.rest.kvittering.PdfDokumentRest;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.RefusjonOmsorgsdagerRest;
@@ -62,7 +62,8 @@ public class ApiConfig extends ResourceConfig {
             RefusjonOmsorgsdagerRest.class,
             ArbeidsgiverinitiertDialogRest.class,
             ForespørselApiRest.class,
-            InntektsmeldingApiRest.class);
+            InntektsmeldingApiRest.class,
+            InntektApiRest.class);
     }
 
     private Map<String, Object> getApplicationProperties() {
