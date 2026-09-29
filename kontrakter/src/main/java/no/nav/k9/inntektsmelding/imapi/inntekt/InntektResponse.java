@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.inntektsmelding.imapi.inntekt;
+package no.nav.k9.inntektsmelding.imapi.inntekt;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
