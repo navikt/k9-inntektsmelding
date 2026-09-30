@@ -14,11 +14,9 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
-import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.k9.inntektsmelding.imapi.inntekt.InntektResponse;
 
@@ -44,14 +42,14 @@ public class InntektApiTjeneste {
     }
 
     public Optional<InntektResponse> hentInntektDto(UUID forespørselUuid) {
-        ForespørselEntitet forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid).orElse(null);
+        var forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid).orElse(null);
         if (forespørsel == null) {
             LOG.info("Forespørsel med uuid {} finnes ikke, returnerer ikke funnet", forespørselUuid);
             return Optional.empty();
         }
 
-        PersonInfo personinfo = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId());
-        Inntektsopplysninger inntektsopplysninger = inntektTjeneste.hentInntekt(personinfo,
+        var personinfo = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId());
+        var inntektsopplysninger = inntektTjeneste.hentInntekt(personinfo,
             forespørsel.getSkjæringstidspunkt(),
             LocalDate.now(),
             forespørsel.getOrganisasjonsnummer(),
