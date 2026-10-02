@@ -109,10 +109,8 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
 
         if (TASKER_SOM_OPPDATERER_FORESPØRSEL.contains(task.taskType())) {
             task.setSekvens("0");
-        } else if (TASKER_SOM_SETTER_EKSTERN_REFERANSE_PÅ_FORESPØRSEL.contains(task.taskType())) {
-            task.setSekvens("1");
-        } else if (TASKER_SOM_OPPDATERER_DIALOGPORTEN_ELLER_NAV_NO_MED_EKSTERN_REFERANSE.contains(task.taskType())) {
-            task.setSekvens("2");
+        } else {
+            task.setSekvens(System.currentTimeMillis() + "");
         }
     }
 }
