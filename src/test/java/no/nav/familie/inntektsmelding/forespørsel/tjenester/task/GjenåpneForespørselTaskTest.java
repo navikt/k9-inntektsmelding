@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
+import static no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks.FORESPØRSEL_UUID;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -59,7 +60,7 @@ class GjenåpneForespørselTaskTest {
     void skal_gjenåpne_forespørsel() {
         var task = new GjenåpneForespørselTask(forespørselBehandlingTjeneste, inntektsmeldingTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
-        taskdata.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørselUuid.toString());
+        taskdata.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
 
         entitet.setStatus(ForespørselStatus.UTGÅTT);
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(entitet));
@@ -74,7 +75,7 @@ class GjenåpneForespørselTaskTest {
     void skal_ikke_gjenåpne_dersom_status_er_under_behandling() {
         var task = new GjenåpneForespørselTask(forespørselBehandlingTjeneste, inntektsmeldingTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
-        taskdata.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørselUuid.toString());
+        taskdata.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
 
         entitet.setStatus(ForespørselStatus.UNDER_BEHANDLING);
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(entitet));
@@ -89,7 +90,7 @@ class GjenåpneForespørselTaskTest {
     void skal_ikke_gjenåpne_dersom_status_er_ferdig() {
         var task = new GjenåpneForespørselTask(forespørselBehandlingTjeneste, inntektsmeldingTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
-        taskdata.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørselUuid.toString());
+        taskdata.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
 
         entitet.setStatus(ForespørselStatus.FERDIG);
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(entitet));
@@ -104,7 +105,7 @@ class GjenåpneForespørselTaskTest {
     void skal_ikke_gjenåpne_dersom_vi_ikke_finner_im() {
         var task = new GjenåpneForespørselTask(forespørselBehandlingTjeneste, inntektsmeldingTjeneste);
         var taskdata = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
-        taskdata.setProperty(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID, forespørselUuid.toString());
+        taskdata.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
 
         entitet.setStatus(ForespørselStatus.UTGÅTT);
         when(forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(Optional.of(entitet));

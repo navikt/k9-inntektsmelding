@@ -1,0 +1,3 @@
+ALTER TABLE FORESPOERSEL ADD COLUMN versjon BIGINT DEFAULT 0 NOT NULL;
+
+COMMENT ON COLUMN FORESPOERSEL.versjon IS 'versjonsering for optimistisk låsing';

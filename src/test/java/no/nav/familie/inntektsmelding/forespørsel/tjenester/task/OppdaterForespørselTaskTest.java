@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
+import static no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks.FORESPØRSEL_UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
@@ -82,7 +83,7 @@ class OppdaterForespørselTaskTest {
         );
 
         // Assert
-        assertEquals(forespørselUuid.toString(), taskdata.getPropertyValue(OppdaterForespørselTask.FORESPØRSEL_UUID));
+        assertEquals(forespørselUuid.toString(), taskdata.getPropertyValue(FORESPØRSEL_UUID));
         assertEquals(Ytelsetype.OMSORGSPENGER.name(), taskdata.getPropertyValue(OppdaterForespørselTask.YTELSETYPE));
 
         // Verifiser at payload inneholder riktige perioder

@@ -1,5 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
+import static no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks.FORESPØRSEL_UUID;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,8 +23,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @ProsessTask("forespørsel.utgått")
 public class SettForespørselTilUtgåttTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(SettForespørselTilUtgåttTask.class);
-
-    public static final String FORESPØRSEL_UUID = "forespoerselUuid";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
@@ -59,6 +59,7 @@ public class SettForespørselTilUtgåttTask implements ProsessTaskHandler {
         ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
         prosessTaskData.setSaksnummer(saksnummer.saksnr());
+        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
         return prosessTaskData;
     }
 }
