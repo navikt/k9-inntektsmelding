@@ -330,6 +330,26 @@ class InntektTjenesteTest {
     }
 
     @Test
+    void skal_skille_mellom_rapportert_inntekt_på_0_og_ikke_rapportert_inntekt() {
+        var stp = LocalDate.of(2024,10,15);
+        var dagensDato = stp.plusDays(10);
+        var forventetRequest = new FinnInntektRequest(AKTØR_ID, YearMonth.of(2024, 7), YearMonth.of(2024, 9));
+
+        var inntekt1 = getInntekt(YearMonth.of(2024,7), BigDecimal.valueOf(30_000));
+        var inntekt2 = getInntekt(YearMonth.of(2024,8), BigDecimal.ZERO);
+        var response = List.of(inntekt1, inntekt2);
+        when(klient.finnInntekt(forventetRequest, YTELSETYPE)).thenReturn(response);
+        when(arbeidsforholdTjeneste.harJobbetHeleBeregningsperioden(PERSON_INFO, stp, ORGNR)).thenReturn(true);
+
+        var inntektsopplysinger = tjeneste.hentInntekt(PERSON_INFO, stp, dagensDato, ORGNR, YTELSETYPE);
+
+        var forventetListe = List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(30_000), YearMonth.of(2024, 7), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(BigDecimal.ZERO, YearMonth.of(2024, 8), MånedslønnStatus.BRUKT_I_GJENNOMSNITT)
+            , new Inntektsopplysninger.InntektMåned(null, YearMonth.of(2024, 9), MånedslønnStatus.IKKE_RAPPORTERT_MEN_BRUKT_I_GJENNOMSNITT));
+        assertResultat(inntektsopplysinger, forventetListe, ORGNR, BigDecimal.valueOf(10_000));
+    }
+
+    @Test
     void skal_teste_negative_inntekter_blir_til_0() {
         var stp = LocalDate.of(2024, 10, 15);
         var dagensDato = stp.plusDays(10);
