@@ -27,8 +27,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import org.hibernate.annotations.Generated;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
@@ -41,8 +39,6 @@ import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 @Entity(name = "ForespørselEntitet")
 @Table(name = "FORESPOERSEL")
 public class ForespørselEntitet {
-    private static final Logger LOG = LoggerFactory.getLogger(ForespørselEntitet.class);
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GLOBAL_PK_SEQ_GENERATOR")
     private Long id;
@@ -133,13 +129,6 @@ public class ForespørselEntitet {
     }
 
     void setArbeidsgiverNotifikasjonSakId(String arbeidsgiverNotifikasjonSakId) {
-        try {
-            throw new IllegalStateException();
-        }
-        catch (IllegalStateException e) {
-            LOG.error("Prvøde setting av arbeidsgiverNotifikasjonSakId på forespørsel med uuid " + uuid, e);
-        }
-
         this.sakId = arbeidsgiverNotifikasjonSakId;
     }
 
@@ -148,14 +137,6 @@ public class ForespørselEntitet {
     }
 
     void setDialogportenUuid(UUID dialogportenUuid) {
-
-        try {
-            throw new IllegalStateException();
-        }
-        catch (IllegalStateException e) {
-            LOG.error("Prvøde setting av dialogporten uuid på forespørsel med uuid " + uuid, e);
-        }
-
         if (this.dialogportenUuid == null) {
             this.dialogportenUuid = dialogportenUuid;
         } else {
@@ -168,13 +149,6 @@ public class ForespørselEntitet {
     }
 
     public void setStatus(ForespørselStatus sakStatus) {
-        try {
-            throw new IllegalStateException();
-        }
-        catch (IllegalStateException e) {
-            LOG.error("Prvøde setting av status " + status + " på forespørsel med uuid " + uuid, e);
-        }
-
         this.status = sakStatus;
     }
 
@@ -187,12 +161,6 @@ public class ForespørselEntitet {
     }
 
     void setOppgaveId(String oppgaveId) {
-        try {
-            throw new IllegalStateException();
-        }
-        catch (IllegalStateException e) {
-            LOG.error("Prvøde oppdatering av oppgaveId på forespørsel med uuid " + uuid, e);
-        }
         this.oppgaveId = oppgaveId;
     }
 
@@ -244,14 +212,6 @@ public class ForespørselEntitet {
     }
 
     void setEtterspurtePerioder(List<PeriodeDto> etterspurtePerioder) {
-
-        try {
-            throw new IllegalStateException();
-        }
-        catch (IllegalStateException e) {
-            LOG.error("Prvøde setting av etterspurtePerioder på forespørsel med uuid " + uuid, e);
-        }
-
         if (etterspurtePerioder == null) {
             throw new IllegalArgumentException("Etterspurte perioder kan ikke være null");
         }
