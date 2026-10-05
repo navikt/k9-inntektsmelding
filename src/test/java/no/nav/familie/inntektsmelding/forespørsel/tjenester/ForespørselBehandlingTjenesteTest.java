@@ -3,6 +3,7 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 import static no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks.FORESPØRSEL_UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -27,6 +28,7 @@ import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.FerdigstillForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OppdaterForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
@@ -205,16 +207,21 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
 
         clearHibernateCache();
 
+        // Status endres ikke før FerdigstillForespørselTask kjøres
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
         var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
-        assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
+        assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
 
-        // Verifiser at det ble opprettet en task for å ferdigstille dialog i dialogporten for hver forespørsel
-        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste, Mockito.times(2)).lagre(taskCaptor.capture());
-        var taskdataListe = taskCaptor.getAllValues();
-        assertThat(taskdataListe).allSatisfy(taskdata -> assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselDialogTask.class)));
+        // Verifiser at det ble opprettet en task for å ferdigstille hver forespørsel
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskdataListe = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
+        assertThat(taskdataListe).allSatisfy(taskdata -> {
+            assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselTask.class));
+            assertThat(taskdata.getPropertyValue(FerdigstillForespørselTask.LUKKE_ÅRSAK)).isEqualTo(LukkeÅrsak.EKSTERN_INNSENDING.name());
+            assertThat(taskdata.getPropertyValue(FerdigstillForespørselTask.INNTEKTSMELDING_UUID)).isNull();
+        });
         assertThat(taskdataListe.stream().map(td -> td.getPropertyValue(FORESPØRSEL_UUID)))
             .containsExactlyInAnyOrder(forespørselUuid.toString(), forespørselUuid2.toString());
     }
@@ -232,10 +239,19 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
 
         clearHibernateCache();
 
+        // Status endres ikke før SettForespørselTilUtgåttTask kjøres
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
-        var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
-        assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
+
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskdataListe = captor.getValue().getTasks().stream().map(ProsessTaskGruppe.Entry::task).toList();
+        assertThat(taskdataListe).allSatisfy(taskdata -> {
+            assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(SettForespørselTilUtgåttTask.class));
+            assertThat(taskdata.getSaksnummer()).isEqualTo(SAKSNUMMMER);
+        });
+        assertThat(taskdataListe.stream().map(td -> td.getPropertyValue(FORESPØRSEL_UUID)))
+            .containsExactlyInAnyOrder(forespørselUuid.toString(), forespørselUuid2.toString());
     }
 
     @Test
@@ -252,19 +268,57 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
             SKJÆRINGSTIDSPUNKT);
 
+        // Verifiser at det kun ble opprettet en task for forespørselen som skal lukkes
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskGruppe = captor.getValue();
+        assertThat(taskGruppe.getTasks()).hasSize(1);
+        var taskdata = taskGruppe.getTasks().getFirst().task();
+        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselTask.class));
+        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+    }
+
+    @Test
+    void skal_opprette_task_for_ferdigstilling_av_forespørsel() {
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER,
+            SAKSNUMMMER, ForespørselType.BESTILT_AV_FAGSYSTEM, SKJÆRINGSTIDSPUNKT, null);
+        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
+        var inntektsmelding = lagInntektsmelding(forespørselUuid);
+
+        forespørselBehandlingTjeneste.opprettTaskForFerdigstillForespørsel(forespørselUuid,
+            new AktørIdEntitet(AKTØR_ID),
+            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
+            LukkeÅrsak.ORDINÆR_INNSENDING,
+            Optional.of(inntektsmelding));
+
         clearHibernateCache();
+        assertThat(forespørselRepository.hentForespørsel(forespørselUuid).map(ForespørselEntitet::getStatus))
+            .isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
+        verifyNoInteractions(minSideArbeidsgiverTjeneste);
 
-        var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
-        var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
-        assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
-
-        // Verifiser at det kun ble opprettet en task for forespørselen som faktisk ble lukket
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         var taskdata = taskCaptor.getValue();
-        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselDialogTask.class));
+        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselTask.class));
         assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+        assertThat(taskdata.getPropertyValue(FerdigstillForespørselTask.INNTEKTSMELDING_UUID)).isEqualTo(inntektsmelding.getUuid().toString());
+        assertThat(taskdata.getPropertyValue(FerdigstillForespørselTask.LUKKE_ÅRSAK)).isEqualTo(LukkeÅrsak.ORDINÆR_INNSENDING.name());
+        assertThat(taskdata.getSaksnummer()).isEqualTo(SAKSNUMMMER);
+        assertThat(taskdata.getGruppe()).isEqualTo(forespørselUuid.toString());
+    }
+
+    @Test
+    void skal_feile_ved_opprettelse_av_ferdigstill_task_med_feil_organisasjonsnummer() {
+        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER,
+            SAKSNUMMMER, ForespørselType.BESTILT_AV_FAGSYSTEM, SKJÆRINGSTIDSPUNKT, null);
+
+        var aktørId = new AktørIdEntitet(AKTØR_ID);
+        var feilOrgnr = new OrganisasjonsnummerDto("999999999");
+        assertThrows(IllegalStateException.class,
+            () -> forespørselBehandlingTjeneste.opprettTaskForFerdigstillForespørsel(forespørselUuid, aktørId, feilOrgnr,
+                LukkeÅrsak.ORDINÆR_INNSENDING, Optional.empty()));
+
+        verifyNoInteractions(prosessTaskTjeneste);
     }
 
     @Test

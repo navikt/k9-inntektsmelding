@@ -40,6 +40,7 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
         TaskType.forProsessTask(GjenåpneForespørselTask.class));
 
     private static final Set<TaskType> TASKER_SOM_OPPDATERER_FORESPØRSEL = Set.of(
+        TaskType.forProsessTask(FerdigstillForespørselTask.class),
         TaskType.forProsessTask(GjenåpneForespørselTask.class),
         TaskType.forProsessTask(OppdaterForespørselTask.class),
         TaskType.forProsessTask(SettForespørselTilUtgåttTask.class)
@@ -107,6 +108,7 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
     public static void setGruppeOgSekvens(ProsessTaskData task, UUID forespørselUuid) {
         task.setGruppe(forespørselUuid.toString());
 
+        // TODO taskene som gjør oppdatering burde ikke kunne kjøre parallellt
         if (TASKER_SOM_OPPDATERER_FORESPØRSEL.contains(task.taskType())) {
             task.setSekvens("0");
         } else {

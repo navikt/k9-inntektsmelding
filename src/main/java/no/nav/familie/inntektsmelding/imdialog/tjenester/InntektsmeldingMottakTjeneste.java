@@ -66,14 +66,13 @@ public class InntektsmeldingMottakTjeneste {
 
         // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
         if (antallInntektsmeldinger == 0) {
-            var lukketForespørsel = forespørselBehandlingTjeneste.ferdigstillForespørsel(
+            forespørselBehandlingTjeneste.opprettTaskForFerdigstillForespørsel(
                 sendInntektsmeldingRequest.foresporselUuid(),
                 aktorId,
                 orgnummer,
                 LukkeÅrsak.ORDINÆR_INNSENDING,
                 Optional.of(inntektsmeldingEntitet)
             );
-            MetrikkerTjeneste.loggForespørselLukkIntern(lukketForespørsel);
         } else {
             forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(
                 forespørselEntitet,
@@ -109,7 +108,7 @@ public class InntektsmeldingMottakTjeneste {
         var imId = lagreOgLagJournalførTask(imEnitet, forespørselEnitet);
 
         // for omsorgspenger refusjon oppretter vi alltid en ny forespørsel som vi må ferdigstille
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
+        forespørselBehandlingTjeneste.opprettTaskForFerdigstillForespørsel(forespørselUuid,
             aktørId,
             organisasjonsnummer,
             LukkeÅrsak.ORDINÆR_INNSENDING,
@@ -148,7 +147,7 @@ public class InntektsmeldingMottakTjeneste {
 
         // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
         if (antallInntektsmeldinger == 0) {
-            forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid,
+            forespørselBehandlingTjeneste.opprettTaskForFerdigstillForespørsel(forespørselUuid,
                 aktørId,
                 organisasjonsnummer,
                 LukkeÅrsak.ORDINÆR_INNSENDING,
@@ -191,7 +190,7 @@ public class InntektsmeldingMottakTjeneste {
 
         // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
         if (antallInntektsmeldinger == 0) {
-            forespørselBehandlingTjeneste.ferdigstillForespørsel(
+            forespørselBehandlingTjeneste.opprettTaskForFerdigstillForespørsel(
                 forespørselUuid,
                 aktørId,
                 organisasjonsnummer,

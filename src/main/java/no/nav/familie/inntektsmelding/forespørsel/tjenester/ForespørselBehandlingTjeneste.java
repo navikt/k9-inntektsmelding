@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.FerdigstillForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OppdaterForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
@@ -41,7 +42,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselOppdatering;
@@ -86,6 +86,24 @@ public class ForespørselBehandlingTjeneste {
         this.arbeidsgiverportalSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
     }
 
+    /**
+     * Validerer og legger ferdigstilling av forespørselen i en prosesstask, slik at alle endringer på forespørselen skjer sekvensielt.
+     */
+    public void opprettTaskForFerdigstillForespørsel(UUID foresporselUuid,
+                                                     AktørIdEntitet aktorId,
+                                                     OrganisasjonsnummerDto organisasjonsnummerDto,
+                                                     LukkeÅrsak årsak,
+                                                     Optional<InntektsmeldingEntitet> inntektsmeldingEntitet) {
+        ForespørselEntitet forespørsel = forespørselTjeneste.hentForespørsel(foresporselUuid)
+            .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
+
+        validerAktør(forespørsel, aktorId);
+        validerOrganisasjon(forespørsel, organisasjonsnummerDto);
+
+        prosessTaskTjeneste.lagre(FerdigstillForespørselTask.lagTaskData(forespørsel, inntektsmeldingEntitet.map(InntektsmeldingEntitet::getUuid), årsak));
+    }
+
+    // Skal kun kalles fra FerdigstillForespørselTask
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
                                                      AktørIdEntitet aktorId,
                                                      OrganisasjonsnummerDto organisasjonsnummerDto,
@@ -338,6 +356,20 @@ public class ForespørselBehandlingTjeneste {
             eksisterendeForespørsel.getYtelseType());
     }
 
+    public void opprettTaskForOpprettForespørsel(Ytelsetype ytelsetype,
+                                                 AktørIdEntitet aktørId,
+                                                 SaksnummerDto saksnummer,
+                                                 OrganisasjonsnummerDto organisasjonsnummer,
+                                                 LocalDate skjæringstidspunkt,
+                                                 ForespørselType forespørselType) {
+        prosessTaskTjeneste.lagre(OpprettForespørselTask.lagOpprettForespørselTaskData(ytelsetype,
+            aktørId,
+            saksnummer,
+            organisasjonsnummer,
+            skjæringstidspunkt,
+            forespørselType));
+    }
+
     public void opprettForespørsel(Ytelsetype ytelsetype,
                                    AktørIdEntitet aktørId,
                                    SaksnummerDto saksnummer,
@@ -477,20 +509,30 @@ public class ForespørselBehandlingTjeneste {
 
         // Alle inntektsmeldinger sendt inn via arbeidsgiverportal blir lukket umiddelbart etter innsending fra #InntektsmeldingTjeneste,
         // så forespørsler som enda er åpne her blir løst ved innsending fra andre systemer
-        forespørsler.forEach(f -> {
-            var lukketForespørsel = ferdigstillForespørsel(f.getUuid(),
-                f.getAktørId(),
-                new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()),
-                LukkeÅrsak.EKSTERN_INNSENDING,
-                Optional.empty());
-            MetrikkerTjeneste.loggForespørselLukkEkstern(lukketForespørsel);
-        });
+        var tasker = forespørsler.stream()
+            .map(f -> FerdigstillForespørselTask.lagTaskData(f, Optional.empty(), LukkeÅrsak.EKSTERN_INNSENDING))
+            .toList();
+        lagreTaskerForFagsak(tasker, saksnummer);
     }
 
     public void settForespørselTilUtgått(SaksnummerDto saksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
         var forespørsler = hentÅpneForespørslerForFagsak(saksnummer, orgnummerDto, skjæringstidspunkt);
 
-        forespørsler.forEach(it -> settForespørselTilUtgått(it, true));
+        var tasker = forespørsler.stream()
+            .map(f -> SettForespørselTilUtgåttTask.lagSettTilUtgåttTask(f.getUuid(), saksnummer))
+            .toList();
+        lagreTaskerForFagsak(tasker, saksnummer);
+    }
+
+    private void lagreTaskerForFagsak(List<ProsessTaskData> tasker, SaksnummerDto saksnummer) {
+        if (tasker.isEmpty()) {
+            LOG.info("Fant ingen åpne forespørsler å oppdatere for saksnummer: {}", saksnummer);
+            return;
+        }
+        var taskGruppe = new ProsessTaskGruppe();
+        taskGruppe.addNesteParallell(tasker);
+        taskGruppe.setSaksnummer(saksnummer.saksnr());
+        prosessTaskTjeneste.lagre(taskGruppe);
     }
 
     private List<ForespørselEntitet> hentÅpneForespørslerForFagsak(SaksnummerDto saksnummer,
