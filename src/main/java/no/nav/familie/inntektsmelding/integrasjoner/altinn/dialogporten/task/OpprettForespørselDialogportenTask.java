@@ -58,7 +58,7 @@ public class OpprettForespørselDialogportenTask implements ProsessTaskHandler {
     public static ProsessTaskData lagTaskData(UUID forespørselUuid) {
         ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(OpprettForespørselDialogportenTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
-        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
+        HåndterRekkefølgeAvForespørselTasks.setRekkefølgeForForespørselTask(prosessTaskData, forespørselUuid);
         return prosessTaskData;
     }
 }

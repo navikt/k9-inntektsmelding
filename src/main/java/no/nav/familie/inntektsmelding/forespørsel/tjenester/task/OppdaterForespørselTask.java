@@ -82,7 +82,7 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
             }
         }
 
-        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
+        HåndterRekkefølgeAvForespørselTasks.setRekkefølgeForForespørselTask(prosessTaskData, forespørselUuid);
         return prosessTaskData;
     }
 }

@@ -71,7 +71,7 @@ public class GjenåpneForespørselTask implements ProsessTaskHandler {
         ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(GjenåpneForespørselTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
         prosessTaskData.setSaksnummer(saksnummerDto.saksnr());
-        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
+        HåndterRekkefølgeAvForespørselTasks.setRekkefølgeForForespørselTask(prosessTaskData, forespørselUuid);
         return prosessTaskData;
     }
 }

@@ -75,7 +75,7 @@ public class FerdigstillForespørselDialogTask implements ProsessTaskHandler {
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
         prosessTaskData.setProperty(LUKKE_ÅRSAK, lukkeÅrsak.name());
         inntektsmeldingUuid.ifPresent(uuid -> prosessTaskData.setProperty(INNTEKTSMELDING_UUID, uuid.toString()));
-        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
+        HåndterRekkefølgeAvForespørselTasks.setRekkefølgeForForespørselTask(prosessTaskData, forespørselUuid);
         return prosessTaskData;
     }
 }

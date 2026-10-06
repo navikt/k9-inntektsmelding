@@ -61,7 +61,7 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
         ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(SendMeldingOmAvvistInntektsmeldingTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
         prosessTaskData.setPayload(avvistTekst);
-        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
+        HåndterRekkefølgeAvForespørselTasks.setRekkefølgeForForespørselTask(prosessTaskData, forespørselUuid);
         return prosessTaskData;
     }
 }

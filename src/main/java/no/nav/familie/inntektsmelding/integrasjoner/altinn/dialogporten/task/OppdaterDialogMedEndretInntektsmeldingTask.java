@@ -66,7 +66,7 @@ public class OppdaterDialogMedEndretInntektsmeldingTask implements ProsessTaskHa
         ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(OppdaterDialogMedEndretInntektsmeldingTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
         inntektsmeldingUuid.ifPresent(uuid -> prosessTaskData.setProperty(INNTEKTSMELDING_UUID, uuid.toString()));
-        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
+        HåndterRekkefølgeAvForespørselTasks.setRekkefølgeForForespørselTask(prosessTaskData, forespørselUuid);
         return prosessTaskData;
     }
 }

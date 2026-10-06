@@ -59,7 +59,7 @@ public class SettForespørselTilUtgåttTask implements ProsessTaskHandler {
         ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(SettForespørselTilUtgåttTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
         prosessTaskData.setSaksnummer(saksnummer.saksnr());
-        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
+        HåndterRekkefølgeAvForespørselTasks.setRekkefølgeForForespørselTask(prosessTaskData, forespørselUuid);
         return prosessTaskData;
     }
 }

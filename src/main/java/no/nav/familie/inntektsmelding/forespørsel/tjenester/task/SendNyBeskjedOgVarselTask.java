@@ -56,7 +56,7 @@ public class SendNyBeskjedOgVarselTask implements ProsessTaskHandler {
     public static ProsessTaskData lagSendNyBeskjedOgVarselTask(UUID forespørselUuid) {
         ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(SendNyBeskjedOgVarselTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
-        HåndterRekkefølgeAvForespørselTasks.setGruppeOgSekvens(prosessTaskData, forespørselUuid);
+        HåndterRekkefølgeAvForespørselTasks.setRekkefølgeForForespørselTask(prosessTaskData, forespørselUuid);
         return prosessTaskData;
     }
 }
