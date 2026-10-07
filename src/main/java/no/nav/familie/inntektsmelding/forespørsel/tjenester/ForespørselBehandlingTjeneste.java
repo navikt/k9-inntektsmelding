@@ -85,9 +85,6 @@ public class ForespørselBehandlingTjeneste {
         this.arbeidsgiverportalSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
     }
 
-    /**
-     * Validerer og legger ferdigstilling av forespørselen i en prosesstask, slik at alle endringer på forespørselen skjer sekvensielt.
-     */
     public void opprettTaskForFerdigstillForespørsel(UUID foresporselUuid,
                                                      AktørIdEntitet aktorId,
                                                      OrganisasjonsnummerDto organisasjonsnummerDto,
@@ -102,7 +99,6 @@ public class ForespørselBehandlingTjeneste {
         prosessTaskTjeneste.lagre(FerdigstillForespørselTask.lagTaskData(forespørsel, inntektsmeldingEntitet.map(InntektsmeldingEntitet::getUuid), årsak));
     }
 
-    // Skal kun kalles fra FerdigstillForespørselTask
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
                                                      AktørIdEntitet aktorId,
                                                      OrganisasjonsnummerDto organisasjonsnummerDto,
