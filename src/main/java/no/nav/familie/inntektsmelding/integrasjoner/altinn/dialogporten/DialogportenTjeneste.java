@@ -54,7 +54,6 @@ public class DialogportenTjeneste {
 
         if (dialogPortenUuid.isEmpty()) {
             LOG.warn("Kun håndterte feil vil gi en tom optional for forespørsel med uuid: {}, dialogportenUuid: {}", forespørselUuid, dialogPortenUuid);
-            // Kun håndterte feil vil gi en tom optional
             return;
         }
 
