@@ -30,6 +30,7 @@ public class DialogportenTjeneste {
     private DialogportenKlient dialogportenKlient;
     private ForespørselTjeneste forespørselTjeneste;
     private PersonTjeneste personTjeneste;
+    private boolean ignorerManglendeDialog;
 
     DialogportenTjeneste() {
         // CDI
@@ -39,9 +40,17 @@ public class DialogportenTjeneste {
     public DialogportenTjeneste(DialogportenKlient dialogportenKlient,
                                 ForespørselTjeneste forespørselTjeneste,
                                 PersonTjeneste personTjeneste) {
+        this(dialogportenKlient, forespørselTjeneste, personTjeneste, ENV.getProperty("dialogporten.ignorer.ukjent.aktoer", boolean.class, false));
+    }
+
+    DialogportenTjeneste(DialogportenKlient dialogportenKlient,
+                         ForespørselTjeneste forespørselTjeneste,
+                         PersonTjeneste personTjeneste,
+                         boolean ignorerManglendeDialog) {
         this.dialogportenKlient = dialogportenKlient;
         this.forespørselTjeneste = forespørselTjeneste;
         this.personTjeneste = personTjeneste;
+        this.ignorerManglendeDialog = ignorerManglendeDialog;
     }
 
     public void opprettForespørselDialogporten(UUID forespørselUuid,
@@ -65,8 +74,8 @@ public class DialogportenTjeneste {
     public void ferdigstillDialog(ForespørselEntitet forespørsel,
                                   Optional<UUID> inntektsmeldingUuid,
                                   LukkeÅrsak lukkeÅrsak) {
-        if (forespørsel.getDialogportenUuid().isEmpty()) {
-            throw new IllegalStateException("Forespørsel med uuid " + forespørsel.getUuid() + " har ikke dialogportenUuid satt");
+        if (!harDialogportenUuid(forespørsel)) {
+            return;
         }
 
         String sakstittel = lagSaksTittelForDialogporten(forespørsel.getAktørId());
@@ -83,8 +92,8 @@ public class DialogportenTjeneste {
 
     public void oppdaterDialogMedEndretInntektsmelding(ForespørselEntitet forespørsel,
                                                        Optional<UUID> inntektsmeldingUuid) {
-        if (forespørsel.getDialogportenUuid().isEmpty()) {
-            throw new IllegalStateException("Forespørsel med uuid " + forespørsel.getUuid() + " har ikke dialogportenUuid satt");
+        if (!harDialogportenUuid(forespørsel)) {
+            return;
         }
         dialogportenKlient.oppdaterDialogMedEndretInntektsmelding(
             forespørsel.getDialogportenUuid().get(),
@@ -94,8 +103,8 @@ public class DialogportenTjeneste {
     }
 
     public void settDialogTilUtgått(ForespørselEntitet forespørsel) {
-        if (forespørsel.getDialogportenUuid().isEmpty()) {
-            throw new IllegalStateException("Forespørsel med uuid " + forespørsel.getUuid() + " har ikke dialogportenUuid satt");
+        if (!harDialogportenUuid(forespørsel)) {
+            return;
         }
         String saksTittel = lagSaksTittelForDialogporten(forespørsel.getAktørId());
         dialogportenKlient.settDialogTilUtgått(forespørsel.getDialogportenUuid().get(), saksTittel);
@@ -103,10 +112,21 @@ public class DialogportenTjeneste {
 
     public void sendMeldingOmAvvistInntektsmelding(ForespørselEntitet forespørsel,
                                                    String avvistTekst) {
-        if (forespørsel.getDialogportenUuid().isEmpty()) {
-            throw new IllegalStateException("Forespørsel med uuid " + forespørsel.getUuid() + " har ikke dialogportenUuid satt");
+        if (!harDialogportenUuid(forespørsel)) {
+            return;
         }
         dialogportenKlient.sendMeldingOmAvvistInntektsmelding(forespørsel, avvistTekst);
+    }
+
+    private boolean harDialogportenUuid(ForespørselEntitet forespørsel) {
+        if (forespørsel.getDialogportenUuid().isPresent()) {
+            return true;
+        }
+        if (ignorerManglendeDialog) {
+            LOG.info("Forespørsel med uuid {} har ikke dialogportenUuid, sannsynligvis pga. ukjent aktør i dev. Hopper over kall til dialogporten.", forespørsel.getUuid());
+            return false;
+        }
+        throw new IllegalStateException("Forespørsel med uuid " + forespørsel.getUuid() + " har ikke dialogportenUuid satt");
     }
 
     public boolean erOpprettetFørProdsetting(ForespørselEntitet forespørsel) {
