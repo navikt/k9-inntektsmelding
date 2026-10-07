@@ -114,7 +114,7 @@ class InntektsmeldingMottakTjenesteTest {
 
         // Assert
         verify(forespørselBehandlingTjeneste).oppdaterPortalerMedEndretInntektsmelding(eq(forespørsel), any(), any());
-        verify(forespørselBehandlingTjeneste, never()).ferdigstillForespørsel(any(), any(), any(), any(), any());
+        verify(forespørselBehandlingTjeneste, never()).opprettTaskForFerdigstillForespørsel(any(), any(), any(), any(), any());
     }
 
     // ---- Hjelpemetoder ----

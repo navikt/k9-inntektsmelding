@@ -151,7 +151,7 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(SendTilJoarkTask.TASK_TYPE);
-        verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(any(), any(), any(), any(), any());
+        verify(forespørselBehandlingTjeneste).opprettTaskForFerdigstillForespørsel(any(), any(), any(), any(), any());
         verify(forespørselBehandlingTjeneste, never()).oppdaterPortalerMedEndretInntektsmelding(any(), any(), any());
     }
 
@@ -168,7 +168,7 @@ class InntektsmeldingApiMottakTjenesteEtterkontrollTest {
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(SendTilJoarkTask.TASK_TYPE);
         verify(forespørselBehandlingTjeneste).oppdaterPortalerMedEndretInntektsmelding(eq(forespørsel), any(), any());
-        verify(forespørselBehandlingTjeneste, never()).ferdigstillForespørsel(any(), any(), any(), any(), any());
+        verify(forespørselBehandlingTjeneste, never()).opprettTaskForFerdigstillForespørsel(any(), any(), any(), any(), any());
     }
 
     // ---- Hjelpemetoder ----

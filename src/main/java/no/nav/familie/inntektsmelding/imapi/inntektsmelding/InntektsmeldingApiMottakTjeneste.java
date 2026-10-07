@@ -126,7 +126,7 @@ public class InntektsmeldingApiMottakTjeneste {
 
         // ved første im skal vi ferdigstille forespørsel. Ved andre skal vi oppdatere arbeidsgiverportalen og dialogporten
         if (sisteIm == null) {
-            forespørselBehandlingTjeneste.ferdigstillForespørsel(
+            forespørselBehandlingTjeneste.opprettTaskForFerdigstillForespørsel(
                 request.foresporselUuid(), personInfo.aktørId(), orgnummer, LukkeÅrsak.ORDINÆR_INNSENDING, Optional.of(nyIm));
         } else {
             forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(
@@ -190,7 +190,7 @@ public class InntektsmeldingApiMottakTjeneste {
         }
 
         Long imId = lagreOgLagJournalførTask(nyIm, forespørsel);
-        forespørselBehandlingTjeneste.ferdigstillForespørsel(forespørselUuid, personInfo.aktørId(), orgnummer, LukkeÅrsak.ORDINÆR_INNSENDING, Optional.of(nyIm));
+        forespørselBehandlingTjeneste.opprettTaskForFerdigstillForespørsel(forespørselUuid, personInfo.aktørId(), orgnummer, LukkeÅrsak.ORDINÆR_INNSENDING, Optional.of(nyIm));
 
         var lagretEntitet = inntektsmeldingRepository.hentInntektsmelding(imId);
         MetrikkerTjeneste.logginnsendtImOmsorgspengerRefusjon(lagretEntitet);
@@ -280,7 +280,7 @@ public class InntektsmeldingApiMottakTjeneste {
                 forespørselBehandlingTjeneste.oppdaterPortalerMedEndretInntektsmelding(
                     forespørsel, orgnummer, Optional.ofNullable(inntektsmelding.getUuid()));
             } else {
-                forespørselBehandlingTjeneste.ferdigstillForespørsel(
+                forespørselBehandlingTjeneste.opprettTaskForFerdigstillForespørsel(
                     forespørsel.getUuid(), inntektsmelding.getAktørId(), orgnummer, LukkeÅrsak.ORDINÆR_INNSENDING, Optional.of(inntektsmelding));
             }
             MetrikkerTjeneste.loggInnsendtInntektsmelding(inntektsmelding);

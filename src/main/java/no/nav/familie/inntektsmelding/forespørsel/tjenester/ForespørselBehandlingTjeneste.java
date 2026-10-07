@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
+import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.FerdigstillForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OppdaterForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
@@ -27,8 +28,11 @@ import no.nav.familie.inntektsmelding.imdialog.modell.DelvisFraværsPeriodeEntit
 import no.nav.familie.inntektsmelding.imdialog.modell.FraværsPeriodeEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.rest.kvittering.PdfDokumentRest;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.FerdigstillForespørselDialogTask;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OppdaterDialogMedEndretInntektsmeldingTask;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OpprettForespørselDialogportenTask;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SendMeldingOmAvvistInntektsmeldingTask;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SettDialogTilUtgåttTask;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.Organisasjon;
@@ -38,7 +42,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselAksjon;
 import no.nav.familie.inntektsmelding.typer.dto.ForespørselOppdatering;
@@ -50,7 +53,6 @@ import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
@@ -60,12 +62,10 @@ public class ForespørselBehandlingTjeneste {
 
     private ForespørselTjeneste forespørselTjeneste;
     private MinSideArbeidsgiverTjeneste minSideArbeidsgiverTjeneste;
-    private DialogportenKlient dialogportenKlient;
     private PersonTjeneste personTjeneste;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private OrganisasjonTjeneste organisasjonTjeneste;
     private String arbeidsgiverportalSkjemaLenke;
-    private boolean dialogportenEnabled;
 
     ForespørselBehandlingTjeneste() {
         // CDI
@@ -74,18 +74,29 @@ public class ForespørselBehandlingTjeneste {
     @Inject
     public ForespørselBehandlingTjeneste(ForespørselTjeneste forespørselTjeneste,
                                          MinSideArbeidsgiverTjeneste minSideArbeidsgiverTjeneste,
-                                         DialogportenKlient dialogportenKlient,
                                          PersonTjeneste personTjeneste,
                                          ProsessTaskTjeneste prosessTaskTjeneste,
                                          OrganisasjonTjeneste organisasjonTjeneste) {
         this.forespørselTjeneste = forespørselTjeneste;
         this.minSideArbeidsgiverTjeneste = minSideArbeidsgiverTjeneste;
-        this.dialogportenKlient = dialogportenKlient;
         this.personTjeneste = personTjeneste;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.organisasjonTjeneste = organisasjonTjeneste;
         this.arbeidsgiverportalSkjemaLenke = ENV.getProperty("inntektsmelding.skjema.lenke");
-        this.dialogportenEnabled = ENV.getProperty("dialogporten.enabled", Boolean.class, false);
+    }
+
+    public void opprettTaskForFerdigstillForespørsel(UUID foresporselUuid,
+                                                     AktørIdEntitet aktorId,
+                                                     OrganisasjonsnummerDto organisasjonsnummerDto,
+                                                     LukkeÅrsak årsak,
+                                                     Optional<InntektsmeldingEntitet> inntektsmeldingEntitet) {
+        ForespørselEntitet forespørsel = forespørselTjeneste.hentForespørsel(foresporselUuid)
+            .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel for inntektsmelding, ugyldig tilstand"));
+
+        validerAktør(forespørsel, aktorId);
+        validerOrganisasjon(forespørsel, organisasjonsnummerDto);
+
+        prosessTaskTjeneste.lagre(FerdigstillForespørselTask.lagTaskData(forespørsel, inntektsmeldingEntitet.map(InntektsmeldingEntitet::getUuid), årsak));
     }
 
     public ForespørselEntitet ferdigstillForespørsel(UUID foresporselUuid,
@@ -133,22 +144,7 @@ public class ForespørselBehandlingTjeneste {
         }
 
         // Oppdaterer status i altinn dialogporten
-        if (forespørsel.getDialogportenUuid().isPresent()) {
-            if (dialogportenEnabled) {
-                try {
-                    dialogportenKlient.ferdigstillDialog(forespørsel.getDialogportenUuid().get(),
-                        new ArbeidsgiverDto(organisasjonsnummerDto.orgnr()),
-                        lagSaksTittelForDialogporten(aktorId),
-                        forespørsel.getYtelseType(),
-                        forespørsel.getSkjæringstidspunkt(),
-                        inntektsmeldingEntitet.map(InntektsmeldingEntitet::getUuid),
-                        årsak);
-                } catch (Exception e) {
-                    // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
-                    LOG.warn("Feil ved kall til dialogporten: ", e);
-                }
-            }
-        }
+        prosessTaskTjeneste.lagre(FerdigstillForespørselDialogTask.lagTaskData(foresporselUuid, inntektsmeldingEntitet.map(InntektsmeldingEntitet::getUuid), årsak));
         return forespørsel;
     }
 
@@ -207,14 +203,10 @@ public class ForespørselBehandlingTjeneste {
             tasker.add(gjenåpneForespørselTask);
         }
 
-        if (!tasker.isEmpty()) {
-            var taskGruppe = new ProsessTaskGruppe();
-            taskGruppe.addNesteParallell(tasker);
-            taskGruppe.setSaksnummer(saksnummer.saksnr());
-            prosessTaskTjeneste.lagre(taskGruppe);
-        } else {
+        if (tasker.isEmpty()) {
             LOG.info("Ingen oppdatering er nødvendig for saksnummer: {}", saksnummer);
         }
+        lagreTaskerForFagsak(tasker, saksnummer);
     }
 
     private static List<OppdaterForespørselDto> utledNyeForespørsler(List<OppdaterForespørselDto> forespørsler,
@@ -331,11 +323,7 @@ public class ForespørselBehandlingTjeneste {
         minSideArbeidsgiverTjeneste.oppdaterSakTilleggsinformasjon(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId(),
             ForespørselTekster.lagTilleggsInformasjon(LukkeÅrsak.UTGÅTT, eksisterendeForespørsel.getSkjæringstidspunkt()));
         forespørselTjeneste.settForespørselTilUtgått(eksisterendeForespørsel.getArbeidsgiverNotifikasjonSakId());
-        //oppdaterer status til not applicable i altinn dialogporten
-        if (dialogportenEnabled) {
-            eksisterendeForespørsel.getDialogportenUuid().ifPresent(dialogUuid ->
-                dialogportenKlient.settDialogTilUtgått(dialogUuid, lagSaksTittelForDialogporten(eksisterendeForespørsel.getAktørId())));
-        }
+        prosessTaskTjeneste.lagre(SettDialogTilUtgåttTask.lagTaskData(eksisterendeForespørsel.getUuid()));
 
         LOG.info("Setter forespørsel til utgått, orgnr: {}, stp: {}, saksnr: {}, ytelse: {}",
             new OrganisasjonsnummerDto(eksisterendeForespørsel.getOrganisasjonsnummer()),
@@ -357,6 +345,20 @@ public class ForespørselBehandlingTjeneste {
             eksisterendeForespørsel.getSkjæringstidspunkt(),
             eksisterendeForespørsel.getSaksnummer().orElse(null),
             eksisterendeForespørsel.getYtelseType());
+    }
+
+    public void opprettTaskForOpprettForespørsel(Ytelsetype ytelsetype,
+                                                 AktørIdEntitet aktørId,
+                                                 SaksnummerDto saksnummer,
+                                                 OrganisasjonsnummerDto organisasjonsnummer,
+                                                 LocalDate skjæringstidspunkt,
+                                                 ForespørselType forespørselType) {
+        prosessTaskTjeneste.lagre(OpprettForespørselTask.lagOpprettForespørselTaskData(ytelsetype,
+            aktørId,
+            saksnummer,
+            organisasjonsnummer,
+            skjæringstidspunkt,
+            forespørselType));
     }
 
     public void opprettForespørsel(Ytelsetype ytelsetype,
@@ -383,15 +385,7 @@ public class ForespørselBehandlingTjeneste {
             forespørselType);
 
         opprettForespørselMinSideArbeidsgiver(ytelsetype, aktørId, organisasjonsnummer, skjæringstidspunkt, etterspurtePerioder, forespørselUuid, forespørselType);
-
-        if (dialogportenEnabled) {
-            try {
-                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), aktørId, ytelsetype, skjæringstidspunkt);
-            } catch (Exception e) {
-                // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
-                LOG.warn("Feil ved kall til dialogporten: ", e);
-            }
-        }
+        prosessTaskTjeneste.lagre(OpprettForespørselDialogportenTask.lagTaskData(forespørselUuid));
     }
 
     private void opprettForespørselMinSideArbeidsgiver(Ytelsetype ytelsetype,
@@ -438,19 +432,6 @@ public class ForespørselBehandlingTjeneste {
         forespørselTjeneste.setOppgaveId(forespørselUuid, oppgaveId);
     }
 
-    private void opprettForespørselDialogporten(UUID forespørselUuid,
-                                                ArbeidsgiverDto arbeidsgiver,
-                                                AktørIdEntitet aktørId,
-                                                Ytelsetype ytelsetype,
-                                                LocalDate førsteUttaksdato) {
-        String saksTittelDialog = lagSaksTittelForDialogporten(aktørId);
-        String dialogPortenUuid = dialogportenKlient.opprettDialog(forespørselUuid, arbeidsgiver, saksTittelDialog, førsteUttaksdato, ytelsetype);
-
-        String vasketDialogUuid = dialogPortenUuid.replace("\"", "");
-        LOG.info("Mottok UUID {} fra dialogporten", vasketDialogUuid);
-        forespørselTjeneste.setDialogportenUuid(forespørselUuid, UUID.fromString(vasketDialogUuid));
-    }
-
     public void oppdaterPortalerMedEndretInntektsmelding(ForespørselEntitet forespørsel,
                                                          OrganisasjonsnummerDto arbeidsgiver,
                                                          Optional<UUID> inntektsmeldingUuid) {
@@ -466,17 +447,7 @@ public class ForespørselBehandlingTjeneste {
                 URI.create(hentInntektsmeldingPdfUrl));
         }
 
-        // Oppdater status i altinn dialogporten
-        if (forespørsel.getDialogportenUuid().isPresent()) {
-            dialogportenKlient.oppdaterDialogMedEndretInntektsmelding(forespørsel.getDialogportenUuid().get(),
-                new ArbeidsgiverDto(arbeidsgiver.orgnr()),
-                inntektsmeldingUuid);
-        }
-    }
-
-    private String lagSaksTittelForDialogporten(AktørIdEntitet aktørId) {
-        var person = personTjeneste.hentPersonInfoFraAktørId(aktørId);
-        return ForespørselTekster.lagSaksTittelInntektsmelding(person.mapFulltNavn(), person.fødselsdato());
+        prosessTaskTjeneste.lagre(OppdaterDialogMedEndretInntektsmeldingTask.lagTaskData(forespørsel.getUuid(), inntektsmeldingUuid));
     }
 
     public UUID opprettForespørselForArbeidsgiverInitiertInntektsmelding(AktørIdEntitet aktørId,
@@ -499,14 +470,7 @@ public class ForespørselBehandlingTjeneste {
         // oppdater forespørsel med sakId fra min side arbeidsgiver
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(forespørselUuid, arbeidsgiverNotifikasjonSakId);
 
-        if (dialogportenEnabled) {
-            try {
-                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), aktørId, ytelsetype, skjæringstidspunkt);
-            } catch (Exception e) {
-                // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
-                LOG.warn("Feil ved kall til dialogporten: ", e);
-            }
-        }
+        prosessTaskTjeneste.lagre(OpprettForespørselDialogportenTask.lagTaskData(forespørselUuid));
 
         return forespørselUuid;
     }
@@ -526,14 +490,7 @@ public class ForespørselBehandlingTjeneste {
 
         forespørselTjeneste.setArbeidsgiverNotifikasjonSakId(forespørselUuid, arbeidsgiverNotifikasjonSakId);
 
-        if (dialogportenEnabled) {
-            try {
-                opprettForespørselDialogporten(forespørselUuid, new ArbeidsgiverDto(organisasjonsnummer.orgnr()), aktørId, Ytelsetype.OMSORGSPENGER, skjæringstidspunkt);
-            } catch (Exception e) {
-                // Ikke alle organisasjoner som brukes av Dolly finnes i Tenor, som Altinn bruker for å slå opp bedrifter i test. Må derfor tåle å feile for enkelte kall i dev
-                LOG.warn("Feil ved kall til dialogporten: ", e);
-            }
-        }
+        prosessTaskTjeneste.lagre(OpprettForespørselDialogportenTask.lagTaskData(forespørselUuid));
 
         return forespørselUuid;
     }
@@ -543,20 +500,32 @@ public class ForespørselBehandlingTjeneste {
 
         // Alle inntektsmeldinger sendt inn via arbeidsgiverportal blir lukket umiddelbart etter innsending fra #InntektsmeldingTjeneste,
         // så forespørsler som enda er åpne her blir løst ved innsending fra andre systemer
-        forespørsler.forEach(f -> {
-            var lukketForespørsel = ferdigstillForespørsel(f.getUuid(),
-                f.getAktørId(),
-                new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()),
-                LukkeÅrsak.EKSTERN_INNSENDING,
-                Optional.empty());
-            MetrikkerTjeneste.loggForespørselLukkEkstern(lukketForespørsel);
-        });
+        var tasker = forespørsler.stream()
+            .map(f -> FerdigstillForespørselTask.lagTaskData(f, Optional.empty(), LukkeÅrsak.EKSTERN_INNSENDING))
+            .toList();
+        if (tasker.isEmpty()) {
+            LOG.info("Fant ingen åpne forespørsler å lukke for saksnummer: {}", saksnummer);
+        }
+        lagreTaskerForFagsak(tasker, saksnummer);
     }
 
     public void settForespørselTilUtgått(SaksnummerDto saksnummer, OrganisasjonsnummerDto orgnummerDto, LocalDate skjæringstidspunkt) {
         var forespørsler = hentÅpneForespørslerForFagsak(saksnummer, orgnummerDto, skjæringstidspunkt);
 
-        forespørsler.forEach(it -> settForespørselTilUtgått(it, true));
+        var tasker = forespørsler.stream()
+            .map(f -> SettForespørselTilUtgåttTask.lagSettTilUtgåttTask(f.getUuid(), saksnummer))
+            .toList();
+        if (tasker.isEmpty()) {
+            LOG.info("Fant ingen åpne forespørsler å sette til utgått for saksnummer: {}", saksnummer);
+        }
+        lagreTaskerForFagsak(tasker, saksnummer);
+    }
+
+    private void lagreTaskerForFagsak(List<ProsessTaskData> tasker, SaksnummerDto saksnummer) {
+        for (ProsessTaskData task : tasker) {
+            task.setSaksnummer(saksnummer.saksnr());
+            prosessTaskTjeneste.lagre(task);
+        }
     }
 
     private List<ForespørselEntitet> hentÅpneForespørslerForFagsak(SaksnummerDto saksnummer,
@@ -619,14 +588,9 @@ public class ForespørselBehandlingTjeneste {
         List<ForespørselEntitet> åpneForespørsler = forespørselTjeneste.finnÅpneForespørslerForFagsak(saksnummer);
         List<ProsessTaskData> tasker = new ArrayList<>();
         for (var forespørsel : åpneForespørsler) {
-            var task = ProsessTaskData.forProsessTask(SendNyBeskjedOgVarselTask.class);
-            task.setProperty(SendNyBeskjedOgVarselTask.FORESPØRSEL_UUID, forespørsel.getUuid().toString());
-            tasker.add(task);
+            tasker.add(SendNyBeskjedOgVarselTask.lagSendNyBeskjedOgVarselTask(forespørsel.getUuid()));
         }
-        var taskGruppe = new ProsessTaskGruppe();
-        taskGruppe.addNesteParallell(tasker);
-        taskGruppe.setSaksnummer(saksnummer.saksnr());
-        prosessTaskTjeneste.lagre(taskGruppe);
+        lagreTaskerForFagsak(tasker, saksnummer);
     }
 
     public NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto saksnummer,
@@ -682,8 +646,6 @@ public class ForespørselBehandlingTjeneste {
         minSideArbeidsgiverTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
 
         // Send melding til dialogporten
-        if (dialogportenEnabled) {
-            prosessTaskTjeneste.lagre(SendMeldingOmAvvistInntektsmeldingTask.lagTaskData(forespørsel.getUuid(), feilmelding));
-        }
+        prosessTaskTjeneste.lagre(SendMeldingOmAvvistInntektsmeldingTask.lagTaskData(forespørsel.getUuid(), feilmelding));
     }
 }

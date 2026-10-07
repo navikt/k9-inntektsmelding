@@ -29,7 +29,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.k9sak.K9SakTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.metrikker.MetrikkerTjeneste;
 import no.nav.familie.inntektsmelding.server.audit.SporingsloggTjeneste;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
@@ -107,19 +106,15 @@ public class ForespørselRest {
             aktørId = fagsakInfo.aktørId().getAktørId();
         }
 
-        forespørselBehandlingTjeneste.opprettForespørsel(
+        forespørselBehandlingTjeneste.opprettTaskForOpprettForespørsel(
             ytelsetype,
             new AktørIdEntitet(aktørId),
             request.saksnummer(),
             request.orgnr(),
             request.skjæringstidspunkt(),
-            null,
-            null,
             ForespørselType.BESTILT_AV_SAKSBEHANDLER);
 
-        MetrikkerTjeneste.loggForespørselOpprettetAvSaksbehandler(ytelsetype);
-
-        LOG.info("Opprettet inntektsmelding forespørsel på saksnummer {}", request.saksnummer().saksnr());
+        LOG.info("Opprettet task for å opprette inntektsmelding forespørsel på saksnummer {}", request.saksnummer().saksnr());
         return Response.ok().build();
     }
 
