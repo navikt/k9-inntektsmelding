@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 public class DialogportenTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(DialogportenTjeneste.class);
     private static final Environment ENV = Environment.current();
-    private static final LocalDateTime DIALOGPORTEN_PRODSETTINGSDATO = LocalDateTime.parse(ENV.getProperty("dialogporten.prodsettingsdato", "2026-09-08T13:23:51.192"));
+    private static final LocalDateTime DIALOGPORTEN_PRODSETTING_TIDSPUNKT = LocalDateTime.parse(ENV.getProperty("dialogporten.prodsetting.tidspunkt", "2026-09-08T13:23:51.192"));
 
     private DialogportenKlient dialogportenKlient;
     private ForespørselTjeneste forespørselTjeneste;
@@ -111,7 +111,7 @@ public class DialogportenTjeneste {
     }
 
     public boolean erOpprettetFørProdsetting(ForespørselEntitet forespørsel) {
-        return forespørsel.getOpprettetTidspunkt().isBefore(DIALOGPORTEN_PRODSETTINGSDATO);
+        return forespørsel.getOpprettetTidspunkt().isBefore(DIALOGPORTEN_PRODSETTING_TIDSPUNKT);
     }
 
     private String lagSaksTittelForDialogporten(AktørIdEntitet aktørId) {
