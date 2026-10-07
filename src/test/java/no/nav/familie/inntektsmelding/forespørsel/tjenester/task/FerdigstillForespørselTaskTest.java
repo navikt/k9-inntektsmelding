@@ -109,6 +109,6 @@ class FerdigstillForespørselTaskTest {
         assertThat(taskdata.getPropertyValue(FerdigstillForespørselTask.LUKKE_ÅRSAK)).isEqualTo(LukkeÅrsak.ORDINÆR_INNSENDING.name());
         assertThat(taskdata.getSaksnummer()).isEqualTo("saksnummer");
         assertThat(taskdata.getGruppe()).isEqualTo(forespørselUuid.toString());
-        assertThat(taskdata.getSekvens()).isEqualTo("0");
+        assertThat(Long.parseLong(taskdata.getSekvens())).isPositive();
     }
 }

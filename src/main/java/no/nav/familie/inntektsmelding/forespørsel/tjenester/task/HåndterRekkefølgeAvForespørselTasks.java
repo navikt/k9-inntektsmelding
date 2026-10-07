@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,11 +14,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.FerdigstillForespørselDialogTask;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OppdaterDialogMedEndretInntektsmeldingTask;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OpprettForespørselDialogportenTask;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SendMeldingOmAvvistInntektsmeldingTask;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SettDialogTilUtgåttTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskLifecycleObserver;
@@ -32,25 +28,16 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
     private static final Logger LOG = LoggerFactory.getLogger(HåndterRekkefølgeAvForespørselTasks.class);
     public static final String FORESPØRSEL_UUID = "forespoerselUuid";
 
+    private static final AtomicLong SISTE_SEKVENS = new AtomicLong();
+
     private static final TaskType OPPRETT_FORESPØRSEL_TASK = TaskType.forProsessTask(OpprettForespørselTask.class);
-    private static final TaskType FERDIGSTILL_FORESPØRSEL_TASK = TaskType.forProsessTask(FerdigstillForespørselTask.class);
-    private static final TaskType OPPDATER_FORESPØRSEL_TASK = TaskType.forProsessTask(OppdaterForespørselTask.class);
     private static final TaskType SETT_FORESPØRSEL_TIL_UTGÅTT_TASK = TaskType.forProsessTask(SettForespørselTilUtgåttTask.class);
     private static final TaskType GJENÅPNE_FORESPØRSEL_TASK = TaskType.forProsessTask(GjenåpneForespørselTask.class);
-    private static final TaskType OPPRETT_FORESPØRSEL_I_DIALOGPORTEN_TASK = TaskType.forProsessTask(OpprettForespørselDialogportenTask.class);
 
     private static final Set<TaskType> BLOKKERENDE = Set.of(
         OPPRETT_FORESPØRSEL_TASK,
         SETT_FORESPØRSEL_TIL_UTGÅTT_TASK,
         GJENÅPNE_FORESPØRSEL_TASK);
-
-    private static final Set<TaskType> TASKER_SOM_OPPDATERER_DIALOGPORTEN_ELLER_NAV_NO_MED_EKSTERN_REFERANSE = Set.of(
-        TaskType.forProsessTask(FerdigstillForespørselDialogTask.class),
-        TaskType.forProsessTask(OppdaterDialogMedEndretInntektsmeldingTask.class),
-        TaskType.forProsessTask(SendMeldingOmAvvistInntektsmeldingTask.class),
-        TaskType.forProsessTask(SendNyBeskjedOgVarselTask.class),
-        TaskType.forProsessTask(SettDialogTilUtgåttTask.class)
-    );
 
     private ProsessTaskRepository prosessTaskRepository;
 
@@ -100,22 +87,13 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
     }
 
     // Tasker som oppdaterer samme forespørsel burde ikke kjøre parallelt siden det kan overskrive samme entitet.
-    // Vi setter derfor gruppe og sekvens for å sikre at de kjører i rekkefølge.
+    // Vi setter derfor gruppe og en strengt økende sekvens.
     public static void setRekkefølgeForForespørselTask(ProsessTaskData task, UUID forespørselUuid) {
         task.setGruppe(forespørselUuid.toString());
+        task.setSekvens(Long.toString(nesteSekvens()));
+    }
 
-        if (FERDIGSTILL_FORESPØRSEL_TASK.equals(task.taskType())) {
-            task.setSekvens("0");
-        } else if (OPPDATER_FORESPØRSEL_TASK.equals(task.taskType())) {
-            task.setSekvens("1");
-        } else if (SETT_FORESPØRSEL_TIL_UTGÅTT_TASK.equals(task.taskType())) {
-            task.setSekvens("2");
-        } else if (GJENÅPNE_FORESPØRSEL_TASK.equals(task.taskType())) {
-            task.setSekvens("3");
-        } else if (OPPRETT_FORESPØRSEL_I_DIALOGPORTEN_TASK.equals(task.taskType())) {
-            task.setSekvens("4");
-        } else if (TASKER_SOM_OPPDATERER_DIALOGPORTEN_ELLER_NAV_NO_MED_EKSTERN_REFERANSE.contains(task.taskType())) { // disse taksene oppdaterer ikke forespørsel entiteten og kan kjøres parallelt
-            task.setSekvens("5");
-        }
+    private static long nesteSekvens() {
+        return SISTE_SEKVENS.updateAndGet(forrige -> Math.max(System.currentTimeMillis(), forrige + 1));
     }
 }

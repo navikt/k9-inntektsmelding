@@ -53,7 +53,6 @@ import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
@@ -208,14 +207,10 @@ public class ForespørselBehandlingTjeneste {
             tasker.add(gjenåpneForespørselTask);
         }
 
-        if (!tasker.isEmpty()) {
-            var taskGruppe = new ProsessTaskGruppe();
-            taskGruppe.addNesteParallell(tasker);
-            taskGruppe.setSaksnummer(saksnummer.saksnr());
-            prosessTaskTjeneste.lagre(taskGruppe);
-        } else {
+        if (tasker.isEmpty()) {
             LOG.info("Ingen oppdatering er nødvendig for saksnummer: {}", saksnummer);
         }
+        lagreTaskerForFagsak(tasker, saksnummer);
     }
 
     private static List<OppdaterForespørselDto> utledNyeForespørsler(List<OppdaterForespørselDto> forespørsler,
@@ -512,6 +507,9 @@ public class ForespørselBehandlingTjeneste {
         var tasker = forespørsler.stream()
             .map(f -> FerdigstillForespørselTask.lagTaskData(f, Optional.empty(), LukkeÅrsak.EKSTERN_INNSENDING))
             .toList();
+        if (tasker.isEmpty()) {
+            LOG.info("Fant ingen åpne forespørsler å lukke for saksnummer: {}", saksnummer);
+        }
         lagreTaskerForFagsak(tasker, saksnummer);
     }
 
@@ -521,18 +519,17 @@ public class ForespørselBehandlingTjeneste {
         var tasker = forespørsler.stream()
             .map(f -> SettForespørselTilUtgåttTask.lagSettTilUtgåttTask(f.getUuid(), saksnummer))
             .toList();
+        if (tasker.isEmpty()) {
+            LOG.info("Fant ingen åpne forespørsler å sette til utgått for saksnummer: {}", saksnummer);
+        }
         lagreTaskerForFagsak(tasker, saksnummer);
     }
 
     private void lagreTaskerForFagsak(List<ProsessTaskData> tasker, SaksnummerDto saksnummer) {
-        if (tasker.isEmpty()) {
-            LOG.info("Fant ingen åpne forespørsler å oppdatere for saksnummer: {}", saksnummer);
-            return;
+        for (ProsessTaskData task : tasker) {
+            task.setSaksnummer(saksnummer.saksnr());
+            prosessTaskTjeneste.lagre(task);
         }
-        var taskGruppe = new ProsessTaskGruppe();
-        taskGruppe.addNesteParallell(tasker);
-        taskGruppe.setSaksnummer(saksnummer.saksnr());
-        prosessTaskTjeneste.lagre(taskGruppe);
     }
 
     private List<ForespørselEntitet> hentÅpneForespørslerForFagsak(SaksnummerDto saksnummer,
@@ -597,10 +594,7 @@ public class ForespørselBehandlingTjeneste {
         for (var forespørsel : åpneForespørsler) {
             tasker.add(SendNyBeskjedOgVarselTask.lagSendNyBeskjedOgVarselTask(forespørsel.getUuid()));
         }
-        var taskGruppe = new ProsessTaskGruppe();
-        taskGruppe.addNesteParallell(tasker);
-        taskGruppe.setSaksnummer(saksnummer.saksnr());
-        prosessTaskTjeneste.lagre(taskGruppe);
+        lagreTaskerForFagsak(tasker, saksnummer);
     }
 
     public NyBeskjedResultat opprettNyBeskjedMedEksternVarsling(SaksnummerDto saksnummer,
