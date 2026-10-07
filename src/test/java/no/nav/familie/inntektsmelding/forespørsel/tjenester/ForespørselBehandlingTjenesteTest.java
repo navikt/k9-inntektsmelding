@@ -1,9 +1,7 @@
 package no.nav.familie.inntektsmelding.forespørsel.tjenester;
 
-import static no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks.FORESPØRSEL_UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -16,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,15 +27,13 @@ import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselMapper;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.FerdigstillForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.GjenåpneForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OppdaterForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.OpprettForespørselTask;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.SettForespørselTilUtgåttTask;
 import no.nav.familie.inntektsmelding.forvaltning.rest.InntektsmeldingForespørselDto;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.FerdigstillForespørselDialogTask;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OpprettForespørselDialogportenTask;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.organisasjon.OrganisasjonTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
@@ -53,7 +50,7 @@ import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.SaksnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
@@ -81,18 +78,28 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
     private ProsessTaskTjeneste prosessTaskTjeneste;
     @Mock
     private OrganisasjonTjeneste organisasjonTjeneste;
+    @Mock
+    private DialogportenKlient dialogportenKlient;
 
     private ForespørselRepository forespørselRepository;
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
     @BeforeEach
     void setUp() {
+        System.setProperty("dialogporten.enabled", "true");
         this.forespørselRepository = new ForespørselRepository(getEntityManager());
         this.forespørselBehandlingTjeneste = new ForespørselBehandlingTjeneste(new ForespørselTjeneste(forespørselRepository),
             minSideArbeidsgiverTjeneste,
+            dialogportenKlient,
             personTjeneste,
             prosessTaskTjeneste,
             organisasjonTjeneste);
+        lenient().when(dialogportenKlient.opprettDialog(any(), any(), any(), any(), any())).thenReturn(UUID.randomUUID().toString());
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.clearProperty("dialogporten.enabled");
     }
 
     @Test
@@ -117,13 +124,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(lagret.getOrganisasjonsnummer()).isEqualTo(BRREG_ORGNUMMER);
         assertThat(lagret.getFørsteUttaksdato().orElse(null)).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(lagret.getForespørselType()).isEqualTo(ForespørselType.OMSORGSPENGER_REFUSJON);
-
-        // Verifiser at det ble opprettet en task for å opprette dialog i dialogporten
-        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
-        var taskdata = taskCaptor.getValue();
-        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OpprettForespørselDialogportenTask.class));
-        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(uuid.toString());
+        verify(dialogportenKlient).opprettDialog(any(), any(), any(), any(), any());
     }
 
     @Test
@@ -150,14 +151,12 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         assertThat(lagret.map(ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
         assertThat(lagret.get().getForespørselType()).isEqualTo(ForespørselType.BESTILT_AV_FAGSYSTEM);
 
-        // Verifiser at det ble opprettet en task for å ferdigstille dialog i dialogporten med riktige verdier
-        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
-        var taskdata = taskCaptor.getValue();
-        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselDialogTask.class));
-        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
-        assertThat(taskdata.getPropertyValue(FerdigstillForespørselDialogTask.INNTEKTSMELDING_UUID)).isEqualTo(inntektsmelding.getUuid().toString());
-        assertThat(taskdata.getPropertyValue(FerdigstillForespørselDialogTask.LUKKE_ÅRSAK)).isEqualTo(LukkeÅrsak.ORDINÆR_INNSENDING.name());
+        // Verifiser at ferdigstillDialog ble kalt med riktige verdier
+        var inntektsmeldingUuidCaptor = ArgumentCaptor.forClass(Optional.class);
+        var lukkeÅrsakCaptor = ArgumentCaptor.forClass(LukkeÅrsak.class);
+        verify(dialogportenKlient).ferdigstillDialog(eq(dialogUuid), any(), any(), any(), any(), inntektsmeldingUuidCaptor.capture(), lukkeÅrsakCaptor.capture());
+        assertThat(lukkeÅrsakCaptor.getValue()).isEqualTo(LukkeÅrsak.ORDINÆR_INNSENDING);
+        assertThat(inntektsmeldingUuidCaptor.getValue()).isEqualTo(Optional.of(inntektsmelding.getUuid()));
     }
 
     @Test
@@ -183,14 +182,12 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
         assertThat(lagret.map(ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
 
-        // Verifiser at det ble opprettet en task for å ferdigstille dialog i dialogporten med riktige verdier
-        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
-        var taskdata = taskCaptor.getValue();
-        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselDialogTask.class));
-        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
-        assertThat(taskdata.getPropertyValue(FerdigstillForespørselDialogTask.INNTEKTSMELDING_UUID)).isEqualTo(inntektsmelding.getUuid().toString());
-        assertThat(taskdata.getPropertyValue(FerdigstillForespørselDialogTask.LUKKE_ÅRSAK)).isEqualTo(LukkeÅrsak.ORDINÆR_INNSENDING.name());
+        // Verifiser at ferdigstillDialog ble kalt med riktige verdier
+        var inntektsmeldingUuidCaptor = ArgumentCaptor.forClass(Optional.class);
+        var lukkeÅrsakCaptor = ArgumentCaptor.forClass(LukkeÅrsak.class);
+        verify(dialogportenKlient).ferdigstillDialog(eq(dialogUuid), any(), any(), any(), any(), inntektsmeldingUuidCaptor.capture(), lukkeÅrsakCaptor.capture());
+        assertThat(lukkeÅrsakCaptor.getValue()).isEqualTo(LukkeÅrsak.ORDINÆR_INNSENDING);
+        assertThat(inntektsmeldingUuidCaptor.getValue()).isEqualTo(Optional.of(inntektsmelding.getUuid()));
     }
 
     @Test
@@ -206,23 +203,11 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
 
         clearHibernateCache();
 
-        // Status endres ikke før FerdigstillForespørselTask kjøres
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
         var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
-        assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
-
-        // Verifiser at det ble opprettet en task for å ferdigstille hver forespørsel
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste, Mockito.times(2)).lagre(captor.capture());
-        var taskdataListe = captor.getAllValues();
-        assertThat(taskdataListe).allSatisfy(taskdata -> {
-            assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselTask.class));
-            assertThat(taskdata.getPropertyValue(FerdigstillForespørselTask.LUKKE_ÅRSAK)).isEqualTo(LukkeÅrsak.EKSTERN_INNSENDING.name());
-            assertThat(taskdata.getPropertyValue(FerdigstillForespørselTask.INNTEKTSMELDING_UUID)).isNull();
-        });
-        assertThat(taskdataListe.stream().map(td -> td.getPropertyValue(FORESPØRSEL_UUID)))
-            .containsExactlyInAnyOrder(forespørselUuid.toString(), forespørselUuid2.toString());
+        assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
+        verify(dialogportenKlient, Mockito.never()).ferdigstillDialog(any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -238,19 +223,10 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
 
         clearHibernateCache();
 
-        // Status endres ikke før SettForespørselTilUtgåttTask kjøres
         var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
-        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
-
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste, Mockito.times(2)).lagre(captor.capture());
-        var taskdataListe = captor.getAllValues();
-        assertThat(taskdataListe).allSatisfy(taskdata -> {
-            assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(SettForespørselTilUtgåttTask.class));
-            assertThat(taskdata.getSaksnummer()).isEqualTo(SAKSNUMMMER);
-        });
-        assertThat(taskdataListe.stream().map(td -> td.getPropertyValue(FORESPØRSEL_UUID)))
-            .containsExactlyInAnyOrder(forespørselUuid.toString(), forespørselUuid2.toString());
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
+        var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
+        assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UTGÅTT));
     }
 
     @Test
@@ -267,56 +243,13 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
             SKJÆRINGSTIDSPUNKT);
 
-        // Verifiser at det kun ble opprettet en task for forespørselen som skal lukkes
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste, Mockito.times(1)).lagre(captor.capture());
-        var tasker = captor.getAllValues();
-        var taskdata = tasker.getFirst();
-        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselTask.class));
-        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
-    }
-
-    @Test
-    void skal_opprette_task_for_ferdigstilling_av_forespørsel() {
-        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER,
-            SAKSNUMMMER, ForespørselType.BESTILT_AV_FAGSYSTEM, SKJÆRINGSTIDSPUNKT, null);
-        forespørselRepository.oppdaterArbeidsgiverNotifikasjonSakId(forespørselUuid, SAK_ID);
-        var inntektsmelding = lagInntektsmelding(forespørselUuid);
-
-        forespørselBehandlingTjeneste.opprettTaskForFerdigstillForespørsel(forespørselUuid,
-            new AktørIdEntitet(AKTØR_ID),
-            new OrganisasjonsnummerDto(BRREG_ORGNUMMER),
-            LukkeÅrsak.ORDINÆR_INNSENDING,
-            Optional.of(inntektsmelding));
-
         clearHibernateCache();
-        assertThat(forespørselRepository.hentForespørsel(forespørselUuid).map(ForespørselEntitet::getStatus))
-            .isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
-        verifyNoInteractions(minSideArbeidsgiverTjeneste);
 
-        var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
-        var taskdata = taskCaptor.getValue();
-        assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(FerdigstillForespørselTask.class));
-        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
-        assertThat(taskdata.getPropertyValue(FerdigstillForespørselTask.INNTEKTSMELDING_UUID)).isEqualTo(inntektsmelding.getUuid().toString());
-        assertThat(taskdata.getPropertyValue(FerdigstillForespørselTask.LUKKE_ÅRSAK)).isEqualTo(LukkeÅrsak.ORDINÆR_INNSENDING.name());
-        assertThat(taskdata.getSaksnummer()).isEqualTo(SAKSNUMMMER);
-        assertThat(taskdata.getGruppe()).isEqualTo(forespørselUuid.toString());
-    }
-
-    @Test
-    void skal_feile_ved_opprettelse_av_ferdigstill_task_med_feil_organisasjonsnummer() {
-        var forespørselUuid = forespørselRepository.lagreForespørsel(SKJÆRINGSTIDSPUNKT, YTELSETYPE, AKTØR_ID, BRREG_ORGNUMMER,
-            SAKSNUMMMER, ForespørselType.BESTILT_AV_FAGSYSTEM, SKJÆRINGSTIDSPUNKT, null);
-
-        var aktørId = new AktørIdEntitet(AKTØR_ID);
-        var feilOrgnr = new OrganisasjonsnummerDto("999999999");
-        assertThrows(IllegalStateException.class,
-            () -> forespørselBehandlingTjeneste.opprettTaskForFerdigstillForespørsel(forespørselUuid, aktørId, feilOrgnr,
-                LukkeÅrsak.ORDINÆR_INNSENDING, Optional.empty()));
-
-        verifyNoInteractions(prosessTaskTjeneste);
+        var lagret = forespørselRepository.hentForespørsel(forespørselUuid);
+        assertThat(lagret.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.FERDIG));
+        var lagret2 = forespørselRepository.hentForespørsel(forespørselUuid2);
+        assertThat(lagret2.map( ForespørselEntitet::getStatus)).isEqualTo(Optional.of(ForespørselStatus.UNDER_BEHANDLING));
+        verify(dialogportenKlient, Mockito.never()).ferdigstillDialog(any(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -343,16 +276,14 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         forespørselBehandlingTjeneste.oppdaterForespørsler(Ytelsetype.OMSORGSPENGER, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
         // Assert
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste, Mockito.times(1)).lagre(captor.capture());
-        var tasker = captor.getAllValues();
-        var taskdata = tasker.getFirst();
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskGruppe = captor.getValue();
+        assertThat(taskGruppe.getTasks()).hasSize(1);
+        var taskdata = taskGruppe.getTasks().getFirst().task();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OppdaterForespørselTask.class));
         assertThat(taskdata.getPropertyValue(OppdaterForespørselTask.YTELSETYPE)).isEqualTo(Ytelsetype.OMSORGSPENGER.toString());
-        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
-        assertThat(taskdata.getSaksnummer()).isEqualTo(SAKSNUMMMER);
-        assertThat(taskdata.getGruppe()).isEqualTo(forespørselUuid.toString());
-        assertThat(Long.parseLong(taskdata.getSekvens())).isGreaterThan(1L);
+        assertThat(taskdata.getPropertyValue(OppdaterForespørselTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
 
         // Verifiser at payload inneholder riktige perioder
         List<PeriodeDto> deserialisertePerioder = DefaultJsonMapper.listFromJson(taskdata.getPayloadAsString(), PeriodeDto.class);
@@ -371,10 +302,11 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.OPPRETT));
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste, Mockito.times(1)).lagre(captor.capture());
-        var tasker = captor.getAllValues();
-        var taskdata = tasker.getFirst();
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskGruppe = captor.getValue();
+        assertThat(taskGruppe.getTasks()).hasSize(1);
+        var taskdata = taskGruppe.getTasks().getFirst().task();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(OpprettForespørselTask.class));
         assertThat(taskdata.getPropertyValue(OpprettForespørselTask.YTELSETYPE)).isEqualTo(YTELSETYPE.toString());
         assertThat(taskdata.getSaksnummer()).isEqualTo(SAKSNUMMMER);
@@ -395,10 +327,11 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT.plusDays(10), new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.OPPRETT));
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste, Mockito.times(1)).lagre(captor.capture());
-        var tasker = captor.getAllValues();
-        var taskdata1 = tasker.getFirst();
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskGruppe = captor.getValue();
+        assertThat(taskGruppe.getTasks()).hasSize(1);
+        var taskdata1 = taskGruppe.getTasks().getFirst().task();
         assertThat(taskdata1.taskType()).isEqualTo(TaskType.forProsessTask(OpprettForespørselTask.class));
     }
 
@@ -415,14 +348,15 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID_2, OPPGAVE_ID_2);
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste, Mockito.times(2)).lagre(captor.capture());
-        var tasker = captor.getAllValues();
-        var taskdata1 = tasker.get(0);
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskGruppe = captor.getValue();
+        assertThat(taskGruppe.getTasks()).hasSize(2);
+        var taskdata1 = taskGruppe.getTasks().get(0).task();
         assertThat(taskdata1.taskType()).isEqualTo(TaskType.forProsessTask(OpprettForespørselTask.class));
-        var taskdata2 = tasker.get(1);
+        var taskdata2 = taskGruppe.getTasks().get(1).task();
         assertThat(taskdata2.taskType()).isEqualTo(TaskType.forProsessTask(SettForespørselTilUtgåttTask.class));
-        assertThat(taskdata2.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+        assertThat(taskdata2.getPropertyValue(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
     }
 
     @Test
@@ -437,12 +371,13 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.UTGÅTT));
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste, Mockito.times(1)).lagre(captor.capture());
-        var tasker = captor.getAllValues();
-        var taskdata = tasker.getFirst();
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskGruppe = captor.getValue();
+        assertThat(taskGruppe.getTasks()).hasSize(1);
+        var taskdata = taskGruppe.getTasks().getFirst().task();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(SettForespørselTilUtgåttTask.class));
-        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+        assertThat(taskdata.getPropertyValue(SettForespørselTilUtgåttTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
     }
 
     @Test
@@ -457,12 +392,13 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
         var forespørsler = List.of(new OppdaterForespørselDto(SKJÆRINGSTIDSPUNKT, new OrganisasjonsnummerDto(BRREG_ORGNUMMER), ForespørselAksjon.GJENOPPRETT));
         forespørselBehandlingTjeneste.oppdaterForespørsler(YTELSETYPE, new AktørIdEntitet(AKTØR_ID), forespørsler, new SaksnummerDto(SAKSNUMMMER));
 
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskTjeneste, Mockito.times(1)).lagre(captor.capture());
-        var tasker = captor.getAllValues();
-        var taskdata = tasker.getFirst();
+        var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
+        verify(prosessTaskTjeneste).lagre(captor.capture());
+        var taskGruppe = captor.getValue();
+        assertThat(taskGruppe.getTasks()).hasSize(1);
+        var taskdata = taskGruppe.getTasks().getFirst().task();
         assertThat(taskdata.taskType()).isEqualTo(TaskType.forProsessTask(GjenåpneForespørselTask.class));
-        assertThat(taskdata.getPropertyValue(FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
+        assertThat(taskdata.getPropertyValue(GjenåpneForespørselTask.FORESPØRSEL_UUID)).isEqualTo(forespørselUuid.toString());
     }
 
     @Test

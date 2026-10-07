@@ -212,7 +212,7 @@ class InntektsmeldingApiMottakTjenesteTest {
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(SendTilJoarkTask.TASK_TYPE);
-        verify(forespørselBehandlingTjeneste).opprettTaskForFerdigstillForespørsel(eq(FORESPORSEL_UUID), any(), any(), any(), any());
+        verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(eq(FORESPORSEL_UUID), any(), any(), any(), any());
     }
 
     @Test
@@ -231,7 +231,7 @@ class InntektsmeldingApiMottakTjenesteTest {
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(SendTilJoarkTask.TASK_TYPE);
-        verify(forespørselBehandlingTjeneste).opprettTaskForFerdigstillForespørsel(eq(FORESPORSEL_UUID), any(), any(), any(), any());
+        verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(eq(FORESPORSEL_UUID), any(), any(), any(), any());
     }
 
     @Test
@@ -255,7 +255,7 @@ class InntektsmeldingApiMottakTjenesteTest {
         var taskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskTjeneste).lagre(taskCaptor.capture());
         assertThat(taskCaptor.getValue().taskType().value()).isEqualTo(SendTilJoarkTask.TASK_TYPE);
-        verify(forespørselBehandlingTjeneste).opprettTaskForFerdigstillForespørsel(eq(forespørselUuid), any(), any(), any(), any());
+        verify(forespørselBehandlingTjeneste).ferdigstillForespørsel(eq(forespørselUuid), any(), any(), any(), any());
     }
 
     @Test

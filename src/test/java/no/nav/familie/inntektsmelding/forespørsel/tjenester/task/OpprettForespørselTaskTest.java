@@ -69,15 +69,4 @@ class OpprettForespørselTaskTest {
 
         verify(forespørselBehandlingTjeneste).opprettForespørsel(Ytelsetype.OMSORGSPENGER, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null, etterspurtePerioder, ForespørselType.BESTILT_AV_FAGSYSTEM);
     }
-
-    @Test
-    void skal_opprette_forespørsel_bestilt_av_saksbehandler() {
-        var task = new OpprettForespørselTask(forespørselBehandlingTjeneste);
-        var taskdata = OpprettForespørselTask.lagOpprettForespørselTaskData(Ytelsetype.OMSORGSPENGER, aktørId, saksnummer, organisasjon,
-            skjæringstidspunkt, ForespørselType.BESTILT_AV_SAKSBEHANDLER);
-
-        task.doTask(taskdata);
-
-        verify(forespørselBehandlingTjeneste).opprettForespørsel(Ytelsetype.OMSORGSPENGER, aktørId, saksnummer, organisasjon, skjæringstidspunkt, null, null, ForespørselType.BESTILT_AV_SAKSBEHANDLER);
-    }
 }

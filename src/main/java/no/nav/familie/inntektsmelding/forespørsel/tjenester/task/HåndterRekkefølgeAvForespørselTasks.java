@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,18 +24,13 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepository;
 public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecycleObserver {
 
     private static final Logger LOG = LoggerFactory.getLogger(HåndterRekkefølgeAvForespørselTasks.class);
-    public static final String FORESPØRSEL_UUID = "forespoerselUuid";
 
-    private static final AtomicLong SISTE_SEKVENS = new AtomicLong();
-
-    private static final TaskType OPPRETT_FORESPØRSEL_TASK = TaskType.forProsessTask(OpprettForespørselTask.class);
-    private static final TaskType SETT_FORESPØRSEL_TIL_UTGÅTT_TASK = TaskType.forProsessTask(SettForespørselTilUtgåttTask.class);
-    private static final TaskType GJENÅPNE_FORESPØRSEL_TASK = TaskType.forProsessTask(GjenåpneForespørselTask.class);
+    private static final TaskType OPPRETT = TaskType.forProsessTask(OpprettForespørselTask.class);
 
     private static final Set<TaskType> BLOKKERENDE = Set.of(
-        OPPRETT_FORESPØRSEL_TASK,
-        SETT_FORESPØRSEL_TIL_UTGÅTT_TASK,
-        GJENÅPNE_FORESPØRSEL_TASK);
+        OPPRETT,
+        TaskType.forProsessTask(SettForespørselTilUtgåttTask.class),
+        TaskType.forProsessTask(GjenåpneForespørselTask.class));
 
     private ProsessTaskRepository prosessTaskRepository;
 
@@ -53,11 +46,11 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
     @Override
     public ProsessTaskVeto vetoKjøring(ProsessTaskData prosessTaskData) {
 
-        if (prosessTaskData.taskType().equals(OPPRETT_FORESPØRSEL_TASK)) {
+        if (prosessTaskData.taskType().equals(OPPRETT)) {
             var saksnummer = prosessTaskData.getSaksnummer();
 
             if (saksnummer == null || saksnummer.isBlank()) {
-                throw new IllegalArgumentException("Task av type " + OPPRETT_FORESPØRSEL_TASK.value() + " mangler saksnummer");
+                throw new IllegalArgumentException("Task av type " + OPPRETT.value() + " mangler saksnummer");
             }
 
             //TODO bytt til en mer spesifikk query når vi er over på k9-prosesstask
@@ -84,16 +77,5 @@ public class HåndterRekkefølgeAvForespørselTasks implements ProsessTaskLifecy
     @Override
     public void opprettetProsessTaskGruppe(ProsessTaskGruppe sammensattTask) {
 
-    }
-
-    // Tasker som oppdaterer samme forespørsel burde ikke kjøre parallelt siden det kan overskrive samme entitet.
-    // Vi setter derfor gruppe og en strengt økende sekvens.
-    public static void setRekkefølgeForForespørselTask(ProsessTaskData task, UUID forespørselUuid) {
-        task.setGruppe(forespørselUuid.toString());
-        task.setSekvens(Long.toString(nesteSekvens()));
-    }
-
-    private static long nesteSekvens() {
-        return SISTE_SEKVENS.updateAndGet(forrige -> Math.max(System.currentTimeMillis(), forrige + 1));
     }
 }

@@ -1,7 +1,5 @@
 package no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task;
 
-import static no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks.FORESPØRSEL_UUID;
-
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,8 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
-import no.nav.familie.inntektsmelding.forespørsel.tjenester.task.HåndterRekkefølgeAvForespørselTasks;
-import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.DialogportenKlient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -24,8 +21,10 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
     private static final Logger LOG = LoggerFactory.getLogger(SendMeldingOmAvvistInntektsmeldingTask.class);
     public static final String TASK_TYPE = "dialogporten.send.avvist.melding";
 
+    public static final String FORESPØRSEL_UUID = "forespoerselUuid";
+
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
-    private DialogportenTjeneste dialogportenTjeneste;
+    private DialogportenKlient dialogportenKlient;
 
     SendMeldingOmAvvistInntektsmeldingTask() {
         // CDI
@@ -33,35 +32,27 @@ public class SendMeldingOmAvvistInntektsmeldingTask implements ProsessTaskHandle
 
     @Inject
     public SendMeldingOmAvvistInntektsmeldingTask(ForespørselBehandlingTjeneste forespørselBehandlingTjeneste,
-                                                  DialogportenTjeneste dialogportenTjeneste) {
+                                                  DialogportenKlient dialogportenKlient) {
         this.forespørselBehandlingTjeneste = forespørselBehandlingTjeneste;
-        this.dialogportenTjeneste = dialogportenTjeneste;
+        this.dialogportenKlient = dialogportenKlient;
     }
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         UUID forespørselUuid = UUID.fromString(prosessTaskData.getPropertyValue(FORESPØRSEL_UUID));
-        String avvistTekst = prosessTaskData.getPayloadAsString();
+        String feilmelding = prosessTaskData.getPayloadAsString();
 
         ForespørselEntitet forespørsel = forespørselBehandlingTjeneste.hentForespørsel(forespørselUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke forespørsel med uuid " + forespørselUuid));
 
-        LOG.info("Forsøker å sende melding om avvist inntektsmelding for forespørsel i dialogporten for forespørsel med uuid: {} og med dialogportenUuid: {}", forespørselUuid, forespørsel.getDialogportenUuid());
-
-        if (dialogportenTjeneste.erOpprettetFørProdsetting(forespørsel) && forespørsel.getDialogportenUuid().isEmpty()) {
-            LOG.info("Forespørsel med uuid {} er opprettet før Dialogporten ble satt i produksjon. Det finnes derfor ingen forespørsel i Dialogporten. Hopper over oppdatering", forespørselUuid);
-            return;
-        }
-
-        LOG.info("Sender melding om avvist inntektsmelding i dialogporten for forespørsel: {}", forespørselUuid);
-        dialogportenTjeneste.sendMeldingOmAvvistInntektsmelding(forespørsel, avvistTekst);
+        LOG.info("Sender melding om avvist inntektsmelding til dialogporten for forespørsel: {}", forespørselUuid);
+        dialogportenKlient.sendMeldingOmAvvistInntektsmelding(forespørsel, feilmelding);
     }
 
-    public static ProsessTaskData lagTaskData(UUID forespørselUuid, String avvistTekst) {
+    public static ProsessTaskData lagTaskData(UUID forespørselUuid, String feilmelding) {
         ProsessTaskData prosessTaskData = ProsessTaskData.forProsessTask(SendMeldingOmAvvistInntektsmeldingTask.class);
         prosessTaskData.setProperty(FORESPØRSEL_UUID, forespørselUuid.toString());
-        prosessTaskData.setPayload(avvistTekst);
-        HåndterRekkefølgeAvForespørselTasks.setRekkefølgeForForespørselTask(prosessTaskData, forespørselUuid);
+        prosessTaskData.setPayload(feilmelding);
         return prosessTaskData;
     }
 }

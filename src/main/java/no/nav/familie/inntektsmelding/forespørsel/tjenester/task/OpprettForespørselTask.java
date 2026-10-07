@@ -2,7 +2,6 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -34,7 +33,6 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
     public static final String YTELSETYPE = "ytelsetype";
     public static final String ORGNR = "orgnr";
     public static final String STP = "skjaeringstidspunkt";
-    public static final String FORESPØRSEL_TYPE = "forespoerselType";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
 
@@ -55,11 +53,6 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         OrganisasjonsnummerDto organisasjonsnummer = new OrganisasjonsnummerDto(prosessTaskData.getPropertyValue(ORGNR));
         LocalDate skjæringstidspunkt = LocalDate.parse(prosessTaskData.getPropertyValue(STP));
         List<PeriodeDto> etterspurtePerioder = hentEtterspurtePerioder(prosessTaskData, ytelsetype);
-        // Tasker opprettet før FORESPØRSEL_TYPE ble innført mangler propertyen og er alltid bestilt av fagsystem
-        // TODO etter prodsetting av tasker med forespørselType, kan vi fjerne defaulten her
-        ForespørselType forespørselType = Optional.ofNullable(prosessTaskData.getPropertyValue(FORESPØRSEL_TYPE))
-            .map(ForespørselType::valueOf)
-            .orElse(ForespørselType.BESTILT_AV_FAGSYSTEM);
 
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(saksnummer, organisasjonsnummer, skjæringstidspunkt);
 
@@ -77,18 +70,14 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
             skjæringstidspunkt,
             null,
             etterspurtePerioder,
-            forespørselType);
+            ForespørselType.BESTILT_AV_FAGSYSTEM);
 
-        if (forespørselType == ForespørselType.BESTILT_AV_SAKSBEHANDLER) {
-            MetrikkerTjeneste.loggForespørselOpprettetAvSaksbehandler(ytelsetype);
-        } else {
-            MetrikkerTjeneste.loggForespørselOpprettet(ytelsetype);
-        }
+        MetrikkerTjeneste.loggForespørselOpprettet(ytelsetype);
     }
 
     private List<PeriodeDto> hentEtterspurtePerioder(ProsessTaskData prosessTaskData, Ytelsetype ytelsetype) {
         List<PeriodeDto> etterspurtePerioder;
-        if (ytelsetype != Ytelsetype.OMSORGSPENGER || prosessTaskData.getPayloadAsString() == null) {
+        if (ytelsetype != Ytelsetype.OMSORGSPENGER) {
             return null;
         }
 
@@ -118,22 +107,6 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
                 throw new RuntimeException("Kunne ikke serialisere etterspurtePerioder", e);
             }
         }
-        return taskdata;
-    }
-
-    public static ProsessTaskData lagOpprettForespørselTaskData(Ytelsetype ytelsetype,
-                                                                AktørIdEntitet aktørId,
-                                                                SaksnummerDto saksnummer,
-                                                                OrganisasjonsnummerDto organisasjonsnummer,
-                                                                LocalDate skjæringstidspunkt,
-                                                                ForespørselType forespørselType) {
-        var taskdata = ProsessTaskData.forProsessTask(OpprettForespørselTask.class);
-        taskdata.setProperty(OpprettForespørselTask.YTELSETYPE, ytelsetype.name());
-        taskdata.setAktørId(aktørId.getAktørId());
-        taskdata.setSaksnummer(saksnummer.saksnr());
-        taskdata.setProperty(OpprettForespørselTask.ORGNR, organisasjonsnummer.orgnr());
-        taskdata.setProperty(OpprettForespørselTask.STP, skjæringstidspunkt.toString());
-        taskdata.setProperty(OpprettForespørselTask.FORESPØRSEL_TYPE, forespørselType.name());
         return taskdata;
     }
 }
