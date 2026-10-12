@@ -7,14 +7,14 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
+import tools.jackson.databind.DatabindException;
 
-public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingException> {
+public class JsonMappingExceptionMapper implements ExceptionMapper<DatabindException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonMappingExceptionMapper.class);
 
     @Override
-    public Response toResponse(JsonMappingException exception) {
+    public Response toResponse(DatabindException exception) {
         var feil = "FIM-252294: JSON-mapping feil";
         LOG.warn(feil);
         return Response.status(Response.Status.BAD_REQUEST).entity(new FeilDto(feil)).type(MediaType.APPLICATION_JSON).build();
