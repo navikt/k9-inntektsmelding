@@ -26,6 +26,7 @@ import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapp
 import no.nav.familie.inntektsmelding.server.exceptions.JsonMappingExceptionMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.JsonParseExceptionMapper;
 import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends ResourceConfig {
@@ -42,6 +43,7 @@ public class ApiConfig extends ResourceConfig {
         registerClasses(getApplicationClasses());
 
         registerExceptionMappers();
+        register(JacksonJsonProvider.class);
         register(JacksonJsonConfig.class);
 
         setProperties(getApplicationProperties());
