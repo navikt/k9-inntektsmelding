@@ -7,14 +7,14 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tools.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.JsonParseException;
 
-public class JsonParseExceptionMapper implements ExceptionMapper<StreamReadException> {
+public class JsonParseExceptionMapper implements ExceptionMapper<JsonParseException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonParseExceptionMapper.class);
 
     @Override
-    public Response toResponse(StreamReadException exception) {
+    public Response toResponse(JsonParseException exception) {
         var feil = String.format("FIM-299955: JSON-parsing feil: %s", exception.getMessage());
         LOG.warn(feil);
         return Response.status(Response.Status.BAD_REQUEST).entity(new FeilDto(feil)).type(MediaType.APPLICATION_JSON).build();
