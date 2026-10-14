@@ -31,6 +31,7 @@ import no.nav.familie.inntektsmelding.server.exceptions.GeneralRestExceptionMapp
 import no.nav.familie.inntektsmelding.server.exceptions.JsonMappingExceptionMapper;
 import no.nav.familie.inntektsmelding.server.exceptions.JsonParseExceptionMapper;
 import no.nav.familie.inntektsmelding.server.jackson.JacksonJsonConfig;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 import no.nav.familie.inntektsmelding.server.openapi.OpenApiRest;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
@@ -52,6 +53,7 @@ public class ForvaltningApiConfig extends ResourceConfig {
         registerClasses(getApplicationClasses());
 
         registerExceptionMappers();
+        register(JacksonJsonProvider.class);
         register(JacksonJsonConfig.class);
 
         setProperties(getApplicationProperties());
