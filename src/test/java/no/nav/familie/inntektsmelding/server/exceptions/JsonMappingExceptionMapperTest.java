@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import tools.jackson.databind.exc.InvalidTypeIdException;
 
 class JsonMappingExceptionMapperTest {
 
