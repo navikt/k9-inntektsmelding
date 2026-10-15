@@ -1,7 +1,7 @@
 package no.nav.familie.inntektsmelding.koder;
 
 public enum NaturalytelseType {
-    ELEKTRISK_KOMMUNIKASJON,
+    ELEKTRONISK_KOMMUNIKASJON,
     AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS,
     LOSJI,
     KOST_DOEGN,

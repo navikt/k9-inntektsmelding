@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
@@ -169,17 +170,20 @@ public class InntektsmeldingMapper {
     }
 
     private static List<BortfaltNaturalytelseDto> mapTilBortfaltNaturalytelseRequestDto(InntektsmeldingEntitet imEntitet) {
-        var bortfalteNaturalytelser = imEntitet.getBorfalteNaturalYtelser()
+        return imEntitet.getBorfalteNaturalYtelser()
             .stream()
-            .map(bortfaltNaturalytelse ->
-                new BortfaltNaturalytelseDto(
-                    bortfaltNaturalytelse.getPeriode().getFom(),
-                    Objects.equals(bortfaltNaturalytelse.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : bortfaltNaturalytelse.getPeriode().getTom(),
-                    NaturalytelsetypeDto.valueOf(bortfaltNaturalytelse.getType().toString()),
-                    bortfaltNaturalytelse.getMånedBeløp()
-                )
-            ).toList();
-        return bortfalteNaturalytelser;
+            .flatMap(bortfaltNaturalytelse -> {
+                LocalDate fom = bortfaltNaturalytelse.getPeriode().getFom();
+                LocalDate tom = Objects.equals(bortfaltNaturalytelse.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : bortfaltNaturalytelse.getPeriode().getTom();
+                BigDecimal beløp = bortfaltNaturalytelse.getMånedBeløp();
+                NaturalytelsetypeDto type = NaturalytelsetypeDto.valueOf(bortfaltNaturalytelse.getType().name());
+                // Frontend kjenner kun den gamle verdien, så vi legger til begge. Fjernes når frontend har tatt i bruk ELEKTRONISK_KOMMUNIKASJON.
+                if (type == NaturalytelsetypeDto.ELEKTRONISK_KOMMUNIKASJON) {
+                    return Stream.of(new BortfaltNaturalytelseDto(fom, tom, NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON, beløp),
+                        new BortfaltNaturalytelseDto(fom, tom, type, beløp));
+                }
+                return Stream.of(new BortfaltNaturalytelseDto(fom, tom, type, beløp));
+            }).toList();
     }
 
     private static List<EndringsårsakerDto> mapTilEndringsårsakerRequestDto(InntektsmeldingEntitet imEntitet) {

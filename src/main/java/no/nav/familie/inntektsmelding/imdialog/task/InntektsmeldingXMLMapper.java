@@ -206,7 +206,7 @@ public class InntektsmeldingXMLMapper {
 
     private static String mapTilNaturalytelsetype(NaturalytelseType naturalytelsetype) {
         return switch (naturalytelsetype) {
-            case ELEKTRISK_KOMMUNIKASJON -> "elektroniskKommunikasjon";
+            case ELEKTRONISK_KOMMUNIKASJON -> "elektroniskKommunikasjon";
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> "aksjerGrunnfondsbevisTilUnderkurs";
             case LOSJI -> "losji";
             case KOST_DOEGN -> "kostDoegn";
