@@ -93,7 +93,7 @@ public class InntektsmeldingPdfDataMapper {
 
     private static String mapTypeTekst(NaturalytelseType type) {
         return switch (type) {
-            case ELEKTRISK_KOMMUNIKASJON -> "Elektrisk kommunikasjon";
+            case ELEKTRONISK_KOMMUNIKASJON -> "Elektronisk kommunikasjon";
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> "Aksjer grunnfondsbevis til underkurs";
             case LOSJI -> "Losji";
             case KOST_DOEGN -> "Kostpenger døgnsats";
