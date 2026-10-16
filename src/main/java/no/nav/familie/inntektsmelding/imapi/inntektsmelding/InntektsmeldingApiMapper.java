@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
@@ -343,20 +342,13 @@ class InntektsmeldingApiMapper {
         return refusjoner.stream().sorted(Comparator.comparing(RefusjonDto::fom)).toList();
     }
 
-    @SuppressWarnings("deprecation")
     private static List<BortfaltNaturalytelseDto> mapBortfalteNaturalytelserTilKontrakt(List<BortaltNaturalytelseEntitet> bortfalte) {
         return bortfalte.stream()
-            .flatMap(b -> {
-                LocalDate fom = b.getPeriode().getFom();
-                LocalDate tom = Tid.TIDENES_ENDE.equals(b.getPeriode().getTom()) ? null : b.getPeriode().getTom();
-                NaturalytelsetypeDto type = NaturalytelsetypeDto.valueOf(b.getType().name());
-                // Konsumenter kjenner kanskje kun den gamle verdien, så vi legger til begge. Fjernes når alle har tatt i bruk ELEKTRONISK_KOMMUNIKASJON.
-                if (type == NaturalytelsetypeDto.ELEKTRONISK_KOMMUNIKASJON) {
-                    return Stream.of(new BortfaltNaturalytelseDto(fom, tom, NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON, b.getMånedBeløp()),
-                        new BortfaltNaturalytelseDto(fom, tom, type, b.getMånedBeløp()));
-                }
-                return Stream.of(new BortfaltNaturalytelseDto(fom, tom, type, b.getMånedBeløp()));
-            })
+            .map(b -> new BortfaltNaturalytelseDto(
+                b.getPeriode().getFom(),
+                Tid.TIDENES_ENDE.equals(b.getPeriode().getTom()) ? null : b.getPeriode().getTom(),
+                NaturalytelsetypeDto.valueOf(b.getType().name()),
+                b.getMånedBeløp()))
             .toList();
     }
 
