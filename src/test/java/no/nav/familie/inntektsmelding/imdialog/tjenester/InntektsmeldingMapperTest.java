@@ -296,8 +296,7 @@ class InntektsmeldingMapperTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
-    void skal_mappe_elektronisk_kommunikasjon_til_gammel_verdi_for_frontend() {
+    void skal_mappe_elektronisk_kommunikasjon_til_ny_verdi_for_frontend() {
         var imEntitet = InntektsmeldingEntitet.builder()
             .medAktørId(new AktørIdEntitet("9999999999999"))
             .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
@@ -319,7 +318,7 @@ class InntektsmeldingMapperTest {
         var imDto = InntektsmeldingMapper.mapFraEntitet(imEntitet, UUID.randomUUID());
 
         assertThat(imDto.bortfaltNaturalytelsePerioder()).hasSize(1);
-        assertThat(imDto.bortfaltNaturalytelsePerioder().getFirst().naturalytelsetype()).isEqualTo(NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON);
+        assertThat(imDto.bortfaltNaturalytelsePerioder().getFirst().naturalytelsetype()).isEqualTo(NaturalytelsetypeDto.ELEKTRONISK_KOMMUNIKASJON);
     }
 
     @Test
