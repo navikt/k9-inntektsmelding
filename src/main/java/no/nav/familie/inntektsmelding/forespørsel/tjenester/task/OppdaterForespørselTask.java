@@ -24,7 +24,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 public class OppdaterForespørselTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(OppdaterForespørselTask.class);
 
-    public static final String FORESPØRSEL_UUID_GAMMEL_TYPE = "forespoersel_uuid"; // slett denne etter prodsetting
     public static final String YTELSETYPE = "ytelsetype";
 
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
@@ -46,11 +45,7 @@ public class OppdaterForespørselTask implements ProsessTaskHandler {
             throw new IllegalStateException("Støtter kun oppdatering av forespørsel for OMSORGSPENGER, fikk: " + ytelseType);
         }
 
-        String forespørselUuidVerdi = prosessTaskData.getPropertyValue(FORESPØRSEL_UUID);
-        if (forespørselUuidVerdi == null) {
-            forespørselUuidVerdi = prosessTaskData.getPropertyValue(FORESPØRSEL_UUID_GAMMEL_TYPE);
-        }
-        UUID forespørselUuid = UUID.fromString(forespørselUuidVerdi);
+        UUID forespørselUuid = UUID.fromString(prosessTaskData.getPropertyValue(FORESPØRSEL_UUID));
 
         List<PeriodeDto> etterspurtePerioder = hentEtterspurtePerioder(prosessTaskData);
         forespørselBehandlingTjeneste.oppdaterForespørselMedNyeEtterspurtePerioder(forespørselUuid, etterspurtePerioder);
