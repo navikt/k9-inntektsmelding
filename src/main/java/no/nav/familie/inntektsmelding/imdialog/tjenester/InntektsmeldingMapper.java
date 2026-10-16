@@ -26,7 +26,6 @@ import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
-import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
@@ -176,16 +175,10 @@ public class InntektsmeldingMapper {
                 new BortfaltNaturalytelseDto(
                     bortfaltNaturalytelse.getPeriode().getFom(),
                     Objects.equals(bortfaltNaturalytelse.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : bortfaltNaturalytelse.getPeriode().getTom(),
-                    mapNaturalytelsetypeTilFrontend(bortfaltNaturalytelse.getType()),
+                    NaturalytelsetypeDto.valueOf(bortfaltNaturalytelse.getType().name()),
                     bortfaltNaturalytelse.getMånedBeløp()
                 )
             ).toList();
-    }
-
-    private static NaturalytelsetypeDto mapNaturalytelsetypeTilFrontend(NaturalytelseType type) {
-        return type == NaturalytelseType.ELEKTRONISK_KOMMUNIKASJON
-            ? NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON
-            : NaturalytelsetypeDto.valueOf(type.name());
     }
 
     private static List<EndringsårsakerDto> mapTilEndringsårsakerRequestDto(InntektsmeldingEntitet imEntitet) {
