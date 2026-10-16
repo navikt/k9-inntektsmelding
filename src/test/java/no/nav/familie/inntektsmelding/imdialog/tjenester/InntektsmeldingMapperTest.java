@@ -296,6 +296,33 @@ class InntektsmeldingMapperTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
+    void skal_mappe_elektronisk_kommunikasjon_til_gammel_verdi_for_frontend() {
+        var imEntitet = InntektsmeldingEntitet.builder()
+            .medAktørId(new AktørIdEntitet("9999999999999"))
+            .medKontaktperson(new KontaktpersonEntitet("Første", "999999999"))
+            .medYtelsetype(Ytelsetype.PLEIEPENGER_SYKT_BARN)
+            .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
+            .medMånedInntekt(BigDecimal.valueOf(5000))
+            .medMånedRefusjon(BigDecimal.valueOf(5000))
+            .medStartDato(LocalDate.now())
+            .medArbeidsgiverIdent("999999999")
+            .medOpprettetTidspunkt(LocalDateTime.now())
+            .medBortfaltNaturalytelser(List.of(
+                BortaltNaturalytelseEntitet.builder()
+                    .medPeriode(LocalDate.now(), Tid.TIDENES_ENDE)
+                    .medType(NaturalytelseType.ELEKTRONISK_KOMMUNIKASJON)
+                    .medMånedBeløp(new BigDecimal(20))
+                    .build()))
+            .build();
+
+        var imDto = InntektsmeldingMapper.mapFraEntitet(imEntitet, UUID.randomUUID());
+
+        assertThat(imDto.bortfaltNaturalytelsePerioder()).hasSize(1);
+        assertThat(imDto.bortfaltNaturalytelsePerioder().getFirst().naturalytelsetype()).isEqualTo(NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON);
+    }
+
+    @Test
     void skal_teste_mapping_tilbake_til_dto_refusjon_og_opphør() {
         // Arrange
         var imEntitet = InntektsmeldingEntitet.builder()
