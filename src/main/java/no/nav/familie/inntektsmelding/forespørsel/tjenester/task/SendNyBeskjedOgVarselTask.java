@@ -24,7 +24,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class SendNyBeskjedOgVarselTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendNyBeskjedOgVarselTask.class);
-    public static final String FORESPØRSEL_UUID_GAMMEL_TYPE = "forespoerselUUID"; // slett denne etter prodsetting
 
     private final ForespørselRepository forespørselRepository;
     private final ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;
@@ -38,11 +37,7 @@ public class SendNyBeskjedOgVarselTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        String forespørselUuidVerdi = prosessTaskData.getPropertyValue(FORESPØRSEL_UUID);
-        if (forespørselUuidVerdi == null) {
-            forespørselUuidVerdi = prosessTaskData.getPropertyValue(FORESPØRSEL_UUID_GAMMEL_TYPE);
-        }
-        UUID forespørselUuid = UUID.fromString(forespørselUuidVerdi);
+        UUID forespørselUuid = UUID.fromString(prosessTaskData.getPropertyValue(FORESPØRSEL_UUID));
 
         Optional<ForespørselEntitet> forespørsel = forespørselRepository.hentForespørsel(forespørselUuid);
         if (forespørsel.isPresent() && forespørsel.get().getStatus() == ForespørselStatus.UNDER_BEHANDLING) {

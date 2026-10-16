@@ -110,6 +110,7 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         taskdata.setSaksnummer(saksnummer.saksnr());
         taskdata.setProperty(OpprettForespørselTask.ORGNR, forespørselDto.orgnr().orgnr());
         taskdata.setProperty(OpprettForespørselTask.STP, forespørselDto.skjæringstidspunkt().toString());
+        taskdata.setProperty(OpprettForespørselTask.FORESPØRSEL_TYPE, ForespørselType.BESTILT_AV_FAGSYSTEM.name());
         if (forespørselDto.etterspurtePerioder() != null) {
             try {
                 taskdata.setPayload(DefaultJsonMapper.toJson(forespørselDto.etterspurtePerioder()));
