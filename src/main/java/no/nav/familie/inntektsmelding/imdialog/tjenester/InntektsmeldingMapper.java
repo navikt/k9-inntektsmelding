@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
@@ -27,6 +26,7 @@ import no.nav.familie.inntektsmelding.imdialog.rest.SendInntektsmeldingRequest;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
+import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.ArbeidsgiverDto;
 import no.nav.familie.inntektsmelding.typer.dto.BortfaltNaturalytelseDto;
@@ -172,18 +172,20 @@ public class InntektsmeldingMapper {
     private static List<BortfaltNaturalytelseDto> mapTilBortfaltNaturalytelseRequestDto(InntektsmeldingEntitet imEntitet) {
         return imEntitet.getBorfalteNaturalYtelser()
             .stream()
-            .flatMap(bortfaltNaturalytelse -> {
-                LocalDate fom = bortfaltNaturalytelse.getPeriode().getFom();
-                LocalDate tom = Objects.equals(bortfaltNaturalytelse.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : bortfaltNaturalytelse.getPeriode().getTom();
-                BigDecimal beløp = bortfaltNaturalytelse.getMånedBeløp();
-                NaturalytelsetypeDto type = NaturalytelsetypeDto.valueOf(bortfaltNaturalytelse.getType().name());
-                // Frontend kjenner kun den gamle verdien, så vi legger til begge. Fjernes når frontend har tatt i bruk ELEKTRONISK_KOMMUNIKASJON.
-                if (type == NaturalytelsetypeDto.ELEKTRONISK_KOMMUNIKASJON) {
-                    return Stream.of(new BortfaltNaturalytelseDto(fom, tom, NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON, beløp),
-                        new BortfaltNaturalytelseDto(fom, tom, type, beløp));
-                }
-                return Stream.of(new BortfaltNaturalytelseDto(fom, tom, type, beløp));
-            }).toList();
+            .map(bortfaltNaturalytelse ->
+                new BortfaltNaturalytelseDto(
+                    bortfaltNaturalytelse.getPeriode().getFom(),
+                    Objects.equals(bortfaltNaturalytelse.getPeriode().getTom(), Tid.TIDENES_ENDE) ? null : bortfaltNaturalytelse.getPeriode().getTom(),
+                    mapNaturalytelsetypeTilFrontend(bortfaltNaturalytelse.getType()),
+                    bortfaltNaturalytelse.getMånedBeløp()
+                )
+            ).toList();
+    }
+
+    private static NaturalytelsetypeDto mapNaturalytelsetypeTilFrontend(NaturalytelseType type) {
+        return type == NaturalytelseType.ELEKTRONISK_KOMMUNIKASJON
+            ? NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON
+            : NaturalytelsetypeDto.valueOf(type.name());
     }
 
     private static List<EndringsårsakerDto> mapTilEndringsårsakerRequestDto(InntektsmeldingEntitet imEntitet) {
