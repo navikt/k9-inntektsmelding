@@ -135,7 +135,7 @@ spec:
       {{/if}}
   env:
     - name: BIGQUERY_ENABLED
-      value: "true"
+      value: "{{bigQueryEnabled}}"
     - name: gruppe.oid.drift
       value: {{driftGruppeOid}}
     - name: gruppe.oid.saksbehandler

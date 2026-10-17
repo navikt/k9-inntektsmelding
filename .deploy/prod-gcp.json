@@ -29,6 +29,7 @@
       ]
     }
   ],
+  "bigQueryEnabled": "false",
   "driftGruppeOid": "1509dc91-a955-4e72-b64c-2f049e37c0c6",
   "saksbehandlerGruppeOid": "466d0df7-22ba-4c68-b848-73478cfd0486"
 }
