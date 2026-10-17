@@ -11,9 +11,11 @@ import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste
 import no.nav.familie.inntektsmelding.integrasjoner.dokgen.K9DokgenTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.joark.JoarkTjeneste;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingStatus;
+import no.nav.familie.inntektsmelding.metrikker.bigquery.PubliserInntektsmeldingStatistikkTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ProsessTask(value = SendTilJoarkTask.TASK_TYPE)
@@ -27,6 +29,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
     private InntektsmeldingXMLTjeneste inntektsmeldingXMLTjeneste;
     private K9DokgenTjeneste k9DokgenTjeneste;
     private JoarkTjeneste joarkTjeneste;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     SendTilJoarkTask() {
         // CDI
@@ -36,11 +39,13 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
     public SendTilJoarkTask(InntektsmeldingTjeneste inntektsmeldingTjeneste,
                             InntektsmeldingXMLTjeneste inntektsmeldingXMLTjeneste,
                             K9DokgenTjeneste k9DokgenTjeneste,
-                            JoarkTjeneste joarkTjeneste) {
+                            JoarkTjeneste joarkTjeneste,
+                            ProsessTaskTjeneste prosessTaskTjeneste) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.inntektsmeldingXMLTjeneste = inntektsmeldingXMLTjeneste;
         this.k9DokgenTjeneste = k9DokgenTjeneste;
         this.joarkTjeneste = joarkTjeneste;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     @Override
@@ -57,6 +62,7 @@ public class SendTilJoarkTask implements ProsessTaskHandler {
 
         joarkTjeneste.journalførInntektsmelding(xml, inntektsmelding, pdf, saksnummer);
         inntektsmeldingTjeneste.oppdaterInntektsmeldingStatus(inntektsmelding.getUuid(), InntektsmeldingStatus.GODKJENT);
+        prosessTaskTjeneste.lagre(PubliserInntektsmeldingStatistikkTask.opprettTask(inntektsmeldingId, saksnummer));
         LOG.info("Sluttfører task oversendJoark");
     }
 }

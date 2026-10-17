@@ -75,6 +75,9 @@ spec:
           - name: "pgaudit.log_relation"
             value: "on"
         {{/if}}
+    bigQueryDatasets:
+      - name: k9_inntektsmelding_statistikk_dataset
+        permission: READWRITE
   maskinporten:
     enabled: true
     scopes:
@@ -131,6 +134,8 @@ spec:
         - host: platform.altinn.no
       {{/if}}
   env:
+    - name: BIGQUERY_ENABLED
+      value: "true"
     - name: gruppe.oid.drift
       value: {{driftGruppeOid}}
     - name: gruppe.oid.saksbehandler
