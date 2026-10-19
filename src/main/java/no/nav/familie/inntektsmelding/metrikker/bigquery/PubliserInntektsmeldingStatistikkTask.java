@@ -57,7 +57,6 @@ public class PubliserInntektsmeldingStatistikkTask implements ProsessTaskHandler
         var rad = tabell.getRowMapper(null).apply(record);
 
         bigQueryKlient.hentEllerOpprettTabell(DATASETT, tabell);
-        // uuid som insertId gir BigQuery mulighet til å deduplisere ved retry
         bigQueryKlient.publiser(DATASETT, tabell, List.of(InsertAllRequest.RowToInsert.of(record.uuid().toString(), rad)));
         LOG.info("Publiserte statistikk til BigQuery for inntektsmelding {}", record.uuid());
     }
