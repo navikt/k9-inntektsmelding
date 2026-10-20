@@ -58,7 +58,7 @@ public class PubliserInntektsmeldingStatistikkTask implements ProsessTaskHandler
 
         bigQueryKlient.hentEllerOpprettTabell(DATASETT, tabell);
         bigQueryKlient.publiser(DATASETT, tabell, List.of(InsertAllRequest.RowToInsert.of(record.uuid().toString(), rad)));
-        LOG.info("Publiserte statistikk til BigQuery for inntektsmelding {}", record.uuid());
+        LOG.info("Publiserte statistikk til BigQuery for inntektsmelding med uuid: {} og løpenr: {}", inntektsmelding.getUuid(), inntektsmelding.getId());
     }
 
     public static ProsessTaskData opprettTask(long inntektsmeldingId, String saksnummer) {
