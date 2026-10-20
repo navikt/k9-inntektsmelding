@@ -20,6 +20,7 @@ public final class InntektsmeldingMottattTabell implements BigQueryTabellDefinis
     static final String YTELSE_TYPE = "ytelse_type";
     static final String KILDESYSTEM = "kildesystem";
     static final String INNTEKTSMELDING_TYPE = "inntektsmelding_type";
+    static final String LPS_SYSTEM = "lps_system";
     static final String HAR_ENDRET_INNTEKT = "har_endret_inntekt";
     static final String HAR_OPPGITT_REFUSJON = "har_oppgitt_refusjon";
     static final String HAR_OPPGITT_ENDRING_I_REFUSJON = "har_oppgitt_endring_i_refusjon";
@@ -44,6 +45,7 @@ public final class InntektsmeldingMottattTabell implements BigQueryTabellDefinis
             BigQueryTabellDefinisjon.newRequiredField(YTELSE_TYPE, StandardSQLTypeName.STRING),
             BigQueryTabellDefinisjon.newRequiredField(KILDESYSTEM, StandardSQLTypeName.STRING),
             BigQueryTabellDefinisjon.newRequiredField(INNTEKTSMELDING_TYPE, StandardSQLTypeName.STRING),
+            BigQueryTabellDefinisjon.newRequiredField(LPS_SYSTEM, StandardSQLTypeName.STRING),
             BigQueryTabellDefinisjon.newRequiredField(HAR_ENDRET_INNTEKT, StandardSQLTypeName.BOOL),
             BigQueryTabellDefinisjon.newRequiredField(HAR_OPPGITT_REFUSJON, StandardSQLTypeName.BOOL),
             BigQueryTabellDefinisjon.newRequiredField(HAR_OPPGITT_ENDRING_I_REFUSJON, StandardSQLTypeName.BOOL),
@@ -56,17 +58,18 @@ public final class InntektsmeldingMottattTabell implements BigQueryTabellDefinis
     public Function<BigQueryRecord, Map<String, ?>> getRowMapper(Instant now) {
         return rec -> {
             var r = (InntektsmeldingMottattRecord) rec;
-            return Map.of(
-                UUID, r.uuid().toString(),
-                OPPRETTET_TID, r.opprettetTidspunkt().atZone(TIDSSONE).toInstant().toString(),
-                YTELSE_TYPE, r.ytelsetype().name(),
-                KILDESYSTEM, r.kildesystem().name(),
-                INNTEKTSMELDING_TYPE, r.inntektsmeldingType().name(),
-                HAR_ENDRET_INNTEKT, r.harEndretInntekt(),
-                HAR_OPPGITT_REFUSJON, r.harOppgittRefusjon(),
-                HAR_OPPGITT_ENDRING_I_REFUSJON, r.harOppgittEndringerIRefusjon(),
-                HAR_OPPGITT_OPPHOER_AV_REFUSJON, r.harOppgittOpphørAvRefusjon(),
-                HAR_OPPGITT_NATURALYTELSE, r.harOppgittNaturalytelse()
+            return Map.ofEntries(
+                Map.entry(UUID, r.uuid().toString()),
+                Map.entry(OPPRETTET_TID, r.opprettetTidspunkt().atZone(TIDSSONE).toInstant().toString()),
+                Map.entry(YTELSE_TYPE, r.ytelsetype().name()),
+                Map.entry(KILDESYSTEM, r.kildesystem().name()),
+                Map.entry(INNTEKTSMELDING_TYPE, r.inntektsmeldingType().name()),
+                Map.entry(LPS_SYSTEM, r.lpsSystem()),
+                Map.entry(HAR_ENDRET_INNTEKT, r.harEndretInntekt()),
+                Map.entry(HAR_OPPGITT_REFUSJON, r.harOppgittRefusjon()),
+                Map.entry(HAR_OPPGITT_ENDRING_I_REFUSJON, r.harOppgittEndringerIRefusjon()),
+                Map.entry(HAR_OPPGITT_OPPHOER_AV_REFUSJON, r.harOppgittOpphørAvRefusjon()),
+                Map.entry(HAR_OPPGITT_NATURALYTELSE, r.harOppgittNaturalytelse())
             );
         };
     }

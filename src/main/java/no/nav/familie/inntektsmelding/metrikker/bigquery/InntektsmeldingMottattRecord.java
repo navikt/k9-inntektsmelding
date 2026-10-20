@@ -2,9 +2,11 @@ package no.nav.familie.inntektsmelding.metrikker.bigquery;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.LpsSystemInfoEntitet;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
@@ -18,12 +20,15 @@ public record InntektsmeldingMottattRecord(
     Ytelsetype ytelsetype,
     Kildesystem kildesystem,
     InntektsmeldingType inntektsmeldingType,
+    String lpsSystem,
     boolean harEndretInntekt,
     boolean harOppgittRefusjon,
     boolean harOppgittEndringerIRefusjon,
     boolean harOppgittOpphørAvRefusjon,
     boolean harOppgittNaturalytelse
 ) implements BigQueryRecord {
+
+    static final String UDEFINERT = "-";
 
     public static InntektsmeldingMottattRecord fra(InntektsmeldingEntitet inntektsmelding) {
         var månedRefusjon = inntektsmelding.getMånedRefusjon();
@@ -34,6 +39,7 @@ public record InntektsmeldingMottattRecord(
             inntektsmelding.getYtelsetype(),
             inntektsmelding.getKildesystem(),
             inntektsmelding.getInntektsmeldingType(),
+            Optional.ofNullable(inntektsmelding.getLpsSystem()).map(LpsSystemInfoEntitet::getNavn).orElse(UDEFINERT),
             !inntektsmelding.getEndringsårsaker().isEmpty(),
             månedRefusjon != null && månedRefusjon.compareTo(BigDecimal.ZERO) > 0,
             !inntektsmelding.getRefusjonsendringer().isEmpty(),

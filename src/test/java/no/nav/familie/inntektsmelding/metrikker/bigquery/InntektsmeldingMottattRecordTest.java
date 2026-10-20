@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.familie.inntektsmelding.imdialog.modell.BortaltNaturalytelseEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.EndringsårsakEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
+import no.nav.familie.inntektsmelding.imdialog.modell.LpsSystemInfoEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.RefusjonsendringEntitet;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
@@ -54,6 +55,18 @@ class InntektsmeldingMottattRecordTest {
         assertThat(record.harOppgittEndringerIRefusjon()).isFalse();
         assertThat(record.harOppgittOpphørAvRefusjon()).isFalse();
         assertThat(record.harOppgittNaturalytelse()).isFalse();
+        assertThat(record.lpsSystem()).isEqualTo("-");
+    }
+
+    @Test
+    void skal_sette_navn_på_lps_system_når_det_finnes() {
+        var im = grunnlag()
+            .medLpsSystemInfo(LpsSystemInfoEntitet.builder().medNavn("Tripletex").medVersjon("1.0").build())
+            .build();
+
+        var record = InntektsmeldingMottattRecord.fra(im);
+
+        assertThat(record.lpsSystem()).isEqualTo("Tripletex");
     }
 
     @Test
@@ -105,5 +118,6 @@ class InntektsmeldingMottattRecordTest {
         assertThat(rad.get(InntektsmeldingMottattTabell.UUID)).isEqualTo(record.uuid().toString());
         assertThat(rad.get(InntektsmeldingMottattTabell.YTELSE_TYPE)).isEqualTo("PLEIEPENGER_SYKT_BARN");
         assertThat(rad.get(InntektsmeldingMottattTabell.HAR_OPPGITT_REFUSJON)).isEqualTo(false);
+        assertThat(rad.get(InntektsmeldingMottattTabell.LPS_SYSTEM)).isEqualTo("-");
     }
 }
