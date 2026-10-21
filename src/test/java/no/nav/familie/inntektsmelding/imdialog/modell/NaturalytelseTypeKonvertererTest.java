@@ -17,8 +17,8 @@ class NaturalytelseTypeKonvertererTest {
     }
 
     @Test
-    void skriver_gammelt_navn_for_elektronisk_kommunikasjon() {
-        assertThat(konverterer.convertToDatabaseColumn(NaturalytelseType.ELEKTRONISK_KOMMUNIKASJON)).isEqualTo("ELEKTRISK_KOMMUNIKASJON");
+    void skriver_nytt_navn_for_elektronisk_kommunikasjon() {
+        assertThat(konverterer.convertToDatabaseColumn(NaturalytelseType.ELEKTRONISK_KOMMUNIKASJON)).isEqualTo("ELEKTRONISK_KOMMUNIKASJON");
     }
 
     @Test
