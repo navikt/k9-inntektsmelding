@@ -13,7 +13,7 @@ public class KodeverkMapper {
 
     public static NaturalytelseType mapNaturalytelseTilEntitet(NaturalytelsetypeDto dto) {
         return switch (dto) {
-            case ELEKTRISK_KOMMUNIKASJON, ELEKTRONISK_KOMMUNIKASJON -> NaturalytelseType.ELEKTRONISK_KOMMUNIKASJON;
+            case ELEKTRONISK_KOMMUNIKASJON -> NaturalytelseType.ELEKTRONISK_KOMMUNIKASJON;
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> NaturalytelseType.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS;
             case LOSJI -> NaturalytelseType.LOSJI;
             case KOST_DOEGN -> NaturalytelseType.KOST_DOEGN;
