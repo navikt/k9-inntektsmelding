@@ -2,7 +2,6 @@ package no.nav.familie.inntektsmelding.forespørsel.tjenester.task;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -55,11 +54,7 @@ public class OpprettForespørselTask implements ProsessTaskHandler {
         OrganisasjonsnummerDto organisasjonsnummer = new OrganisasjonsnummerDto(prosessTaskData.getPropertyValue(ORGNR));
         LocalDate skjæringstidspunkt = LocalDate.parse(prosessTaskData.getPropertyValue(STP));
         List<PeriodeDto> etterspurtePerioder = hentEtterspurtePerioder(prosessTaskData, ytelsetype);
-        // Tasker opprettet før FORESPØRSEL_TYPE ble innført mangler propertyen og er alltid bestilt av fagsystem
-        // TODO etter prodsetting av tasker med forespørselType, kan vi fjerne defaulten her
-        ForespørselType forespørselType = Optional.ofNullable(prosessTaskData.getPropertyValue(FORESPØRSEL_TYPE))
-            .map(ForespørselType::valueOf)
-            .orElse(ForespørselType.BESTILT_AV_FAGSYSTEM);
+        ForespørselType forespørselType = ForespørselType.valueOf(prosessTaskData.getPropertyValue(FORESPØRSEL_TYPE));
 
         List<ForespørselEntitet> eksisterendeForespørsler = forespørselBehandlingTjeneste.hentForespørslerForFagsak(saksnummer, organisasjonsnummer, skjæringstidspunkt);
 

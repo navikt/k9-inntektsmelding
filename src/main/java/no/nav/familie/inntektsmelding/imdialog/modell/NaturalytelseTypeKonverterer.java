@@ -5,10 +5,7 @@ import jakarta.persistence.Converter;
 
 import no.nav.familie.inntektsmelding.koder.NaturalytelseType;
 
-/**
- * Leser både ELEKTRISK_KOMMUNIKASJON og ELEKTRONISK_KOMMUNIKASJON, men skriver fortsatt det gamle navnet
- * slik at pods på eldre versjon kan lese raden under utrulling. Byttes til nytt navn i steg 2 sammen med Flyway-migrering.
- */
+/** Leser også gammelt navn ELEKTRISK_KOMMUNIKASJON; fjernes etter Flyway-migrering. */
 @Converter
 public class NaturalytelseTypeKonverterer implements AttributeConverter<NaturalytelseType, String> {
 
@@ -19,7 +16,7 @@ public class NaturalytelseTypeKonverterer implements AttributeConverter<Naturaly
         if (type == null) {
             return null;
         }
-        return type == NaturalytelseType.ELEKTRONISK_KOMMUNIKASJON ? GAMMELT_NAVN : type.name();
+        return type.name();
     }
 
     @Override
