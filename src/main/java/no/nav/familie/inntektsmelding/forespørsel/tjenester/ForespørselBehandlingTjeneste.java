@@ -604,7 +604,9 @@ public class ForespørselBehandlingTjeneste {
             return NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE;
         }
 
-        opprettNyBeskjedMedEksternVarsling(forespørsel);
+        var task = SendNyBeskjedOgVarselTask.lagSendNyBeskjedOgVarselTask(forespørsel.getUuid());
+        task.setSaksnummer(saksnummer.saksnr());
+        prosessTaskTjeneste.lagre(task);
         return NyBeskjedResultat.NY_BESKJED_SENDT;
     }
 
