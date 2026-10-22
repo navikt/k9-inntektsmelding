@@ -1,0 +1,3 @@
+UPDATE bortfalt_naturalytelse
+SET type = 'ELEKTRONISK_KOMMUNIKASJON'
+WHERE type = 'ELEKTRISK_KOMMUNIKASJON';

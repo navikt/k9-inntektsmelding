@@ -222,10 +222,6 @@ class InntektsmeldingApiMapper {
             .toList();
     }
 
-    private static NaturalytelseType mapNaturalytelsetype(NaturalytelsetypeDto dto) {
-        return dto == NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON ? NaturalytelseType.ELEKTRONISK_KOMMUNIKASJON : NaturalytelseType.valueOf(dto.name());
-    }
-
     private static List<BortaltNaturalytelseEntitet> mapBortfalteNaturalytelser(List<BortfaltNaturalytelseDto> dto) {
         if (dto == null) {
             return List.of();
@@ -234,7 +230,7 @@ class InntektsmeldingApiMapper {
             .map(d -> BortaltNaturalytelseEntitet.builder()
                 .medPeriode(d.fom(), d.tom() != null ? d.tom() : Tid.TIDENES_ENDE)
                 .medMånedBeløp(d.beløp())
-                .medType(mapNaturalytelsetype(d.naturalytelsetype()))
+                .medType(NaturalytelseType.valueOf(d.naturalytelsetype().name()))
                 .build())
             .toList();
     }

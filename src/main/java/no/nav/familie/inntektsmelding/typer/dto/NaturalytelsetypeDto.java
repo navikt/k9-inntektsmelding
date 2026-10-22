@@ -1,9 +1,6 @@
 package no.nav.familie.inntektsmelding.typer.dto;
 
 public enum NaturalytelsetypeDto {
-    /** @deprecated Skrivefeil, bruk {@link #ELEKTRONISK_KOMMUNIKASJON} */
-    @Deprecated
-    ELEKTRISK_KOMMUNIKASJON,
     ELEKTRONISK_KOMMUNIKASJON,
     AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS,
     LOSJI,
