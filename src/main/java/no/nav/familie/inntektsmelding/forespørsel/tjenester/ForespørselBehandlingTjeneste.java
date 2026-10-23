@@ -32,6 +32,7 @@ import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.Fer
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OppdaterDialogMedEndretInntektsmeldingTask;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.OpprettForespørselDialogportenTask;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SendMeldingOmAvvistInntektsmeldingTask;
+import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SendMeldingOmPurringTask;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.dialogporten.task.SettDialogTilUtgåttTask;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.Merkelapp;
 import no.nav.familie.inntektsmelding.integrasjoner.arbeidsgivernotifikasjon.MinSideArbeidsgiverTjeneste;
@@ -589,6 +590,7 @@ public class ForespørselBehandlingTjeneste {
         List<ProsessTaskData> tasker = new ArrayList<>();
         for (var forespørsel : åpneForespørsler) {
             tasker.add(SendNyBeskjedOgVarselTask.lagSendNyBeskjedOgVarselTask(forespørsel.getUuid()));
+            tasker.add(SendMeldingOmPurringTask.lagTaskData(forespørsel.getUuid()));
         }
         lagreTaskerForFagsak(tasker, saksnummer);
     }
@@ -604,9 +606,9 @@ public class ForespørselBehandlingTjeneste {
             return NyBeskjedResultat.FORESPØRSEL_FINNES_IKKE;
         }
 
-        var task = SendNyBeskjedOgVarselTask.lagSendNyBeskjedOgVarselTask(forespørsel.getUuid());
-        task.setSaksnummer(saksnummer.saksnr());
-        prosessTaskTjeneste.lagre(task);
+        var purringArbeidsgiverportalenTask = SendNyBeskjedOgVarselTask.lagSendNyBeskjedOgVarselTask(forespørsel.getUuid());
+        var purringDialogportenTask = SendMeldingOmPurringTask.lagTaskData(forespørsel.getUuid());
+        lagreTaskerForFagsak(List.of(purringArbeidsgiverportalenTask, purringDialogportenTask), saksnummer);
         return NyBeskjedResultat.NY_BESKJED_SENDT;
     }
 
