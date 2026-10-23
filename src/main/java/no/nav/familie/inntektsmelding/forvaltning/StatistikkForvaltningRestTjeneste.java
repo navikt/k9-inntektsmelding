@@ -2,30 +2,43 @@ package no.nav.familie.inntektsmelding.forvaltning;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
+import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingEntitet;
 import no.nav.familie.inntektsmelding.imdialog.modell.InntektsmeldingRepository;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
+import no.nav.familie.inntektsmelding.metrikker.bigquery.PubliserHistoriskeInntektsmeldingerStatistikkTask;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedAzure;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @AutentisertMedAzure
 @OpenAPIDefinition(tags = @Tag(name = "statistikk", description = "Statistikk over inntektsmeldinger"))
@@ -34,10 +47,12 @@ import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/forvaltning-statistikk")
 public class StatistikkForvaltningRestTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(StatistikkForvaltningRestTjeneste.class);
 
     private Tilgang tilgang;
     private InntektsmeldingRepository inntektsmeldingRepository;
     private ForespørselRepository forespørselRepository;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     StatistikkForvaltningRestTjeneste() {
         // REST CDI
@@ -46,10 +61,50 @@ public class StatistikkForvaltningRestTjeneste {
     @Inject
     public StatistikkForvaltningRestTjeneste(Tilgang tilgang,
                                              InntektsmeldingRepository inntektsmeldingRepository,
-                                             ForespørselRepository forespørselRepository) {
+                                             ForespørselRepository forespørselRepository,
+                                             ProsessTaskTjeneste prosessTaskTjeneste) {
         this.tilgang = tilgang;
         this.inntektsmeldingRepository = inntektsmeldingRepository;
         this.forespørselRepository = forespørselRepository;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
+    }
+
+    @POST
+    @Path("/publiser-historiske-inntektsmeldinger")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Oppretter batch-task som publiserer statistikk til BigQuery for godkjente inntektsmeldinger mellom fra og til (begge eksklusive)", summary = "Publiserer historiske inntektsmeldinger til BigQuery.", tags = "statistikk", responses = {
+        @ApiResponse(responseCode = "200", description = "Batch-task opprettet", content = @Content(mediaType = "application/json")),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil eller tekniske/funksjonelle feil")
+    })
+    @Tilgangskontrollert
+    public Response publiserHistoriskeInntektsmeldinger(
+        @Parameter(description = "Intervall og batchstørrelse") @Valid @NotNull PubliserHistoriskeInntektsmeldingerRequest request) {
+        sjekkAtKallerHarRollenDrift();
+        long loepenrFra = request.inntektsmeldingUuidFra() == null ? 0L : hentLoepenr(request.inntektsmeldingUuidFra());
+        long loepenrTil = hentLoepenr(request.inntektsmeldingUuidTil());
+        if (loepenrFra >= loepenrTil) {
+            throw new IllegalArgumentException("inntektsmeldingUuidFra må være mottatt før inntektsmeldingUuidTil");
+        }
+        var task = PubliserHistoriskeInntektsmeldingerStatistikkTask.opprettTask(loepenrFra, loepenrTil, request.batchSize(),
+            request.nyAutomatiskBatch());
+        var taskId = prosessTaskTjeneste.lagre(task);
+        LOG.info("Opprettet task {} for publisering av historiske inntektsmeldinger med loepenr mellom {} og {}", taskId, loepenrFra, loepenrTil);
+        return Response.ok(new PubliserHistoriskeInntektsmeldingerResponse(taskId)).build();
+    }
+
+    private long hentLoepenr(UUID inntektsmeldingUuid) {
+        return inntektsmeldingRepository.hentInntektsmeldingForUuid(inntektsmeldingUuid)
+            .map(InntektsmeldingEntitet::getLoepenr)
+            .orElseThrow(() -> new IllegalArgumentException("Finner ikke inntektsmelding med uuid " + inntektsmeldingUuid));
+    }
+
+    protected record PubliserHistoriskeInntektsmeldingerRequest(@Min(1) @Max(1000) int batchSize,
+                                                                UUID inntektsmeldingUuidFra,
+                                                                @NotNull UUID inntektsmeldingUuidTil,
+                                                                boolean nyAutomatiskBatch) {
+    }
+
+    protected record PubliserHistoriskeInntektsmeldingerResponse(String taskId) {
     }
 
     @GET

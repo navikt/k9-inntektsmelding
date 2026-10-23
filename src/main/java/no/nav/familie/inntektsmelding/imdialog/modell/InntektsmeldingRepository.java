@@ -52,6 +52,17 @@ public class InntektsmeldingRepository {
         return query.getResultStream().findFirst();
     }
 
+    public List<InntektsmeldingEntitet> hentGodkjenteInntektsmeldingerMellomLoepenr(long loepenrFra, long loepenrTil, int maksAntall) {
+        return entityManager.createQuery(
+                "FROM InntektsmeldingEntitet where loepenr > :fra and loepenr < :til and status = :status order by loepenr asc",
+                InntektsmeldingEntitet.class)
+            .setParameter("fra", loepenrFra)
+            .setParameter("til", loepenrTil)
+            .setParameter("status", InntektsmeldingStatus.GODKJENT)
+            .setMaxResults(maksAntall)
+            .getResultList();
+    }
+
     public void oppdaterStatus(UUID inntektsmeldingUuid, InntektsmeldingStatus status) {
         var entitet = hentInntektsmeldingForUuid(inntektsmeldingUuid)
             .orElseThrow(() -> new IllegalStateException("Finner ikke inntektsmelding for uuid " + inntektsmeldingUuid));

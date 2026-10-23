@@ -16,6 +16,7 @@ import no.nav.familie.inntektsmelding.database.JpaExtension;
 import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselRepository;
 import no.nav.familie.inntektsmelding.koder.Endringsårsak;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
+import no.nav.familie.inntektsmelding.koder.InntektsmeldingStatus;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
@@ -504,6 +505,44 @@ class InntektsmeldingRepositoryTest extends EntityManagerAwareTest {
         assertThat(imEtterLagring2025.getLast().getStartDato().getYear()).isEqualTo(2025);
         assertThat(imEtterLagring2025.getLast().getAktørId()).isEqualTo(AKTØR_ID);
         assertThat(imEtterLagring2025.getLast().getArbeidsgiverIdent()).isEqualTo(ARBEIDSGIVER_IDENT);
+    }
+
+    @Test
+    void skal_hente_godkjente_im_mellom_loepenr_eksklusivt_og_sortert() {
+        // Arrange
+        var forespørselId = forespørselRepository.lagreForespørsel(START_DATO, YTELSETYPE, AKTØR_ID.getAktørId(), ARBEIDSGIVER_IDENT, SAKSNUMMER,
+            ForespørselType.BESTILT_AV_FAGSYSTEM, START_DATO, null);
+        var forespørsel = forespørselRepository.hentForespørsel(forespørselId).orElseThrow();
+
+        var statuser = List.of(InntektsmeldingStatus.GODKJENT, InntektsmeldingStatus.GODKJENT, InntektsmeldingStatus.AVVIST,
+            InntektsmeldingStatus.GODKJENT, InntektsmeldingStatus.GODKJENT);
+        var ider = statuser.stream().map(status -> {
+            var im = InntektsmeldingEntitet.builder()
+                .medAktørId(AKTØR_ID)
+                .medKontaktperson(new KontaktpersonEntitet("Testy test", "999999999"))
+                .medYtelsetype(YTELSETYPE)
+                .medMånedInntekt(BigDecimal.valueOf(4000))
+                .medStartDato(START_DATO)
+                .medArbeidsgiverIdent(ARBEIDSGIVER_IDENT)
+                .medInntektsmeldingType(InntektsmeldingType.ORDINÆR)
+                .medForespørsel(forespørsel)
+                .build();
+            var id = inntektsmeldingRepository.lagreInntektsmelding(im);
+            inntektsmeldingRepository.oppdaterStatus(im.getUuid(), status);
+            return id;
+        }).toList();
+
+        clearHibernateCache();
+
+        var loepenr = ider.stream().map(id -> inntektsmeldingRepository.hentInntektsmelding(id).getLoepenr()).toList();
+
+        // Act
+        var resultat = inntektsmeldingRepository.hentGodkjenteInntektsmeldingerMellomLoepenr(loepenr.getFirst(), loepenr.getLast(), 10);
+        var begrenset = inntektsmeldingRepository.hentGodkjenteInntektsmeldingerMellomLoepenr(loepenr.getFirst(), loepenr.getLast(), 1);
+
+        // Assert
+        assertThat(resultat).extracting(InntektsmeldingEntitet::getId).containsExactly(ider.get(1), ider.get(3));
+        assertThat(begrenset).extracting(InntektsmeldingEntitet::getId).containsExactly(ider.get(1));
     }
 
 
