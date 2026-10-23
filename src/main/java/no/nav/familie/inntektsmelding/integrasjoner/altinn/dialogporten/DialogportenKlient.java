@@ -120,6 +120,15 @@ public class DialogportenKlient {
         sendPatchRequest(forespørsel.getDialogportenUuid().get(), List.of(patchAvvistInntektsmelding));
     }
 
+    void sendMeldingOmPurring(ForespørselEntitet forespørsel, String purringTekst) {
+        if (forespørsel.getDialogportenUuid().isEmpty()) {
+            throw new IllegalStateException("Forespørsel med uuid " + forespørsel.getUuid() + " har ikke dialogportenUuid, kan ikke sende melding om purring");
+        }
+
+        var patchPurring = DialogportenRequestMapper.inntektsmeldingPurringMelding(purringTekst);
+        sendPatchRequest(forespørsel.getDialogportenUuid().get(), List.of(patchPurring));
+    }
+
     void settDialogTilUtgått(UUID dialogUuid, String sakstittel) {
         var patchRequestUtgått = DialogportenRequestMapper.opprettUtgåttPatchRequest(sakstittel);
         sendPatchRequest(dialogUuid, patchRequestUtgått);

@@ -118,6 +118,16 @@ public class DialogportenTjeneste {
         dialogportenKlient.sendMeldingOmAvvistInntektsmelding(forespørsel, avvistTekst);
     }
 
+    public void sendMeldingOmPurring(ForespørselEntitet forespørsel) {
+        if (!harDialogportenUuid(forespørsel)) {
+            return;
+        }
+
+        var person = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId());
+        var purringTekst = ForespørselTekster.lagBeskjedFraSaksbehandlerTekst(forespørsel.getYtelseType(), person.mapFulltNavn());
+        dialogportenKlient.sendMeldingOmPurring(forespørsel, purringTekst);
+    }
+
     private boolean harDialogportenUuid(ForespørselEntitet forespørsel) {
         if (forespørsel.getDialogportenUuid().isPresent()) {
             return true;
