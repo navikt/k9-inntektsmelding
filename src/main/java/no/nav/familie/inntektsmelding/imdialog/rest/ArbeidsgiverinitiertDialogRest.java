@@ -45,6 +45,7 @@ public class ArbeidsgiverinitiertDialogRest {
     private static final String HENT_ARBEIDSGIVERE_UREGISTRERT = "/arbeidsgivere/uregistrert";
     private static final String HENT_ARBEIDSGIVER_ORGANISASJONER = "/arbeidsgiver/organisasjoner";
     private static final String HENT_OPPLYSNINGER_UREGISTRERT = "/opplysninger/uregistrert";
+    private static final String HENT_OPPLYSNINGER_UREGISTRERT_V2 = "/opplysninger/uregistrert-v2";
     private static final String HENT_ARBEIDSTAKER = "/arbeidstaker";
 
     private GrunnlagTjeneste grunnlagTjeneste;
@@ -158,6 +159,32 @@ public class ArbeidsgiverinitiertDialogRest {
 
         Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
         HentOpplysningerResponse response = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(),
+            ytelsetype,
+            request.førsteFraværsdag(),
+            request.organisasjonsnummer(),
+            ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
+        return Response.ok(response).build();
+    }
+
+    @POST
+    @Path(HENT_OPPLYSNINGER_UREGISTRERT_V2)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentOpplysningerUregistrertV2(@Valid @NotNull OpplysningerRequestDto request) {
+        LOG.info("Henter opplysninger for uregistrert søker");
+        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
+
+        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
+        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo,
+            request.ytelseType(),
+            request.førsteFraværsdag(),
+            FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE);
+        arbeidsgiverinitiertDialogRestValiderer.validerAtOrgnummerIkkeFinnesIAaregPåPerson(personInfo,
+            request.organisasjonsnummer(),
+            request.førsteFraværsdag());
+
+        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
+        HentOpplysningerUregistrertResponse response = grunnlagTjeneste.hentOpplysningerUregistrert(request.fødselsnummer(),
             ytelsetype,
             request.førsteFraværsdag(),
             request.organisasjonsnummer(),
