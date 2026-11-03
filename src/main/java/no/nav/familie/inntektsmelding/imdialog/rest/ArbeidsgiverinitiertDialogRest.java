@@ -19,6 +19,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,103 +127,13 @@ public class ArbeidsgiverinitiertDialogRest {
         return Response.ok(hentOpplysningerResponse).build();
     }
 
-    /**
-     * @deprecated Bruk {@link #hentArbeidstakerV2(HentArbeidstakerV2Request)} i stedet.
-     */
-    @Deprecated(forRemoval = true)
-    @POST
-    @Path(HENT_ARBEIDSGIVERE_UREGISTRERT)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Tilgangskontrollert
-    public Response hentArbeidsgivereUregistrert(@Valid @NotNull HentArbeidsforholdRequest request) {
-        return hentArbeidsgivereUregistrert(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag());
-    }
-
-    @POST
-    @Path(HENT_ARBEIDSGIVERE_UREGISTRERT_V2)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Tilgangskontrollert
-    public Response hentArbeidsgivereUregistrertV2(@Valid @NotNull HentArbeidsforholdV2Request request) {
-        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(request.organisasjonsnummer());
-        return hentArbeidsgivereUregistrert(request.fødselsnummer(), request.ytelseType(), request.førsteFraværsdag());
-    }
-
-    private Response hentArbeidsgivereUregistrert(PersonIdent fødselsnummer, YtelseTypeDto ytelseType, LocalDate førsteFraværsdag) {
-        LOG.info("Henter personinformasjon, og organisasjoner som innsender har tilgang til");
-        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
-
-        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
-        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo,
-            ytelseType,
-            førsteFraværsdag,
-            FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE);
-
-        // siden arbeidstager er uregistrert slår vi opp organisasjoner arbeidsgiver har tilgang til
-        var organisasjonerArbeidsgiverHarTilgangTil = grunnlagTjeneste.hentOrganisasjonerSomArbeidsgiverHarTilgangTil();
-        HentArbeidsforholdResponse response = grunnlagTjeneste.lagHentArbeidsforholdResponse(personInfo, organisasjonerArbeidsgiverHarTilgangTil);
-        arbeidsgiverinitiertDialogRestValiderer.validerArbeidsforhold(response);
-        return Response.ok(response).build();
-    }
-
-    /**
-     * @deprecated Bruk {@link #hentArbeidstakerV2(HentArbeidstakerV2Request)} i stedet.
-     */
     @Deprecated(forRemoval = true)
     @POST
     @Path(HENT_ARBEIDSTAKER)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
     public Response hentArbeidstaker(@Valid @NotNull HentArbeidstakerRequest request) {
-        return hentArbeidstaker(request.fødselsnummer());
-    }
-
-    @POST
-    @Path(HENT_ARBEIDSTAKER_V2)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Tilgangskontrollert
-    public Response hentArbeidstakerV2(@Valid @NotNull HentArbeidstakerV2Request request) {
-        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(request.organisasjonsnummer());
-        return hentArbeidstaker(request.fødselsnummer());
-    }
-
-    private Response hentArbeidstaker(PersonIdent fødselsnummer) {
-        LOG.info("Henter arbeidstaker");
-        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(fødselsnummer);
-        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
-
-        var response = new HentArbeidstakerResponse(personInfo.fornavn(),
-            personInfo.mellomnavn(),
-            personInfo.etternavn(),
-            personInfo.kjønn(),
-            personInfo.aktørId().getAktørId());
-        return Response.ok(response).build();
-    }
-
-    @POST
-    @Path(HENT_OPPLYSNINGER_UREGISTRERT)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Tilgangskontrollert
-    public Response hentOpplysningerUregistrert(@Valid @NotNull OpplysningerRequestDto request) {
-        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(request.organisasjonsnummer());
-        LOG.info("Henter opplysninger for uregistrert søker");
-        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
-
-        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
-        arbeidsgiverinitiertDialogRestValiderer.validerSakIK9(personInfo,
-            request.ytelseType(),
-            request.førsteFraværsdag(),
-            FRAVÆRSDAG_ER_FØRSTE_FRAVÆRSDAG_I_SØKNADSPERIODE);
-        arbeidsgiverinitiertDialogRestValiderer.validerAtOrgnummerIkkeFinnesIAaregPåPerson(personInfo,
-            request.organisasjonsnummer(),
-            request.førsteFraværsdag());
-
-        Ytelsetype ytelsetype = KodeverkMapper.mapYtelsetype(request.ytelseType());
-        HentOpplysningerResponse response = grunnlagTjeneste.hentOpplysninger(request.fødselsnummer(),
-            ytelsetype,
-            request.førsteFraværsdag(),
-            request.organisasjonsnummer(),
-            ForespørselType.ARBEIDSGIVERINITIERT_UREGISTRERT);
-        return Response.ok(response).build();
+        throw new NotImplementedException("Skal ikke bruke dette endepunktet");
     }
 
     @POST
