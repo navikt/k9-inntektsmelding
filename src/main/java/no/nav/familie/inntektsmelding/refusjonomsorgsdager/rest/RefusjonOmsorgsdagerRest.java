@@ -24,6 +24,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.RefusjonOmsorgsdagerService;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
+import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 
 @AutentisertMedTokenX
 @RequestScoped
@@ -35,20 +37,27 @@ public class RefusjonOmsorgsdagerRest {
 
     public static final String BASE_PATH = "/refusjon-omsorgsdager";
     private static final String SLÅ_OPP_ARBEIDSTAKER = "/arbeidstaker";
+    private static final String SLÅ_OPP_ARBEIDSTAKER_V2 = "/arbeidstaker/v2";
     private static final String INNLOGGET_BRUKER = "/innlogget-bruker";
     private static final String INNTEKTSOPPLYSNINGER = "/inntektsopplysninger";
 
     private RefusjonOmsorgsdagerService refusjonOmsorgsdagerService;
+    private Tilgang tilgang;
 
     RefusjonOmsorgsdagerRest() {
         // CDI
     }
 
     @Inject
-    public RefusjonOmsorgsdagerRest(RefusjonOmsorgsdagerService refusjonOmsorgsdagerService) {
+    public RefusjonOmsorgsdagerRest(RefusjonOmsorgsdagerService refusjonOmsorgsdagerService, Tilgang tilgang) {
         this.refusjonOmsorgsdagerService = refusjonOmsorgsdagerService;
+        this.tilgang = tilgang;
     }
 
+    /**
+     * @deprecated Bruk {@link #slåOppArbeidstakerV2(SlåOppArbeidstakerV2Request)} i stedet.
+     */
+    @Deprecated(forRemoval = true)
     @POST
     @Path(SLÅ_OPP_ARBEIDSTAKER)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -62,7 +71,26 @@ public class RefusjonOmsorgsdagerRest {
         if (request.årstall() != null && (request.årstall() < 2020 || request.årstall() > LocalDate.now().getYear())) {
             return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Årstall må være tidligst 2020 og senest dagens år").build();
         }
-        var response = refusjonOmsorgsdagerService.hentArbeidstaker(request.fødselsnummer(), request.årstall());
+        SlåOppArbeidstakerResponse response = refusjonOmsorgsdagerService.hentArbeidstaker(request.fødselsnummer(), request.årstall());
+        return Response.ok(response).build();
+    }
+
+    @POST
+    @Path(SLÅ_OPP_ARBEIDSTAKER_V2)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Henter opplysninger om arbeidstaker, gitt et fødselsnummer og organisasjonsnummer.", tags = "imdialog")
+    @Tilgangskontrollert
+    public Response slåOppArbeidstakerV2(
+        @Parameter(description = "Datapakke som inneholder fødselsnummeret til en arbeidstaker og organisasjonsnummeret til arbeidsgiver")
+        @NotNull @Valid
+        SlåOppArbeidstakerV2Request request
+    ) {
+        if (request.årstall() != null && (request.årstall() < 2020 || request.årstall() > LocalDate.now().getYear())) {
+            return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Årstall må være tidligst 2020 og senest dagens år").build();
+        }
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(request.organisasjonsnummer()));
+
+        SlåOppArbeidstakerResponse response = refusjonOmsorgsdagerService.hentArbeidstaker(request.fødselsnummer(), request.årstall());
         return Response.ok(response).build();
     }
 
@@ -76,7 +104,9 @@ public class RefusjonOmsorgsdagerRest {
         @Parameter(description = "Datapakke som inneholder ytelsestypen og organisasjonsnummeret til den innloggede brukeren")
         @NotNull @Valid HentInnloggetBrukerRequest request
     ) {
-        var response = refusjonOmsorgsdagerService.hentInnloggetBruker(request.organisasjonsnummer());
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(request.organisasjonsnummer()));
+
+        HentInnloggetBrukerResponse response = refusjonOmsorgsdagerService.hentInnloggetBruker(request.organisasjonsnummer());
         return Response.ok(response).build();
     }
 
@@ -90,7 +120,9 @@ public class RefusjonOmsorgsdagerRest {
         @Parameter(description = "Datapakke som inneholder fødselsnummeret og skjæringstidspunktet til en arbeidstaker")
         @NotNull @Valid HentInntektsopplysningerRequest request
     ) {
-        var inntektsopplysninger = refusjonOmsorgsdagerService.hentInntektsopplysninger(request.fødselsnummer(), request.organisasjonsnummer(), LocalDate.parse(request.skjæringstidspunkt()));
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(request.organisasjonsnummer()));
+
+        HentInntektsopplysningerResponse inntektsopplysninger = refusjonOmsorgsdagerService.hentInntektsopplysninger(request.fødselsnummer(), request.organisasjonsnummer(), LocalDate.parse(request.skjæringstidspunkt()));
 
         return Response.ok(inntektsopplysninger).build();
     }

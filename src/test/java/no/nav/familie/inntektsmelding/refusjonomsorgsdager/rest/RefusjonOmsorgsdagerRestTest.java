@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -21,8 +24,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.tjenester.RefusjonOmsorgsdagerService;
+import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
+import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.exception.ManglerTilgangException;
 
 @ExtendWith(MockitoExtension.class)
 class RefusjonOmsorgsdagerRestTest {
@@ -30,11 +36,14 @@ class RefusjonOmsorgsdagerRestTest {
     @Mock
     private RefusjonOmsorgsdagerService refusjonOmsorgsdagerServiceMock;
 
+    @Mock
+    private Tilgang tilgang;
+
     private RefusjonOmsorgsdagerRest rest;
 
     @BeforeEach
     void setUp() {
-        rest = new RefusjonOmsorgsdagerRest(refusjonOmsorgsdagerServiceMock);
+        rest = new RefusjonOmsorgsdagerRest(refusjonOmsorgsdagerServiceMock, tilgang);
     }
 
     @Test
@@ -73,6 +82,43 @@ class RefusjonOmsorgsdagerRestTest {
 
         var response = rest.hentInnloggetBruker(new HentInnloggetBrukerRequest(Ytelsetype.OMSORGSPENGER, "123456789"));
         assertEquals(response.getEntity(), innloggetBruker);
+        verify(tilgang).sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto("123456789"));
+    }
+
+    @Test
+    void hent_innlogget_bruker_kaster_når_arbeidsgiver_mangler_tilgang() {
+        doThrow(new ManglerTilgangException("IM-00403", "Mangler tilgang")).when(tilgang)
+            .sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto("123456789"));
+
+        var request = new HentInnloggetBrukerRequest(Ytelsetype.OMSORGSPENGER, "123456789");
+        assertThrows(ManglerTilgangException.class, () -> rest.hentInnloggetBruker(request));
+        verifyNoInteractions(refusjonOmsorgsdagerServiceMock);
+    }
+
+    @Test
+    void slå_opp_arbeidstaker_v2_sjekker_tilgang_og_returnerer_ok() {
+        var fnr = PersonIdent.fra("12345678910");
+        var request = new SlåOppArbeidstakerV2Request(fnr, Ytelsetype.OMSORGSPENGER, LocalDate.now().getYear(), "999999999");
+        var arbeidsforhold = List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto("999999999", "Arbeidsgiver AS", new SlåOppArbeidstakerResponse.Ansettelsesperiode(LocalDate.now(), LocalDate.now())));
+        var arbeidstakerInfo = new SlåOppArbeidstakerResponse(new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "23500180528", "12345"), arbeidsforhold);
+
+        when(refusjonOmsorgsdagerServiceMock.hentArbeidstaker(fnr, LocalDate.now().getYear())).thenReturn(arbeidstakerInfo);
+
+        var response = rest.slåOppArbeidstakerV2(request);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(arbeidstakerInfo, response.getEntity());
+        verify(tilgang).sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto("999999999"));
+    }
+
+    @Test
+    void slå_opp_arbeidstaker_v2_kaster_når_arbeidsgiver_mangler_tilgang() {
+        var request = new SlåOppArbeidstakerV2Request(PersonIdent.fra("12345678910"), Ytelsetype.OMSORGSPENGER, null, "999999999");
+        doThrow(new ManglerTilgangException("IM-00403", "Mangler tilgang")).when(tilgang)
+            .sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto("999999999"));
+
+        assertThrows(ManglerTilgangException.class, () -> rest.slåOppArbeidstakerV2(request));
+        verifyNoInteractions(refusjonOmsorgsdagerServiceMock);
     }
 
     @Test
@@ -96,6 +142,17 @@ class RefusjonOmsorgsdagerRestTest {
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(inntektsopplysninger, response.getEntity());
+        verify(tilgang).sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(organisasjonsnummer));
+    }
+
+    @Test
+    void hent_inntektsopplysninger_kaster_når_arbeidsgiver_mangler_tilgang() {
+        var request = new HentInntektsopplysningerRequest(PersonIdent.fra("12345678910"), "999999999", "2025-01-01");
+        doThrow(new ManglerTilgangException("IM-00403", "Mangler tilgang")).when(tilgang)
+            .sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto("999999999"));
+
+        assertThrows(ManglerTilgangException.class, () -> rest.hentInntektsopplysninger(request));
+        verifyNoInteractions(refusjonOmsorgsdagerServiceMock);
     }
 
     @Test
