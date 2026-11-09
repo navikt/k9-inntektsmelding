@@ -18,7 +18,6 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerResponse;
-import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerUregistrertResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.OrganisasjonDto;
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.ArbeidsforholdTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.ArbeidstakerTjeneste;
@@ -32,7 +31,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.AnonymPersonInfoDto;
 import no.nav.familie.inntektsmelding.typer.dto.InnsenderDto;
 import no.nav.familie.inntektsmelding.typer.dto.InntektsopplysningerDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
@@ -142,29 +140,6 @@ public class GrunnlagTjeneste {
             null);
     }
 
-    public HentOpplysningerUregistrertResponse hentOpplysningerUregistrert(PersonIdent fødselsnummer,
-                                                                           Ytelsetype ytelsetype,
-                                                                           LocalDate førsteFraværsdag,
-                                                                           OrganisasjonsnummerDto organisasjonsnummer,
-                                                                           ForespørselType forespørselType) {
-        var opplysninger = hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer, forespørselType);
-
-        return new HentOpplysningerUregistrertResponse(
-            new AnonymPersonInfoDto(opplysninger.person().fødselsnummer(), opplysninger.person().aktørId()),
-            opplysninger.arbeidsgiver(),
-            opplysninger.innsender(),
-            opplysninger.inntektsopplysninger(),
-            opplysninger.skjæringstidspunkt(),
-            opplysninger.ytelse(),
-            opplysninger.forespørselUuid(),
-            opplysninger.forespørselStatus(),
-            opplysninger.forespørselType(),
-            opplysninger.førsteUttaksdato(),
-            opplysninger.etterspurtePerioder()
-        );
-
-    }
-
     public List<FagsakInfo> hentFagsakerIK9(PersonInfo personInfo, Ytelsetype ytelseType) {
         AktørId aktørId = new AktørId(personInfo.aktørId().getAktørId());
         return k9SakTjeneste.hentFagsakInfo(ytelseType, aktørId);
@@ -251,15 +226,6 @@ public class GrunnlagTjeneste {
             })
             .collect(Collectors.toSet());
         return organisasjoner;
-    }
-
-    public HentArbeidsforholdResponse lagHentArbeidsforholdResponse(PersonInfo personInfo,
-                                                                    Set<OrganisasjonDto> organisasjonerArbeidsgiverHarTilgangTil) {
-        return new HentArbeidsforholdResponse(personInfo.fornavn(),
-            personInfo.mellomnavn(),
-            personInfo.etternavn(),
-            personInfo.kjønn(),
-            organisasjonerArbeidsgiverHarTilgangTil);
     }
 
     public boolean finnesOrgnummerIAaregPåPerson(PersonIdent personIdent, String organisasjonsnummer, LocalDate førsteFraværsdag) {

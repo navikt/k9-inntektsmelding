@@ -229,33 +229,6 @@ class GrunnlagTjenesteTest {
     }
 
     @Test
-    void skal_hente_personinfo_og_organisasjoner_arbeidsgiver_har_tilgang_til_gitt_fnr() {
-        // Arrange
-        var orgnr1 = new OrganisasjonsnummerDto("123456789");
-        var orgnr2 = new OrganisasjonsnummerDto("987654321");
-        var navn1 = "Organisasjon 1";
-        var navn2 = "Organisasjon 2";
-
-        when(arbeidstakerTjeneste.finnOrganisasjonerArbeidsgiverHarTilgangTil()).thenReturn(List.of(orgnr1, orgnr2));
-        when(organisasjonTjeneste.finnOrganisasjon(orgnr1.orgnr())).thenReturn(new Organisasjon(navn1, orgnr1.orgnr()));
-        when(organisasjonTjeneste.finnOrganisasjon(orgnr2.orgnr())).thenReturn(new Organisasjon(navn2, orgnr2.orgnr()));
-        // Act
-        var organisasjoner = grunnlagTjeneste.hentOrganisasjonerSomArbeidsgiverHarTilgangTil();
-        var response = grunnlagTjeneste.lagHentArbeidsforholdResponse(PERSON_INFO, organisasjoner);
-
-        // Assert
-        assertThat(response).isNotNull();
-        assertThat(response.fornavn()).isEqualTo(NAVN);
-        assertThat(response.etternavn()).isEqualTo(ETTERNAVN);
-        assertThat(response.arbeidsforhold()).hasSize(2);
-        assertThat(response.arbeidsforhold().stream()).anyMatch(o -> o.organisasjonsnavn().equals(navn1));
-        assertThat(response.arbeidsforhold().stream()).anyMatch(o -> o.organisasjonsnavn().equals(navn2));
-        assertThat(response.arbeidsforhold().stream()).anyMatch(o -> o.organisasjonsnummer().equals(orgnr1.orgnr()));
-        assertThat(response.arbeidsforhold().stream()).anyMatch(o -> o.organisasjonsnummer().equals(orgnr2.orgnr()));
-        assertThat(response.kjønn()).isEqualTo(Kjønn.KVINNE);
-    }
-
-    @Test
     void skal_hente_opplysninger_uten_forespørsel_uuid_hvis_eksisternede_forespøsel_er_utenfor_4_uker() {
         // Arrange
         var ytelsetype = Ytelsetype.PLEIEPENGER_SYKT_BARN;

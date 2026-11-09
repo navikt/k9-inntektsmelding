@@ -53,6 +53,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
             }
             if (feil instanceof FunksjonellException) {
                 var exceptionMelding = getExceptionMelding(feil);
+                if (exceptionMelding.contains("FINNES_IKKE_I_AAREG")) {
+                    LOG.info("Organisasjonsnummer har ikke rapportering i aa-reg feil: {}", exceptionMelding);
+                    return finnesIkkeIAareg();
+                }
+            }
+            if (feil instanceof FunksjonellException) {
+                var exceptionMelding = getExceptionMelding(feil);
                 if (exceptionMelding.contains("PERSON_IKKE_FUNNET")) {
                     LOG.info("Person ikke funnet feil: {}", exceptionMelding);
                     return personIkkeFunnet();
@@ -100,6 +107,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     private static Response finnesIAareg() {
         return Response.status(Response.Status.FORBIDDEN)
             .entity(new FeilDto(FeilType.FINNES_I_AAREG, "Organisasjonsnummer er rapportert i Aa-reg", MDCOperations.getCallId()))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
+    }
+
+    private static Response finnesIkkeIAareg() {
+        return Response.status(Response.Status.FORBIDDEN)
+            .entity(new FeilDto(FeilType.FINNES_IKKE_I_AAREG, "Organisasjonsnummer er ikke rapportert i Aa-reg", MDCOperations.getCallId()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
