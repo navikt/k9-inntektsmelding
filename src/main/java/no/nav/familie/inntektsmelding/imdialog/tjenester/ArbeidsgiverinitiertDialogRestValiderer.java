@@ -46,7 +46,11 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
     }
 
     public void validerAtInntektErStørreEnn0(HentOpplysningerResponse opplysninger) {
-        if (opplysninger != null && opplysninger.inntektsopplysninger() == null ) {
+        if (opplysninger == null) {
+            return;
+        }
+
+        if (opplysninger.inntektsopplysninger() == null) {
             // inntektskomponenten er nede. Gi valideringsfeil siden vi ikke kan validere mot inntekten.
             throw new FunksjonellException("INGEN_INNTEKT", "Fant ingen arbeidsforhold med inntekt større enn 0 på brukeren", null, null);
         }

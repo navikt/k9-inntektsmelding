@@ -128,6 +128,22 @@ class GeneralRestExceptionMapperTest {
     }
 
     @Test
+    void skalMappeFunksjonellFeilIngenInntekt() {
+        var callId = MDCOperations.generateCallId();
+        MDCOperations.putCallId(callId);
+        try (var response = exceptionMapper.toResponse(new FunksjonellException("INGEN_INNTEKT", "en egen funksjonell melding", null))) {
+            assertThat(response.getStatus()).isEqualTo(403);
+            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+            var feilDto = (FeilDto) response.getEntity();
+
+            assertThat(feilDto.type()).isEqualTo(FeilType.INGEN_INNTEKT);
+            assertThat(feilDto.callId()).isEqualTo(callId);
+            assertThat(feilDto.feilmelding()).isEqualTo("Ingen inntekt funnet");
+            assertThat(logSniffer.search("Ingen inntekt funnet feil", Level.INFO)).hasSize(1);
+        }
+    }
+
+    @Test
     void skalMappeFunksjonellFeilPersonIkkeFunnet() {
         var callId = MDCOperations.generateCallId();
         MDCOperations.putCallId(callId);
