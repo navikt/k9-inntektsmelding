@@ -7,9 +7,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -25,10 +23,12 @@ import org.slf4j.LoggerFactory;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.GrunnlagTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingMottakTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.tjenester.InntektsmeldingTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
+import no.nav.familie.inntektsmelding.typer.dto.AktørIdDto;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -44,8 +44,10 @@ public class InntektsmeldingDialogRest {
     private static final String HENT_OPPLYSNINGER = "/opplysninger";
     private static final String HENT_INNTEKTSMELDINGER_FOR_OPPGAVE = "/inntektsmeldinger";
     private static final String HENT_INNTEKTSMELDINGER_FOR_ÅR = "/inntektsmeldinger-for-aar";
+    private static final String HENT_INNTEKTSMELDINGER_FOR_ÅR_V2 = "/inntektsmeldinger-for-aar/v2";
     private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
     private static final String SEND_INNTEKTSMELDING_OMS_REFUSJON = "/send-inntektsmelding/omsorgspenger-refusjon";
+    private static final String SEND_INNTEKTSMELDING_OMS_REFUSJON_V2 = "/send-inntektsmelding/omsorgspenger-refusjon/v2";
     private static final String SEND_INNTEKTSMELDING_ARBEIDSGIVERINITIERT_NYANSATT = "/send-inntektsmelding/arbeidsgiverinitiert-nyansatt";
     private static final String SEND_INNTEKTSMELDING_ARBEIDSGIVERINITIERT_UREGISTRERT = "/send-inntektsmelding/arbeidsgiverinitiert-uregistrert";
     private static final String LAST_NED_PDF = "/last-ned-pdf";
@@ -54,6 +56,7 @@ public class InntektsmeldingDialogRest {
     private InntektsmeldingMottakTjeneste inntektsmeldingMottakTjeneste;
     private GrunnlagTjeneste grunnlagTjeneste;
     private Tilgang tilgang;
+    private PersonTjeneste personTjeneste;
 
     InntektsmeldingDialogRest() {
         // CDI
@@ -63,11 +66,13 @@ public class InntektsmeldingDialogRest {
     public InntektsmeldingDialogRest(InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                      InntektsmeldingMottakTjeneste inntektsmeldingMottakTjeneste,
                                      GrunnlagTjeneste grunnlagTjeneste,
-                                     Tilgang tilgang) {
+                                     Tilgang tilgang,
+                                     PersonTjeneste personTjeneste) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.inntektsmeldingMottakTjeneste = inntektsmeldingMottakTjeneste;
         this.grunnlagTjeneste = grunnlagTjeneste;
         this.tilgang = tilgang;
+        this.personTjeneste = personTjeneste;
     }
 
     @GET
@@ -96,34 +101,15 @@ public class InntektsmeldingDialogRest {
     }
 
     /**
-     * @deprecated Bruk {@link #hentInntektsmeldingerForÅrPost(HentInntektsmeldingerForÅrRequest)} i stedet.
+     * @deprecated Bruk {@link #hentInntektsmeldingerForÅrV2(HentInntektsmeldingerForÅrV2Request)} i stedet.
      */
     @Deprecated(forRemoval = true)
-    @GET
-    @Path(HENT_INNTEKTSMELDINGER_FOR_ÅR)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Tilgangskontrollert
-    public Response hentInntektsmeldingerForÅr(@NotNull @Valid @Digits(integer = 19, fraction = 0) @Pattern(regexp = "^\\d+$") @QueryParam("aktørId") String aktorId,
-                                               @NotNull @Valid @Digits(integer = 13, fraction = 0) @Pattern(regexp = "^([0-9]{9}|[0-9]{13})$") @QueryParam("arbeidsgiverIdent") String arbeidsgiverIdent,
-                                               @NotNull @Valid @QueryParam("år") int år) {
-
-        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(arbeidsgiverIdent));
-
-        LOG.info("Henter inntektsmeldinger for år for organisasjon {}", arbeidsgiverIdent);
-
-        var dto = inntektsmeldingTjeneste.hentInntektsmeldingerForÅr(new AktørIdEntitet(aktorId),
-            arbeidsgiverIdent,
-            år,
-            Ytelsetype.OMSORGSPENGER);
-        return Response.ok(dto).build();
-    }
-
     @POST
     @Path(HENT_INNTEKTSMELDINGER_FOR_ÅR)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
     public Response hentInntektsmeldingerForÅrPost(@NotNull @Valid HentInntektsmeldingerForÅrRequest request) {
-        if (request.år() > LocalDate.now().getYear() || request.år() < 2020) {
+        if (erUgyldigÅr(request.år())) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Fremtidige år er ikke tillatt").build();
         }
 
@@ -140,6 +126,32 @@ public class InntektsmeldingDialogRest {
     }
 
     @POST
+    @Path(HENT_INNTEKTSMELDINGER_FOR_ÅR_V2)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response hentInntektsmeldingerForÅrV2(@NotNull @Valid HentInntektsmeldingerForÅrV2Request request) {
+        if (erUgyldigÅr(request.år())) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Fremtidige år er ikke tillatt").build();
+        }
+
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(request.arbeidsgiverIdent().ident()));
+
+        LOG.info("Henter inntektsmeldinger for år for organisasjon {}", request.arbeidsgiverIdent());
+
+        var aktørId = personTjeneste.finnAktørIdForPersonIdent(request.fødselsnummer().getIdent());
+        if (aktørId.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Fant ikke person for oppgitt fødselsnummer").build();
+        }
+
+        // denne metoden vil kun bli brukt for omsorgspenger da de har fagsak som strekker seg over ett år
+        var dto = inntektsmeldingTjeneste.hentInntektsmeldingerForÅr(aktørId.get(),
+            request.arbeidsgiverIdent().ident(),
+            request.år(),
+            Ytelsetype.OMSORGSPENGER);
+        return Response.ok(dto).build();
+    }
+
+    @POST
     @Path(SEND_INNTEKTSMELDING)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Tilgangskontrollert
@@ -149,6 +161,10 @@ public class InntektsmeldingDialogRest {
         return Response.ok(inntektsmeldingMottakTjeneste.mottaInntektsmelding(sendInntektsmeldingRequest)).build();
     }
 
+    /**
+     * @deprecated Bruk {@link #sendInntektsmeldingForOmsorgspengerRefusjonV2(SendInntektsmeldingOmsorgspengerRefusjonV2Request)} i stedet.
+     */
+    @Deprecated(forRemoval = true)
     @POST
     @Path(SEND_INNTEKTSMELDING_OMS_REFUSJON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -156,6 +172,23 @@ public class InntektsmeldingDialogRest {
     public Response sendInntektsmeldingForOmsorgspengerRefusjon(@NotNull @Valid SendInntektsmeldingRequest sendInntektsmeldingRequest) {
         tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(sendInntektsmeldingRequest.arbeidsgiverIdent().ident()));
         LOG.info("Mottok inntektsmelding for omsorgspenger refusjon for aktørId {}", sendInntektsmeldingRequest.aktorId());
+        return Response.ok(inntektsmeldingMottakTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(sendInntektsmeldingRequest)).build();
+    }
+
+    @POST
+    @Path(SEND_INNTEKTSMELDING_OMS_REFUSJON_V2)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Tilgangskontrollert
+    public Response sendInntektsmeldingForOmsorgspengerRefusjonV2(@NotNull @Valid SendInntektsmeldingOmsorgspengerRefusjonV2Request request) {
+        tilgang.sjekkAtArbeidsgiverHarTilgangTilBedrift(new OrganisasjonsnummerDto(request.arbeidsgiverIdent().ident()));
+
+        var aktørId = personTjeneste.finnAktørIdForPersonIdent(request.fødselsnummer().getIdent());
+        if (aktørId.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Fant ikke person for oppgitt fødselsnummer").build();
+        }
+
+        LOG.info("Mottok inntektsmelding for omsorgspenger refusjon for aktørId {}", aktørId.get());
+        var sendInntektsmeldingRequest = request.tilSendInntektsmeldingRequest(new AktørIdDto(aktørId.get().getAktørId()));
         return Response.ok(inntektsmeldingMottakTjeneste.mottaInntektsmeldingForOmsorgspengerRefusjon(sendInntektsmeldingRequest)).build();
     }
 
@@ -200,5 +233,9 @@ public class InntektsmeldingDialogRest {
         responseBuilder.type("application/pdf");
         responseBuilder.header("Content-Disposition", "attachment; filename=inntektsmelding.pdf");
         return responseBuilder.build();
+    }
+
+    private static boolean erUgyldigÅr(int år) {
+        return år > LocalDate.now().getYear() || år < 2020;
     }
 }
