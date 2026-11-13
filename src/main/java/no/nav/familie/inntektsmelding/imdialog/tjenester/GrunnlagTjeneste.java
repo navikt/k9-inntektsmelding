@@ -84,7 +84,7 @@ public class GrunnlagTjeneste {
         var personInfo = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId());
         var organisasjonInfo = finnOrganisasjonInfo(forespørsel.getOrganisasjonsnummer());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(), personInfo, forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer(), forespørsel.getYtelseType());
+        var inntektsopplysninger = finnInntektsopplysninger(personInfo, forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer(), forespørsel.getYtelseType());
 
         return new HentOpplysningerResponse(lagPersonInfoDto(personInfo),
             organisasjonInfo,
@@ -125,7 +125,7 @@ public class GrunnlagTjeneste {
 
         var organisasjonInfo = finnOrganisasjonInfo(organisasjonsnummer.orgnr());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(null, personInfo, førsteFraværsdag, organisasjonsnummer.orgnr(), ytelsetype);
+        var inntektsopplysninger = finnInntektsopplysninger(personInfo, førsteFraværsdag, organisasjonsnummer.orgnr(), ytelsetype);
 
         return new HentOpplysningerResponse(lagPersonInfoDto(personInfo),
             organisasjonInfo,
@@ -165,8 +165,7 @@ public class GrunnlagTjeneste {
         return new InnsenderDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.telefonnummer());
     }
 
-    private InntektsopplysningerDto finnInntektsopplysninger(UUID uuid,
-                                                             PersonInfo personInfo,
+    private InntektsopplysningerDto finnInntektsopplysninger(PersonInfo personInfo,
                                                              LocalDate skjæringstidspunkt,
                                                              String organisasjonsnummer,
                                                              Ytelsetype ytelsetype) {
