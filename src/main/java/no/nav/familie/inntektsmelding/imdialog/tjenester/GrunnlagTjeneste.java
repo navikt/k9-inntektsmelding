@@ -172,12 +172,6 @@ public class GrunnlagTjeneste {
                                                              Ytelsetype ytelsetype) {
         var inntektsopplysninger = inntektTjeneste.hentInntekt(personInfo, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, ytelsetype);
 
-        if (uuid == null) {
-            LOG.info("Inntektsopplysninger for aktørId {} var {}", personInfo.aktørId(), inntektsopplysninger);
-        } else {
-            LOG.info("Inntektsopplysninger for forespørsel {} var {}", uuid, inntektsopplysninger);
-        }
-
         var inntekter = inntektsopplysninger.måneder()
             .stream()
             .map(i -> new MånedsinntektDto(i.månedÅr().atDay(1),
