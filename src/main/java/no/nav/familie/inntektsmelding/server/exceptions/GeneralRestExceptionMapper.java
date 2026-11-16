@@ -67,6 +67,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
             }
             if (feil instanceof FunksjonellException) {
                 var exceptionMelding = getExceptionMelding(feil);
+                if (exceptionMelding.contains("A_INNTEKT_NEDE")) {
+                    LOG.warn("Nedetid i a-inntekt feil: {}", exceptionMelding);
+                    return aInntektNede();
+                }
+            }
+            if (feil instanceof FunksjonellException) {
+                var exceptionMelding = getExceptionMelding(feil);
                 if (exceptionMelding.contains("PERSON_IKKE_FUNNET")) {
                     LOG.info("Person ikke funnet feil: {}", exceptionMelding);
                     return personIkkeFunnet();
@@ -128,6 +135,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     private static Response ingenInntekt() {
         return Response.status(Response.Status.FORBIDDEN)
             .entity(new FeilDto(FeilType.INGEN_INNTEKT, "Ingen inntekt funnet", MDCOperations.getCallId()))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
+    }
+
+    private static Response aInntektNede() {
+        return Response.serverError()
+            .entity(new FeilDto(FeilType.A_INNTEKT_NEDE, "Kunne ikke hente inntekt fra a-inntekt. Prøv igjen senere", MDCOperations.getCallId()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
