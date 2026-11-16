@@ -30,7 +30,6 @@ import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.server.auth.api.AutentisertMedTokenX;
 import no.nav.familie.inntektsmelding.server.auth.api.Tilgangskontrollert;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
-import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
 
 @AutentisertMedTokenX
@@ -112,23 +111,6 @@ public class ArbeidsgiverinitiertDialogRest {
             request.organisasjonsnummer(),
             ForespørselType.ARBEIDSGIVERINITIERT_NYANSATT);
         return Response.ok(hentOpplysningerResponse).build();
-    }
-
-    @POST
-    @Path(HENT_ARBEIDSTAKER)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Tilgangskontrollert
-    public Response hentArbeidstaker(@Valid @NotNull HentArbeidstakerRequest request) {
-        LOG.info("Henter arbeidstaker");
-        PersonInfo personInfo = personTjeneste.hentPersonFraIdent(request.fødselsnummer());
-        arbeidsgiverinitiertDialogRestValiderer.validerPerson(personInfo);
-
-        var response = new HentArbeidstakerResponse(UKJENT_NAVN,
-            null,
-            UKJENT_NAVN,
-            Kjønn.UKJENT,
-            personInfo.aktørId().getAktørId());
-        return Response.ok(response).build();
     }
 
     @POST
