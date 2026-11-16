@@ -1,5 +1,6 @@
 package no.nav.familie.inntektsmelding.imdialog.tjenester;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -8,10 +9,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
+import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerResponse;
 import no.nav.familie.inntektsmelding.integrasjoner.k9sak.FagsakInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
+import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
 import no.nav.familie.inntektsmelding.typer.dto.PeriodeDto;
 import no.nav.familie.inntektsmelding.typer.dto.YtelseTypeDto;
@@ -43,9 +46,18 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
         }
     }
 
-    public void validerArbeidsforhold(HentArbeidsforholdResponse response) {
-        if (response != null && response.arbeidsforhold().isEmpty()) {
-            throw new FunksjonellException("INGEN_ARBEIDSFORHOLD", "Fant ingen arbeidsforhold på brukeren", null, null);
+    public void validerAtInntektErStørreEnn0(HentOpplysningerResponse opplysninger) {
+        if (opplysninger.inntektsopplysninger() == null) {
+            throw new FunksjonellException("INGEN_INNTEKT", "Fant ingen arbeidsforhold med inntekt større enn 0 på brukeren", null, null);
+        }
+        var erNedetidIAInntekt = opplysninger.inntektsopplysninger().månedsinntekter().stream()
+            .anyMatch(måned -> MånedslønnStatus.NEDETID_AINNTEKT.equals(måned.status()));
+        if (erNedetidIAInntekt) {
+            throw new FunksjonellException("A_INNTEKT_NEDE", "Kunne ikke hente inntekt fra a-inntekt. Prøv igjen senere", null, null);
+        }
+        var snitt = opplysninger.inntektsopplysninger().gjennomsnittLønn();
+        if (snitt == null || snitt.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new FunksjonellException("INGEN_INNTEKT", "Fant ingen arbeidsforhold med inntekt større enn 0 på brukeren", null, null);
         }
     }
 
@@ -97,7 +109,15 @@ public class ArbeidsgiverinitiertDialogRestValiderer {
         }
     }
 
-    public void validerAtOrgnummerIkkeFinnesIAaregPåPerson(PersonInfo personInfo, OrganisasjonsnummerDto organisasjonsnummer, LocalDate førsteFraværsdag) {
+    public void validerAtArbeidsforholdErRegistrertIAareg(PersonInfo personInfo, OrganisasjonsnummerDto organisasjonsnummer, LocalDate førsteFraværsdag) {
+        var finnesOrgnummerIAaReg = grunnlagTjeneste.finnesOrgnummerIAaregPåPerson(personInfo.fødselsnummer(), organisasjonsnummer.orgnr(), førsteFraværsdag);
+        if (!finnesOrgnummerIAaReg) {
+            var tekst = "Arbeidsforholdet er ikke registrert i aa-registeret på organisasjonsnummeret.";
+            throw new FunksjonellException("FINNES_IKKE_I_AAREG", tekst, null, null);
+        }
+    }
+
+    public void validerAtArbeidsforholdIkkeErRegistrertIAareg(PersonInfo personInfo, OrganisasjonsnummerDto organisasjonsnummer, LocalDate førsteFraværsdag) {
         var finnesOrgnummerIAaReg = grunnlagTjeneste.finnesOrgnummerIAaregPåPerson(personInfo.fødselsnummer(), organisasjonsnummer.orgnr(), førsteFraværsdag);
         if (finnesOrgnummerIAaReg) {
             var tekst = "Det finnes rapportering i aa-registeret på organisasjonsnummeret. Nav vil be om inntektsmelding når vi trenger det";

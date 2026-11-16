@@ -456,7 +456,7 @@ public class ForespørselBehandlingTjeneste {
                                                                          LocalDate skjæringstidspunkt,
                                                                          Ytelsetype ytelsetype,
                                                                          ForespørselType forespørselType) {
-        LOG.info("Oppretter forespørsel for arbeidsgiverinitiert inntektsmelding, orgnr: {}, stp: {}, aktørId: {}, ytelse: {}", organisasjonsnummer, skjæringstidspunkt, aktørId.getAktørId(), ytelsetype);
+        LOG.info("Oppretter forespørsel for arbeidsgiverinitiert inntektsmelding, orgnr: {}, stp: {}, ytelse: {}", organisasjonsnummer, skjæringstidspunkt, ytelsetype);
 
         // opprettt forespørsel i databasen
         var forespørselUuid = forespørselTjeneste.opprettForespørselUtenFagsaksnummer(skjæringstidspunkt, aktørId, organisasjonsnummer, ytelsetype, forespørselType);

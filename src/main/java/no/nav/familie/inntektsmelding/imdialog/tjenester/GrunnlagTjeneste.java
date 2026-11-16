@@ -18,7 +18,6 @@ import no.nav.familie.inntektsmelding.forespørsel.modell.ForespørselEntitet;
 import no.nav.familie.inntektsmelding.forespørsel.tjenester.ForespørselBehandlingTjeneste;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentArbeidsforholdResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerResponse;
-import no.nav.familie.inntektsmelding.imdialog.rest.HentOpplysningerUregistrertResponse;
 import no.nav.familie.inntektsmelding.imdialog.rest.OrganisasjonDto;
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.ArbeidsforholdTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.aareg.ArbeidstakerTjeneste;
@@ -32,7 +31,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.AnonymPersonInfoDto;
 import no.nav.familie.inntektsmelding.typer.dto.InnsenderDto;
 import no.nav.familie.inntektsmelding.typer.dto.InntektsopplysningerDto;
 import no.nav.familie.inntektsmelding.typer.dto.KodeverkMapper;
@@ -86,7 +84,7 @@ public class GrunnlagTjeneste {
         var personInfo = personTjeneste.hentPersonInfoFraAktørId(forespørsel.getAktørId());
         var organisasjonInfo = finnOrganisasjonInfo(forespørsel.getOrganisasjonsnummer());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(forespørsel.getUuid(), personInfo, forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer(), forespørsel.getYtelseType());
+        var inntektsopplysninger = finnInntektsopplysninger(personInfo, forespørsel.getSkjæringstidspunkt(), forespørsel.getOrganisasjonsnummer(), forespørsel.getYtelseType());
 
         return new HentOpplysningerResponse(lagPersonInfoDto(personInfo),
             organisasjonInfo,
@@ -127,7 +125,7 @@ public class GrunnlagTjeneste {
 
         var organisasjonInfo = finnOrganisasjonInfo(organisasjonsnummer.orgnr());
         var innsender = finnInnsender();
-        var inntektsopplysninger = finnInntektsopplysninger(null, personInfo, førsteFraværsdag, organisasjonsnummer.orgnr(), ytelsetype);
+        var inntektsopplysninger = finnInntektsopplysninger(personInfo, førsteFraværsdag, organisasjonsnummer.orgnr(), ytelsetype);
 
         return new HentOpplysningerResponse(lagPersonInfoDto(personInfo),
             organisasjonInfo,
@@ -140,29 +138,6 @@ public class GrunnlagTjeneste {
             forespørselType,
             førsteFraværsdag,
             null);
-    }
-
-    public HentOpplysningerUregistrertResponse hentOpplysningerUregistrert(PersonIdent fødselsnummer,
-                                                                           Ytelsetype ytelsetype,
-                                                                           LocalDate førsteFraværsdag,
-                                                                           OrganisasjonsnummerDto organisasjonsnummer,
-                                                                           ForespørselType forespørselType) {
-        var opplysninger = hentOpplysninger(fødselsnummer, ytelsetype, førsteFraværsdag, organisasjonsnummer, forespørselType);
-
-        return new HentOpplysningerUregistrertResponse(
-            new AnonymPersonInfoDto(opplysninger.person().fødselsnummer(), opplysninger.person().aktørId()),
-            opplysninger.arbeidsgiver(),
-            opplysninger.innsender(),
-            opplysninger.inntektsopplysninger(),
-            opplysninger.skjæringstidspunkt(),
-            opplysninger.ytelse(),
-            opplysninger.forespørselUuid(),
-            opplysninger.forespørselStatus(),
-            opplysninger.forespørselType(),
-            opplysninger.førsteUttaksdato(),
-            opplysninger.etterspurtePerioder()
-        );
-
     }
 
     public List<FagsakInfo> hentFagsakerIK9(PersonInfo personInfo, Ytelsetype ytelseType) {
@@ -190,18 +165,11 @@ public class GrunnlagTjeneste {
         return new InnsenderDto(personInfo.fornavn(), personInfo.mellomnavn(), personInfo.etternavn(), personInfo.telefonnummer());
     }
 
-    private InntektsopplysningerDto finnInntektsopplysninger(UUID uuid,
-                                                             PersonInfo personInfo,
+    private InntektsopplysningerDto finnInntektsopplysninger(PersonInfo personInfo,
                                                              LocalDate skjæringstidspunkt,
                                                              String organisasjonsnummer,
                                                              Ytelsetype ytelsetype) {
         var inntektsopplysninger = inntektTjeneste.hentInntekt(personInfo, skjæringstidspunkt, LocalDate.now(), organisasjonsnummer, ytelsetype);
-
-        if (uuid == null) {
-            LOG.info("Inntektsopplysninger for aktørId {} var {}", personInfo.aktørId(), inntektsopplysninger);
-        } else {
-            LOG.info("Inntektsopplysninger for forespørsel {} var {}", uuid, inntektsopplysninger);
-        }
 
         var inntekter = inntektsopplysninger.måneder()
             .stream()
@@ -251,15 +219,6 @@ public class GrunnlagTjeneste {
             })
             .collect(Collectors.toSet());
         return organisasjoner;
-    }
-
-    public HentArbeidsforholdResponse lagHentArbeidsforholdResponse(PersonInfo personInfo,
-                                                                    Set<OrganisasjonDto> organisasjonerArbeidsgiverHarTilgangTil) {
-        return new HentArbeidsforholdResponse(personInfo.fornavn(),
-            personInfo.mellomnavn(),
-            personInfo.etternavn(),
-            personInfo.kjønn(),
-            organisasjonerArbeidsgiverHarTilgangTil);
     }
 
     public boolean finnesOrgnummerIAaregPåPerson(PersonIdent personIdent, String organisasjonsnummer, LocalDate førsteFraværsdag) {
