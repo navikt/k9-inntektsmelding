@@ -96,24 +96,10 @@ public class JettyServer {
         try {
             var server = new Server(getServerPort());
             LOG.info("Starter server");
-            var context = new ServletContextHandler(CONTEXT_PATH, ServletContextHandler.NO_SESSIONS);
-
-            // Sikkerhet
-            context.setSecurityHandler(simpleConstraints());
-
-            // Servlets
-            registerDefaultServlet(context);
-            registerServlet(context, 0, InternalApiConfig.API_URI, InternalApiConfig.class);
-            registerServlet(context, 1, ApiConfig.API_URI, ApiConfig.class);
-            registerServlet(context, 2, ForvaltningApiConfig.API_URI, ForvaltningApiConfig.class);
+            var context = lagServletContext();
 
             // Starter tjenester
             context.addEventListener(new ServiceStarterListener());
-
-            // Enable Weld + CDI
-            context.setInitParameter(CdiServletContainerInitializer.CDI_INTEGRATION_ATTRIBUTE, CdiDecoratingListener.MODE);
-            context.addServletContainerInitializer(new CdiServletContainerInitializer());
-            context.addServletContainerInitializer(new org.jboss.weld.environment.servlet.EnhancedListener());
 
             server.setHandler(context);
             server.setStopAtShutdown(true);
@@ -125,6 +111,25 @@ public class JettyServer {
         } catch (Exception e) {
             LOG.error("Feilet under oppstart.", e);
         }
+    }
+
+    static ServletContextHandler lagServletContext() {
+        var context = new ServletContextHandler(CONTEXT_PATH, ServletContextHandler.NO_SESSIONS);
+
+        // Sikkerhet
+        context.setSecurityHandler(simpleConstraints());
+
+        // Servlets
+        registerDefaultServlet(context);
+        registerServlet(context, 0, InternalApiConfig.API_URI, InternalApiConfig.class);
+        registerServlet(context, 1, ApiConfig.API_URI, ApiConfig.class);
+        registerServlet(context, 2, ForvaltningApiConfig.API_URI, ForvaltningApiConfig.class);
+
+        // Enable Weld + CDI
+        context.setInitParameter(CdiServletContainerInitializer.CDI_INTEGRATION_ATTRIBUTE, CdiDecoratingListener.MODE);
+        context.addServletContainerInitializer(new CdiServletContainerInitializer());
+        context.addServletContainerInitializer(new org.jboss.weld.environment.servlet.EnhancedListener());
+        return context;
     }
 
     private static void registerDefaultServlet(ServletContextHandler context) {

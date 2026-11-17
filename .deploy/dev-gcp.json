@@ -10,7 +10,7 @@
     "mem": "1024Mi"
   },
   "ingresses": [
-    "https://k9-inntektsmelding.intern.dev.nav.no"
+    "https://k9-inntektsmelding.intern.dev.nav.no/k9/inntektsmelding/api"
   ],
   "dbVersion": "POSTGRES_18",
   "dbTier": "db-f1-micro",
