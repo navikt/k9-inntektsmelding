@@ -45,9 +45,6 @@ public class ArbeidsgiverinitiertDialogRest {
     private static final String HENT_OPPLYSNINGER_NYANSATT = "/opplysninger/nyansatt";
     private static final String HENT_ARBEIDSGIVER_ORGANISASJONER = "/arbeidsgiver/organisasjoner";
     private static final String HENT_OPPLYSNINGER_UREGISTRERT = "/opplysninger/uregistrert";
-    private static final String HENT_ARBEIDSTAKER = "/arbeidstaker";
-
-    private static final String UKJENT_NAVN = "Ukjent";
 
     private GrunnlagTjeneste grunnlagTjeneste;
     private PersonTjeneste personTjeneste;
