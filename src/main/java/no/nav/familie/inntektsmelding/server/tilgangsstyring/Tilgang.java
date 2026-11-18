@@ -1,8 +1,12 @@
 package no.nav.familie.inntektsmelding.server.tilgangsstyring;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.sif.abac.kontrakt.abac.BeskyttetRessursActionAttributt;
 
 public interface Tilgang {
@@ -38,6 +42,50 @@ public interface Tilgang {
      * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
      */
     void sjekkAtArbeidsgiverHarTilgangTilInntektsmelding(UUID inntektsmeldingUuid);
+
+    /**
+     * Henter forespørselen (fra PIP-tjenesten) og sjekker at aktørId og organisasjonsnummer det sendes inn for er de samme
+     * som på forespørselen. Deretter sjekkes det i Altinn om brukeren som initierte kallet, har tilgang til bedriften.
+     *
+     * @param forespørselUuid - IM forespørsel det sendes inn inntektsmelding på.
+     * @param aktørId - aktørId til arbeidstakeren det sendes inn for.
+     * @param organisasjonsnummer - organisasjonsnummer det sendes inn for.
+     * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
+     */
+    void sjekkAtArbeidsgiverHarTilgangTilForespørsel(UUID forespørselUuid, AktørIdEntitet aktørId, OrganisasjonsnummerDto organisasjonsnummer);
+
+    /**
+     * Sjekker i Altinn om brukeren som initierte kallet har tilgang til bedriften, og i aa-registeret at arbeidstakeren
+     * har et arbeidsforhold i bedriften på gitt dato.
+     *
+     * @param fødselsnummer - fødselsnummer til arbeidstakeren.
+     * @param organisasjonsnummer - organisasjonsnummer det sendes inn for.
+     * @param dato - dato arbeidsforholdet må være aktivt på.
+     * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
+     */
+    void sjekkAtArbeidsgiverHarTilgangTilArbeidstaker(PersonIdent fødselsnummer, OrganisasjonsnummerDto organisasjonsnummer, LocalDate dato);
+
+    /**
+     * Som {@link #sjekkAtArbeidsgiverHarTilgangTilArbeidstaker(PersonIdent, OrganisasjonsnummerDto, LocalDate)}, men slår opp
+     * fødselsnummer fra aktørId.
+     */
+    void sjekkAtArbeidsgiverHarTilgangTilArbeidstaker(AktørIdEntitet aktørId, OrganisasjonsnummerDto organisasjonsnummer, LocalDate dato);
+
+    /**
+     * Sjekker i Altinn om brukeren som initierte kallet har tilgang til bedriften, og i a-inntekt at arbeidstakeren
+     * har inntekt større enn 0 fra bedriften i beregningsperioden før gitt dato.
+     *
+     * @param aktørId - aktørId til arbeidstakeren.
+     * @param organisasjonsnummer - organisasjonsnummer det sendes inn for.
+     * @param dato - skjæringstidspunkt inntekten beregnes ut fra.
+     * @param ytelsetype - ytelsen det sendes inn for.
+     * @throws no.nav.vedtak.exception.ManglerTilgangException om tilgangen ikke er gitt.
+     * @throws no.nav.vedtak.exception.FunksjonellException med kode A_INNTEKT_NEDE om a-inntekt ikke svarer.
+     */
+    void sjekkAtArbeidsgiverHarTilgangTilArbeidstakerMedInntekt(AktørIdEntitet aktørId,
+                                                                OrganisasjonsnummerDto organisasjonsnummer,
+                                                                LocalDate dato,
+                                                                Ytelsetype ytelsetype);
 
     /**
      * Sjekker om den Nav ansatte som prøver å utføre operasjonen har en DRIFT rolle.

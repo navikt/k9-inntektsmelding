@@ -7,6 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,10 +22,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.familie.inntektsmelding.integrasjoner.aareg.ArbeidsforholdDto;
+import no.nav.familie.inntektsmelding.integrasjoner.aareg.ArbeidstakerTjeneste;
 import no.nav.familie.inntektsmelding.integrasjoner.altinn.AltinnTilgangTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.InntektTjeneste;
+import no.nav.familie.inntektsmelding.integrasjoner.inntektskomponent.Inntektsopplysninger;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
+import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
+import no.nav.familie.inntektsmelding.koder.Ytelsetype;
+import no.nav.familie.inntektsmelding.pip.ForespørselTilgangInfo;
 import no.nav.familie.inntektsmelding.pip.PipTjeneste;
+import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
+import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.sikkerhet.kontekst.AnsattGruppe;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.Kontekst;
@@ -33,6 +51,11 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 @ExtendWith(MockitoExtension.class)
 class TilgangTjenesteTest {
 
+    private static final OrganisasjonsnummerDto ORGNR = new OrganisasjonsnummerDto("123456789");
+    private static final AktørIdEntitet AKTØR_ID = new AktørIdEntitet("1234567891234");
+    private static final PersonIdent FNR = new PersonIdent("12345678910");
+    private static final LocalDate DATO = LocalDate.of(2025, 6, 1);
+
     private Tilgang tilgangTjeneste;
 
     @Mock
@@ -44,9 +67,18 @@ class TilgangTjenesteTest {
     @Mock
     private SifAbacPdpKlient sifAbacPdpKlient;
 
+    @Mock
+    private ArbeidstakerTjeneste arbeidstakerTjeneste;
+
+    @Mock
+    private InntektTjeneste inntektTjeneste;
+
+    @Mock
+    private PersonTjeneste personTjeneste;
+
     @BeforeEach
     void setUp() {
-        tilgangTjeneste = new TilgangTjeneste(pipTjeneste, altinnTilgangTjeneste, sifAbacPdpKlient);
+        tilgangTjeneste = new TilgangTjeneste(pipTjeneste, altinnTilgangTjeneste, sifAbacPdpKlient, arbeidstakerTjeneste, inntektTjeneste, personTjeneste);
     }
 
     @AfterEach
@@ -190,6 +222,161 @@ class TilgangTjenesteTest {
 
 
     @Test
+    void forespørsel_null_uuid_gir_ikke_tilgang() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+
+        var ex = assertThrows(ManglerTilgangException.class,
+            () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilForespørsel(null, AKTØR_ID, ORGNR));
+
+        assertThat(ex.getMessage()).contains("Mangler informasjon om bedrift.");
+        verifyNoInteractions(pipTjeneste, altinnTilgangTjeneste);
+    }
+
+    @Test
+    void bedrift_null_uuid_gir_ikke_tilgang() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+
+        var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilBedrift((UUID) null));
+
+        assertThat(ex.getMessage()).contains("Mangler informasjon om bedrift.");
+        verifyNoInteractions(pipTjeneste, altinnTilgangTjeneste);
+    }
+
+    @Test
+    void forespørsel_med_samme_aktør_og_orgnr_gir_tilgang() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        var uuid = UUID.randomUUID();
+        when(pipTjeneste.hentForespørselTilgangInfo(uuid)).thenReturn(Optional.of(new ForespørselTilgangInfo(ORGNR, AKTØR_ID)));
+        when(altinnTilgangTjeneste.manglerTilgangTilBedriften(ORGNR.orgnr())).thenReturn(false);
+
+        assertDoesNotThrow(() -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilForespørsel(uuid, AKTØR_ID, ORGNR));
+    }
+
+    @Test
+    void forespørsel_med_annet_orgnr_gir_ikke_tilgang() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        var uuid = UUID.randomUUID();
+        when(pipTjeneste.hentForespørselTilgangInfo(uuid)).thenReturn(Optional.of(new ForespørselTilgangInfo(ORGNR, AKTØR_ID)));
+
+        var ex = assertThrows(ManglerTilgangException.class,
+            () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilForespørsel(uuid, AKTØR_ID, new OrganisasjonsnummerDto("987654321")));
+
+        assertThat(ex.getMessage()).contains("Organisasjonsnummer stemmer ikke med forespørselen.");
+        verifyNoInteractions(altinnTilgangTjeneste);
+    }
+
+    @Test
+    void forespørsel_med_annen_aktør_gir_ikke_tilgang() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        var uuid = UUID.randomUUID();
+        when(pipTjeneste.hentForespørselTilgangInfo(uuid)).thenReturn(Optional.of(new ForespørselTilgangInfo(ORGNR, AKTØR_ID)));
+
+        var ex = assertThrows(ManglerTilgangException.class,
+            () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilForespørsel(uuid, new AktørIdEntitet("9999999999999"), ORGNR));
+
+        assertThat(ex.getMessage()).contains("Arbeidstaker stemmer ikke med forespørselen.");
+        verifyNoInteractions(altinnTilgangTjeneste);
+    }
+
+    @Test
+    void arbeidstaker_med_aktivt_arbeidsforhold_i_bedriften_gir_tilgang() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        when(altinnTilgangTjeneste.manglerTilgangTilBedriften(ORGNR.orgnr())).thenReturn(false);
+        when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(FNR, DATO, DATO))
+            .thenReturn(List.of(new ArbeidsforholdDto(ORGNR.orgnr(), new ArbeidsforholdDto.Ansettelsesperiode(DATO.minusYears(1), Tid.TIDENES_ENDE))));
+
+        assertDoesNotThrow(() -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilArbeidstaker(FNR, ORGNR, DATO));
+    }
+
+    @Test
+    void arbeidstaker_med_aktørId_slår_opp_fnr() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        when(altinnTilgangTjeneste.manglerTilgangTilBedriften(ORGNR.orgnr())).thenReturn(false);
+        when(personTjeneste.finnPersonIdentForAktørId(AKTØR_ID)).thenReturn(FNR);
+        when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(FNR, DATO, DATO))
+            .thenReturn(List.of(new ArbeidsforholdDto(ORGNR.orgnr(), new ArbeidsforholdDto.Ansettelsesperiode(DATO, DATO))));
+
+        assertDoesNotThrow(() -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilArbeidstaker(AKTØR_ID, ORGNR, DATO));
+    }
+
+    @Test
+    void arbeidstaker_uten_arbeidsforhold_i_bedriften_gir_ikke_tilgang() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        when(altinnTilgangTjeneste.manglerTilgangTilBedriften(ORGNR.orgnr())).thenReturn(false);
+        when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(FNR, DATO, DATO))
+            .thenReturn(List.of(new ArbeidsforholdDto("987654321", new ArbeidsforholdDto.Ansettelsesperiode(DATO.minusYears(1), Tid.TIDENES_ENDE))));
+
+        var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilArbeidstaker(FNR, ORGNR, DATO));
+
+        assertThat(ex.getMessage()).contains("Arbeidstaker har ikke arbeidsforhold i bedriften.");
+    }
+
+    @Test
+    void arbeidstaker_med_avsluttet_arbeidsforhold_gir_ikke_tilgang() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        when(altinnTilgangTjeneste.manglerTilgangTilBedriften(ORGNR.orgnr())).thenReturn(false);
+        when(arbeidstakerTjeneste.finnArbeidsforholdInnsenderHarTilgangTil(FNR, DATO, DATO))
+            .thenReturn(List.of(new ArbeidsforholdDto(ORGNR.orgnr(), new ArbeidsforholdDto.Ansettelsesperiode(DATO.minusYears(1), DATO.minusDays(1)))));
+
+        assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilArbeidstaker(FNR, ORGNR, DATO));
+    }
+
+    @Test
+    void arbeidstaker_uten_altinn_tilgang_sjekker_ikke_aareg() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        when(altinnTilgangTjeneste.manglerTilgangTilBedriften(ORGNR.orgnr())).thenReturn(true);
+
+        assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilArbeidstaker(AKTØR_ID, ORGNR, DATO));
+
+        verifyNoInteractions(arbeidstakerTjeneste, personTjeneste);
+    }
+
+    @Test
+    void arbeidstaker_med_inntekt_gir_tilgang() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        var personInfo = lagPersonInfo();
+        when(altinnTilgangTjeneste.manglerTilgangTilBedriften(ORGNR.orgnr())).thenReturn(false);
+        when(personTjeneste.hentPersonInfoFraAktørId(AKTØR_ID)).thenReturn(personInfo);
+        when(inntektTjeneste.hentInntekt(personInfo, DATO, LocalDate.now(), ORGNR.orgnr(), Ytelsetype.OMSORGSPENGER))
+            .thenReturn(new Inntektsopplysninger(BigDecimal.valueOf(50000), ORGNR.orgnr(),
+                List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.valueOf(50000), YearMonth.from(DATO.minusMonths(1)), MånedslønnStatus.BRUKT_I_GJENNOMSNITT))));
+
+        assertDoesNotThrow(() -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilArbeidstakerMedInntekt(AKTØR_ID, ORGNR, DATO, Ytelsetype.OMSORGSPENGER));
+    }
+
+    @Test
+    void arbeidstaker_med_inntekt_0_gir_ikke_tilgang() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        var personInfo = lagPersonInfo();
+        when(altinnTilgangTjeneste.manglerTilgangTilBedriften(ORGNR.orgnr())).thenReturn(false);
+        when(personTjeneste.hentPersonInfoFraAktørId(AKTØR_ID)).thenReturn(personInfo);
+        when(inntektTjeneste.hentInntekt(personInfo, DATO, LocalDate.now(), ORGNR.orgnr(), Ytelsetype.OMSORGSPENGER))
+            .thenReturn(new Inntektsopplysninger(BigDecimal.ZERO, ORGNR.orgnr(),
+                List.of(new Inntektsopplysninger.InntektMåned(BigDecimal.ZERO, YearMonth.from(DATO.minusMonths(1)), MånedslønnStatus.BRUKT_I_GJENNOMSNITT))));
+
+        var ex = assertThrows(ManglerTilgangException.class,
+            () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilArbeidstakerMedInntekt(AKTØR_ID, ORGNR, DATO, Ytelsetype.OMSORGSPENGER));
+
+        assertThat(ex.getMessage()).contains("Arbeidstaker har ikke inntekt i bedriften.");
+    }
+
+    @Test
+    void arbeidstaker_med_nedetid_i_a_inntekt_gir_A_INNTEKT_NEDE() {
+        KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
+        var personInfo = lagPersonInfo();
+        when(altinnTilgangTjeneste.manglerTilgangTilBedriften(ORGNR.orgnr())).thenReturn(false);
+        when(personTjeneste.hentPersonInfoFraAktørId(AKTØR_ID)).thenReturn(personInfo);
+        when(inntektTjeneste.hentInntekt(personInfo, DATO, LocalDate.now(), ORGNR.orgnr(), Ytelsetype.OMSORGSPENGER))
+            .thenReturn(new Inntektsopplysninger(null, ORGNR.orgnr(),
+                List.of(new Inntektsopplysninger.InntektMåned(null, YearMonth.from(DATO.minusMonths(1)), MånedslønnStatus.NEDETID_AINNTEKT))));
+
+        var ex = assertThrows(FunksjonellException.class,
+            () -> tilgangTjeneste.sjekkAtArbeidsgiverHarTilgangTilArbeidstakerMedInntekt(AKTØR_ID, ORGNR, DATO, Ytelsetype.OMSORGSPENGER));
+
+        assertThat(ex.getMessage()).contains("A_INNTEKT_NEDE");
+    }
+
+    @Test
     void test_sjekk_om_ansatt_har_rollen_drift_ikke_saksbehandler_nok() {
         KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.EksternBruker));
         var ex = assertThrows(ManglerTilgangException.class, () -> tilgangTjeneste.sjekkAtAnsattHarRollenDrift());
@@ -234,6 +421,10 @@ class TilgangTjenesteTest {
     void test_sjekk_om_systembruker_kall_ok() {
         KontekstHolder.setKontekst(fakeRequestKontekts(IdentType.Systemressurs));
         assertDoesNotThrow(() -> tilgangTjeneste.sjekkErSystembruker());
+    }
+
+    private static PersonInfo lagPersonInfo() {
+        return new PersonInfo("Fornavn", null, "Etternavn", FNR, AKTØR_ID, LocalDate.of(1990, 1, 1), null, null);
     }
 
     private Kontekst fakeRequestKontekts(IdentType identType) {

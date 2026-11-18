@@ -29,6 +29,11 @@ public class PipTjeneste {
         return forespørselTjeneste.hentForespørsel(forespørselUuid).map(f -> new OrganisasjonsnummerDto(f.getOrganisasjonsnummer())).orElse(null);
     }
 
+    public Optional<ForespørselTilgangInfo> hentForespørselTilgangInfo(UUID forespørselUuid) {
+        return forespørselTjeneste.hentForespørsel(forespørselUuid)
+            .map(f -> new ForespørselTilgangInfo(new OrganisasjonsnummerDto(f.getOrganisasjonsnummer()), f.getAktørId()));
+    }
+
     public OrganisasjonsnummerDto hentOrganisasjonsnummerFor(long inntektsmeldingId) {
         return Optional.ofNullable(inntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingId))
             .map(f -> new OrganisasjonsnummerDto(f.getArbeidsgiverIdent()))
