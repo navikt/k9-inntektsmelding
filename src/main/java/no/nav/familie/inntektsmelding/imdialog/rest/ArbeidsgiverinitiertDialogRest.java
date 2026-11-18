@@ -69,7 +69,6 @@ public class ArbeidsgiverinitiertDialogRest {
         this.tilgang = tilgang;
     }
 
-    @Deprecated(forRemoval = true)
     @POST
     @Path(HENT_ARBEIDSFORHOLD_NYANSATT)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
