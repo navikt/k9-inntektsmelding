@@ -21,7 +21,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.aareg.ArbeidsforholdTjeneste
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.exception.IntegrasjonException;
@@ -31,7 +30,7 @@ class InntektTjenesteTest {
     private static final String ORGNR = "111111111";
     private static final String AKTØR_ID = "9999999999999";
     private static final Ytelsetype YTELSETYPE = Ytelsetype.PLEIEPENGER_SYKT_BARN;
-    private static final PersonInfo PERSON_INFO = new PersonInfo("Ola", "Kari","Nordmann", new PersonIdent("12345678901"), new AktørIdEntitet(AKTØR_ID), LocalDate.of(1990, 1, 1), "99887766", Kjønn.MANN);
+    private static final PersonInfo PERSON_INFO = new PersonInfo("Ola", "Kari","Nordmann", new PersonIdent("12345678901"), new AktørIdEntitet(AKTØR_ID), LocalDate.of(1990, 1, 1), "99887766");
 
     @Mock
     private InntektskomponentKlient klient;

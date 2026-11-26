@@ -26,7 +26,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 
@@ -35,7 +34,7 @@ class InntektApiTjenesteTest {
     private static final String ORGNR = "999999999";
     private static final LocalDate STARTDATO = LocalDate.of(2024, 1, 1);
     private static final AktørIdEntitet AKTØR_ID = new AktørIdEntitet("1234567890123");
-    private static final PersonInfo PERSON_INFO = new PersonInfo("Ola", "Kari","Nordmann", new PersonIdent("12345678901"), new AktørIdEntitet(AKTØR_ID.getAktørId()), LocalDate.of(1990, 1, 1), "99887766", Kjønn.MANN);
+    private static final PersonInfo PERSON_INFO = new PersonInfo("Ola", "Kari","Nordmann", new PersonIdent("12345678901"), new AktørIdEntitet(AKTØR_ID.getAktørId()), LocalDate.of(1990, 1, 1), "99887766");
 
     @Mock
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;

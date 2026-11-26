@@ -22,7 +22,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.server.tilgangsstyring.Tilgang;
-import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.k9.inntektsmelding.felles.AvsenderSystemDto;
 import no.nav.k9.inntektsmelding.felles.FeilkodeDto;
@@ -47,7 +46,7 @@ class InntektsmeldingApiRestTest {
     private static final String FNR = "11111111111";
     private static final AktørIdEntitet AKTØR_ID = new AktørIdEntitet("1234567890123");
     private static final PersonIdent PERSON_IDENT = new PersonIdent(FNR);
-    private static final PersonInfo PERSON_INFO = new PersonInfo("Ola", "Kari","Nordmann", new PersonIdent("12345678901"), new AktørIdEntitet(AKTØR_ID.getAktørId()), LocalDate.of(1990, 1, 1), "99887766", Kjønn.MANN);
+    private static final PersonInfo PERSON_INFO = new PersonInfo("Ola", "Kari","Nordmann", new PersonIdent("12345678901"), new AktørIdEntitet(AKTØR_ID.getAktørId()), LocalDate.of(1990, 1, 1), "99887766");
 
     private InntektsmeldingApiRest inntektsmeldingApiRest;
     @Mock

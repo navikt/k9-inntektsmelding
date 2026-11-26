@@ -71,7 +71,7 @@ class DialogportenTjenesteTest {
         var aktørId = new AktørIdEntitet(AKTØR_ID);
         when(forespørselMedDialog.getAktørId()).thenReturn(aktørId);
         when(personTjeneste.hentPersonInfoFraAktørId(any())).thenReturn(
-            new PersonInfo("Fornavn", null, "Etternavn", new PersonIdent("12345678910"), aktørId, LocalDate.now(), null, null));
+            new PersonInfo("Fornavn", null, "Etternavn", new PersonIdent("12345678910"), aktørId, LocalDate.now(), null));
 
         tjeneste.settDialogTilUtgått(forespørselMedDialog);
 

@@ -424,7 +424,7 @@ class TilgangTjenesteTest {
     }
 
     private static PersonInfo lagPersonInfo() {
-        return new PersonInfo("Fornavn", null, "Etternavn", FNR, AKTØR_ID, LocalDate.of(1990, 1, 1), null, null);
+        return new PersonInfo("Fornavn", null, "Etternavn", FNR, AKTØR_ID, LocalDate.of(1990, 1, 1), null);
     }
 
     private Kontekst fakeRequestKontekts(IdentType identType) {

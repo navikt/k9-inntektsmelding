@@ -47,7 +47,6 @@ import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.InntektsmeldingType;
 import no.nav.familie.inntektsmelding.koder.Kildesystem;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.k9.inntektsmelding.felles.AvsenderSystemDto;
@@ -74,7 +73,7 @@ class InntektsmeldingApiMottakTjenesteTest {
     private static final LocalDate STARTDATO = LocalDate.of(2024, 1, 1);
     private static final BigDecimal INNTEKT = new BigDecimal("50000");
     private static final AktørIdEntitet AKTØR_ID = new AktørIdEntitet("1234567890123");
-    private static final PersonInfo PERSON_INFO = new PersonInfo("Ola", "Kari","Nordmann", new PersonIdent("12345678901"), new AktørIdEntitet(AKTØR_ID.getAktørId()), LocalDate.of(1990, 1, 1), "99887766", Kjønn.MANN);
+    private static final PersonInfo PERSON_INFO = new PersonInfo("Ola", "Kari","Nordmann", new PersonIdent("12345678901"), new AktørIdEntitet(AKTØR_ID.getAktørId()), LocalDate.of(1990, 1, 1), "99887766");
 
     @Mock
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;

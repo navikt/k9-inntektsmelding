@@ -35,7 +35,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.ForespørselStatus;
 import no.nav.familie.inntektsmelding.koder.ForespørselType;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.dto.MånedsinntektDto;
 import no.nav.familie.inntektsmelding.typer.dto.MånedslønnStatus;
 import no.nav.familie.inntektsmelding.typer.dto.OrganisasjonsnummerDto;
@@ -59,12 +58,12 @@ class GrunnlagTjenesteTest {
     private static final PersonIdent PERSON_IDENT = new PersonIdent(FNR);
     private static final String NAVN = "Navn";
     private static final String ETTERNAVN = "Navnesen";
-    private static final PersonInfo PERSON_INFO = new PersonInfo(NAVN, null, ETTERNAVN, PERSON_IDENT, AKTØR_ID, LocalDate.now(), null, Kjønn.KVINNE);
+    private static final PersonInfo PERSON_INFO = new PersonInfo(NAVN, null, ETTERNAVN, PERSON_IDENT, AKTØR_ID, LocalDate.now(), null);
 
     private static final String INNSENDER_NAVN = "Ine";
     private static final String INNSENDER_ETTERNAVN = "Sender";
     private static final String INNSENDER_TELEFON = "+4711111111";
-    private static final PersonInfo INNSENDER_PERSON_INFO = new PersonInfo(INNSENDER_NAVN, null, INNSENDER_ETTERNAVN, new PersonIdent(INNMELDER_UID), null, LocalDate.now(), INNSENDER_TELEFON, Kjønn.KVINNE);
+    private static final PersonInfo INNSENDER_PERSON_INFO = new PersonInfo(INNSENDER_NAVN, null, INNSENDER_ETTERNAVN, new PersonIdent(INNMELDER_UID), null, LocalDate.now(), INNSENDER_TELEFON);
 
     @Mock
     private ForespørselBehandlingTjeneste forespørselBehandlingTjeneste;

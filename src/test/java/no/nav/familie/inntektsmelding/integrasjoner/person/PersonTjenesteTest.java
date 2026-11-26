@@ -71,7 +71,6 @@ class PersonTjenesteTest {
         pdlPerson.setNavn(List.of(pdlNavn));
         pdlPerson.setTelefonnummer(List.of(pdlTelefonnummer));
         pdlPerson.setFoedselsdato(List.of(pdlFødselsdato));
-        pdlPerson.setKjoenn(List.of());
 
         var kontekst = RequestKontekst.forRequest("11839798115", null, IdentType.EksternBruker, null, null, new HashSet<>());
         when(KontekstHolder.harKontekst()).thenReturn(true);
