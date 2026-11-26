@@ -99,7 +99,7 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
     void skal_opprette_arbeidsgiverinitiert_forespørsel_uten_oppgave() {
         var aktørIdent = new AktørIdEntitet(AKTØR_ID);
         mockInfoForOpprettelse(AKTØR_ID, YTELSETYPE, BRREG_ORGNUMMER, SAK_ID, OPPGAVE_ID);
-        when(personTjeneste.hentPersonInfoFraAktørId(any())).thenReturn(new PersonInfo("12345678910", "test", "test", new PersonIdent("12345678910"), aktørIdent, LocalDate.now(), null, null));
+        when(personTjeneste.hentPersonInfoFraAktørId(any())).thenReturn(new PersonInfo("12345678910", "test", "test", new PersonIdent("12345678910"), aktørIdent, LocalDate.now(), null));
         when(minSideArbeidsgiverTjeneste.opprettSak(any(), any(), any(), any(), any())).thenReturn(SAK_ID);
 
 
@@ -600,7 +600,6 @@ class ForespørselBehandlingTjenesteTest extends EntityManagerAwareTest {
             new PersonIdent("01019100000"),
             new AktørIdEntitet(aktørId),
             LocalDate.of(1991, 1, 1).minusYears(30),
-            null,
             null);
         var sakTittel = ForespørselTekster.lagSaksTittelInntektsmelding(personInfo.mapFulltNavn(), personInfo.fødselsdato());
 

@@ -205,7 +205,6 @@ public class GrunnlagTjeneste {
         return Optional.of(new HentArbeidsforholdResponse(personInfo.fornavn(),
             personInfo.mellomnavn(),
             personInfo.etternavn(),
-            personInfo.kjønn(),
             arbeidsforhold));
     }
 

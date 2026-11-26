@@ -47,7 +47,7 @@ class OmsorgspengerRefusjonPdfRequestMapperTest {
     @BeforeEach
     public void setUP() {
         personIdent = new PersonIdent("11111111111");
-        personInfo = new PersonInfo(FORNAVN, MELLOMNAVN, ETTERNAVN, personIdent, AKTØRID_SØKER, LocalDate.now(), null, null);
+        personInfo = new PersonInfo(FORNAVN, MELLOMNAVN, ETTERNAVN, personIdent, AKTØRID_SØKER, LocalDate.now(), null);
     }
 
     @Test

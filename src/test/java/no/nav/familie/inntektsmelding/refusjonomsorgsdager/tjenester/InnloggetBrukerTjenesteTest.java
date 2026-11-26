@@ -20,7 +20,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonIdent;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonInfo;
 import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.koder.Ytelsetype;
-import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.exception.ManglerTilgangException;
 
@@ -52,8 +51,7 @@ class InnloggetBrukerTjenesteTest {
             PersonIdent.fra("11839798115"),
             AktørIdEntitet.dummy(),
             LocalDate.of(1997, 11, 23),
-            "81549300",
-            Kjønn.KVINNE
+            "81549300"
         );
 
         var organisasjon = new Organisasjon(
@@ -94,8 +92,7 @@ class InnloggetBrukerTjenesteTest {
             PersonIdent.fra("11839798115"),
             AktørIdEntitet.dummy(),
             LocalDate.of(1997, 11, 23),
-            "81549300",
-            Kjønn.KVINNE
+            "81549300"
         );
 
         when(personTjenesteMock.hentInnloggetPerson(ytelseType)).thenReturn(innloggetPerson);
@@ -114,8 +111,7 @@ class InnloggetBrukerTjenesteTest {
             PersonIdent.fra("11839798115"),
             AktørIdEntitet.dummy(),
             LocalDate.of(1997, 11, 23),
-            "81549300",
-            Kjønn.KVINNE
+            "81549300"
         );
         var organisasjon = new Organisasjon(
             "organisasjonsnavn",

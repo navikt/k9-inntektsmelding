@@ -30,7 +30,6 @@ import no.nav.familie.inntektsmelding.integrasjoner.person.PersonTjeneste;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.HentInntektsopplysningerResponse;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.InnloggetBrukerDto;
 import no.nav.familie.inntektsmelding.refusjonomsorgsdager.rest.SlåOppArbeidstakerResponse;
-import no.nav.familie.inntektsmelding.typer.dto.Kjønn;
 import no.nav.familie.inntektsmelding.typer.entitet.AktørIdEntitet;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -76,7 +75,7 @@ class RefusjonOmsorgsdagerServiceTest {
             new SlåOppArbeidstakerResponse.Personinformasjon("fornavn", "mellomnavn", "etternavn", "12345678910", aktørId.getAktørId()),
             List.of(new SlåOppArbeidstakerResponse.ArbeidsforholdDto(orgnummer, "Arbeidsgiver AS", new SlåOppArbeidstakerResponse.Ansettelsesperiode(ansettelsesperiode.fom(), ansettelsesperiode.tom()))));
 
-        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE));
+        when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.of(førsteFraværsdag.getYear(), 1, 1), LocalDate.now())).thenReturn(arbeidsforhold);
         when(organisasjonTjenesteMock.finnOrganisasjon(orgnummer)).thenReturn(new Organisasjon( "Arbeidsgiver AS", orgnummer));
 
@@ -104,7 +103,7 @@ class RefusjonOmsorgsdagerServiceTest {
         var aktørId = AktørIdEntitet.dummy();
 
         when(personTjenesteMock.hentPersonFraIdent(fødselsnummer)).thenReturn(
-            new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null, Kjønn.KVINNE));
+            new PersonInfo("fornavn", "mellomnavn", "etternavn", fødselsnummer, aktørId, LocalDate.now(), null));
         when(arbeidstakerTjenesteMock.finnArbeidsforholdInnsenderHarTilgangTil(fødselsnummer, LocalDate.of(LocalDate.now().getYear(), 1, 1), LocalDate.now()))
             .thenReturn(List.of());
 
@@ -142,8 +141,7 @@ class RefusjonOmsorgsdagerServiceTest {
             fødselsnummer,
             null,
             LocalDate.now(),
-            null,
-            Kjønn.KVINNE));
+            null));
         when(inntektTjenesteMock.hentInntekt(any(), any(), any(), any(), any()))
             .thenReturn(new Inntektsopplysninger(new BigDecimal(10000), organisasjonsnummer, List.of()));
 
